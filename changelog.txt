@@ -28,6 +28,12 @@ Plugins Required: MQ2Cast, MQ2Exchange, MQ2MoveUtils, MQ2Debuffs, MQ2DanNet, MQ2
 
 
 
+
+
+
+
+
+
 BETA: 0109.01
 
 - I'm moving some commands around.

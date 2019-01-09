@@ -7982,6 +7982,7 @@ sub broadcast_status()
 		/varset _chrID ${MacroQuest.Server}_${Group.Member[${_count}].Class.ShortName}_${Group.Member[${_count}].DisplayName}
 		
 		/sqlite ${dbCore} queryBuild SELECT coreAuto FROM character WHERE chrID="${_chrID}"
+		/if (!${sqlite.Rows[queryBuild]}) /continue
 		/if (${sqlite.Status[queryBuild].NotEqual[Success]}) /continue
 		/if (${sqlite.Result[queryBuild 1 coreAuto]}) {
 			/varset _build ${_build} ${Group.Member[${_count}].DisplayName.Left[3]}
