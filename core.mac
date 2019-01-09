@@ -120,7 +120,7 @@
  ***|
 sub main()
 	| Current Build
-	/call setDeclare currentBuild 			string outer 0109.02
+	/call setDeclare currentBuild 			string outer 0109.03
 	
 	| force SQL echos on for the start
 	/call setDeclare swEchosSQL 				bool outer FALSE
