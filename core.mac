@@ -1,0 +1,467 @@
+|*** 
+	core.mac
+	Core Macro
+	exspes007
+	
+	"Someone once told me it takes a lot of skill and preperation to be effectively lazy."
+	-- unknown
+	
+	GitHub: https://github.com/exspes007
+	GitHub Code: https://github.com/exspes007/core
+	GitHub Wiki: https://github.com/exspes007/core/wiki
+	
+	Plugins Required: MQ2Cast, MQ2Exchange, MQ2MoveUtils, MQ2Debuffs, MQ2DanNet, MQ2SQLite, MQ2Nav
+		
+	Files:
+	- blurb.inc									Expansion specific raid announcements. A lazy way to send raid instructions to all in RS
+	- class.???.inc							One include for each class [WIZ|NEC|MAG|ENC|WAR|PAL|SHD|BST|BER|BRD|RNG|ROG|CLR|DRU|SHM|MNK]
+	- common.inc								All common use functions.
+	- core.mac									You are looking at it
+	- declare.inc								forced event, watched commands, alias, binds
+	- events.inc								Contains responses to EQ generated changes (environment/emotes).
+	- mode.inc									All Non-Standard Mode controlls
+	- pregen.inc								environment variables for database generation 
+	- data/dbCore.db						core data repository
+	- data/pregen.ini						stored spell names/level for new class generation
+	- data/core.loot.ini				loot list. Leave, Keep, Destroy, Sell, Announce
+	
+	Naming Conventions:
+	Local/Private Variables: _camelCasing						eg. _loopOutside, _count
+	Outer/Global Variables: camelCasing							eg. Nuke1 or healIntervention1
+	Running Timers: Timer_Use_For_Timer 						eg. timer_check_ammo
+	Timer Times: tUse_ForTimer 											eg. tCheck_Ammo
+	Functions: name_name_name() 										eg. check_ammo()
+	Functions [class specific]: name_SHORTNAME()  	eg. disc_WAR()
+	DEFINE: ALLUPPERCASE 														eg. #define AMIDEAD
+		
+	Common Used Variables:
+	coreAuto						bool			automatic or manual Mode
+	Target2Kill					int				the ID of the mob that should be the focus of your wanton destruction
+	isValidTarget				bool			is ths a valid Target
+	timer_???						string		Prefix for running timers. [Timers] in the Toon INI(s) will hold most base set times.
+	setMobAgro					int				range that you will engage a mob at
+	_count, _x, _b, _i	int				local loop counts
+	_tmpID							int				the passed/local target ID
+	tmpHealOverride			int				control hp heal reduction percentage. For zones that impose a HP/Mana cap. (no effect on stamina calculations)
+	
+	Common Used Functions:
+	check_exit										returns [TRUE/FALSE] if there is a reason to not do the current sub
+	timer_update									creates a timer. will declare the variable if needed
+	core_cast											"SPELLNAME" [alt|disc|gem#|item|0] [MobID|0] [subname]
+		
+	Tab spaces set to 2 if you care.
+	
+	Credits/Inspiration
+		- cast pre-condition added for nukes, dots and a few other things. inspired by raiddruid.mac
+		- ultraedit v24 wordfile - http://www.macroquest2.com/phpBB3/viewtopic.php?f=46&t=19321&hilit=ultraedit (adapted and updated/maintained to current MQ2)
+		- whoHas.mac [/whohas] - http://www.macroquest2.com/phpBB3/viewtopic.php?f=49&t=20212 (this is a genius idea)
+		- i stole the base forage functions from someone years ago. Thank You Whomever. fish code based off same processes and then promptly adapted. rewritten to use core.loot.ini list.
+
+***|
+
+| #warning
+#turbo 120
+#define DEBUG "/varset currentdebugsub"
+#define SDEBUG "/echo \ar[\ax\aw${Time.Second}\ax : \aw${Macro.CurLine}\ax\ar]\ax(\a-t${Macro.RunTime}\ax)"
+#define OUT "/echo \at-\ax"
+#define VOUT "/if (${swEchosVerbose}) /echo \at-\ax"
+#define VMELEE "/if (${swEchosMelee}) /echo \at-\ax"
+#define VSPELL "/if (${swEchosSpell}) /echo \at-\ax"
+#define VITEM "/if (${swEchosItem}) /echo \at-\ax"
+#define VDISC "/if (${swEchosDisc}) /echo \at-\ax"
+#define VALT "/if (${swEchosAlt}) /echo \at-\ax"
+#define VPULSE "/if (${swEchosPulse}) /echo \at-\ax"
+#define VBC "/if (${swEchosBC}) /call echos bc"
+#define VSQL "/if (${swEchosSQL}) /echo \at-\ax"
+#define ECHOCHANNEL "/if (${Bool[${echoChannel}]}) /${echoChannel} "
+#define HUDPATH "/noparse /ini .\..\MQ2HUD.ini"
+#define AMIDEAD "/if (${watch_for_death[]}) /call watch_for_rezbox"
+#define SIMPLEEXIT "/if (${Me.Moving} || ${Me.Invis} || ${Select[${Me.State},DEAD,FEIGN,STUN,BIND]} || ${swAmIDead} || ${swNeedRez} || ${Me.Zoning}) /return"
+#define CHECKEXIT "/if (${check_exit[]}) /return"
+#define CHECKTIE "/if ((${swSetTie} && !${Bool[${timer_check_Tie}]}) || (${swSetTie} && ${swTieLock})) /call set_tie"
+#define CHECKREZ "/if (${coreAuto} && !${swPull} && !${Me.Invis} && ${swRezGive}) /call check_for_corpse"
+#define CHECKSAFELIST "/if (!${validate_lstSafeNames[${_sender}]}) /return FALSE"
+#define UPDATEHUD "/call update_HUD_notices"
+#define CLEARCURSOR "/if ((${swAutoCursor} && ${Cursor.ID} && !${timer_auto_cursor_pause}) || ${Bool[${autoInventoryItem.Find[${Cursor.Name}]}]}) /call sort_cursor"
+#define TESTFUNCTION "/call test_function"
+#define CHECKCOMBATCAST "/if (${coreAuto} && !${swBuffCombat} && ${SpawnCount[npc radius ${setCombatRadius} playerstate 4 targetable]}) /return TRUE"
+#define CHECKINPUTS "/call check_inputs"
+
+#include tc\declare.inc
+#include tc\pregen.inc
+#include tc\common.inc
+#include tc\MQ2Cast_Spell_Routines.inc
+#include tc\mode.inc
+#include tc\events.inc
+#include tc\class.ber.inc
+#include tc\class.brd.inc
+#include tc\class.bst.inc
+#include tc\class.clr.inc
+#include tc\class.dru.inc
+#include tc\class.enc.inc
+#include tc\class.mag.inc
+#include tc\class.mnk.inc
+#include tc\class.nec.inc
+#include tc\class.pal.inc
+#include tc\class.rng.inc
+#include tc\class.rog.inc
+#include tc\class.shd.inc
+#include tc\class.shm.inc
+#include tc\class.war.inc
+#include tc\class.wiz.inc
+#include tc\class.wiz.inc
+
+
+
+|***
+ *	DES: Main .. duhh..
+ *	USE: 
+ *  NOTE: 
+ ***|
+sub main()
+	| Current Build
+	/call setDeclare currentBuild 			string outer 0109.01
+	
+	| force SQL echos on for the start
+	/call setDeclare swEchosSQL 				bool outer FALSE
+
+	| do the DB builds match? 
+	/call setDeclare swBuildMatch				bool outer TRUE
+
+	| set the default character ID
+	/call setDeclare chrID 							string outer ${MacroQuest.Server}_${Me.Class.ShortName}_${Me.DisplayName}
+
+	| shopping time
+	/call initialize_core
+	
+	| maintenance mode loop lock
+	/while (${swMaintenance}) {
+	  CHECKINPUTS
+	  UPDATEHUD FALSE
+		/if (!${timer_validate_zone}) /call validate_zone FALSE FALSE
+		/delay 1
+	}
+	
+	| normal Core operations loop
+	/while (!${swMaintenance}) {
+	  CHECKINPUTS
+	  UPDATEHUD FALSE
+	  AMIDEAD
+  	
+		| make sure we're in the right zone
+		/if (!${timer_validate_zone}) /call validate_zone FALSE FALSE
+	
+		| sort /heal override ##
+		/if (${tmpHealOverride} != ${setHealOverride}) /varset tmpHealOverride ${If[${setHealOverride},${Float[${setHealOverride}].Centi},99.99]}
+	
+		CHECKREZ	
+		CLEARCURSOR
+	  CHECKINPUTS
+		
+		/if (${coreAuto} || ${swManualAADiscNow}) {
+			| check constant AA buffs
+			/if (${Bool[${AANow1}]} || ${Bool[${AANow2}]}) /call check_AA_now
+			| check constant Disc buffs
+			/if (${Bool[${DiscNow1}]} || ${Bool[${DiscNow2}]}) /call check_Disc_now
+		}
+
+		| non class specific automated thingies.
+		/if (${coreAuto}) {
+			/if (${swHomeSet}) /squelch /makecamp mpause
+			
+			| keep an eye out for real rezes
+			/if (${swNeedRez}) {
+				/if (${Window[ConfirmationDialogBox].Open}) /varset markerDead TRUE
+			}
+			
+			/call check1offBuffs
+			AMIDEAD
+		  CHECKINPUTS
+		
+			| check to see if someone needs a doctor?
+			/if (${swHealCure}) {
+				/call cast_cure
+			}
+			
+			| smoke 'em if 'yah got 'em
+			/if (${setRestPct}) {
+				/if (!${swPull} || (${swPull} && !${SpawnCount[npc radius ${setMobAgro} playerstate 4]})) /call do_rest
+			}			
+			
+			| buff all the things
+			/call check_buff_routines
+
+			| fix exp
+			/if (${swCorrectEXPAA}) {
+				/if (!${timer_check_EXP} && (!${SafeZone} || ${swOverrideSafeZone})) /call auto_adjust_EXP
+			}
+
+			| fix ur pet!
+			/if (!${timer_Check_Familiar}) /call sort_familiar
+			
+			| sort out return to camp
+			/if (${swHomeSet}) {
+				/if (!${SpawnCount[npc radius ${setCombatRadius} playerstate 4 targetable]} && ((${Me.Y} != ${MakeCamp.AnchorY}) && (${Me.X} != ${MakeCamp.AnchorX})) && (!${SafeZone} || ${swOverrideSafeZone})) /makecamp return
+			}
+		}
+	
+		| meal
+		/if ((${coreAuto} || ${swMealinManual}) && !${timer_meal}) /call last_supper
+		
+		/if (${Me.PctEndurance} < 32) {
+			/if (${validate_class[FALSE, ${lstClassMelee}]}) /call cast_stamina_recovery
+		}
+
+		| use those AA.. hoarding bastard
+		/if (${swAAFireworks}) {
+			/if (!${timer_Waste_Fireworks}) /call cast_AA_fireworks
+		}
+
+		| watch for spawn
+		/if (${Bool[${watchSpawn}]}) {
+			/if (!${timer_check_watch_spawn}) /call check_watch_spawn
+		}
+
+		| guns need ammo
+		/if (${swCombatRange}) /call check_ammo
+		
+		CHECKTIE
+	  CHECKINPUTS
+
+		| looter stuffs
+		/if (${swADVLoot}) {
+			/if ((${coreAuto} || ${swOverrideLoot}) && (!${SafeZone} || ${swOverrideSafeZone})) /call do_loot
+		}
+
+		| non normal modes of operation
+		/call do_mode
+	
+		| use the one off clickies in the Toons INI
+		/if (!${timer_check_odds_and_ends}) /call odds_and_ends
+
+		| do we pull or assist	
+		/if (${coreAuto} && (!${SafeZone} || ${swOverrideSafeZone})) {
+			/if (!${Me.Invis} || (${coreAuto} && ${Select[${Me.Class.ShortName},ROG]} && ${swSoS})) {	
+				/if (!${swPull} || ${swOffTank}) {
+					/call get_assist_target	
+				} else /if (${swPull} && !${Target2Kill} && !${swOffTank}) {	
+					/call get_target FALSE
+				}
+			}
+		}
+
+		| check all the basics before we hit the class
+		AMIDEAD
+		CHECKINPUTS
+		CHECKREZ
+		CHECKTIE
+
+		| time to take this bitch to church!
+		/call core_${Me.Class.ShortName}
+
+	}
+	
+	
+	| this is MQ2 reserved for end of macro
+	| :OnExit	
+	
+/return
+
+
+
+|***
+ *	DES: initialize core
+ *	USE: /call initialize_core
+ *  NOTE: what did you expect?
+ ***| 	
+sub initialize_core(string _ini)
+	/mqclear
+	/if (${Target.ID}) /squelch /target clear
+	
+	| load common environment use arrays
+	/call pregen_data_arrays FALSE
+	
+	| set loot INI
+	/if (!${Defined[INILoot]}) /declare INILoot string outer 
+	/varset INILoot tc\data\core.loot.ini
+	
+	| pregeneration INI
+	/if (!${Defined[INIPreGen]}) /declare INIPreGen string outer 
+	/varset INIPreGen tc\script\pregen.ini		
+
+	| Gem List outputs
+	/if (!${Defined[INIGemControl]}) /declare INIGemControl string outer 
+	/varset INIGemControl tc\data\gemcontrol.ini		
+
+	| /info INI
+	/if (!${Defined[INIInfo]}) /declare INIInfo string outer 
+	/varset INIInfo tc\script\info.ini		
+	
+	| SQLite Core Database
+	/if (!${Defined[dbCore]}) /declare dbCore string outer 
+	/varset dbCore macros\tc\data\dbCore.db
+
+	| validate pulgins, reload if needed
+	/call verify_plugins FALSE	
+	
+	| validate databas
+	/call sql_schema FALSE
+	
+	| load non static environment variables
+	/call pregen_environment
+
+	| echos
+	/if (${swDispBuild}) /call echos initialize 0 0 0 0
+
+	| load base character settings
+	/call pregen_character
+	
+	| load class specific settings
+	/call pregen_${Me.Class.ShortName}
+	
+	| cycle through all clickies on character to build [itemclicke]
+	| /call intialize_item_buffs
+	
+	| load aliases
+	/call set_alias
+	
+	| initialize timers
+	/call pregen_timers
+	
+	| verify current zone is loaded
+	/call validate_zone FALSE TRUE
+	
+	| set base core environment
+	/call base_preperation
+	
+  /if (${swOverrideLOS}) VOUT ${ocaution} ${sep} Ignoring Line of Sight\ax
+	OUT ${cgood}Ready\ax
+/return
+
+
+
+|***
+ *	DES: Settings I like to use. 
+ *	USE: /call base_preperation
+ *  NOTE: 
+ ***|
+sub base_preperation()
+	/varset currentdebugsub base_preperation()
+
+	| set peer communications options
+	/squelch /dnet localecho FALSE
+	/squelch /dnet commandecho FALSE
+	/squelch /dnet frontdelim ON
+	/squelch /dnet fullnames FALSE
+
+	| fuck these plugins in particular
+	/if (${validate_plugin[FALSE, |MQ2Bucles]}) {
+		/plugin MQ2Bucles unload
+	}
+
+	| disable smart assists for TLP w/o underfoot
+	/if (!${validate_expansion[FALSE, |16]}) {
+ 		/call set_switch character swAssist1 FALSE
+ 		/call set_switch character swAssist2 FALSE
+ 		/call set_switch character swAssist3 FALSE
+		/call set_switch character swAssistG FALSE
+	}
+	
+	| clear the spawn watch
+	/if (${Bool[${watchSpawn}]}) {
+		/call sql_update FALSE character watchSpawn FALSE
+	}
+	
+	| a little display adjustments. If ur blind, get some glasses.
+	/mqfont ${setMQFontSize}
+	
+	| clear rampage tank for healers
+	/if (${validate_class[FALSE, |CLR|DRU|PAL|SHM]}) {
+		/call sql_update FALSE ${Me.Class.ShortName} RampageTank FALSE
+	}
+
+	| why the fuck did Verant/SOE/DayBreak ever implement these as a default..??	
+	/squelch /assist ${swAutoAssist}
+	
+	| disable the melee plugin and reset combat so you just stand there.
+	/if (${swDisableMQ2Melee}) {
+		/if (${validate_plugin[FALSE, |mq2melee]}) {
+			/melee off
+			/squelch /melee reset
+		}
+	}
+
+	| bard stuffs
+	/if (${validate_class[FALSE, |BRD]}) {
+		/if (${validate_plugin[FALSE, |mq2twist]}) {
+			/squelch /twist clear
+			/squelch /twist quiet
+		}
+	}
+
+	| turn off rez non guildies/group if it is still on. 'cause fuck everyone else.
+	/if (${swRezEveryone}) {
+		/call set_switch character swRezEveryone FALSE 
+	}
+
+	| Show the HUD	
+	/squelch /hud Normal
+	/squelch /loadhud Core
+			
+	| force sos switch FALSE for non rogues
+	/if (!${validate_class[FALSE, |ROG]}) {
+		/if (${swSoS}) /call set_switch character swSoS FALSE
+	}
+		
+	| check debuffs	switches	
+	/call validate_debuff FALSE mezz
+	/call validate_debuff FALSE malo
+	/call validate_debuff FALSE tash
+	/call validate_debuff FALSE cripple
+	/call validate_debuff FALSE slow
+	/call validate_debuff FALSE eradicate
+	/call validate_debuff FALSE snare
+	
+	| make sure buttons are current
+	/if (!${Macro.IsTLO[MyButtons]}) {
+		/squelch /mybuttons reload
+	}	
+		
+	| check game cash?
+	/if (${swEQCash}) /call check_free_ingame_cash		
+		
+/return
+
+
+
+
+|***
+ *	DES: checks to make sure all needed plugins are loaded.
+ *	USE: /call verify_plugins [TRUE|FALSE]
+ *  NOTE: 
+ ***|
+sub verify_plugins(bool _debug)
+	/declare _count int local 0
+	/declare _lstPlugin string local |DanNet|sqlite|Cast|Debuff|MoveUtils|Navigation|AdvPath
+
+	/for _count 1 to ${_lstPlugin.Count[|]}
+		/if (${_debug}) /echo check: \at${_lstPlugin.Arg[${_count},|]}\ax
+		/if (!${Macro.IsTLO[${_lstPlugin.Arg[${_count},|]}]}) {
+			/echo PLUGIN: \ar${_lstPlugin.Arg[${_count},|]}\ax is not loaded Ending Core.
+			/endm
+		}
+	/next _count
+/return
+
+
+
+|***
+ *	DES: simple notice for new builds. will display only once per build
+ *	USE: /call echo_notice
+ *  NOTE:
+ ***|
+sub echo_notice()
+	OUT You are using a \agbeta\ax build of Core.
+	OUT If you find issues, please post them to: 
+	OUT \awhttps://discord.gg/T2Z7NXG\ax
+/return

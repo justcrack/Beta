@@ -1,0 +1,4117 @@
+|***
+ * changelog.txt
+ * Core Change Log
+ * Timestamp: YYYMMDD.##
+ *
+ * HUDUPDATE means you need to do a '/hc delete' then a '/hc update' to make needed changes to the MQ2Hud.INI
+ *
+ ***|
+
+Discord: https://discord.gg/2pY6Byt
+MQ2DanNet: https://drive.google.com/open?id=1nHtokSxlprmaoWhW4prvwsQLXmJ5j1r6
+
+
+- character pre-generation completed:
+  -- PAL, CLR, BER, RNG, SHD, WAR, WIZ, ENC, BST, 
+
+
+20181230.00
+NOTICE: this build is the last to backend INIs for the mac and classes.
+- class INI pregeneration
+  -- more progress in the class pregeneration. If you see variables not loading, letme know
+  - files: pregen.inc, core.pregen.ini, fixini.inc, core.mac, 
+  - bard is complete
+  - i cannot stress enough how big of a change this has been making to the ini structure. if you see something not working let me know
+- core.ini
+  -- corected the deathcount generation. variables will no longer have a '.' seperating them
+- stacking issues
+  -- replaced every instance of .Stacks with .NewStacks. maybe this will let classes buff the SKs
+- /crew
+  -- fixed another eqbc/dannet sort i missed.
+- hud.inc
+  -- fixed an undeclared variable
+- class.shm.inc
+  -- /shm [grow] enable/disable using growth line of spells
+    ini example:
+	  spellGrowth=Ferocious Growth
+	  spellGrowthToon=|shamyname|tankname
+	-- will keep growth on as many toons as it can in the list
+- class.dru.inc
+  -- fixed the pet fix. i blame the druids
+  -- /dru [grow] enable/disable using growth line of spells
+    ini example:
+	  spellGrowth=Ferocious Growth
+	  spellGrowthToon=|tankname|druidname
+	-- will keep growth on as many toons as it can in the list
+- class.enc.inc
+  -- adjusted runeAuspice to work off the new check_buffs_tmp_list()
+- class.nec.inc
+  -- corrected the AA malo Scent of Thule
+- class.shd.inc
+  -- updated an error in Viscious Bite of Chaos. missed a comma
+- class.rng.inc
+  -- relocated a bunch of discs that were in the spells section of the INI
+
+
+20181125.00
+- assisting
+  -- made some changes to how the MA1/MA2 assist works. you can now assist anything you like. Mercs, pets, a tree, whatever
+  -- also (little rough to explain) /override combat will now work in conjunction with the normal combat roles (melee/range/nuke/dot)
+  -- if you do actually get it to assist a tree, bonus points
+- pet weapons
+  -- added in an exceptions for druids and their slack pets only getting one weapon
+- food and drink
+  -- this is a complete rewrite. you will need to fix your INI entries
+  -- each toon has INI entries under [Meal] these control eating and drinking
+	-- if you have a clickie that summons food (or drink), it will keep that item and however many of the food on you you sepcify. for example:
+		[Meal]
+		Food=Fresh Cookie
+		FoodDispenser=Fresh Cookie Dispenser
+		FoodCount=10
+		Drink=Spiced Iced Tea
+		DrinkDispenser=Spiced Iced Tea Dispenser
+		DrinkCount=10
+	-- if you are like me and simply keep a metric ass tonne of misty thicket picnics and kaladim constitutions here is how its done:
+		[Meal]
+		Food=Misty Thicket Picnic
+		FoodDispenser=FALSE
+		FoodCount=0
+		Drink=Kaladim Constitutional
+		DrinkDispenser=FALSE
+		DrinkCount=0
+	-- Core will use these foods and save your stat food. This is calcualted at about the half way to hungry mark. So, you shoudnt even get close to using stat foods
+	-- Also, this only works in auto mode. If you want this to function in manual, set the folowing entry in core.ini 
+	  -- SwitchMealinManual=TRUE
+- spellbook / gem control
+  -- /gc [list|load|save] [name]
+  -- /gc [list] will list all the saved gem listings you have for that class
+  -- /gc [list] [name] will list all the spells by gem for that save
+  -- /gc [load] [name] will load all the spells by gem onto your spellbar
+	-- does not save/load the buffgem slot spell
+  -- example core.ini saves:
+	  [GC_CLR]
+		110=|1|Merciful Remedy Rk. II|2|Spiritual Remedy Rk. III|3|Furial Renewal Rk. II|4|Merciful Intervention Rk. II|5|Mystical Intervention Rk. III|6|Undying Life|7|Syllable of Mending Rk. II|8|Elixir of Wulthan Rk. II|9|Sixteenth Serenity Rk. II|10|Shining Fortress Rk. II|11|Ward of Assurance Rk. II|12|Issuance of Mercy Rk. II
+		[GC_WIZ]
+		110fire=|1|Claw of Qunard Rk. II|2|Ethereal Braid|3|Ethereal Skyfire Rk. II|4|Dragoflux's Fire Rk. II|5|Chaos Burn Rk. II|6|Thricewoven Capacity|7|Dichotomic Fire|8|Twincast Rk. III|9|Musing Harvest Rk. II|10|Arcron Husk Rk. II|11|Armor of Wirn Rk. II|12|Shield of Scales Rk. II
+- /crew
+  -- fixed an error between eqbc and dannet
+- tell_resident_mage()
+  -- fixed a concatenation error
+  -- adjusted to be used for dannet or eqbc
+- class.clr.inc
+  -- small adjustment to pet healing
+  -- added renewals and panic heals to pet healing
+  -- corrected a remedy vs renewal error in pet healing
+  -- redesign of the main healing loop. trying to squeeze more speed out of it
+  
+
+20181119.00
+- lot of wiki updates
+- Class INI Generation
+  -- each class specific declare is being rewritten to prepopulate their INIs by level
+  -- this does not include typical buffs. 
+  -- this is going to take me quite a while to get through. if anyone wants to offer to do a class, let me know i'll give you the structure
+  -- untill a class is listed above, it will continue to generate @ ~105 level
+- mode.inc
+  -- updated all the core_cast() routines to core_cast2(). not sure how i missed them. old age setting in i suppose...
+- get_target()
+  -- added bandolier swapping for range pulls
+- converted the remaining sort_cursor() to CLEARCURSOR
+- cast_AA_snare()
+  -- redesigned the sub. trying to find out why its an instant CTD.
+- class.shd.inc
+  -- corrected some disc vs AA naming conventions  
+- class.pal.inc
+  -- corrected some disc vs AA naming conventions  
+- class.dru.inc
+  -- removed the control for a druid temp pet, it sucks. if you want to use it, add it as a nuke with a condition of ${switchSwarmPet}
+	-- hardcoded in the spirit wolf AAs.
+	-- /dru wolf (FALSE|black|white) to use the wolf AAs
+		
+	
+20181114.00
+- xpac control
+  -- if you need to bypass it for any reason.
+  -- core.inc->[general]->switchIgnoreXpacControl=TRUE (FALSE is default)
+  -- if something messes up from this. let me know, i'll pass you the number for tech support
+- get_assist_target()
+  -- made it a bit less pick for assisting
+- tell_resident_mage()
+  -- fixed an issue that was turning the mages name to a bool  
+- class.enc.inc
+  -- fixed a missing comm check for runes
+  -- corrected the crystal summoning... again..
+
+
+20181108.00
+- /cc force combat 
+  -- will remove invis now
+- BUFFING
+  -- externalized the Buff INI count. the default is still 15
+  -- core.ini->[general]=>setMaxINIBuffCount=  set to the number of buff counts you want core to generate and use.
+- get_target()
+  -- almost a complete rewrite. let me know if you see something .. off...
+  -- nomore /goto statement
+- get_resident()
+  -- error in MQ2EQBC member .InZone does not play well with MQ2DanNet
+- class.pal.inc
+  /pal [attraction] enable/disable using Divine Call while pulling
+- class.shd.inc
+  /shd [attraction] enable/disable using Hate's Attraction while pulling
+- class.war.inc
+  /war [attraction] enable/disable using Warlord's Grasp while pulling
+
+
+20181104.00
+- get_target()
+  -- redesign of the sort mechanics for valid targets for the puller. trying to find a bug where its pulling pets?! /shrug
+  -- update. after 14 hours. still do not see it
+- cast_AA_snare()
+  -- foud a bug that would make every snarer think it was a berzerker 
+- /invs
+  -- corrected a change in the spelling for perfected group invis. they added an "I". not sure why
+  -- adjusted the timing a little to correct for the #turbo change
+- check_for_corpse()
+  -- fixed (hopefully) undefined variables for non clerics
+- cast_cripple()
+  -- updated the chanter fall back AA to Slowing Helix
+- cast_slow()
+  -- updated the chanter fall back AA to Slowing Helix
+- cast_malo()
+  -- updated magician/shaman fall back single and AE AA Malo(s)
+  -- combinded magician and shaman. same spell names/functions now
+  -- adjusted the logic a little bit on the AA fall back if the group version is unavailable
+- class.pal.inc
+  -- some adjustments to /splash command. still not sure if i like how its working
+  -- first run at aliance
+- class.mnk.inc
+  -- added in the meledisc switch for intimidate. it was kind of missing
+- class.dru.inc
+  -- adjustments to the AA Ro debuff due to the triggered spell changes
+- class.enc.inc
+  -- some adjustments to tashing
+	-- rewrite of is_attacking(). should sort a little faster now
+  -- fixed a bug in excluded mob detection for mezing  
+  -- found another undefined variable. squash like grape
+- class.ber.inc
+  -- first run at an alliance
+
+
+20181027.00
+- Range Combat
+  -- if you disable /cc melee and leave /cc range active, your toon will now try and stay a minimum of ~34 paces from the target so you can throw or bow the mob. 
+  -- if you enable Melee, this will not happen and as soon as the mob is within 31 paces you will engage melee
+  -- if this backs you off a cliff, please take pics for posterities sake. we can add it to the wiki as an example of what not to do
+  -- also, the distance is not exact, keep in mind there is inertia and lag in the game. it should still be enough to range properly
+-- added a FIND option to validate_cast() and core_cast2()
+  -- eg: /if (${validate_cast[FALSE, FIND, "${Buff1}", ${Me.ID}]}) /call core_cast2 "${Buff1}" FIND ${Me.ID} FALSE
+  -- will check to see if the buff is (in this order) spell,alt,disc,item and then cast it
+- MQ2Melee
+  -- core.ini->[general]->switchDisableMQ2Melee=[TRUE|FALSE]
+  -- force disableing of mq2melle or not. DISABLED (TRUE) by default
+- self buffs
+  -- there is now a condition you can use for self buffs
+- curing
+  -- added pally splash to curing if you have it turned on
+- alliance controls
+  -- /cc alliance [off|group|raid]
+- class.clr.inc
+  -- change the clerics order of execution for the main class loop. not everything was firing as it should due to the combat override
+- class.brd.inc
+  -- /travel will trigger the AA's Selo's and Clouding.
+  -- if you want to issue from another toon. do like you would any other command
+- class.pal.inc
+  -- will no longer trigger Gift of Life in raids. you are on your own. will work just fine in group content
+  -- alliance rules
+    - must be in a raid or group. depending on /cc alliance settings
+    - must be 3+ palladins in your agro range
+    - will only cast if the spell is not on the target
+    - spell must be memed and ready
+  -- /splash
+    - in manual mode, forces the pally to mem splash in its buffslot if it is not memed. HOWEVER, due to the recast, you will need to reissue the command if the script had to mem the spell
+    - in auto mode you will need to mem the spell yourself.
+    - if splash is memed it will drop splash at its feet.
+    - if you have /heal cure enabled on the pally, it will use this automagically
+- class.wiz.inc
+  -- if a target has mana burn on it, the wizzard will not cast it.
+
+
+20181020.00
+- corrected a stacking check issue for broadcast buffs when using dannet
+- zerkers snare should trigger
+- class.brd.inc
+  -- updated some old code that was causing it to clear combat in the middle of a fight
+
+
+20181019.00
+- HUDs
+	the /hc update and delete commands now take an option eg. /hc update debug or /hc delete core
+	I have added in a HUD for debugging, it is simpler to deal with then the 5 billion lines scrolled in the MQ window
+	if you want to use it, feel free, can get it working by doing the following commands:
+	/loadhud debug
+	/hc update debug
+	it apears just below the normal HUD
+	if you want to get rid of it, do a:
+	/hc delete debug
+	it will pass a lot of information the normal HUD does not, lines, IDS, timers, current sub, so on
+	more will be added to it as i need
+	if you have no desire to use it, feel free to just ignore everything you just read
+	on a side note, this will let you design a HUD all your own if you like. just follow the patterns	
+- #turbo
+	so, i threw in a #turbo 120 at the start of core.mac
+	i'm gonna play around with this for a while and see if it does not screw up any of the timings
+	if it is cooperative, i see no reason it cannot stay in there to speed the mac up a bit
+	if anyone sees the mac cycling something odd or too fast, try lowering the turbo on your side to see if that helps
+	last i read on the forums, the default is 80 when turbo is undefined. so this is a fairly big boost
+- CHECKINPUTS
+  -- the /multiline simnply wasnt doing it. so i turned it into a sub. works a lot better now
+- class.mnk.inc
+  -- dont ask what i did, i'm not really sure. but its fixxed..  man that was ugly...
+- class.mag.inc
+  -- corrected a misspelling of DEBUG. going to add this to the cannot spell continue list
+- Healers
+  -- /override combat was adjusted to at least let them heal group and xtargets 
+- class.ALL.inc
+  -- adjusted the patterns for manual inputs/interjections for all classes
+  -- eg. manual mode and hitting a force combat or a stop or any other bind command
+     given the class loop changes this should help them respond a bit faster
+- fixed some other things. but forgot what they were, /shrug
+  
+
+20181017.00
+- /port [wizard|druid] [location]
+  -- /port with no switches will issues available switches as normal
+  -- /port wizard or druid will issue the avialable ports for that class
+- in mac Wiki - some updates
+- /coh [group]
+  -- /coh no paramaters will coh the command issuer with AA
+  -- /coh [group] well, if you haven't figured out the pattern by now
+- Xtarget heal list population
+  -- shouldnt put pets on there anymore. i hope.. fuck pets anyway
+- some small adjustments prep_combat() and exit_class_loop() for manual mode. trying to get it to only execute when forced
+- residentmage, druid and wizard settings from the individual classes have been moved to core.ini->[group]. FIX YOUR INIs
+  -- if you have to ask. i was seriously tired of editing the same setting over and over
+- class.pal/clr.inc
+	-- corrected the variable types for yaulp and the yaulp%. they should not have been strings
+- class.clr/dru/shm.inc
+  -- adjusted the exits on the class loop so xtarget healing and curing will cooperate with /override combat
+  
+
+20181011.00
+HUDUPDATE
+  -- Off Tank notification added next to Agro and Pull
+  -- in agro range mob count added next to Combatradius number
+  -- fixed the [X] markers for 2 override engage settings (cosmetic)
+-- cosmetic updates to the Info switch1
+- OffTank
+  -- /cc offtank (on/off) enable disable offtank mode
+  -- off tank will watch mobs in its area and tank those that are either in the nomezz list for that zone or are named that the main assist has not picked up yet.
+  -- once the Main assits picks them up, the offtank will return to a DPS type
+  -- NOITCE --- THIS IS A WORK IN PROGRESS.. it will ned some attention.
+  -- really, i'm not even sure it will work right yet. so don't expect a lot.
+- re-wrote the following commands to obey the /comm decision
+  -- /killmob
+  -- /here
+  -- /on
+  -- /off
+  -- /setassist f 
+  -- /cc force assist
+  -- /enter
+  -- /bcsay
+  -- /gtfo
+- /campfire [drop|port]
+  -- /campfire [port] simply clicks your campfire isnignia
+  -- /campfire [drop] will place a camp fire at your feet if 3+ members are in a 50' range
+- sort_cursor()
+  -- adjusted from a /while loot to an /if
+  -- was causing some sort of crash. may be an issue with nested /while loops in MQ /shrug
+- prep_combat()
+  -- forgot to account for auto off && override combat .. /sigh
+  -- manual mode was maintaining the target ID even after an ESC was hit. we had a talk. it's not doing it anymore
+- class.EVERYONE.inc
+  -- adjusted the exit points for all class loops
+- class.ber.inc
+  -- typo fixed; cannot spell return properly
+- class.clr.inc
+  -- correct a loop error allowing curing to be affected by the overridecombat switch
+  -- adjusted yaulp location
+- class.pal.inc
+  -- correct a loop error allowing curing to be affected by the overridecombat switch
+  -- adjusted yaulp location
+- class.shm.inc
+  -- correct a loop error allowing curing to be affected by the overridecombat switch
+- class.dru.inc
+  -- correct a loop error allowing curing to be affected by the overridecombat switch
+- class.wiz.inc
+  -- cosmetic changes to the /wiz command. just a little more info displayed
+- Familiars
+  -- there is now support for 3 familiars.
+  -- it is still your responsibility to sort stacking slots
+  -- here is my ini sample:
+	  SumFamiliar1=Emperor Ganak Familiar
+		SumFamiliar1Buff=Familiar: Emperor Ganak
+		SumFamiliar1Leave=TRUE
+		SumFamiliar2=Razors Edge
+		SumFamiliar2Buff=Familiar: Razors Edge
+		SumFamiliar2Leave=TRUE
+		SumFamiliar3=Venomous Raptor Familiar
+		SumFamiliar3Buff=Venomous Raptor Familiar
+		SumFamiliar3Leave=FALSE
+  -- YOU WILL NEED TO FIX YOUR INI.
+  -- you DO NOT need to use the "Auto Leave" button on the familiar keyring
+
+	
+20181002.00
+- Seriously... Read this..
+  In an attempt to write out the /goto in the main class loops I managed to create a constant crash in the mac caused by the burn routines.
+  So, to fix this. I have rewritten the following routines:
+  if you find the code acting in a way it shouldnt, let me know.
+  -- prep_combat()
+  -- is_burn_time()
+     -- only sets a bool switch that lets the class loop execute burn routines. switch is reset after every kill. the normal burn controls and conditions still apply
+  -- is_valid_target() is now validate_target()
+     -- the new routine only returns a bool depending on the input mob ID. Where as it used to execute the burn routines as well as set several variable adjustments.
+  -- Burn routines are now executed after combat is set in the main class routine (second line except for zerkers). 
+- check_buffs_BC()
+  -- shouldnt.. hopefully, bcbuff pets anymore
+- class loop controls
+  -- I am removing the /goto loops fom the main class loop in their .INC files.
+- broadcast_status()
+  -- logic correction for dannet addition
+- cast_cure()
+  -- corrected a misspelling
+- class.clr.inc
+  - adjustments to check_heal_ward()
+  - removed cast_temp_pet_CLR(). now uses the common cast_temp_pet()
+  - moved the AA hammer pet to the disc routines
+  - rewrite of the single target HOT spell
+  
+
+20180926.00
+NOTES: common2, declare2, clr2 and enc2 are removed. back to 1 file for each. read below
+- core.ini
+  -- removed the TGB setting/switch
+  -- NEW entry for communications core.ini->[comm]
+    -- [comm]->SetCommunications=[dannet|eqbc]
+       Set to which network communications you want to be using
+       If you set it to something else, the shit wont work
+- /comm [eqbc|dannet]
+  -- in macro command to swap communication types on the fly. this is a broadcasted command
+  -- /comm [eqbc] set Core to work off EQBC/NetBots
+  -- /comm [dannet] set Core to run off of MQ2DanNet for communications
+  -- if you dont have the plugin loaded prior to running the command, it will bitch at you and do nothing else
+- /bcsay converted to a #bind
+- /gtfo converted to a #bind
+- cast_AA_snare()
+  -- corrected the WAR stare to Call of Challenge
+- class.shm.inc
+  -- /shm [epic] forces clicking the epic
+- class.bst.inc
+  -- still cannot spell continue correctly. maybe i should give up
+- class.enc.inc
+  -- corrected a bool /if statemnt for auspice rune
+  
+
+20180923.01
+- events.inc
+  -- converted to core_cast2() routines
+- core_cast() has been removed from the code.
+- class.brd.inc
+  -- converted to core_cast2() routine
+
+
+20180923.00
+- MQ2DanNet Changes
+  -- group broadcast commands defualt to the "All" group
+- check_exit()
+  -- should watch for debuffs that make the toon invulnerable
+  -- commented out several of the detremental invuln buffs
+  -- ToTD catch is no longer a loop. it wil be a single time catch. this will result in more spam, but should prevent the healers from getting locked  
+- class.war.inc
+  -- updated to core_cast2() routines
+  -- /war [ae] (on/off) use AE skills or not (man not have gotten them all)
+- class.pal.inc
+  -- corrected a math error in the LoH calculation
+  -- shiledflash, xtarget healing adjustments, AA Mars Gift have been moved to automatic mode only
+- class.mnk.inc
+  -- corrected alt/disc error in monk Refuse Death
+  -- removed mod rod check
+- class.ber.inc
+  -- adjusted the massive amount of patch healing they have to be a little faster /s
+- class.clr.inc / class.clr2.inc
+  -- xtarget healing and control toon adjustments have been moved to automatic mode only
+  -- removed stamina recover check
+- class.enc.inc / class.enc2.inc
+  -- removed some of the debug echos
+  -- removed stamina recover check
+ - class.mag.inc
+  -- adjusted some logic in the twin cast function
+  -- removed stamina recover check
+- class.rog.inc
+  -- removed mod rod check
+- class.wiz.inc
+  -- removed stamina recover check
+- class.brd.inc
+  -- adopted enchanter list validation/checking
+  
+
+20180922.00
+- Testing of plugin MQ2DanNet beta will commence --------------------
+  -- there are now 4 new files [common2, declare2, class.clr2.inc, class.enc2.inc]. if you have access to this plugin or DL it from the link above and wish to test, adjust core.mac includes for these four files.
+    - example change in core.mac: 
+      - #include tc\declare2.inc
+      - #include tc\common2.inc
+      - #include tc\class.clr2.inc
+      - #include tc\class.enc2.inc
+  -- This is a manual change. Expect bugs for a bit. It's a rather drastic change to how Core works.
+- toon.ini
+  -- Default broad cast group for MQ2DanNet. change if you like. Common->broadcastGroup=Core
+     - this sets the base channel you will use for communication to other toons
+- core.mac
+  -- no longer requires MQ2Netbots or MQ2EQBC(s) Plugins
+  -- MQ2EQBC validation has been commented out
+- core.ini
+  -- adjust your plist setting to remove eqbc and netbots and add MQ2DanNet
+     - something like this plist=|MQ2Cast|MQ2Exchange|MQ2MoveUtils|MQ2DanNet|MQ2Debuffs|MQ2ADVPath|MQ2Nav|MQ2AutoLogin
+- common2.inc
+  -- deleted
+     - check_one_mind()
+  -- updated
+     - broadcast_status()
+- declare2.inc
+  -- the following are commented out/disabled for now
+     - #event task_update
+     - verbage BC echo
+     - /rc
+     - /purify
+     - stop
+     - gtfo
+  -- broadcasts updated: 
+     - /anchor
+     - /cc force assist
+     - /movement gather
+     - /crew (whole thing)
+     - /take
+     - /invis
+     - /enter
+     - /cls
+     - /here
+     - /killmob
+     - /imincharge
+- events.inc 
+  -- commented out the /bc echo commands only 
+- check_buffs_BC()
+  -- converted to MQ2DanNet
+- cast_cure()
+  -- converted to MQ2DanNet
+  -- rewrite of the flow for debuff checks
+  -- no longer checks for counters. simply checks if you have that debuff or not
+- class.clr2.inc
+  -- converted check_heal_ward() to use DanNet. complete rewrite too
+-class.enc2.inc
+  -- converted check_rune_auspice() to use DanNet. complete rewrite too
+
+- END of Changes for MQ2DanNet beta testing --------------------
+
+
+- TGB
+  -- removed the settings from the mac prep
+- class.bst.inc
+  -- fixed a typo. would appear i cannot spell continue correctly
+ 
+
+20180917.00
+- buffgem
+  -- the buff gem now remembers what was in it before it starts casting buffs and puts that spell back in it when done
+  -- if you remove the spell, it will not put it back
+- GoM nukes
+  -- should only trigger while in an active combat routine
+  -- because I dried to dicho force stunn myself while buffing in the guild hall
+  -- let us never speak of this again
+- check_debuffs
+  -- nolonger forces a target swap
+- is_target_valid()
+  -- commented out ${Target.Type.Equal[PC]} check to help healers with their targeting issue
+- click_BP()
+  -- added conditions to the toons INI Breastplate1 and Breastplate2
+- cast_temp_pet()
+  -- updated to core_cast2 routines
+- class.enc.inc
+  -- /enc [bos] - enable/disable using AA Beam of Slumber
+- class.clr.inc
+  -- will hold its last healed target until it has a reason to change
+  -- fixed the swarm pet/aa hammer
+  -- added in BreastplateHeal and a condition to Items for cleric (this still needs lots of work)
+     -- more then 2 people hurt
+     -- will accept conditions
+     -- i dont realy like this. the idea was for the conflag BP and its rune. but its rather limiting and useless for a lot. does not heal like the raid BP do
+  -- Issuance AE Healing.....
+     -- /clr issuance (on/off) enable/disable using issuance healing
+     -- /clr issuance [1,50] sets the mob count in your agro range to use issuance
+     -- issuance will try and use the AA Forceful Rejuvenation so it can get 2 casts of the shield
+     -- will not work in safe zones
+     -- requires LOS to the current assists target !!! you have to be using an assisst for this to work !!!
+- class.bst.inc
+  -- update to the burn routine
+  -- corrected Fury spelling
+- class.shm.inc
+  -- shmy epic call matches correct design
+  -- added a surge check to heal group when no one in group is hurt (this might be a bad idea)
+- class.nec.inc
+  -- updated burn routine
+
+
+20180908.00
+- odds_and_ends()
+  -- fixed a concantination error
+- get_target()
+  -- adjusted the GroupAssist ID/self ID for assist conflicts.
+- changed the |MON to |MNK for stamina recover in the main loop
+  -- will add a random |MON somewhere else in the code to compensate.. cannot have monks working correctly!
+- summoned food
+  -- removed a "-" typo
+- /override [combatheal] has been removed
+- /override [combat]
+  -- allows the prep_combat() routine to automatically return TRUE even when it could be FALSE.
+  -- made it generic so i can add other classes as needed and not just the cleric
+  -- YOU WILL NEED TO FIX YOUR CLERICS IF YOU USE THIS 
+- class.ber.inc
+  -- added an ammo checker in the main routine. should keep better track of the axe army now
+- class.bst.inc
+  -- changed /bst [paragon] to /bst [selfparagon] 
+  -- /bst [groupparagon] [##| (on/off)] enables use of group paragon (NON raids) at whataver # you need. if the bst has focused, it will not use it
+     works off of mana or endurance
+-- class.shd.inc
+  -- Projection of Doom AA added to agro routines
+  -- admustments to AE hate routine
+- class.brd.inc
+  -- update to boastful bellows AA to check for HP%
+- class.enc.inc
+  -- some adjustments to HP/Manna gem summoning
+  -- use of mana gem is tied to gather % now
+   
+
+20180831.00
+- Custom Work
+  -- as a request, I've added a custom.inc file to Core's initialization
+  -- in the custom.inc is a declare routine that is called on initial start
+  -- this will allow people to create their own INI variables and initialize them with the same /call routines that are in the declare.inc file
+  -- you can also add whatever functions want in custom.inc and call them or binds, or whatever.
+  -- i will not be changing this file. by default, this is a blank routine in an otherwise empty file
+  -- if you find you've built something useful, let me know, always looking for new ideas 
+- help/info
+  -- trying to catch up on the info help options and the wiki
+- /mode scorch
+  -- mob search logic will hunt mobs closest to the mob within the agro range before looking the entire modeagro range
+- /debug is no more.. say goodby..
+- MA1/MA2
+  -- no longer part of the /cc control and /setassist. only under /setassist now.
+- /setassist
+  -- now shows help w/info option
+- core_cast2()
+  -- will adhear to the /echos output controls for the different types (VALT,VSPELL,VBC,VDISC,VITEM)
+  -- removed the /goto for :cooldown. natural flow should get it there just fine
+- class.mag.inc
+  -- correctd a logic error in the rod control
+- class.clr.inc
+  -- corrected a mispelling in the pet heal routine
+  -- /clr xtclass [WAR|SHD|PAL|BER|ROG|MNK|RNG|BST|BRD|NEC|ENC|WIZ|MAG|CLR|SHM|DRU]
+     sets the class you want to use on xtarget healing
+     so /clr xtclass WAR would enable the class. doing the same command again would disable it
+     i'm still working with this. if it pans out, i'll add it to the other healers
+- class.shm.inc
+  -- small adjustment to the cani routine
+- class.enc.inc
+  -- fixed if/else structure in class control
+- class.dru.inc
+  -- fixed a typo in Storm Strike
+- class.mnk.inc
+  -- it has a burn routine now
+  -- re order of several discs
+  -- addition of /mnk ae (on/off) switch to control use of AE skills. just gotta find out which ones those are still.
+  -- adjustments to the FD code
+  -- this is not the monks final form
+
+
+200180825.00
+- Tie pause on combat
+  -- core.ini->[General]->switchNoTieonCombat=TRUE|FALSE - will stop tie while the toon is in combat. FALSE by default
+- events.inc
+  -- added in even to watch for silence on Talendor 2group raid. (thanks budpaul)
+- DEBUGING
+  -- i'm slowly getting rid of all of it. the only debug i'll leave available is SDEBUG and that will be a manual input
+  -- completely removed from all class INC files
+- core_cast2()
+  -- self targeting SPELLS will watch for the sub listed in the called function 
+- check_exit()
+  -- should check for the different shaman DA versions
+- cast_AA_fade
+  -- redesigning the variables to match the same pattern for all classes. will still function the same.
+- GoM Nukes
+  -- Gift of Manna proc level requirements removed
+- /mode scorch
+  -- should use range attacks a little better  
+- Modulation Rod controls
+  -- /[CLS] rod (on/off) will enable or disable your toon from using mod rods.
+  -- PAL, CLR, BRD, BST, DRU, ENC, MAG, NEC, RNG, SHD, SHM, WIZ  
+  -- so /clr rod would turn it on or off.
+- class.shm.inc
+  -- small adjustment to cani to watch group health
+- HEALERS -- (Paladin, Cleric, Shaman, Druid) !!
+	-- redesign of the heal loops: /if structures to smaller /for next loops. this could be the dumbest mistake ever or genius, i'm not sure yet
+	-- complete renaming of all the loop variables to something that can be read clearer. resulting in the removal of 7 variables needed by the cleric
+  -- adjusted pet healing to pay more attention to group members over pets. seriously, i'd rather even not heal pets.. but that's just me
+  -- redesign of pet healing loop to function more like group healing
+  -- pet healing will conform to the aggressive switch (cleric and shaman)
+  -- all distance calculations for hurt toons/pets are now based off the healers agro range. spell checks will still catch ranges over the spells max range
+- class.clr.inc
+  -- adjusted cleric AA fade to match new pattern
+  -- /clr fade (on/off)
+  -- /clr fade [##] to set HP % to fade at
+  -- fixed the VP switch so when it's off it really wont get used
+  -- corrected several of the cosmetic outputs for the /clr command
+- class.dru.inc
+  -- adjusted druid AA fade to match new pattern
+  -- complete rewrite of all healing and DPS routines. have fun
+  -- correct Grasp of Ro from Blessing of Ro
+- class.pal.inc
+  -- all healing to match clerics
+- class.pal.inc
+  -- all healing to match clerics
+
+
+20180819
+- new #define CHECKINPUTS
+  -- not sure how well this is going to work. / commands are triggerd off of /varset, so CHECKINPUTS will do a multiline 
+     that will check the events and bind buffers. this "should" make / commands respond a LOT faster. will have to see.
+  -- this affects all files.
+- fixed a typo in the slowing function
+- XTARGET HEALING..... 
+  -- Clerics and Shaman (i'll get to druids and pallys in a bit)
+	-- conforms to normal group healing flow
+	-- should be like 50 fucking times faster now. had no problems killing mobs in OT solo with cleric out of group
+	-- will obay the aggressive switch for clerics and shaman
+	-- xtarget healing will conform to the toons agro range
+	-- should heal NPCs in protected list now too. i hope
+- familiars
+  -- added in code for running two familiars
+  -- you can deal with the stacking issues...
+- pets
+  -- if the pet has the correct target, toon should not try and send it again
+- class.clr.inc
+  -- rewrite of the HP check sub for mid cast adjustments. will comply with the aggressive switch.
+  -- will not trigger spire3 unless in combat
+  -- should exit heal checks faster if no one is hurt
+- class.shd.inc
+  -- /shd vot (on/off) use aa voice of thule when agro is enabled. will remove it if agro is turned off
+- class.shm.inc
+  -- core heal logic rewritten to match the cleric
+- class.brd.inc
+  -- added in mod rod usage
+
+
+- taunting
+  -- ranger, paladin, shadowknight, warrior
+  -- /cls taunt (on/off) to enable or disable using taunting 
+  -- if you have /cc agro on and taunt off, you will still do all the other agro skills you have, just not taunt.
+  -- this is just a way to isolate taunting for those that like to use it as a crutch
+- Range Item summoning
+  -- need /cc range or /cc pull to summon rainge item thingies
+  -- can summon more then one type of item
+
+
+20180726.00
+- migrated to new casting routines
+  -- cast_slow()
+  -- cast_malo()
+  -- cast_cripple()
+  -- cast_AA_fireworks()
+  -- click_item_heal()
+  -- check_deBuffs()
+- Facing Movements !!
+  -- Manual toons will no longer do facing movements. you are on your own to turn your damn toon
+- /pc
+  -- cosmetic changes
+- /movement
+  -- cosmetic changes
+- Safelist 
+  -- rewrite of the safelist functions.
+- alternate INI usage
+  -- alternate INI name is NOT required. the defaults ahve NOT changed
+  -- you can enter the INI alternate on mac start or while the mac is running.
+  -- on mac start it would look like tc\core.mac alt6
+  -- the ini files will have the name you give for the alternate as part of the file name
+    -- core.alt6.ini
+    -- core.alt6.loot.ini
+    -- core.alt6.zone.ini
+    -- core.alt6.server.CLS.Name.ini
+  -- there is no limit to the number of INIs
+  -- i would advise using contiguous words/phrases/numbers for the alternate ini names.
+  -- changing INIs while mac running would look like /core reset alt6
+  -- if the INI does not exist, it will be generated from scratch
+- class.dru.inc
+  -- typo in xtarget healing sub name.
+
+
+20180719.01
+ - class.rog.inc
+   -- because fuck commas..
+
+
+20180719.00
+- check_for_corpse() -- this is the resurrection routine..
+  -- logic error where the cleric did not want to rez itself.
+  -- made some adjustments to help speed it up
+-- #event Zone
+  -- so an emote was found from monks that was causing zone updates to trigger. i know right.. damn monks..
+-- set_base_target_timers() rewite to speed up checks
+-- cast_AA_banestrike() removed due to AA change
+-- persistent modes.
+  -- the various off play modes will not end while zoning.
+  -- core.INI -> [general] -> switchPersistentModes = [TRUE|FALSE]
+    -- TRUE- modes will continue after zoning. use at your own risk.
+    -- FALSE - any zone and all modes will reset to off. THIS IS DEFAULT
+-- ALL CLASSES.inc
+  -- removed AA Banestrike casting from their respective routines
+- class.pal.inc
+  -- AA Hand of Piety will trigger off 50% of PALPoint health and the defcount number of mobs in area. not just 1
+  -- /pal loh [1,99] - percent health to use AA LoH on self
+  -- /pal loh - (on/off) enable/disable using AA LoH
+  -- AA Lay on Hands added to self healing
+  -- AA Gift of Life added to self healing
+- class.enc.inc
+  -- another adjustment to their summoned Mana Gem. in your toons INI put the name of the summoned item rank included. should work a lot better.
+- class.rng.inc
+  -- commented out all the debugs
+  -- removed the fast and slow heals. just heal1 and heal2 now. fix your INI
+  -- heals work/trigger off RNGPoint %
+
+
+20180702.00
+- cast_AA_slow() 
+  -- removed. no longer needed
+- lot of updates to the WIKI
+  -- why is it called a wiki? what happened to a manual?
+- validate_cast()
+  -- added in a check for manual mode and target issues casting when target has been released.
+  -- need to keep an eye on this...
+- cast_yaulp()
+  -- adjusted the exit checks. should bail a lot faster now
+- class.clr.inc  (working on making it faster)
+  -- removed majority of debugs
+  -- redesigned a lot of the group HP check loops; removed the #defines so they are not cycled as much
+  -- fixed missing checks for the 4th intervention and 3rd remedy 
+  -- adjustment to the aggressive switch selector
+  -- moved the yaulp check to main loot. wasn't hitting the routine enough burried in the discs check
+- class.ber.inc
+  -- /debuff [snare] will work again with the DiscSnare= setting in the class ini.
+- class.pal.inc
+  -- adjustmenst to the heal routines. removed excess #defines
+  -- removed all DEBUGS
+- class.bst.inc
+  -- rewrite cast_AA_focused_paragon() -> check_manna_BST(). should be a little more reliable
+  -- focused paragon is self only now
+  -- removed the fast heal pct. heals now work off the class heal point pct
+  -- removed groupParagon
+  -- removed minConsumptionHP
+  -- /bst paragon - (on/off) enable or disable using Focused Paragon
+  -- /bst paragon [1,99] - pct of mana to use Focused Paragon AA
+  -- /bst consume - (on/off) enable or disable using the Consume Spirit AA
+  -- /bst consume [1,99] - pct of mana to use Consume Spirit AA 
+  -- agro and anti agro AAs conform to the agro switch now
+- class.mnk.inc
+  -- fixed a couple spaces
+
+
+20180624.00
+- converted to new casting routine
+  -- cast_AA_spire()
+  -- sort_familiar()
+- ingame cash (fixed.. took like forever)
+  -- /core checkcash will force a chek of the marketplace cash button. if you can claim cash, it will
+  -- in core.ini->[general]->SwitchCheckGameCash=[TRUE|FALSE] Set to TRUE and will check every mac start
+  -- removed the class ini entry for last cash check date. dont need anymore
+- intialize_item_buffs()
+  -- some minor changes to the structure
+- base_preperation()
+  -- updates to the structure
+- class.shm.inc
+  -- corrected a reckless check
+  -- corrected the inline function to check for others hurt
+
+
+20180622.00
+HUDUPDATE
+- HUD updated for shaman aggressive heals
+- converted to new casting routine
+  -- class.shm.inc
+  -- class.ber.inc
+- class.shm.inc
+  -- addded rotations between 3 reckless heal spells
+    -- removed healReckless from shaman ini
+    -- added healReckless1, healReckless2, healReckless3 to shaman INI
+    -- all three reckless added to xtarget and pet healing
+  -- fixed the rampage tank control
+  -- updated group controls output
+  -- /shm [aggressive] - enable/disable use of rekless healse before intervention/main heal
+    -- aggressive on will use reckless first
+  --/shm [surge] - enable/disable surge healing (includes the nukes associated)
+- class.wiz.inc
+  -- added a couple extra ready checks to the harvest routine  
+
+
+20180618.00
+- significant changes to the hud output. shoud no longer flash like a bad japanese porno
+  -- seriously i think it was starting to cause epileptic seizures
+- fixed a roll back issue. basically, i roled the code back and forgot to redo something /oops
+- RangeItemCount=0 will disable the check. mostly for rangers and the quiver AA
+- renamed
+  -- cast_eradicate_magic() -> cast_AA_eradicate_magic()
+- class.brd.inc
+  -- removed the /while loop from the stop singing a song sub. i dont thing MQ handles while loops very well
+  -- adjustment to the use of Darkened Breath of Harmony (seb HH clicky)
+- class.pal.inc
+  -- /pal shieldflash (on/off) - enables using AA Shield Flash in emergencies
+  -- /pal shieldflash [1,99] - set the HP% to use AA Shield Flash when enabled
+- class.shd.inc
+  -- /shd shieldflash (on/off) - enables using AA Shield Flash in emergencies
+  -- /shd shieldflash [1,99] - set the HP% to use AA Shield Flash when enabled
+  
+  
+20180614.00
+- cast validations should work again. my bad
+- class.pal.inc
+  -- testing a pattern to get it to release dead targets faster.
+
+
+20180612.00
+HUDUPDATE
+- removed all overide controls for any PVE. not gonna bother dealing with it
+- adjustment to the condition tester for spells. should respond faster
+- stopnukeAt has been moved from [common] to [spells]. correct your % if you use this
+- HUD
+  -- several cosmetic changes. trying to shorten its cycle time
+- check_buff_tell()
+  -- adjustments to the array validation
+- class.enc.inc
+  -- added a check for peridots. if not found, chanter will delete itself and reroll as a fucking gnome rogue...
+
+
+20180609.00
+- cast_cure()
+  -- corrected some errors resulting in crashes
+- class.mag.inc
+  -- updates to the class / commands
+
+
+20180607.00
+- /override [trainspell] - overrides the skill cap checks, will simply cast the spell forever
+- /debuff [slow]
+  -- adjusted slowing routines. chanter was apparently only hitting them while mez was enabled. /shrug
+  -- Tendon Slice proc will be ignored for slowed evaluations and overwritten if there
+- converted to new casting routine
+  -- use_glyph()
+  -- use_mod_rod()
+  -- cast_cure()
+  -- cast_nuke_servant()
+  -- odds_and_ends()
+  -- cast_AA_slow()
+  -- get_target()
+  -- cast_AA_fade()
+  -- check_stance()
+  -- synergy_click_Circle()
+  -- click_item_burn()
+  -- cast_challenge()
+- check_buffs_pet()
+  -- corrected an issue with the timer.
+  -- was preventing static pet classes from assisting as a fast as they should 
+- class.nec.inc
+  -- several updates
+- class.brd.inc
+  -- correction to the mezz routine call so it will remove old targets from the moblist
+- class.enc.inc
+  -- will check target debuffs more often and not just while mezing
+
+
+20180603.00
+- correction to the main class loop exit for a dead mob
+- is_valid_target()
+  -- removed excessive ${coreAuto} checks
+- is_target_dead()
+  -- nested a lot of the statements, trying to speed is up a bit
+- renamed *pet_buffs to *buffs_pet to match all the other buff naming conventions.
+- converted to new casting routine
+  -- cast_eradicate_magic()
+  -- check_AA_now()
+  -- check_buffs_BC()
+  -- check_disc_now()
+  -- check_buffs_tell()
+  -- check_AA_now()
+  -- cast_DOT()
+  -- cast_rez()
+  -- cast_nuke_line()
+  -- cast_stamina_recovery()
+  -- cast_nuke()
+  -- cast_AA_snare()
+  -- check_buffs_pet()
+  -- click_summon_drink()
+  -- click_summon_food()
+  -- check_harmonious()
+  -- cast_yaulp()
+- check_buffs_tell()
+  -- complete rewrite to accomodate items and AA for buffing better
+  -- so for shamn epic to cast on request might do something like
+    -- Buff2=Blessed Spiritstaff of the Heyokah
+    -- Buff2chk=Prophet's Gift of the Ruchu
+    -- Buff2self=FALSE
+    -- Buff2Alias=|epic
+    -- BCBuff2Class=FALSE
+    -- RaidBuff2Class=FALSE
+    -- ManualBuff2Class=FALSE
+    -- Buff2noBCinRaid=FALSE
+  -- keep in mind, the buffcheck is not needed since /t buffs are forced regardless of existing or stacking issues
+- all classes cosmetic changes to their respective /CLS commands
+- class.shd.inc
+  -- /shd [ae] enable/disable AE skills
+  -- redesign of AE agro skills (spells and AAs)
+  -- AE melee skill needs to be enable for AE skills
+- class.pal.inc 
+  -- /pal [ae] enable/disable AE skills
+  -- redesign of AE agro AAs
+  -- AE melee skill needs to be enable for AE skills  
+  -- fixed rampage tank control for healing
+  -- considerable changes to group healing structure. shoudn't act like an ass now
+  -- access to xtarget healing
+  -- access to pet healing
+  -- NOTE: I made some serious changes to the agro flow for pallys. this is kind of a test to see if it can hold more mobs better.
+     it will take some work.
+- class.clr.inc
+  -- minor correction to a couple heal lines
+- class.rog.inc
+  -- put the sneak attack back in. not sure why it ran off.
+
+
+20180531.00
+- on macro start, current target will be cleard
+- /here
+  -- will work on all toons in your BC not just those in group
+- Safelist
+  -- core.ini->[General]->switchGuildinSafelist=TRUE|FALSE - allows your guild to be included in the safelist check
+- class.enc.inc
+  -- converted to the new casting routines
+- class.bst.inc
+  -- Strike of Savagery set to an AE skill
+- class.clr.inc
+  -- cosmetic changes to /clr
+- class.pal.inc
+  -- cosmetic changes to /pal
+
+
+20180528.00
+- CHECKTIE addedd to all the buff routines
+- get_assist_target()
+  -- logic error in sorting the additional raid slots
+- /core [control] boolean error for the toons name
+- found the rogue bug in /t buffs. it should be sorted now
+- class.mag.inc
+  -- THIS WILL BREAK YOUR MAGE.. go fix its INI...
+  -- logic error in the class control command
+  -- changed the salvo nuke. it should cast it a lot more. still requires > 2 pets in the area
+  -- changes to forced twincast
+  -- removed twincasting from burns
+  -- manna recover alterations. match more like the wizard now
+  -- mages now have lines
+    -- /mag line [off|fire|magic|mix]
+- cast_nuke_lines() 
+  -- corrected for wizard
+  -- addedd to mage
+
+
+20180524.01
+- smartma completely removed. need to be useing /setassist
+- assists should not adjust for you anymore. how you set it is how it will stay
+- check_pet_buff()
+  - i fixed the fix that i fixed before
+- class.bst.inc
+  -- updated to new cast controls
+  -- fixed some of the /bst controls
+- class.pal.inc
+  -- adjustment to healTouch spell
+  -- cosmetic changes to /pal command
+  
+
+20180522.00
+I think i got the wiki up to date.. well maybe..
+- check_pet_buff()
+  - it kind of wasnt checking to see if the buff was already on the pet. it's checking now
+- set_combat()
+  -- adjusted it to try and prevent mixed melee/range settings from running of like an ass to the mob when it should be ranging
+- cast_cure()
+  -- necro self aa "Embrace the Decay" added to /heal cure
+- dug out the remaining useSmartAssistR. removed from INIs as well
+- class.nec.inc
+  -- converted to new cast routines
+  -- burn routines are under construction
+- class.mnk.inc
+  -- converted to the new cast routines (what little there is)
+- /imincharge
+  -- playing around with this. i tend to swap drivetoons a lot. wanted something to change everyone elses settings on the fly
+
+
+20180521.01
+HUDUPDATE
+BUILD ## change.
+-- had to change bulid type. MQ doesnt support float int as long as i need .. meh
+- HUD
+  -- some cosmetic changes 
+  -- got rid of the word NONE. changed to ----
+  -- corrected the % engage display settings for a few things
+  -- adjusted to show all the assists
+- check_engaged()
+  -- misssed a )
+- /mode [petfarm]
+  -- typo in pet heal switch
+- Alias changes to binds
+  -- /mirror
+  -- /stein
+  -- /take
+  -- /stack is now /invis
+  -- /door is now /enter (/door reserved by MQ2Nav)
+  -- /clean is now /cls
+  -- /here
+  -- /anchor
+  -- /killmob
+- non pet classes shouldn't think they can ask mages for weapons
+- removed validate_buff(). no longer needed
+- [NOECHO] added too
+  -- set_stop()
+  -- whitewash()
+  -- validate_assist()
+- ASSISTING
+ -- can now use raid assist 1, 2, and 3 as well as group, MA1, MA2 and forced  
+ -- /setassist [x|g|1|2|3|ma1 NAME|ma2 NAME|f]
+ -- echos like other / commands do for core (cosmetic)
+- Zone and /lc commands
+	--- /core [zonereset]
+  -- force resets the current zone INI load
+	- /lc [any command]
+	  -- changed to use the new validate_zone routine when there is a change.
+	  -- changing the zonereset to a bind and not a bc (alias) command. trying to catch a crash upon issuing a /lc command while in combat.
+Broadcast commands...  you should read this ....
+- core.ini->[broadcast]-> ???
+  -- any command issued in this sub category that is set to true will be echoed across your BC
+  -- for example /take. if you have broadcastTake=FALSE and you issue the command /take, only you will click the yes button for the nav/port window.
+  -- if you have it set to TRUE, everyone will take it.
+  -- commands changed to use the new broadcast
+    -- /take
+    -- /invis
+    -- /enter
+    -- /cls
+    -- /here
+    -- /anchor
+    -- /killmob
+- class.mag.inc
+  -- converted to new casting routines  
+- class.wiz.inc
+  -- typo in the burn routine
+  -- adjustment to twincast alternation, was trying to cast the spell when it wasnt ready
+- class.nec.inc
+  -- can use gatherspell now
+	-- this is gonna need some work
+
+
+20180515
+- check_engaged()
+  -- rewrite to exit faster
+  -- ${check_engaged[]}
+- class.rng.inc
+  -- adjusted logic flow for validations trying to prevent some crashes
+- class.wiz.inc
+  -- adjusted logic flow for validations trying to prevent some crashes
+- class.clr.inc
+  -- adjusted logic flow for validations trying to prevent some crashes
+- class.rog.inc
+  -- adjusted logic flow for validations trying to prevent some crashes
+
+
+20180514
+- glyphs
+  -- core.ini->[general]->switchGlyphOutsideRaid=FALSE
+  -- set to TRUE to enable using glyphs while not in a raid
+  -- still only trigger in burns
+  -- can eat your AAs. you've beeen warned
+- summoned range items
+  -- no longer self targeting.
+  -- toon.ini->[general]->RangeItemCount=# (default 5) will not /range if that number or below.
+- Range Vs. Melee - place your bets
+  -- if a target is set to RangeList and your toon is set to both melee and range, you will no longer run to the mob, you will just range it
+  -- if the target is set to NoMeleeList, you will no longer melee it.
+- validate_assist() /setassist
+  -- fixed an undefined variable locking out the command.
+- cast_slow()
+  -- reversed order to spell over alt abilities
+- class.wiz.inc
+  -- converted to new casting routines
+  -- reorganized the harvest routines. maybe someday it will actualy trigger Forceful Rejuvenation
+  -- fixed the skip casting on less then 2 manna. its now 2% manna /sigh
+  -- elemental Force AA nukes will obey the No[fire|ice|magic]List for that zone
+- clas.rng.inc
+  -- shouldn't blow their epics when the mob is not within their combat distance
+  -- nested a couple switches to speed it up
+- class.pal.inc
+  -- shouldnt use epic while ranging
+- class.rog.inc
+  -- fixed the knifeplay issues
+- /mode [petfarm]
+  -- fixed a call error for classes that dont get pets trying to use the mode
+  
+
+20180510
+- removed some debugging from validat_cast()
+- set_stop()
+  -- trying to speed it up. removed bool protection for switches
+  -- added in bard specific stop cause their fucking stubborn.
+- moved [common]->ClassChannel to [echo]->ClassChannel
+  -- if you are using it for echoing MGB for some classes. reset it to the proper #
+- New Mode: open - it opens a thing /shrug
+  -- decided to do table flipper slayer title again.
+  -- /mode [open]
+  -- core.ini->[mode]->ModeOpenItem=a_hollows_mushroom is the default
+  -- checks ever 1 second (timer is in the toons ini if you want to change it.)
+  -- pissed off all the noobs running petfarm at same time
+- /mode [forage]
+  -- should not try and forage in combat now
+- class.shm.inc
+  -- reversed HP check for cani.
+
+
+20180504
+HUDUPDATE
+- there is now a G in the buffs line for group buffing
+** WARNING...
+- the next two commands are rather obtrusive and intensive.
+-- in order to verify a buff on a person not in your Netbots BC, they have to examin the toon, verify every buff with what they want to cast and then cast and set timers.
+-- so your, at max, looking at 42 buff slots with 15 possible buffs in Core. so, up to 630 iterations per group member as a worst case senario.
+-- in the testing it was averaging about 2 seconds per toon. which isnt bad.
+-- i do not suggest setting this for a short timer. the default will be 5 min. adjust at your own peril.
+** consider yourself warned...
+
+- /buff [group] - will enable buffing people in your group
+  -- feeds off of ManualBuff#Class=|WAR|PAL|SHD|BRD|BST|BER|MNK|ROG|WIZ|MAG|ENC|NEC|CLR|DRU|SHM in the toons INI
+  -- default check time is every 5 min
+  -- this will not buff you. just everyone else (except mercs).
+- /buff [merc] - to enable buffing mercs. don't ask me why..
+  -- is set to feed off of ManualBuff#Class now and NOT raidbuff#class.
+  -- mercs work off class, just like a normal toon does
+
+- new file: namelistdata.ini
+  -- last 6 xpacs of named for every zone (thanks to achilles2017 for providing the list)
+  -- empty named lists will auto update upon entering the zone. this can be disabled with core.ini->[general]->autoAddNameList=FALSE
+  -- the auto update does NOT overwrite the namelist if something is already there. issue the command "/core fixini namelist" if you want it forced
+  -- if you want older xpacs. send me the info in the same format as the namelistdata.ini file. i'll add it to the master list
+- /core fixini [NULL|old|namelist]
+  -- i had to adjust this to accomodate more options then a TRUE|FALSE. 
+  -- /core fixini - will simply remove current ini entries that are no longer valid. this is forced on every new build date
+  -- /core fixini [old] - removes as many of the old ini entries as i have kept track of over the build cycles
+  -- /core fixini [namelist] - will update your namelist according to the data maintained in namelistdata.ini for the zone you are in. 
+    -- this will force overwrite your current namelist for the zone you are in.
+  -- i'm going to start using 10 build dates as a cycle. anything 11 or older will be moved to old. or maybe a month or two.. hell i dunno. need to keep it loading faster.
+- fixini.inc
+  -- moved the following functions to this file:
+    -- whitewash
+    -- writeINI
+    -- writeCoreINI
+    -- setINIVar
+    -- DeclareCoreIniVar
+    -- update_zone_list
+    -- check_zone_INI
+- validate_cast()
+  -- checks for curent effect buffs and songs for beneficial spells
+- /mode drink
+  -- corrected a non numeric condition
+- AANow() and DiscNow()
+  -- converted to the new casting routines
+- class.shm.inc
+  -- swarm (temp) pet issues.
+  -- fixed the canni hp/manna issue. was a dumb case sensitive variable.
+  -- gave them back their pets. shaman life gets lonely...
+- class.pal.inc
+  -- converted to the new castign routines
+ 
+ 
+20180503
+- /smartma is gone. use /setassist [g|r|1|2|f|x]
+- /bc smag, smar, smax are gone. use /bca //setassist [g|r|1|2|f|x]
+- removed a considerable ammount of bool protection for switches. should be using the / commands and less editing INIs directly for controls.
+- /bc port is gone. /take is broadcast across all bc. use it.
+- banestrike now has a condition. evaluate for TRUE to use. just like normal casting
+- prep_combat()
+  -- so i managed to write in my own little paradox of sorts. any target was being intrepreted as valid even w/o forcing combat in manual mode. i blame the clerics.
+  -- should release the current target a little faster when issuing a stop/alto command too.
+- /here
+  -- corrected an assist issue
+- validate_cast()
+  -- should no longe conflict with ornaments of the same name (like epic ornaments) when trying to click them
+  -- epicitem added as a check. until MQ accounts for "," in item names when passed as a function variable.
+- /cc meledisc [backstab|bash|disarm|dragonpunch|eaglestrike|flyingkick|frenzy|intimidation|kick|roundkick|taunt|tigerclaw]
+  -- enable or disable the melee combat skill
+  -- if your class does not get the skill, you're spinning them wheels  
+  -- i'll isolate them more as i get all the skill to classes sorted
+- cast_summon_pet()
+  -- "should" make sure ENC,MAG,NEC,SHD have the proper spell component
+- class.rog.inc
+  -- converted to new cast routines. let me know if something is not firing
+- class.shd.inc
+  -- gave them back their skin buffs. shouldn't try and use pally steel anymore. identity issues i suppose.
+  -- will now check skin and harmonions while resting
+- class.pal.inc
+  -- will now check steel and harmonions while in rest
+
+
+20180502
+- check_aura()
+  -- warriors had auras.. who knew!!?!
+- unbroke the /cc agro and pull switches
+- validate_cast()
+  -- adjustments for error reporting added.
+
+
+20180501
+- fixini.inc
+	-- /core fixini [TRUE|FALSE] - FALSE=just fixini will check current entries. TRUE=will force checking of all old entries as well as current
+  -- new include.
+  -- set aside for adjustment of all INI entries
+  -- went back and found all the old ones i did not keep in the current routine to clean up INIs
+	-- this is executed on every build change. can do a manual execution with /core fixini if you like.
+- pets
+  -- enchanter, mage and necro/SK will check for components first.
+- cast_aa_snare()
+  -- now part of the base debuff check routine. no idea why it wasnt before
+- check_buffs_self()
+  -- will check for AAnow and Discnow
+- /onoff
+  -- cosmetic changes
+- /cc
+  -- cosmetic changes (isolated melee range nuke and dot. little easier to read.)
+- all classes
+  -- moved the debuff checks in before the dots and nukes engage. in melee only cases, before Item click checks
+  -- no longer checked in discs
+- class.shm.inc
+  -- pet heal routine was missing... not missing anymore. /heal pet should work again.
+  -- added in specifics for cani by HP and spell being cast. (thanks saarr for the list)
+  -- /shm [cannimanna|canihps] class controls added
+  -- [spells]->canniPctHPs->## - pct of HPS you are willing to check to canni
+  -- [spells]->canniPctManna->## - pct of Manna you are willing to check to canni
+  -- [spells]->caniPercent is now gone. make sure to reset the new values
+- class.shd.inc
+  -- typo in class switches
+- class.bst.inc
+  -- put the nukes and dots back in. they have been punished enough
+- class.mnk.inc
+  -- class commands missed a "/" .. its always the little things  
+- class.war.inc
+  -- AAVehementRage is now spelled correctly. /shrug i stand by warriors cant spell comment..
+
+
+20180501
+HUDUPDATE
+- rename cast_disc_breather() -> cast_stamina_recovery()
+- added (Class ShortName)AAFade to predefined class skills
+- added toon.ini -> [common] -> switchForceFadeRest=TRUE|FALSE - sets the toon to forse a fade during combat to enable breather trigger.
+- /cc [faderest] - enable/disable forcing the toon to use fade AA during combat to enable the rest disc
+- class.rng.inc
+  -- removed elemental arrows timers. will keep them on cooldown now
+  -- elemental arrows cycle proper now. (DB changed the target buff name and didnt notice)
+  -- moved get_agro_RNG() body to discs
+  -- moved cast_AA_Elemental_arrows() body to discs
+  -- summer nuke is tied to both the summer switch and nuke switch. turning either off will stop summer nukes
+  -- reverse DS DoT swarms are tied to the DoT switch.
+- class.shm.inc
+  -- replaced 2 instances of an old function with correct. Event_setVar -> writeINI
+- class.clr.inc
+  -- no longer force fade on < HP% while in manual. thats your job
+  -- some adjustments to loops. trying to make it a smidgen faster
+- class.rog.inc
+  -- no longer summon poisons in manual. seriosusly dont be so lazy
+- class.mag.inc 
+  -- no longer force fade on < HP% while in manual
+- class.pal.inc
+  -- several adjustments to the agro routines
+  -- typo in harmonious
+- class.brd.inc
+  -- error in selection logic for class switches
+- class.shd.inc
+  -- typo in harmonious
+- class.enc.inc
+  -- typo in a declare
+- all classes
+  -- no longer send pets to a forced combat target while in manual.
+  -- HEALERS now need to use an assist. moving on...
+  -- HEALERS will maintain more focus on the last person they healed. unless you have them doing something else besides healing
+*NEW casting routines*  
+- these will be migrated as i have time.
+- validate_cast()
+  -- EG. ${validate_cast[spell|disc|item|alt, "NAME OF THING", TARGETID]}  
+  -- returns TRUE if able to cast FALSE if not
+  -- this is part 1 of the split of core_cast.
+- core_cast2()
+  -- slimmer casting routine. never has to hit it if fails validate_cast()
+- support for non gold (paid) accounts is no more. i really don't feel like mainting that code too
+- switchAlwaysFaceTarget has been removed. casters dont need to face the god damn target
+- logic error in rest routine for classes w/o rest/breather disc line
+- ALL modes are being depreciated. [HEAL,MELEE,RANGE,NUKE,DUAL]
+new switches for combat
+- /cc [melee|range|nuke|dot]
+  -- melee - enables melee combat and mele base skills
+  -- range - is range items as defined in the ini and usable by /range or /autofire command
+  -- nuke - enables anything defined in the nukes routine in the INI
+  -- dot - enablesd anything defined in the DOT routine in the INI
+  -- enabeling both melee and range will allow auto switching based on range to target (31 paces is the magic number)
+  -- any combination can be used.
+- /cc force[combat] - will force combat when in manual mode
+  -- there is no more force [melee|range|nuke|heal|dual] (they are gone)
+** HEALING !!!!!!
+- healing is now tied directly to combat. if the healer is not in combat, it will not heal
+- this includes resting. no combat = NO heal for you! (repleate outloud w/broken english in turkish accent)
+- this fixes the cleric dumping all its AA emergency heals when zoning into a zone.
+- will not heal on puller incomming either.
+- WTF you say? no heals on incomming.. yah, thats right.
+- if you dont like this change. see the override addition for combatheal (IE keep reading)
+- /override [combatheal]
+  -- combatheal - ENABLED allows the healers to ignore the prep_combat requirement of being in combat to reach their heal routines. works for rest as well.
+    -- this override will also get you past the requirement of a healer needing an assist.
+    -- this override is tied to the toons agro range
+    -- this unfixes the cleric dumping all its AA heals. (refer to previous fix)
+- /here
+  -- removed class modes from core.ini. if you still see them do /core fixini
+- prep_combat()
+  -- rewrite.. cause. well it needed it... we trust nothing now.
+
+
+20180414
+- /pc controlls
+  -- string error in the output for pet type. tis fixed
+  -- cosmetic changes to the control output
+- /rez controlls
+  -- cosmetic changes to the control output
+- adjusted the event control for tells to accept languages (for the TLP slummers)
+- click_item_swarm()
+  -- toon.ini -> [items] -> clickItemSwarm1-4=
+  -- can seperate items that have swarm pet clicks 
+  -- /pc swarm enable/disable using the click items
+- class.mag.inc
+  -- filled in Modes: MELEE and RANGE. generic for now. can fine tune later.
+	-- fixed /mag fade control. mage should fade now.
+- class.clr.inc
+  -- fixed /clr fade output (cosmetic)
+- class.wiz/dru.inc
+  -- so i completely broke the beg for ports. it is being worked on.
+- class.rog.inc
+  -- can spell.. epic should click now.  	
+- class.ber.inc
+  -- will use intimidation skill cause . click all the things!
+  -- COMPLETE revamp of burning routine...
+ 
+
+20180410 part 2
+- class.mnk.inc
+  -- fixed the dumb closing brackets
+  -- fixed the MON-MNK class name errors.. (I think)
+- broke the /cc force commands. meh....
+- missed a scribe rename to mem_spell
+
+
+20180410
+- class.mnk.inc
+  -- /mnk [fdpct] - set the Pct you want to start FD agro [1-99]
+- class.war.inc
+  -- fixed a switch error for agro
+- various echo status updates for / commands
+- testing a routine for alliance casting on raids. currently ranger only.
+
+
+20180330
+- re-write of /mode trainspell (works now)
+- CORE.INI -> [general] switches
+	-- switchUseADVL=TRUE/FALSE -can completely disable advl (do_loot()) feature of Core. does NOT disable /cursor auto or use of the toons autoinventoryitem=
+	  ** if you do not set up your own advl, you will have problems!!
+/core [takeraidinvite|takegroupinvite]
+  -- invites are limited by the toons safelist
+  -- takeraidinvite	- take raid invites or not
+  -- takegroupinvite - take group invites or not.
+- class.rng.inc
+  -- adjusted the burn control. shouldn't lock anymore.
+- class.mon.inc
+  -- /mnk [trainmelee] - enable/disable auto switching of melee punch and kick skills to train them to their max
+
+
+20180324
+- redesign of Core initialization routines to accomodate /core reset
+- redesign of initial /declare to setDeclare() for /core reset
+/core [reset] - will reload all variables for Core without having to restart the mac
+- CORE.INI -> [general] switches
+  -- switchUseCLSinHUD=TRUE/FALSE - uses class shortname in the HUD notification for OFF toons vice the first three leters of there name .. (for those that name all there toons the same damned name)
+- broadcast_status() rewrite. should be a little more gooder...
+- rename DeclareIniVar() -> setINIVar()
+- events.inc
+  -- 16 anni stein event - fixed some typos
+/mode [trainspell]
+  -- trains spell skills
+  -- toon.ini -> [mode] -> |alteration|abjuration|conjuration|divination|evocation
+    -- set the skill to the spell you want cast.
+  -- this mode will mem the spells you have set in the INI and cast them untill your skillcap is reached for that level
+/movement
+  -- (cosmetic) the /movement command will now show what is on and off where applicable
+  
+
+20180319
+HUDUPDATE
+- adjustments to zone validation on mac start. being a real PITA
+/here adjusted to account for nav movement
+- CORE.INI -> [general] switches
+  -- switchAlwaysFaceTarget=TRUE/FALSE -allows for force facing the target you are casting on
+  -- switchDelayWhileZoning=TRUE/FALSE - forces a delay in the macro while zoning in 1 second increments
+  -- switchAutoRestFull=TRUE/FALSE - forces rest to full manna/health when allowable
+  -- switchModRodinRest=TRUE/FALSE - enable/disable using a mod rod while resting
+  -- switchBuffinRest=TRUE/FALSE - enable/disable buffing while resting. INCLUDES: PETS/SELF/TELL/ITEM (the rest dont matter)
+  -- switchDelayWhileZoning=TRUE/FALSE - places Core into a while/loop while zoning  
+  -- switchDispInfo=TRUE/FALSE - (cosmetic) show /info command on mac start
+  -- switchDispBuild=TRUE/FALSE - (cosmetic) show build # on start
+  -- switchDispEXP=TRUE/FALSE - (cosmetic) display exp adjustments 
+  -- switchAADiscnowManual=TRUE/FALSE - enable/disable AA and Disc Now abilities to run while in manual mode as well as auto 
+  ** note: all variables set in Core.INI effect all toons. they are manual settings and require a mac restart to engage them.
+
+
+20180310
+/setassist [x|1 NAME|2 NAME|(g)roup|(r)aid|(f)orce]
+  -- direct access to setting assists.
+  [x] - disables ALL assists
+  [1 NAME] - 1,MA1 set the toon namual assist to NAME
+  [2 NAME] - 2,MA2 set the toon namual assist to NAME
+  [(g)roup] - g or group sets the toon to assist the group MA
+  [(r)aid] - r or raid, sets the toon to assit the raid MA
+  [(f)orce] - f or force, sets the toon to accept forced assist commands 
+incorporation of MQ2Nav
+  -- /tc mode [nav|stick]
+    -- /tc mode nav - will use MQ2NAv genereated meshes for /tie
+       NOTE: the movement is block(y), moving to the last registered point of the character tied too. then adjusta gain to catch up.
+    -- /tc mode stick - will use MQ2MoveUtils for /tie
+/movement [gather CREW] - will pull all your group members, as defined by the crew settings in core.ini to the command issuer
+/movement goto [NAME|TARGET] - navigates you to the target
+- set_stick()
+  -- more changes to the logic. the MQ2Nav method is still a little off.
+- core.ini->[no]->heallist=|NAME|NAME|NAME
+  -- set people you do not want to ever heal. because some people are just absolute cunts.  
+- class.wiz.inc
+  -- spellConcussion = Concussion Spell you want wizzy to use when agro gets too much for your squish ass to handle
+  -- spellConcussionPct = when you want the concussion spell to fire
+- AA / Disc now controlls    
+  -- core.ini->[General]->switchAADiscnowManual= TRUE to use AA and Disc now while in manual. FALSE by default
+  
+  
+* NOTES ON MQ2NAV
+- if you dont generate the mesh for the zone, dont bother using this feature.
+- the nav segment of /tie works a little differently. it will nav to the tie toons position, once there, will calculate to where the toon has moved too and regenerate the nav and move again.
+  this causes tie to move in segments very different the MQ2MoveUtils stick method. However, there are very little geometry collision issues.
+- this is a work in progress. i'm still learning this new method and getting it to work with core.
+- yes, i know this opens the door for completely automated AFK killing. don't expect that to happen beyond the harvest and slaughter/hunt modes.  
+- i have not worked this into the alternate /mode(s) yet. But I plan too.
+- the /movement goto command takes you to the targets position at time of issue. thats is.
+- the /movement gather [CREW] command works off the CREW settings in core.ini. if you're not using the group settings in this, this command will do nothing for you.
+- this is not a required plugin to function.
+ 
+
+20180212
+HUDUPDATE
+- check_deBuffs()
+  -- fixing the druid in build 0210 broke the beastlord. /sigh
+- small adjustments to the HUD output
+
+
+20180210
+- sort_cursor()
+  -- adapted to the new looting system control
+- check_deBuffs()
+  -- rewrite of the logic flow. it was causing the druid to CTD
+- class.wizz.inc
+  -- should now try and use the correct line twincast spell. oops
+  -- /wiz line [off] will disable casting the line of spells and leave the rest of the wiz alone
+- class.clr.inc
+  -- updates to the single HoT routine
+  -- /cc melee|range will heal and yaulp now  
+  
+
+20180205
+HUDUPDATE
+- Forced Assist (needs lots of testing)
+  -- this is a forced assist you will need to set up a hotkey like the following to use this
+    -- /cc force assist .. this command will send the targets ID to all your BC toons as the target to kill
+    -- you will need to have the mob targeted you want your group to kill
+  ** NOTES
+     remember, the toons will still comply with all the nomal combat physics, line of sight, mezed mobs, mobs HPs
+ 	-- /cc forceassist to enable or disable
+	-- turning on forceassist will disable the other assists (group/raid/ma1/ma2)
+	-- Mob engage HP settings still apply when not using an override
+- class.clr.inc
+  -- adjustments to the shield/DA routine
+- class.wiz.inc
+  -- corrected the class / commands
+- class.mag.inc
+  -- corrected the class / commands
+  
+
+20180203
+HUDUPDATE
+- /cursor [pass] [NAME] will set the item on the cursor to be sent to that persons advl so they can have it
+  -- /cursor pass NAME . the item you want to pass must be on the cursor the first time
+  -- or just edit core.loot.ini for that item
+- /buff [merc]
+  -- buffs your mercs
+  -- feeds off the raid buff list for classes of the mercs
+
+
+20180131
+- disabled /core [fireworks] in raids. was kinda funny... kinda..
+- remove buffs now using /invoke
+- loot | loot file | /cursor
+  -- ok so there was a request to be able to pass loot to a person.
+  -- this requires changes to the core.loot.ini file to be able to accommodate more the one choice.
+  -- items will be stored like the following
+  -- Blue Diamond=|Keep
+  -- to pass an item to a person use the following example
+  -- Blue Diamond=|Keep|Fred
+  -- this will pass the item to Fred if he is in your group. otherwise you still keep it. or whatever you have it set too
+  -- the /cursor commands still operate
+  -- manual editing of the file is required to add a person to pass the item too. (I'll work on a way to automate it)
+  -- Core will adjust the entries to the new format as each item is looted, so.. it may take a time to get through them all. can always do a mass change on your own if you like
+  -- changing the /cursor [keep|loot|ignore..so on] status of an item will not change the the second value of a name to pass it to, if there is one.
+
+
+20180122
+- validate_zone()
+  -- correct zone loads are now validated every 10 seconds. if for some reason you're being laggy when you zone, Core will correct the load
+- /core [fireworks]
+  -- if enabled will waste your AAs. in blocks of 100 on the AA Glyph of fireworks II
+  -- it will not let you go below 20 banked AA for other glyphs.
+  -- this server no other purpose  
+- /cc circle [power,life,mana] sets chich circle of ?? you want to use in a burn
+- class.shd.inc
+  -- typo in explosion of hatred.
+- class.enc.inc
+  -- rewrote the bc buff for auspice rune
+- class.brd.inc
+  -- small adjustment to frenzied kicks with intimidation
+ 
+
+20180119
+- spell casting
+  -- more controls in place to prevent trying to nuke/dot with not enough manna. the red spam was irritating me
+- more adjustments to / commands to get them all the same looking
+- class.brd.inc
+  -- added combat ability Intimidation to melee cooldown routines
+  -- frenzied kicks is not tied to intimidation melee skill.
+    -- /rog intimidkick Enabled will trigger AA frenzied kicks when the mob has been debuffed by intimidation. 
+-- class.rog.inc
+  -- added combat ability Intimidation to melee cooldown routines
+
+- class.wiz.inc --- HUGE CHANGES !!!!!!
+  -- wizard will trigger AA Forceful Rejuvenation if it will get harvest spell up
+	-- casting..
+	-- wizard now supports lines of spells: Fire, Ice, Magic, Mix
+	-- each line will cast the appropriate AA element bost. fire line will keep AA Pyromancy up and so on
+	-- each line has an associated spam Claw Line spell that attempts to trigger Twincast 
+	-- each line has up to 8 conditions. 1 for each spell
+	-- wizard now uses its on nuking function. does not share well with other classes
+	-- wizard will mem the "claw" as the first spell then mem the remaining line in order of appearence
+	-- conditions match the order of spells you have set for that line
+	-- ur on your own to decide how the mix line will work
+	
+	the control is:
+	/wiz line [NAME] .. where NAME is fire, ice, magic or mix
+	
+	Example (spells section for the changes) INI for 110 wizard:
+	LineCurrent=Fire
+	LineFire=|Thricewoven Capacity|Ethereal Braid|Ethereal Skyfire|Dragoflux's Fire|Chaos Burn
+	LineIce=|Thricewoven Capacity|Ethereal Rimeblast|Icefloe Cascade|Ethereal Icefloe|Cortexfreeze
+	LineMagic=FALSE
+	LineMix=FALSE
+	SwitchForceTwincast=TRUE
+	NukeTwincastFire=Claw of Qunard
+	NukeTwincastIce=Claw of Travenro
+	NukeTwincastMagic=Claw of Ellar
+	NukeTwincastMix=FALSE
+	NukeTwincastCondition=!${Me.Song[Gift of Manna].ID} && !${Me.Song[Thricewoven Power].ID}
+	LineAAFire=Pyromancy
+	LineAAIce=Cryomancy
+	LineAAMagic=Arcomancy
+	LineAAMix=FALSE
+	LineFireCondition1=!${Me.Song[Gift of Manna].ID} && !${Me.Song[Thricewoven Power].ID}
+	LineFireCondition2=${Me.CurrentMana} > 5000
+	LineFireCondition3=FALSE
+	LineFireCondition4=FALSE
+	LineFireCondition5=FALSE
+	LineFireCondition6=FALSE
+	LineFireCondition7=FALSE
+	LineFireCondition8=FALSE
+	LineIceCondition1=!${Me.Song[Gift of Manna].ID} && !${Me.Song[Thricewoven Power].ID}
+	LineIceCondition2=FALSE
+	LineIceCondition3=FALSE
+	LineIceCondition4=FALSE
+	LineIceCondition5=${Target.Buff[Cortexfreeze Effect].ID}
+	LineIceCondition6=FALSE
+	LineIceCondition7=FALSE
+	LineIceCondition8=FALSE
+	LineMagicCondition1=FALSE
+	LineMagicCondition2=FALSE
+	LineMagicCondition3=FALSE
+	LineMagicCondition4=FALSE
+	LineMagicCondition5=FALSE
+	LineMagicCondition6=FALSE
+	LineMagicCondition7=FALSE
+	LineMagicCondition8=FALSE
+	LineMixCondition1=FALSE
+	LineMixCondition2=FALSE
+	LineMixCondition3=FALSE
+	LineMixCondition4=FALSE
+	LineMixCondition5=FALSE
+	LineMixCondition6=FALSE
+	LineMixCondition7=FALSE
+	LineMixCondition8=FALSE
+	
+
+20180116
+HUDUPDATE
+- reorganized the HUD. trying to get some more space out of it.
+- /core expadjust [enable/disable] to turn on/off the auto exp switching for core.
+- /movement
+  -- error controls added to leash and radius
+- class.pal.inc, class.shd.inc, class.war.inc
+  -- /cls defcount ## [1,50] will set the number of local mobs to the tanks to start using defensive discs. default is 2
+	-- def discs will only start to trigger when they are set to agro
+- rezing - rezers can no rez while waiting for a rez... rezception?
+- class.war.inc
+  -- small typo
+- class.clr.inc / class.pal.inc
+  -- rewrite of /rc command to use radiant cure. shouldn't crash the client anymore
+- class.mag.inc
+  -- rewrite of coh command. shouldn't crash the client anymore
+- /mode drink
+  -- set modeDrinkofChoice in core.ini to the alcohol you want to get waisted with. start the mode. come back in the morning.
+
+  
+20180109
+- error in xtarget healing. was not watching for max range to add people to list.
+- display error in the /cc combat modes.
+- typo in validate_buff()
+- synergy_click_Circle() logic change. cast the first you have listed and bail
+- / command echos
+	-- adjusting the remaining to match the same output standards.
+- HEAL POINTS
+  -- all clases now have a self heal point
+  -- /CLS healpoint ##  eg. /rng healpoint 70 would set the rangers self heal point to 70% HPs
+  -- self healing and click items that heal are based off this number now. they are no longer hardcoded (there are a couple exceptions)
+  -- default healpoint is 80 (60 for zerkers. we like to watch them die)
+- class.rng.inc
+  -- /rng fastheal ## - what % to use rangers fast heal at
+- class.bst.inc
+  -- /rng fastheal ## - what % to use beast lords fast heal at
+- class.war.inc
+  --  /war panicheal ## - what % to use wars DiscNoTime at
+- /buff pet logic error was illogical..
+- double echo in /burn auto command. i figure one is enough.
+- logic error in the bash band routine
+
+
+20180104
+- Smart Assists
+  -- smart assist Raid 1 and Raid 2 are not just Smart assist R (for Raid)
+  -- /smartma 1/2 are gone
+  -- /smartma r will set assist to raid
+  -- /smartma g will set assist to group
+  -- /smartma x will disable smart assist (raid or group)
+  -- /smartma will toggle the three settings.
+- rezzing
+  -- caught a display bug for a toon trying to rez whle dead
+  -- all classes will check for rezzing more often
+- /grab NAME
+  -- picks up name spawns. will use partial names. must match names on /mapfilter ground spawn names
+- add more checks to the buff combat routines. and rechecks. and then some more checks.
+- SIMPLEEXIT
+  -- will watch for death/call flags now
+- adjustment to the /movement controls
+- class.rog.inc
+  -- fixed a stacking issue between dirty fighting and envenomed blades
+- class.mag.inc
+  -- redesign of /g coh command 
+- class.shm.inc
+  -- seperated the talisman buff line. (requested)
+  -- /shm talisman will enable/disable using the buff
+  -- INI->spellTalisman=talisman buff you want to use
+  -- only used duting combat routines
+  -- fixed a bad variable name for the intervention heal
+- class.dru.inc
+  -- /cc dual will let them heal, nuke, dot, play poker.. so on. pref will always be to heal.
+
+  
+  
+20171230
+HUDUPDATE
+- fixed a visual error in the HUD with smartengage % not showing
+- added in shaman ae slow for mob counts > 2 in their agro range
+- /lesson will activate AA Lesson of the Devoted on the toon
+- check_aura()
+  -- will check for the /buff combat switch now.
+- class.clr.inc
+  -- more death checks. they are still doing stupid shit.
+- class.bst.inc
+  -- fixed the bst hanging. was still trying to used some of the aas that were changed to passive. (I missed the changes in the patch)
+- class.mag.inc
+  -- added back in the self targeting for 1 of the rods. it has to be there.
+  
+
+20171228
+- changes to how rezzes work.
+  -- in the past: Core would detect a death and lock you in to the rez routines.. this was by design to prevent the toon from doing stupid shit while waiting to get a rez
+     a couple patches back for MQ2, Core started generating a random complete client crash on deaths. no dumps. just a complete lock.
+  -- Now, it is set in to two sections. 1st, simply watches for a death. if one is found, you are tagged as a toon that has had its ass manhandled.
+  -- 2nd, once tagged, it will let you do stuff and keep an eye out for a rez box. if it finds one, it will click the correct %.
+  -- death markers/time markers are now shown in the warnings on the HUD, not in the mode.
+  -- manual mode will still watch for a rez box if /rez take is enabled but it will not prevent forced casting. e.g. /sb or /ib
+  -- shaman, druid, paladin should choose the 96% rez when out of combat.
+- check_exit() 
+  -- will break routines if you are at your bind zone with rez sickness buff.
+  -- will break routines if you are in a death state: Me.Dead or Hovering
+- more /squelch(s) added to moveutils commands. damn things are irritating.
+- /class command will echo the current spires now. eg /rng
+- class Unity AA buffs (NOT: WAR, MON, BRD, BER) [<-- hozed yet again]
+  -- BuffAAUnity1-7 is located in the class buff section. list out the buffs your Unity AA provides and they will be checked each self buff cycle.
+  -- Simple as that. If you only get 1 Unity Buff, only list 1. leave the rest FALSE.
+  -- all listed as FALSE will be ignored.
+- check_for_adds()
+  -- no longer validates KOS mobs. anything in the toons agro now qualifies.
+- do_rest()
+  -- clerics and paladins will not enter rest 'till yaulp fades.  
+- cast_yaulp()
+  -- no longer used out of combat state
+- /cc stopnuke [##]
+  -- sets % of mobs HP to stop nuking
+  -- default is nuke 'till its dead. aka 0
+  -- applys to: nuke cycle, dot cycke, servant nukes, knight challenges, rains, ranger summer spam
+  -- does not apply to: introventions, splash nukes,
+- class.pal.inc
+  -- defensive added to normal disc usage. adjusted checks.
+  -- renamed def disks to DefensiveDisc1-3
+- class.shd.inc 
+  -- defensive added to normal disc usage. adjusted checks.
+  -- renamed def disks to DefensiveDisc1-3
+  -- commented Stream of Hatred from agro routine. it's not a friendly AA...
+- class.rng.inc
+  -- added in defensive AAs: Bulwark of the Brownie, Outrider's Evasion, Protection of the Spirit Wolf and Weapon Shield
+- class.brd.inc
+  -- added in AA Shauri's Sonorous Clouding to /invis command, and HUD display
+- class.bst.inc
+  -- more checks for loss of active target
+- class.clr.inc
+  -- added in dual mode. will check healing first then do normal DPS
+- class.shm.inc
+  -- group regen will  not try and overwrite cleric group regen.. (since it cant and all)
+  -- re-arranged the healing priorities
+- class.mag.inc
+  -- removed self targeting for rod casting  
+  
+  
+20171221
+- rewrite of check_engaged() to be use as /if (${check_engaged[]})
+- corrected BST validation for using new monk skills. it should work this time. honestly.
+- core.mac
+  -- several adjustmetns to execution orderd for auto and manual actions
+- debuff check on mobs moved to end of discs for rogue, bezerker. should prevent them trying to pause on engaging a new mbo
+- squashed a bug that was preventing a lot (all but healing and ports) of casting while in manual mode.
+- new mod rod coded in
+- get_target() main pull routine
+  -- added in 2 second time out for mobs leaving your /cc agro ## range. if they leave, puller will disengage and find a new target.
+
+
+20171217
+- validation functions for debuffs on Core start and /debuff bind execution. classes that do not have that debuff type will be switched off
+- more checks for underfoot to disable xtarget on TLP
+- check_deBuffs()
+  -- adjusted debuff checks for cripple routine
+- added in another check for curing outside of combat for all classes.
+
+
+20171216
+HUDUPDATE
+- hud adjustments: there were more body types then i ever though about.
+- MQ2Bucles (redguides plugin) will be forced unloaded due to conflicts.
+- introducing check_no_do_a_thing_buff()
+  -- will check yourself and your target for specific buffs.
+  -- Toon.INI->[common]->noCastWith=|buff1|buff2|buffso'on 
+- rename scribe() -> mem_spell()
+  -- adjusted for better response when spells does not exist or already in gem bar.
+  -- reduced wait times.
+  -- boolean T|T for echo memming SPELLNAME
+- check_aura()
+  -- fixed a member type mismatch for bard aura check.
+- self buffing changes
+  -- buffs will check combat status on each itteration.
+  -- buffs can now be memed in completion before the mq2cast routine times out.
+  -- if this works as advertised, i'll apply it to all buffing routines.
+- class.enc.inc
+  -- chanter now considers any counts higher then 1 as AE acceptable.
+- class.ber.inc
+  -- commented out all calls to open wound disc. fuck that thing.
+- class.mag.inc
+  -- removed self targeting for the main modulation cast. (TLP request)
+- class.clr.inc
+  -- third remedy in heal cycles.
+  -- fourth introvention added to heal cycles.
+  -- AA Burst of Life moved from introventions to panic heals.
+- class.rog.inc
+  -- AA Shadow's Flanking added to normal cooldown discs
+  -- will now use breather while in combat. we wait for no man!
+- class.pal.inc
+  -- healing adjustments
+  -- /heal group or /heal self will enable the no target fast cast group splash when 1 or more members are hurt.
+- class.bst.inc
+  -- added dragonpunch, eaglestrike, tigerclaw, flyingkick, roundkick  
+  -- go into the toons INI and set TRUE the on you want to use.
+
+
+20171213
+- /mode [harvestcount] - set the max number of items you will harvest. defaults to 999999
+- /lc huntmob
+  -- fix compilation error for new targets
+- class.pal.inc
+  -- adjusted defensives to be used more. 
+- class.ber.inc
+  -- error in discs with shammy epic going
+ 
+
+20171209
+HUDUPDATE
+- /movement behind
+  -- fixed a typo
+- verify_build() will foce intiger validation
+- error in /burn engageat command.  
+- body types are now displayed under the target
+- pulling with Spells/Items/Discs..
+  -- toon.INI->[Common]->RangeSpell=SPELL YOU WANT TO PULL WITH
+  -- toon.INI->[Common]->RangeClickItem=CLICK ITEM YOU WANT TO PULL WITH
+  -- toon.INI->[Common]->RangeDisc=DISC YOU WANT TO PULL WITH
+  -- these are all FALSE by default. executed in order listed with /range last.i
+
+
+20171207
+HUDUPDATE
+- updates to inmacro wiki
+- fixed the dumb xpac checker
+- clients w/o underfoot expansion will not be able to assist using smartma anymore
+- /cc combatradius is now by toon not macro
+- correcting a lot of / command outputs to follow the same pattern
+- complete reworking of the smart assist / commands
+  -- /cc smartma [1|2|G|X|NULL]
+  -- /cc smartma 1 sets toon to raid assist 1
+  -- /cc smartma 2 sets toon to raid assist 2
+  -- /cc smartma G sets toon to group assist
+  -- /cc smartma X disables all smart assists
+  -- /cc smartma NULL - is a 4 way cycle that will cycle through all the smart assist modes
+  -- the /bc alias sma1,sma2,smag,smax all redirect to /cc smartma
+  -- the bind /smartma redirects to /cc smarma
+  -- /cc smartma has no effect on MA1 or MA2 settings.
+- get_assist_target() 
+  -- adjusted to redirect to new Bind_setCombatControl()
+- class.enc.inc
+  -- /enc [charm] enables using charm spell or divine charm to charm mobs. (will default to divine if mob is lvl 46 or less and aa available)
+  -- find_mob_to_charm()
+  -- requires /pc pet enabled
+  -- requires /enc charm enabled
+  -- while /enc charm is enabled, the chanter will not try and make the normal summoned pet. all other /pc build skills will still work.
+  -- chanter will ae mezz if a mob is detected that it can charm, tash it, if it is not, then attempt to charm.
+- class.brd.inc
+  -- adjusted pulse_stop() check and added to clear_combat()
+  
+NOTE - Group Assisting (2 things)
+- expansion 16 is underfoot. 16 was the release of extended targets. Core makes extensive use of extended targets. 
+  However, some servers do not have underfoot. this was causing errors. smart assist has been disabled for anyone that does not have expansion 16
+
+- the assist fallbacks are being adjusted. while using group smart assist, you can still set MA1 and MA2. If something happens to the Group Assist
+  MA1 will take over. if MA1 is unavailable or dead or not in zone or whatever, MA2 will take over. these are automatic. do not need to turn off 
+  smartassist for the MAs to assume responsibility any more. this process DOES NOT work for RAID assist. MQ does not posses a way to find the raid 1/2
+  Assist toons name. we can only pull the RaidAssist which is limited to the first raid assist. Still have not decided how i want to handle this.
+
+  
+20171204
+- ${validate_expansion[T/F, |#|#|#]} 
+  -- can now check for expansions before features are allowed.
+  
+
+20171203
+- updates to wiki
+- /tie
+  -- can now do /tie [on|off]
+- cast_disc_breather()
+  -- added COOLDOWN to the combat status check. breather should trigger a LOT more
+- major changes to the burn routine detection
+- switchAutoCursor defaults to TRUE in new INI creation
+- lot of old coded moved to file 13
+- melee classes with the breather disc will now trigger it in manual mode w/o having to worry about it.
+- updated some missing epic clicks
+- removed counts for
+  -- doclickItem .. now hardcoded to 6
+  -- doclickItemBurn .. now hardcoded to 6
+  -- doclickOdds .. now hardcoded to 4
+- class.rng.inc
+  -- synergy burns now detect range or melee combat modes and adjust
+- class.ber.inc
+  -- overhaul of disc usage and burn routine
+- class.brd.inc
+  -- bug in the dots routine trying to cast a nuke
+  -- bard will sing in rest mode now. you have been warned
+- class.pal.inc
+  -- adjustment to Steel line. will not hang on core start is spell is not ready
+- class.clr.inc
+  -- /clr [ch] - enable/disable Complete Heal. you're still on your own to mem the spell.
+  
+
+20171130
+- get_target()
+  -- ${DiscInsult} added to warrior pull for more initial hate.
+- bandolier swapping for bash added (framework for other bandolier options as well)
+  -- /cc [bandolier] - enable/disable
+  -- toon.INI->[melee] ->
+    -- SwitchBandolier=  /cc bandolier to enable/disable
+    -- BandolierNormal=  name of bandolier you normaly use
+    -- BandolierBash=   name of bandolier you want to use to bash with.  if you need it.
+	-- thanks to Materous Apps for the idea and the code.
+
+
+20171127
+HUDUPDATE
+- /cursor
+  -- /cursor is now independent of automated or manual control
+  -- anything in the Toon.INI->[Common]->AutoInventoryItem= will be shoved in the inventory as fast as it can no matter what your settings. best to keep this list short
+  -- /cursor auto enabled will apply everything that crosses your cursor to the loot ini file
+  -- /cursor auto disabled wont do shit. you will hang on to that item 'till hell freezes over
+- ture/false error in /movement home setting for main mac loop. thanks to mousetohome for finding it
+- class.mag.inc
+  -- adjustments to the mage to keep twincast/twincst nuke up as much as possible
+- class.pal.inc
+  -- error in /pal switch logic
+- /bc echos added in a shit tonne of places. /echos bc to enable/disable
+- verify_build()
+  -- an entry has been added to the toons INI->[genera]->classbuild=
+  -- this will be matched to the coreBuild increment. when they dont match, stuff will happen, then they will be made to match. 
+  -- more of a way to keep INIs clean from stale entries, old aliases, etc
+- some debug echos removed
+- mount issue found. shouldn't vanish anymore
+  
+
+20171124
+- /invis and /stack
+  -- shaman group presence (invis) added
+- get_target()
+  -- this is the pull routine for.. the puller. it has been changed.
+  -- it will not longer search the immediate combatRange (default 30) for mobs, then search the full agro range.
+    -- this was causing mobs to be selected by the entire mob ranged based on spawn orders. so it would pull mobs farther while ones were closer.
+  -- it now turns the pullers agro range in to steps of 10. the routine will cycle each step looking for a mob. when a valid one is found. that will be the target and the loop is broken.
+  -- pets will continue to remain dead last as long as valid targets are available.
+
+
+20171123
+- class.clr.inc
+  -- removed HealSpell from XTarget Healing. since its not a real spell or anything.. /shrug
+- class.mag.inc
+  -- missed one of the typos for pet healing.
+- would appear i cannot spell target properly. corrected three instances of "taret". and turned on autocomplete for my editor /sigh
+- bug in /mode hunt. bad call to write INI
+- check_buffs_bc() spawn type was returning mounts. mounts dont need no buffs. thanks Stockli for finding it
+- cant spell "unpause" either..
+- get_mob() target acquisition for puller
+  --  forced exclusion of mounts: ${Spawn[id ${_tmpID}].Type.NotEqual[Mount]}
+
+
+20171119
+- echo switches
+  -- /echos [alt|bc|channel|disc|item|melee|spells|relay|verbose]
+  -- NOTE: ALL echo controlls are moved to here. verbose, echochannel, relay. you will need to reset them if they are being used
+  -- NOTE: it will take time to get these echos through the code to replace the generic VOUT echo.
+  -- core.ini->[echo]->
+    -- SwitchEchoMelee - echo melee skills to BC
+    -- SwitchEchoSpell - echo spells to BC
+    -- SwitchEchoAlt - echo alt abilities to BC
+    -- SwitchEchoDisc - echo discs to BC
+    -- SwitchEchoItem - echo items to BC
+    -- SwitchEchoBC - Relay casts to all in BC
+- is_target_valid() was returning a NULL if caught in the middle of a manual to auto switch crashing the mac. returns properly now.
+  
+
+20171117
+- class.clr.inc
+  -- added in the clerics AA Turn Undead nuke. requires an undead target and not be in a raid.
+- class.mag.inc
+  -- typo in switchHealPet
+- class.rog.inc
+  -- typo in initial declare for DiscShadowHunter
+- class.shm.inc
+  -- clickDPS_SHM() -> sub click_DPS_SHM()	
+
+
+20171116
+- events.inc updated for death checks
+- cast_rez()
+  -- will remove touch of divine if it's there.
+  -- adjusted the ECHOCHANNEL location so wont spam if not really casting spell or it gets inturrupted
+- class.clr.inc
+  -- dots added. priority will still be on healing
+- class.shm.inc
+  -- there was a check preventing single healing when there was less then 2 people hurt. the check is no more. the check was a lie.
+- all classes
+  -- combat loop exit check adjusted. priority set to automatic toons. should respond a little better.
+
+
+20171112
+- declare.inc undefined local variable (_verbage) in /heal switch. it has a purpose now
+- class.clr.inc 
+  -- leaving /heal xtarget would create a NULLPoint undefined variable. should be sorted now
+- class.clr.inc / class.pal.inc
+  -- /clr yaulp [##] - will set the % to use yaulp
+  -- /clr yaulp - will enable/disable yaulp
+  -- toon.ini->[buffs]->spellYaulp=[name of yaulp spell you wish to use]
+  -- yaulp choice order: 
+    -- spell is set in INI and memed.
+    -- donals helm from SS hardcore if you have one.
+    -- AA if you have it.
+- class.wiz.inc
+  -- changed buff validation routine. self runes now work.
+  -- timing adjustments to force twincast routine.
+  -- twincast condition available now. checks before either the AA or spell
+
+
+20171111
+- cast_condition()
+  -- adjusted the logic to help speed it up a bit
+- cast conditions now available for:
+  -- GoM Nuke and GoM Nuke 2
+- cast_dot() case typo caused an undefined variable.
+  
+
+20171109
+- added in nuke/DoT pre-evaluations
+  -- loosely based off RD macro EvaluatioCondition() function at Stockli's request
+  -- toon.ini->[spells]->Nuke##Condition= (FALSE by DEFAULT)
+  -- the INI setting is NOT parsed. proper variables are used e.g. ${Me.ID}
+  -- the condition is paired with the nuke being cast
+  -- setting the condition to FALSE will disable the check
+  -- e.g. ${Target.Name.NotEqual[Fred]}  .. would evaluate the target as not being named Fred before nuking it
+  -- e.g. ${Me.PctAggro} < 90  .. would make sure my agro is below 90% before nuking target
+  -- you are looking to check that things are TRUE. if the evaluation is FALSE, the spell will not be cast
+  -- keep mind core_cast() pre evaluates, mana/endurance costs, range, LOS, spell/item/disc/aa are ready, self stacking, elemental resist types, Gift of Manna procs, you're dead, and some other basic things   
+  -- INI example: ranger
+    -- Nuke1=Anticipated Shots
+    -- Nuke1Condition=${Me.PctAggro} < 70 || (${Select[${Me.Class.ShortName},RNG]} && !${Me.DisplayName.Equal[FRED]})
+    -- Nuke2=Focused Arrowrain
+    -- Nuke2Condition=${Me.PctAggro} < 50
+    -- Nuke3=Heartsplit
+    -- Nuke3Condition=FALSE
+- class.dru.inc
+  -- fixed some typos. thanks toots
+- class.ber.inc
+  -- logic error. thanks again toots
+- class.rng.inc
+  -- added condition to summer spam nuke  
+- class.ber.inc
+  -- /ber [AE] enable/disable AE dps discs
+  -- added AE AA War Cry of the Braxi
+- fixed /pet heal switch. hopefully for the last time 
+  
+
+20171108
+- clear_combat()
+  -- should no longer clear target in manual mode when targeting a corpse of any kind
+- can now force nuke cycles to stay in the loop till all nukes are done
+  -- core.ini->[general]->ForceNukeLoop=TRUE to enable. FALSE (default)
+  -- this will lock the nuke cycle untill all nukes in the INI are casted, then release for other class functions.
+- BC buffs are disabled for Rampage Tank
+- class.clr.inc
+  -- check_heal_ward() will ignore Rampage Tank
+  -- check_heal_XTarget_CLR() will ignore Rampage Tank
+  -- check_HP_CLR() will ignore Rampage Tank
+
+
+20171105
+- updated /hc code to current format
+- /hc added to inline wiki
+- update_HUD_notices() - PetFarm was in there 2x
+- use_skill_melee() now requires passed target ID
+- /pc [pet] will try both Suspend Minion and Companion's Suspension before just killing the pet.
+- all classes given access to all buffing routines.
+
+
+20171103
+- is_target_dead(ID) returns [T|F] for use with /if (${is_target_dead[TARGET ID]})
+  -- classes adapted to this change: pal,rng,bar. will do more after a bit of play time.
+- validate_plugin(ID) returns [T|F]. /if (${validate_plugin[TRUE|FALSE, |plugin|plugin]})
+- class.brd.inc
+  -- bad /if-else flow for new restsong switch... still not tested this.
+
+
+20171102
+- logic change for tash/malo/cripple
+  -- leaving the ini entrie class.ini->[spell]spellTash,malo,slow,cripple as FALSE but enabeling the /debuf mode for that skill will force the class to use the AA. otherwise put the spell in the INI
+  -- THIS NEEDS A LOT OF TESTING!!!
+- is_target_valid(ID) returns isValisdTarget [T|F] for use with /if (${is_target_valid[TARGET ID]})
+
+
+20171101
+- class.brd.inc
+  -- /brd restsong - enable/disable playing class.INI->[song]->spellRestSong= while in rest mode
+  -- THIS WILL NEED TESTING
+-- typo in malo debuf. tash is seperated now
+
+
+20171031
+- cast_DOT()
+  -- removed the caste delay timer. dont realy need it since we are already checking for dot duration anyway
+
+
+20171030
+- /core [events] - enable/disable using events.inc include file
+  -- it used to be based off /core auto. i wanted it seperate. this way, even manual toons can be forced to react to raid event emotes.
+- rampage tank for the 4 heal classes CLR|SHM|DRU|PAL. clerics are waisting full mana pools healing random DA toons
+  -- /cls [rampage] [name] - will set the name of the rampage tank. the healer will not heal that toon.
+  -- e.g. /clr rampage bobthbuilder . will set bobthebuilder to simply be ignored for heals either as control toon, group member or xtarget
+  -- this is a non persistent setting. it will be cleared on Core start/restart
+  -- easy hotkey for switching /bct clericname //clr rampage ${Target.DisplayName}
+- Anti-resurrection list. add names to this for the fucktwats that will not take reses when you take the time to cast them.  or, conversly, people you just dont like
+  -- core.ini->[no]->Rezlist=
+  -- manual entries e.g. |bob|fred|mike and so on...
+- list_delete() adjusted check for null/0 returned target ID. should fix chanter NULL|ID list issue. i hope
+- class.enc.inc
+  -- corrected some AAs for the last patch change
+  -- if more then 1 mob in 49 raius tash default to AA AE bite of tash. ae tash will not create timer markers
+- complete rewrite for debuffs
+  -- there will be bugs to work out!
+- class.dru.inc
+  -- fixed missing undeclared variables in heal routine
+- cast_malo_tash() -> cast_malo(). chanter will maintain its' own tash routine
+  -- spellMalo variable now same for shm, mag, nec
+  
+
+20171025
+- added in a delay for casting nukes, dots, rains
+  -- /cc [nukedelay] - [1,100] delay in casting a direct damage/damage over time spell. 1=1/10th of a second
+  -- cast_nuke_rain(), cast_nuke(), cast_DOT()
+- class.clr.inc
+  -- fixed logic error in the aggressive heal switch
+- #event Zone
+  -- missed a variable due to the new changes. it's not missed anymore
+- added zone check to /here
+- logic error in aura buffs for non manna using classes.
+- switch protection for /buff BC/Raid/Tell for non buffing classes
+
+
+20171021
+- class.brd.inc
+  -- removed the pulse debug echos. forgot about them being in there
+- check_aura()
+  -- small adjustment to the zerker aura portion
+- class.wiz.inc
+  -- /wiz [forcetwincast] - enable/disable spamming of twincast spell and twincast nuke
+  -- corrected burn AA [furry of*] for latest DB update
+
+
+20171020
+- core.ini->[general]->smartasserrors TRUE/FALSE. turn off the snarky error messages if you like
+- fixed a bug on core.ini creation
+- more additions to the /info commands
+- updates to the wiki.ini
+- validate_class() will check multiple classes now .. /if (!${validate_class[|RNG|ROG|BST]}) /return
+- updated all classes for the new validate
+- removed validate_petclass(). dont need it
+- class checking added too:
+  -- /debuff, /heal, /buff
+- class.rog.inc
+  -- logic adjustment to try and keep it from waisting knifeplay on a named mob
+
+
+20171017
+- updates to all class files for conformity
+
+
+20171016
+- LOT more added to /info
+- /pc [*] - pet class validation now
+- core.ini->[Genera]->autoinihousekeeping set to true to auto clean INIs every mac start
+- fixed a bug in /onoff
+- adjusted the logic in cast_AA_spire()
+
+
+20171014
+WHITEWASH
+- lot more changes to pet weapons. these things are turning out to be a pain in the ass
+- MQ2Cast_Spell_Routines.inc
+  -- added a LOT of death checks. gonna see what happens
+- class.rog.inc
+  -- poisons will chack vs a list now before reapplying default leg poisons. EXAMPLE
+    -- ClickPoisonBuff=|Bite of the Shissar Poison X|Tallon's Tactic Poison IV|Tallon's Tactic Poison V|Vallon's Tactic Poison IV|Vallon's Tactic Poison V|Mana Poison Coat|Hero's Toxin Poison I|Hero's Toxin Poison II
+    -- ClickPoisonItem=Consigned Bite of the Shissar XVIII
+    -- ClickPoisonDispenser=Selrach's Shadowscale Leggings
+    -- ClickPoisonCount=60
+  -- will (should) not waste knife play on named while frenzied stabbing is available
+- /core auto [on|off]
+  -- /core auto [on] - force automatic mode on
+  -- /core auto [off] - force automatic mode off
+- alias /on and /off
+  -- now points to /core auto[on|off]
+- class.mag.inc
+  -- minor updates to casting routines  
+
+
+20171010
+- fixed an error in spire logic. dont realy need double "
+- class.wiz.inc
+  -- /wiz [manaburn] enable/disable AA Mana Burn for burns
+- minor adjustments to the mage pet weapon give thingie
+
+
+20171008
+- class.enc.inc
+  -- fixed a typo in the debuffs
+
+
+20171007
+WHITEWASH
+- rewrite to /crew
+  -- core.ini->[group] server specific now
+  -- reduced to the three roles we use. hell with the rest
+
+
+20171006
+- class.pal.inc
+  -- added in Holy Guardian as third def disc for rotation
+
+
+20171005
+- class.enc.inc / class.wiz.inc / class.mag.inc
+  -- /class [gather] - enable/disable all gather skills
+  -- /class [gather ##] - % to gather at if enabled
+- use_mod_rod()
+  - validates HP bu rod type before trying to use it
+- class.brd.inc
+  -- bug hunting. just wants to stop and smell flowers.
+- class.rog.inc
+  -- /rog [ae] - enable/disable melee AE skills
+
+
+20171001
+- more wiki entries added
+- class.rog.inc
+  -- adjustted some self only discs to the new validation function
+
+
+20170930
+- ${buff_validate[type, inisub, name]} returns true/false
+  -- validates all self buffs: manna cost, in book, stacks, duration.
+  -- works on silver subscriptions
+
+
+20170929
+- class.nec.inc
+  -- will now slow undead mobs with Death's Malaise if enabled
+- DOTS
+  -- all dots now conform with necro changes. there is a DOT to be cast and a DOT to be checked against
+  -- all timer checks now function off of .Duration.TotalSeconds and not the standard timer 1/10 timer
+  -- DOTs will be reapplied when they reach the half tick mark (3 seconds). or as close to the loop gets to <= 3 seconds
+  -- DOT caculations are only applied top DOTS that YOU cast on the mob. not other casters dots with same name
+- active Wiki
+  -- created core.wiki.ini
+  -- /command ? to get some helps.. (this has been removed 20171101)
+  
+
+20170928
+- i will make this fucker loot diamonds
+- check_buff_raid()
+  -- missed a /goto :next .. 
+- class.wiz.inc
+  -- burn changes. no longer alternates Fury of Kerafyrm and Fury of Ro. they both get used now
+
+
+20170927
+HUDUPDATE
+- added /rez range ## to the HUD 
+- i broke the bards pulse().. it is now unbroke..
+
+
+20170926
+- class.enc.inc
+  -- debuff_mobs() rewrite
+    -- should auto switch between single mobs and groups
+  -- fixed the undeclared mass mezzing/debuff list control variables 
+
+
+20170925
+- class.brd.inc
+  -- /debug slow will turn on bard slowing. slows current target only
+  -- removed selo's kick. now part of kick skill
+- class.rog.inc
+  -- added EoK disc shadow-hunter dagger to spam dps
+
+
+20170924
+- cast_AA_slow()
+  -- missed another variable that needed predefining. never gonna end.
+- check_buff_bc()
+  -- was ignoring the class lists
+- /movement [mount]
+  -- /movement mount [on] - summons mount you have on your keyring as listed in Toon.ini->[Common]->mount=
+  -- /movement mount [off] - dismounts. i know not needed. but for the sake of having it.
+
+
+20170923
+- #Declare MQLOG declare issue. renamed to LOG
+- bug in /t for ports. is fixed. wizards and druids will send you to far off places
+- cast_cure()
+  -- added in some more aggressive self curing for the healer classes
+- class.rog.inc
+  -- /rog [autosos] - enable/disable using SOS all the damn time 
+  -- will now use sneak attack line of discs 
+- check_buffs_BC()
+  - rewrote. had to account for changing to the netbots that eqmule has precompiled
+
+
+20170922
+- unbroke the /cc smartengage command. i had previously umm. broke it..
+- class.brd.inc
+  -- changed Rallying call to Rallying Solo
+- class.clr.inc
+  -- cast_cure call typo
+
+
+20170921
+DB patch Sep 20, 2017
+/core fixini
+- /core [find] - buhby
+- cast_AA_snare() 
+  -- fixed the timers.. all sorts of messed up
+- check_buffs_tell()
+  -- some math changes to the queue listings. need to keep an eye on this one
+- cast_challenge()
+  -- Paladin / Shadowknight
+  -- account for the changes to the unded Nuke being added to the spell
+- class.pal.inc
+  -- removed AA Helix of the Undying. hope you like Demand for Honor
+  -- AA Marr's Gift
+    -- will not use while medding
+    -- will not use in safe zones
+- class.clr.inc
+  -- completely removed Quiet Miracle (Prayer) /mourn
+  -- /clr [vp] - enable/disable use of AA Veturika's Perseverance
+  -- /clr [vp ##] - % mana to use AA Veturika's Perseverance at
+    -- Veturika's Perseverance 30k Manna/20 min
+    -- will not use in a safe zone
+    -- will not use while medding
+- class.wiz.inc
+  -- no code changes. wou will need to adjust your INI to match the new familiar name. like so
+    -- SumFamiliar=Improved Familiar
+    -- SumFamiliarBuff=Improved Familiar
+- class.enc.inc
+  -- removed Beam of Slumber from rotation
+- class.shd.inc
+  -- AA Soul Flay added to the /cc agro toggle
+- class.mag.inc
+  -- removed frienzied burnout from burn routine
+  -- since they fucked up virulent tallon. can add it back in the class.ini->[pet] buffs like so
+    -- PetBuff1=Frenzied Burnout
+    -- PetBuff1chk=Virulent Talon
+
+ 
+20170919
+WHITEWASH !!!!
+- alias /here (should be fixed)
+  -- prep toons in your BC for immediate combat
+  -- to execute: /here or /bca //setcombathere (if you are not using Core to drive with)
+  -- affects ALL toons in your BC EXCEPT the command giver
+  -- will only adjust a setting if it does not match what is pre-defined in core.ini->[Here]->
+  -- will only adjust timers that have switches turned on
+- /say works again
+- /door works as well as it used too
+- core_cast()
+  -- fails were marking alt skills as spells when being used in the self/tell buff routines. broke things like the auto beg for shards
+
+
+20170918
+WHITEWASH
+HUDUPDATE
+- core_cast()
+  -- will now validate spells are in the book
+- class.enc.inc
+  -- removed mana checks from runes
+- clear_timer()
+  - typo in a timer deletion
+- class.brd.inc
+  -- delete alias /song
+  -- adjusted for new INI writing functions
+	-- updated to current loop structure
+	-- updated all mq2cast to core_cast
+	-- slimed down the SebHH sword casting and moved to discs
+  -- /brd [line] - bard song line
+  -- /brd line [caster|melee|mix|other|tank]
+  -- /brd line [caster] - list songs for a caster group
+  -- /brd line [melee] - songs for a melee group
+  -- /brd line [mix] - seriously, should have this down by now
+  -- /brd line [other] - songs for when you're stoned on the couch and realize you are out of doritos
+  -- /brd line [tank] - songs for a tank group
+  ****** you  will need to adjust your INI lists for the songs. example below..
+  LineCurrent=Caster
+  LineTank=|War March of Jocelyn|Fjilnauk's Spiteful Lyric|Fjilnauk's Song of Suffering|Chorus of Sionachie
+  LineCaster=|Nilsara's Aria|Fatesong of Jocelyn|Arcane Melody|Aria of Maetanrus|Chorus of Sionachie
+  LineMelee=|War March of Jocelyn|Fjilnauk's Spiteful Lyric|Fjilnauk's Song of Suffering|Arcane Melody|Chorus of Sionachie
+  LineMix=|War March of Jocelyn|Fjilnauk's Spiteful Lyric|Nilsara's Aria|Chorus of Sionachie
+  LineOther=|FALSE|FALSE 
+- death counts
+  -- to keep the hud from hitting core.ini a dozen times per second. we now have this
+    -- a 10 second timer
+  -- either adjust your deathcounts in core.ini to reflect:
+    -- server.CLS.Name  eg. rathe.SHM.Hoociesboochies 45...
+    -- or the counts will get created for you from scratch at 0.
+- do_rest()
+  -- wrong healoverride varible check for hybrids. they will once again rest
+ 
+ 
+20170917
+- variable error in sumFamiliarLeave
+- rewrite of /bcsay
+  -- say repeate radius reduced to 40
+- class.pal.inc
+  -- no AEs on raids. i'm talking to the stun/agro generation AAs Hallowed and Beacon  
+
+
+20170916
+12 Sep 2017 PATCH
+- ditching individual versioning for 1 build date as the increment number
+- #define ISDEAD is now dead. welcome your new overlord AMIDEAD
+- hud.inc
+  -- updated all core parsed lines for type 16 (tech 16+2+1)
+- rezing
+  -- necro 93% aa res added
+- class.nec.inc
+  -- will watch for corpses to rez if /rez give is enabled
+  -- now use their own DOT routine that lets them check for different named effects on the mobs
+- BC buffs
+  -- fixed logic error
+- removed burn.inc
+  -- all burns placed back into their respective classes
+  -- all synergy INI entries in core.ini are deleted and moved to memory
+- root class class control spiregroup and spireraid .. example:
+  -- /rng spiregroup [#] - [0,3] set group burn spire to #
+  -- /rng spireraid [#] - [0,3] set raid burn spire to #
+  -- 0 disables
+  -- can set them both the same if you have no clue what you want in life
+  -- NOTE: clerics have 3rd spire hardcoded into their healing. you can set the spire. but they tend to use 3rd a lot
+- tell_resident_mage()
+  -- timers pregenerated with mage names as suffix variable vice refreshed spawn ID
+- core_cast()
+  -- !${Spell[${_spell}].SpellType.Equal[Beneficial]} removed from all checks except spell ready. this could be a fuckup.. /shrug
+  -- 4 reses later...
+  -- i undid this.. it was a horrid idea. not sure what i was thinking
+- removing wrapper setvar(). switching everything to simple /declare
+- started process of removing :exit and all referencing /goto
+- check_for_corpse()
+  -- no rezing in safe zones with /core auto enabled. no matter the type of rez
+  -- no rezing at all with /rez give disabled. no matter the type of rez
+- check_exit()
+  -- should exit a lot faster on a positive reason to exit the current routine
+- rewriting all loops to exit using either /break /return or /continue, depending on need. no more /goto to break a loop
+- set_xtarget
+  -- looped the classes. 100 lines of code to 6
+- root class control xtheal [PAL|CLR|SHM|DRU]
+  -- /clr [xtheal ##] - [1,300] sets the range classes will be added to the XTarget Healing routines  
+- root class control xttime [PAL|CLR|SHM|DRU]
+  -- /clr [xttime ##] - [1,5] sets the duration in min for the refresh of the xtarget window  \
+ - corrected all classes for the Boolean wraps and use of :exit 
+- corrected logic error in is_target_valid()
+
+
+20170911
+- rezzing
+	/rez [range ##] - [1,110] maximum range to check for corpses to rez
+- check_for_corpse()
+ -- pregenerate variables for corpses to account for 07 Sep 2017 PATCH
+- cast_rez()
+  -- some logic changes to help clean it up
+  -- adjust the timer creation for 07 Sep 2017 PATCH
+- prep_combat()
+  -- will now prep declares that are based off of target ids on engage of every target.
+- clear_timer()
+  -- will clear all the damn variables we keep making on death of a mob or correctly clearing a target 
+- set_xtarget()
+  -- let's just say it was broke. it's not anymore
+
+
+07 Sep 2017 PATCH
+Cleric Version 2.2.1
+Enchanter Version 1.5.1
+*shits all kinds of messed up
+- Timers fixed for Common, PAL, CLR, SHD, WIZ, BER, BRD, BST, DRU, ENC, MAG, ROG, SHM, WAR, MON, NEC
+
+- is_target_dead()
+  -- no longer requires a [TRUE|FALSE] variable
+- class.clr.inc
+  -- change they way groups hurt are checked. no more minor/major adjustmetns. you are either hurt according to your healpoint marker or you are not hurt.
+  -- should sort hurt groups faster
+  -- cleric will not yaulp while sitting (ikr), or when out of combat and Manna > rest%
+  -- corrections to HealOverride variable now that binds are fixed.
+ 
+- Timers (this sucked ass. and not in a good way)
+  -- /call declareTimer [NAME] [INT|BOOL|STRING|FLOAT] [INISECTION] [value] [timer_check_blah_blah]
+  -- timers fixed: see timer fix list Top..as in look up..
+- class.shd.inc
+  -- /shd [harmonious|skin|stance] 
+  -- /shd [harmonious] - enable/disable constant harmonious up
+  -- /shd [skin] - enable/disable constant skin up
+  -- /shd [stance] - enable/disable constant staunch up
+- class.dru.inc
+  -- logic error in xheal check
+- check_engaged()
+  -- added ${Group.MainAssist.Name.Equal[${Me.DisplayName}]} 
+  -- added ${Group.MainTank.Name.Equal[${Me.DisplayName}]}
+- auras...
+  -- everyone gets access to 2 auras now  
+- switchOverrideLos corected for: common, core, PAL, SHD, DRU, WAR.. fuck it.. all the classes...
+
+
+20170906
+Core Version 4.0.1
+Shadowknight Version 2.0.0
+- class.clr.inc
+  -- logic error in QM casting
+- /rez
+  -- /rez [pct] [10|20|35|50|60|75|90|96]
+  -- /rez [pct ##] - will set the minimum percentage resurrection you are willing to auto accept
+- wait_for_rez()
+  -- rewritten
+  -- will auto reject 0% rezes
+  -- will auto take 100% reses
+  -- will auto take call to corpse
+  -- establish the current res window % (if any) fisrt
+  -- accepts /rez [pct ##] and highter
+- adjust the output for some of the /commands
+
+- class.shd.inc
+  -- tied AA bold Attacks to agro
+  -- moved heal taps to discs
+  -- removed patch_heal_SHD(). dont need
+  -- /heal self must be enabled for SK to use any AA/Disc taps
+  -- /cc agro must be enabled for any AA/Disc that generates agro
+  -- /shd [groupheal|harmonions|skin|stance]  
+  -- /shd [harmonions] -  
+  -- /shd [skin] -  
+  -- /shd [stance] -  
+  
+- class.pal.inc
+  -- /heal self must be enabled for any self healing AA/Discs
+	-- reworked check_heal_group it is now check_spash_group
+	  -- no major/minor hurt for counts. you are either hurt or you are not
+    -- no severity adjustments at all. strictly healpoint markers to check for hurt 	  
+	  -- do not care about the control toon
+	  -- /heal group required
+	  -- group splashes are targetless
+	  -- splash group has 2 point blank AE splashes
+	    -- 1 for panic
+	    -- 1 for normal group healpoint %
+			-- AA Hand of Piety
+			-- panic splash will trigger if 1 or more person hits healpoint markers
+			-- normal group splash is 2 or more people reaching healpoint markers
+			-- AA Piety is 3 or more reaching healpoint markers
+
+- removed target requirements for AA Radient Cure
+- cast_AA_snare()
+  -- pally can snare either undead or living
+
+
+20170902
+Paladin Version 1.5.0
+WHITEWASH
+- fixed a bug in is_target_dead()
+- sped up /core whitewash a bit
+- adjusted a lot of NOUT to VOUT
+- disarm now requires agro to be on
+- removed MercWarPoint, MercCLRPoint, MercDPSpoint from healpoint calculations. mercs are treated as normal group members by class
+- adjusted /burn force to apply only while in combat and core auto is no longer necessary
+- class.dru.inc
+  -- /dru [groupheal|healpoint]
+  -- /dru [groupheal]
+  -- /dru [healpoint ##] - adjust the healing point for that targets class type or Pet
+- class.clr.inc
+  -- added /cc NUKE routines. you can now pretend to be a wizard
+  -- /clr [fade|healpoint]
+  -- /clr [healpoint ##] - adjust the healing point for that targets class type or Pet
+  -- /clr [fade ##] - % of health to use AA fade from combat
+  -- FADECOMBAT added
+- class.shm.inc
+  -- /shm [healpoint ##] - adjust the healing point for that targets class type or Pet
+- class.mag.inc
+  -- /mag [fade ##] - % of health to use AA fade from combat
+  -- FADECOMBAT added
+- class.shd.inc
+  -- /shd [harmonious] - enable/disable self harmonious buff
+- class.brd.inc
+  -- logic error in seb HH weapon  
+- delete #bind /combatradius, /zradius
+- /cc [saferadius|zradius]
+  -- /cc [saferadius ##] - [1,50] sets fake combat safe radius 
+  -- /cc [zradius ##] - [1,200]
+- delete #bind /invites, /checkcash, /ri
+- delete alias /echochannel, /autoadjustexp, /maxlevel, /maintainexplevel
+  -- /core [market|invite|raidinvite|echo|expadjust|expmaintain|explevel]  
+  -- /core [market] - check DB cash
+  -- /core [invite] - enable/disable taking invites for raid/group
+  -- /core [raidinvite] - enable/disable accepting requests for a raid invite
+  -- /core [echo ##] - [1,9] set the echo channel
+  -- /core [expadjust] - enable/disable auto adjusting EXP/AA  
+  -- /core [expmaintain ##] - [1,99] % of exp to maintain in your /core explevel 
+  -- /core [explevel ##] - [1,105] - level exp you wish to maintain
+- delete #bind /home, /stickbehind, /facefast
+- delete alias /homeleash, /homeradius
+- Movement Controls /movement
+  --/movement [arc|behind|fast|home|leash|radius]
+  --/movement [home] - enable/disable home camp
+  --/movement [radius ##] - [1,200]
+  --/movement [leash ##] - [1,200]
+  --/movement [behind] - enable/disable stick behind the target in combat
+  --/movement [fast] - enable/disable fast facing the target
+  --/movement [arc ##] - [1,45] fast facing arc buffer. no face movement if target is within that degree
+- class.pal.inc
+  -- /pal [healpoint|steel|stun|harmonions|stance]
+  -- /pal [healpoint ##] - adjust the healing point for that targets class type or Pet
+  -- /pal [steel] - enable/disable Reinvigorating Steel self Buff
+  -- /pal [harmonions] - enable/disable Harmonios Blessing self Buff
+  -- /pal [stance] - enable/disable Staunch Stance self Buff
+  -- /pal [stun] [stop|force|disruptive|divine]
+    -- sets chain stun AA
+    -- force - Force of Disruption AA
+    -- disruptive - Disruptive Persecution AA
+    -- divine - Divine Stun AA
+    -- stop - disable chin stuns
+  -- nukes now require agro to be on
+  -- will maintain yaulp while in combat
+  -- will maintain harmonious in combat
+  -- will maintain steel in combat
+  -- will maintain staunch stance in combat
+  -- undead cripple will only cast on undead mobs. dunno why it wont work on everyone /shrug
+  -- AA Bold Attacks disables when Agro is off.
+- cast_AA_snare()
+  -- added paladin snare for undead targets
+- added AAEradicateList=|RNG|DRU|NEC|WIZ|ENC|MAG
+- check_buff_routines()
+  -- added in class specific sections for engaged buff checks
+- mode.inc
+  -- /mode scorch will loot more like /mode hunt
+- cast_AA_yaulp()
+  -- should no longer trigger while sitting
+
+
+20170828
+WHITEWASH
+- added 30 degree buffer arc check to facing target checks 
+  -- as long as the target is within 30 degrees of the toons first person facing field of view, core will not execute a facing movement
+  -- this should prevent roughly 20 face calls per second
+  -- is not applied to /tie
+- had all the logic backwords on the safezone override. should be better now
+- no more forced to home camp in manual
+- adjusted initial killcode warning for new installs. will no longer end mac. it will simply remind players each startup
+- rewrite of Event_SetINI() -> writeINI()
+  -- no longer tries to write FALSE (string) to INT base declares
+  -- will do nothing if the variable is not changed
+  -- no more forced TRUE,ON to TRUE or FALSE,OFF,0 to FALSE. take the variable at face value
+- check_aura()
+  -- adjustment to zerker/monk auras.
+- delete #bind /autoshrink
+- /onoff [horn|shrink]
+  -- /onoff [horn] - enable/disable using Minature Horn of Unity
+  -- /onoff [shrink] - enable/disable automatic shrinkage
+- class.clr.inc
+  -- /clr [grouphot] - enable/disable using group heal over time spells
+  -- /clr [groupheal] - enable/disable using group heals
+- class.shm.inc
+  -- /shm [grouphot] - enable/disable using group heal over time spells
+  -- /shm [groupheal] - enable/disable using group heals
+- class.pal.inc
+  -- /pal [groupheal] - enable/disable using group heals
+  -- /pal [mg] - enable/disable Marr's Gift
+  -- /pal [mg ##] - Marr's Gift % to use at
+  -- /pal [yaulp] - enable/disable paladin yaulp
+- delete alias /combat
+- delete #bind /smartengageat, /engageat
+- please welcome your bouncing baby brother Combat Control
+  -- will be moving all the combat realted stuff under here. may take a bit
+- added bind /cc for combat controls
+  -- /cc [melee|range|nuke|heal|dual|engage|smartengage|agro|pull|agro|ma1|ma2]
+  -- /cc [melee] - set auto combat mode to MELEE
+  -- /cc [range] - set auto combat mode to RANGE
+  -- /cc [nuke] - set auto combat mode to NUKE/DOT
+  -- /cc [heal] - set auto combat mode to HEAL
+  -- /cc [dual] - set auto combat mode to DUAL
+  -- /cc [engage ##] - [1,100] set % of mobs heralth to engage for /MA1 and /MA2
+  -- /cc [smartengage ##] - [1,100] set % of mos heralth to engage for /smartma [g|1|2]
+  -- /cc [agro] - enable/disable fight for agro (moved from /onoff)
+  -- /cc [agro ##] - [1,400] set agro range to engage mobs
+    -- /agro ## now redirects to /cc agro ##
+  -- /cc [MA1 NAME] - set MA1 name. FALSE to disable (moved from /core)
+  -- /cc [MA2 NAME] - set MA2 name. FALSE to disable (moved from /core)
+  -- /cc [pull] - enable/disable pulling mobs (moved from /onoff)
+  -- /cc force [melee|range|nuke]
+    -- /cc force [melee] - forces manual combat routines until a stop is issued or target dead
+    -- /cc force [range] - forces manual ranged attack routines until a stop is issued or target dead
+    -- /cc force [nuke] - forces manual nuke or dot routines until a stop is issued or target dead
+  -- /cc [combatdistance] - [1,50] set minimum melee combat range
+- delete alias /relay, /control
+- /core [relay|control] [name]
+  -- /core [relay NAME] - sets the /tell relay toon. any tells you get will be repated to that toon. this gets irritating after a while
+  -- /core [control NAME] - sets the control toon
+- delete /bc HEAL, MELEE, RANGE, NUKE, DUAL, issuance, spice, rods, switchRaidInvite, cr, 
+- class.mag.inc
+  -- delete #bind /rods
+  -- /mag [rods|mana]
+  -- /mag [rods] - make sure all sex toys are present and accounted for
+  -- /mag [mana] - get mana cause mages suck ad mana conservation
+- internalized all INI bitch responses
+- internalized all INNI port lists
+- /port [wizard|driud] [location] will tell Toon->INI->ResidentWizard/ResidentDruid, whichever to send you to that location
+- class.wiz.inc
+  -- added in support for /cc agro switch. Enabled, the wiz will not care about gaining agro
+
+
+20170825
+Ranger Version 2.3.0
+Cleric Version 2.2.0
+Rogue Version 1.6.0
+WHITEWASH
+- /debug [mode] - enable/disable mode specific debugs
+- adjustment to do_rest to force bard into hybrid class selection
+- cswitchVoTlass specific / commands
+	-- core.rng.inc
+	  -- delete alias /spice
+    -- /rng [summer|spice]
+    -- /rng [summer] enable/disable Summer's line of spells
+    -- /rng [spice] force cast of MGB and Auspice
+  
+  -- core.clr.inc
+    -- delete #bind /qm, /qmpct
+    -- delete alias /yaulp
+    -- /clr [aggressive|yaulp|qm] [##]
+    -- /clr [yaulp] - enable/disable cleric yaulp [Donal's Helm (priority) or AA]
+    -- /clr [aggressive] enable/disable cleric leading with introventions (moved from /heal command)
+    -- /clr [qm] - enable/disable cleric use of Quiet Miracle
+    -- /clr [qm ##] - [1,99] set QM %
+    
+  -- class.rog.inc
+    -- delete #bind /poison
+    -- /rog [poison ##] - [1,100] set the amount of summoned poison to keep on hand 
+    
+- class.wiz.inc
+  - typo in sunderock springs port  
+- mode.inc
+  -- delete #bind /setmodeagro
+  -- /mode [agro ##] - [1,99999] set moge agro range 
+  -- fixed typeo in fishing ability check
+- delete #bind /autorest
+- /core [rest] - disable auto rest % (sets it to 0)
+- /core [rest ##] - [1,99] set auto rest %
+
+
+20170821
+WHITEWASH /core whitewash
+HUDUPDATE /hc update
+- removed Gnoll Totem from item buff clickies
+- /cursor [pause] [##] will work on toon INI [Common]->AutoInventory= List now
+- /override [safelist] allows the safelist (toons you trust) check to be bypassed
+- introducing /onoff for single non-associated switches
+  -- /onoff [agro|pull|banestrike|horn]
+  -- /onoff [agro] - enable/disable fight for mob attention
+  -- /onoff [pull] - enable/disable pulling of mobs
+  -- /onoff [banestrike] - enable/disable use of AA banestrike
+  -- /onoff [horn] - enable/disable anniversary Minature Horn of Unity
+- /info
+- /core [whitewash|ma1|ma2] [NAME]
+  -- /core [whitewash] - delete all established Core aliases and force end macro
+  -- /core [ma1] [NAME] - adjusts out of group MA1 to NAME. FALSE to disable
+  -- /core [ma2] [NAME] - adjusts out of group MA2 to NAME. FALSE to disable
+- delete alias /ma1, /ma2
+- built in remainder of spell resist checks vs mob names in core.zone.ini. SPELLS ONLY
+- adjusted some logic to clearing the cursor
+- adjusted the hud for the engage override ##
+- /ts [movebank|movehouse]
+  -- /ts [movebank] - will move any 1000 stackable item in the top 4 inventory containers to your bank
+  -- /ts [movehouse] - ** work in progress **....
+- adjusted check_aura() to match adjustments to MQ [17 Aug 2017 patch] ${Aura members
+- class.mag.inc, class.bst.inc
+  -- added more pet heals cause some gurls complaining...
+- more adjustments to /tie. there's still a bug
+- removed [SelfBuff] from all toon INIs
+ 
+
+20170815
+Core Version 4.0.0
+HUDUPDATE
+WHITEWASH
+- say goodby to toast
+- delete #bind /toastauto, /toastengageat, /toastmobcount, /toastnow, /toastforce
+- introducing /burn 
+  -- /burn [auto|count|engageat|force]
+  -- /burn [auto] - enable/disable burn automatic routines on named targets.
+  -- /burn [count ##] - # of mobs in immediate agro range to triger burn routines
+  -- /burn [engageat ##] - target health % to start using burns with /burn auto enabled
+  -- /burn [force] - enable/disable forced constant burning
+- delete #bind /verbose, /combatnuke, /combatrange, /combatmelee, /resetcore
+- delete alias /killcode
+- changes to /core
+  -- /core [auto|verbose|melee|range|nuke|killcode] [TEXT]
+  -- /core [auto] - enable/disable automatic mode for Core
+  -- /core [verbose] - enable/disable majority of EQBC echos
+  -- /core [melee] - engage toons melee routine while in manual
+  -- /core [range] - engage toons range routine while in manual
+  -- /core [nuke] - engage toons nuke/dot routine while in manual
+  -- /core [killcode "TEXT"] - adjust the remote Core termination code
+  -- /core [reset] - reloads all settings/INIs
+- logic error in AA eradicate debuf casting
+- added protection for all /declare instances
+- rename of AutoBot -> coreAuto
+- Toon INI ClickItemToast= are now ClickItemBurn.. go fix ur shit
+
+
+20170814
+Core Version 3.8.2
+- class.wiz.inc
+  -- AA Lower Element now works of /debuf cripple switch
+	-- added in some exit protection for subs
+- /tie changes
+  -- delete #bind /tietoon, /tietime, /tiedistance
+  -- SetTie removed from Toon INI [Movement]
+  -- /tc [name|distance|time]
+	  -- /tc [name] - 
+	  -- /tc [distance] - 
+	  -- /tc [time] - 
+	-- /tie - enable/disable tie to toonname if they are in the same zone. otherwise does nothing
+- adjusted some echos for auto EXP/AA
+- HUD changes
+	-- delete #bind /hudbroadcast, /hudtime, /hudupdate
+  -- /hud [time|update|broadcast]
+    -- /hud [time] - Toggles the HUD clock between real life time and in game time
+    -- /hud [update] - forces the MQ Hud INI to be updated
+    -- /hud [broadcast] - enable/disable hud broadcasting toons name
+- added boolean wrappers to all ${Macro.Return}s to all of Core
+- loot checks added to /modes hunt and petfarm
+
+
+20170812
+Core Version 3.8.1
+Core Wiz 1.8.2
+HUDUPDATE
+- looting disabled in safezones. seriously, whats the point?
+- pet weapon casting/equiping adjusted to core.loot.ini. should not do dumb shit anymore
+- changes to rez ! ! ! !
+  -- /rez [stop|take|give|everyone|combat|emergency]
+  -- /rez [stop] - disables all rez taking/giving. shuts it down
+  -- /rez [take] - enables/disables taking of reses cast on you. regardless of cast source
+  -- /rez [give] - enables/disables casting of resses. if you cannot rez someone, delete and reroll a cleric
+	-- /rez [everyone] - enables/disbales rezzing regardles targets guild or raid status. you will rez any corpse you can get your grubby fingers on
+	-- /rez [combat] - enable/disable casting rez while you are on a hate list and a hostile mob is in the fake combat range  
+	-- /rez [emergency] - enable/disable the use or Loyalty Vendor Rez tokens on what ever class you have specified in. it will rez whatever class you have listed
+		-- rez token list moved from core.ini to toon.ini files.
+	  -- Toon INI [Heal]->RezTokenList=|WAR|SHD|PAL|BER|ROG|MNK|RNG|BST|BRD|NEC|ENC|WIZ|MAG|CLR|SHM|DRU 
+  -- rez checks will happen more often for all classes
+- Lots of debugs changed
+- debug switches are stored in the toons INI under [debug]
+- debugs are persistent  
+- /debug [stop|core|class|cast|rez|array]
+	-- /debug [stop] - disables all debugging
+	-- /debug [core] - echos all things
+	-- /debug [class] - echos all class specific routines
+	-- /debug [cast] - echos all Casting Routines
+	-- /debug [rez] - debug for all rez routines
+	-- /debug [array] - debug for arrays (buff/debugg queuing, mezz arrays)
+- debug notice removed from the hud
+- Pets
+  -- deleted #bind: /buildpet, /pb, /companionpet, /companionswarm, /petswarmengageat, /petengageat
+  -- deleted alias: /pettank, /pettype
+  -- /pc [pet|swarm|tank|type|build|bag]
+	-- /pc [pet] - enable/disable using pets
+	-- /pc [pet ##] - sets pet engage at %
+	-- /pc [swarm] - enables/disables using pet swarms
+	-- /pc [swarm ##] - sets swarm engage at %
+	--* /pc [tank] - turns pet into a tank ** not written in yet **
+	--* /pc [type] - will adjust the spel casted for pet type. ** not written in yet **
+	-- /pc [build] - forces pet evaluation. will: make if dead, give weapons and buff
+	-- /pc [bag ##] - sets bag slot # for use with pet weapons swap/cast
+- class.bst.inc
+  -- no longer cast paragon automatically while in manual mode
+- removed a lot more old INI entries	
+
+
+20170810
+WHITEWASH
+MAG Version 2.0.3
+- /override [name] - ignores named mobs for toast checks.
+- do_loot() delete portion now feeds of sort_cursor()
+- class.mag.inc
+  -- cauldron summoned items are now sorted through core.loot.ini
+  -- rods are sorted through core.loot.ini
+  -- removed CauldronDestroy List from MAG INIs
+  -- deleted alias /rods
+  -- #bind /rods will force mage to delete all non max rod charge counts and resummon them
+
+
+20170809
+- toons check zradius now before asking residentmage for rods. 150' sphere
+- lowered cleric res manna requirement from 12 to 8
+- /override [loot]
+  -- loot - overrides loot settings requirements for Group/Raid Masterlooter.
+- advloot now works when not in auto and /override loot is enabled
+
+
+20170808
+WHITEWASH
+- core.zone.ini list controlls
+ -- alias delete 
+   -- /listremove, /listexclude, /listnamed, /listnomezz, /listnocast, /listnomelee, /listrange, /listnomagic
+   -- /listnodisease, /listnofire, /listnopoison, /listnocold, /listnocorruption, /listhuntmob
+ -- bind delete /safezone
+ -- /lc [safe|remove|exclude|name|nomezz|nocast|range|nomelee|nomagic|nodisease|nofire|nopoison|nocold|nocorruption|huntmob]
+   -- safe - enabel/disable safezone
+   -- remove - removes target from ALL lists for that zone
+  
+
+20170807
+Core Version 3.8.0
+ENC Version 1.4.3
+HUDUPDATE
+WHITEWASH
+- welcome to /override
+  -- overrides are persistant 
+  -- Toon INI [Override] ->
+  -- /override [stop|pve|safezone|los|exclude|named|engage]
+  -- /override stop will disable all overrides
+  -- los has been written in
+  -- safezone has been written in
+- delete #bind /ignorelos
+- mode
+  -- modes will properly reset los, engageat and autoCursor when ended
+  -- adapted /mode command pattern to match heal, debuff, buff
+- starting process of renaming all boolean variables to a prefix of "switch".. this will probably break shit
+  -- setModeHunt, setmodeForage, setModeDrag, setModefish, setModePetfarm, setModeHarvest, setModeTradeskill
+  -- BuffSelf, BuffItem, BuffCombat, BuffBC, BuffRaid, BuffTell, BuffPet  
+  -- setRaidInvite, setAgroMode, setPullMode, setToastMode
+  -- rezAuto, rezEnable, rezEveryone, rezCombat, rezemergency
+- /setpuller logic issue
+  -- will only turn off assist (ALL OF THEM) if any of them are set
+- rewrite to the deBuff switches
+  -- /debuff [stop|mezz|malo|tash|cripple|slow|eradicate|snare]
+  -- deleted #bind /debuffsnare, /debuffmezz, /debuffmalo, /debufftash, /debuffcripple, /debuffslow, /debufferadicate
+  -- /debuff stop disables all debuffing
+    -- sepcific debuffs to some classes
+  -- all debuffs moved under Toon INI [Buffs] ->
+  -- you will need to re-enable the ones you want
+- check_buffs_raid() math error.. dont count by NULL :(  
+- buff changes (not pets)
+  -- increased buffs to a flat 15 count. do not need buff cycle numbers anymore. it will go through all 15
+  -- merging selfbuffs and buffs for toon INI
+  -- [Buffs] -> Buff##Self=TRUE will treat the buff as self. FALSE will not cast as a self Buff
+  -- SelfBuffRemove= is now BuffRemove= under Toon INI [Buffs]
+- class.enc.inc
+  -- added Rune of Fate line to rune buff checks 
+- old INI entries deleted
+  -- UseBanestrike, ModeNuke, AutoDeleteItem, CombatBuff, BalanceHP, DoDebuff, Mount
+- rewrite to Heal switches
+  -- deleted #bind /healaggressive, /healself, /healgroup, /healpet, /healcure, /healxtarget
+  -- /heal [stop|aggressive|xtarget|group|self|cure|pet|override] [##]
+  -- stop will disable all healing except override
+  -- override [0,99] overrides healing % cap
+  -- aggressive - cleric only, lead withj passive heals or nuke heals
+  -- xtarget - enable/disable extended target healing
+  -- group - enable/disable group healing
+  -- self - enable/disable self only healing. (not avaiable to cleric, druid, shaman)
+  -- cure - enable/disable curing
+  -- pet - enable/disable pet healing
+ - deleted sub queue_buff(). dont think we need it anymore
+- auras.. again. fuck these things
+  -- aura checking (spells) is a 2^2 step recursive boolean check
+    -- we look for
+      -- book spell name
+      -- worn aura spell name
+      -- raw toon INI spelling for the buff name and the spell name
+  -- if this shit dont work, gonna retire my chanter
+- rewrite to Buff switches
+  -- deleted #bind /buffitem, /buffself, /buffcombat, /buffbc, /buffraid, /buffpet, /bufftell
+  -- /buff [stop|item|self|combat|bc|raid|tell|pet] 
+  -- /buff stop will disable all buffing
+	** How to work Toon INI [Buffs]
+		- SETTING things to FALSE will disable them
+		- Buff##=FALSE will disable all forms of that buff
+		- BCBuff##=FALSE will disable BC buffing for that buff
+		- Buff##Self=FALSE will disable self buffing for that buff
+		- RaidBuff##Class=FALSE will disable raid buffing 
+		- Buff##noBCinRaid=TRUE will disable BC buffing for that buff while in raids only
+	-- Buff Queue priorities work off Item, Book, AA
+- rewrite of /loot .. it's now /cursor
+  -- /cursor [auto|what|sell|keep|destroy|leave|announce|ignore] 
+    -- auto - enables/disables automatic inventory of anything on cursor
+    -- what - tells you how the item is listed in the core.loot.ini
+    -- sell - marks item as sell
+    -- keep - keeps the item. we like to hoard
+    -- destory - will destroy the item and mark it as get bent
+    -- leave - leaves the item on the corpse
+    -- announce - announce the item in the echochannel and leaves it on corpse
+    -- ignore - simply ignores the item on the cursor. does nothing with it
+- rewrite or rez switches    
+  -- delete #bind  
+  -- /rez [stop|auto|enable|everyone|combat|emergency]
+    -- stop
+    -- auto
+    -- enable
+    -- everyone
+    -- combat
+    -- emergency
+- aliases removed
+	-- /lootkeep, /lootsell, /lootignore, /lootdestory, /lootannounce, /lootwhat, /lootleave
+  -- /healoverride
+- HUD
+  -- deleted ${CombatCall}. i have no idea why that was in there
+
+
+20170803
+Core Version 3.7.7
+SHD Version 1.9.3
+PAL Version 1.0.3
+ENC Version 1.4.2
+WIZ Version 1.8.1
+MAG Version 2.0.2
+- SHD harmonius moved to check_buff_routines(). enable/disable with /buffself
+- PAL harmonius moved to check_buff_routines(). enable/disable with /buffself
+- ENC runes moved to check_buff_routines(). enable/disable with /buffself
+- ENC crystals moved to check_buff_routines(). enable/disable with /buffitem
+- WIZ runes moved to check_buff_routines(). enable/disable with /buffself
+- MAG rods/nuke clickies moved to check_buff_routines(). enable/disable with /buffitem
+- /sb
+  -- will now check runes for WIZ/ENC
+  -- will check PAL/SHD harmonious
+- deleted #bind /rb
+- /ib
+  -- forces check of ENC crystals
+  -- forces check of MAG rods/nuke clickies
+- auto_adjust_EXP() display changes
+- class.enc.inc fixed crash in rune checking
+
+
+20170802
+Core Version 3.7.6
+WHITEWASH
+- delete alias /whohas
+- delete /bc whohas
+- rename () -> check_for_item()
+- #bind
+  -- /findathing ["NAME"]
+    -- searches Bank and inventory for "NAME" items.
+    -- correct spelling is require. no partial names
+    -- will search for augments: in bags, in items, in armor
+ 
+
+20170731
+Core Version 3.7.5
+- auras now fall under /buffself in order to enable/disable casting them. 
+- mode
+  -- /setmodeagro changed to 99999 max
+  -- /mode hunt, scorch and harvest now REQUIRE /setmodeagro [1,99999]. ZONE/0 is not longer an option
+  -- /mode harvest, drag, forage, tradeskill do not watch buffs
+  -- /mode harvest, forage, tradeskill enable /cursor by default
+	-- /mode tradeskill added. 
+	-- /setmodecount [1,99999] limit number of tradeskill created items in inventory
+- class.shd.inc
+  -- shadowknights will no longer keep Harmonious buff up while in manual. only Auto and when modes are active
+- class.pal.inc
+  -- paladins will no longer keep Harmonious buff up while in manual. only Auto and when modes are active
+
+
+20170730
+Core Version 3.7.4
+HUDUPDATE
+- /cursor - toggle. clearing cursor items is no longer tied to automatic mode
+  -- enabled Core will apply core.loot.ini to whatever is on the cursor and deal with it.
+  -- disable Core will ignore whatever is on the cursor
+  -- toon.ini [Common]->AutoInventoryItem= will still override everything
+- /mode harvest now feeds off of core.loot.ini list file for everything you pick up
+- HUD - the word Mode is now GREEN for auto cursor inventory and RED for dont inventory shit
+- do_loot()
+  -- visual changes to output
+  -- keeping an item will also echo how many of that item you have on you (not including whats in your hand)
+- lot of other echo visual changes
+- /crew will no longer uses /bcaa. it is specfic to people in the list ONLY for all joining and disbanding purposes
+
+
+20170729
+Core Version 3.7.3
+- buffs
+  -- centralized the full buff check routine
+  -- /call check_buff_routines [TRUE|FALSE] TRUE to force checking even when not in Auto
+- modes
+  -- mode_get_mob() centralized mob acquisition and combat routines for modes Hunt and Scorch
+  -- Toon INI [Common] -> HuntNuke=
+    -- change this to a Nuke/AA/Disc/Item you want to use on mobs while in Hunt or Scorch
+    -- deleted cleric pet and wizard specific nukes. for hunt/scorch modes. use the [Common] one
+  -- if banestrike is enable, toons banestrike while in hunt or scorch
+  -- /range will (shoud) work as long as target is Line of Sight and within /agro,/zradius range
+  -- rewrote reacquire if target is killed while in route
+  -- simplified the HUD display for all modes
+  -- should summon range items when they are needed. unlike before
+  -- all modes (excluding drag) will check buff routines when not doing anything else important in auto or otherwise
+  -- NEW MODE Harvest: /mode harvest
+    -- will find and loot ground spawns according to the HarvestList in core.zone.ini for that specific zone
+    -- area you will harvest in adheres to /setmodeagro [##]
+    -- NOTE: the name of the item is from the display name from /mapfilter ground command. NOT the actual name of he item
+		-- harvest DOES NOT adhere to the loot.ini list file. you pick it up, you keep it
+
+   
+20170728
+Core Version 3.7.2
+- So.. going to full names for zone.ini section names was a bad call
+- core.zone.ini
+  -- reverting back to short names for zone sections
+  -- adding in a Key of FullZoneName with a value of the actual full name of the zone
+  -- all zone functions reset to short names
+- check_zone_INI()
+  -- will now load and create (reorganize) all zone sections in core.zone.ini
+  -- deleting key fillzonename will force a reset if needed
+- /safezone
+  -- will toggle the zone section key SafeZone True or FALSE
+- echos()
+  -- logic error in echoing hunter mode
+- modes
+  -- ending hunt or scorch will stop toon and clear combat
+  
+
+20170727
+Core Version 3.7.1
+* I would suggest making a backup of your zone file. just in case I screwed this up. *
+- core.zone.ini
+  -- changing INI sections from Zone.ShortName to Zone.Name
+  -- this is a change of attrition. when you go to a zone the first time it will make the section change for you
+  -- all settings will remain for the zone
+  -- the order of the lists is changes slightly
+- all zone functions adjusted to reflect full zone names and not zone shortnames
+  -- update_zone_list()
+  -- Event_setTargetList()
+  -- check_zone_INI()
+  
+
+20170726 
+WHITEWASH
+- alias: deleted /petengageat, /petswarmengageat
+- binds: added /petengageat, /petswarmengageat
+- /petengageat limited from 1,99 now
+- /petswarmengageat limited from 1,99 now
+
+
+20170723
+Core Version 3.7.0
+WHITEWASH
+--MODES-- non standard mode rewrite
+  -- new file: mode.inc
+  -- rename of all do_"modename"() subs -> mode_"name"()
+  -- force removed old mode entries from Toon INIs
+  -- all modes are now non-persistant
+  -- forage and fish no longer invis
+  -- centralized kill for all modes
+  -- all modes adhere to core.loot.ini list
+  -- all modes adhere to core.zone.ini excludemob lists
+  -- mode clearing added to /here, /resetcore, safezones (for DPS modes) and zoning
+  -- hunt, petfarm, scorch: do not work in safezones
+  -- modes can stack stack. /mode stop will disable all running modes
+# bind
+  -- deleted: /hunt, /forage, /scorchedearth, /drag, /fish, /petfarm
+  -- /mode [stop|hunt|fish|forage|scorch|drag|petfarm]
+  -- /setmodeagro [NULL|0-9999] (0 or NULL to set to entire zone. default. persistant)
+- alias
+  -- deleted: /HuntMobAgro
+- class.mag.inc
+  -- updated pre_combat() to match all other classes
+  -- removed ElementalForm/check from mage toon INI
+  -- removed cast_elemental_form(). covered by aa_now()
+- aa_now() no longer works in manual mode
+- disc_now() no longer works in manual mode 
+- /sb will cast [aa_now] and [disc_now] after normal buffs
+- tPetfarm_delay removed from core.ini and placed into the toons INI. default 1s
+
+
+20170721
+- do_scorched_earth_mode()
+  -- relocated echo so it will no longer show Excluded List mobs
+
+
+20170720
+- /relay will no longer relay pets telling you shit. they talk way too much
+- sort_cursor() no more echo if nothing on cursor
+
+
+20170714
+- do_pet_farm_mode()
+  -- fixed echos bug when no mobs to kill
+- do_scorched_earth_mode()
+  -- fixed echos() when not using a pet
+  -- added in a fail to get to mob timer [Timers]->tScorchedEarth_fail. 1 min by default 
+  -- added ignore for failed mobs [Timers]->tScorchedEarth_ignore. 30s by default
+  -- added in timed dealy when no mobs up [Timers]->tScorchedEarth_delay. 5s by default
+- Food and Drink code for you lazy bastards (espc me)
+  -- buy the food/drink clickie items from the marketplace
+  --Toons INI 
+    -- [Meal]->clickFoodDispenser  == the name of the item summoning the food
+    -- [Meal]->clickFoodItem       == name of the food summoned
+    -- [Meal]->clickFoodCount      == how many you want to keep in your inventory
+
+
+20170708
+- echos()
+  -- includes tmp target ID
+	-- /call echos [type] "desc text" [VARIABLE] [Target ID] [FORCED]
+
+
+20170707
+Core Version 3.6.0
+- INTRODUCING Scorched Earth Mode. For use when you realy need to kill everything in a zone
+  -- /scorchedearth .. mode on or off
+  -- adhears to the ignore list
+  -- will use /huntmobagro ## to control range if you need. zonewide by default
+  -- finds nearest mob. kills it. moves to next
+  -- uses pets, ranged weapons, WIZ HuntNuke.
+  -- pathing mechanics similar to Hunt Mob
+- /petfarm
+  -- ENC,WIZ will now rune
+  -- bc will echo what the pet is going to kill
+
+
+20170705
+- do_hunt_mob_mode()
+  -- wizards will now nuke the mob when they get close to it. wiz INI [Spells]->HuntNuke->
+  -- clerics will sent pet hammer at the mob when they are close to it. no class INI adjustment
+
+
+20170627
+-- all are subject to the safelist
+- /t [raidleader] 
+  -- makemeraidleader .. will do just that
+  -- raidinviteme .. will do that as well.
+  -- makemedzleader .. makes sender the DZ leader
+  -- makemetaskleader -- makes sender the task leader
+  -- raid has to be unlocked
+- /t [groupleader]
+  -- makemeleader -- makes sender groupleader
+  -- makememasterlooter
+   
+
+20170626
+- bug in item clickies resetting to false. not anymore
+
+
+20170625
+- /petfarm adjustments
+
+
+20170623
+- check_pet_buffs() now adapts to petfarm and hunter modes
+
+
+20170618
+- update to wait_for_res() to accept 100% rezes and not decline them. hopefully
+
+20170617
+- class.clr.inc
+  -- adjusted heal point check for panic heal 45->20%
+  -- rewrite of dicho heal. procs on any GOM. 
+  -- fixed panic heal (again).. i hope its fixed
+  -- wrote in use for Seb HH donals Mourning helm Yaulp usage. in clerics INI change doYaulp=HELM to use
+- GoMpoint added to [Heal] INI section for healers. this sets the health point the GoM heal will be used
+- GoM heal now uses same code as normal GoM Nukes.
+  
+
+20170616
+- class.brd.inc
+  -- fixed my fixes for protecting the #binds for the bard
+- class.wiz.inc
+  -- wizard runes and spellguards now function as enchanter runes do. INI entires to match
+
+
+20170611
+- class.brd.inc
+  -- protection for #binds
+- class.clr.inc
+  -- GoM nuke not targeting again. this thing has issues
+- rewrite of echos()
+
+
+20170610
+- class.pal.inc
+  -- fixed the marr's gift binds
+  
+
+20170609
+- bug hunting
+  -- #binds messing up the echos() sub
+  
+
+20170608
+- finaly found a way to fix the inv/inv vs undead markers in the hud
+- class.enc.inc
+  -- fixed a rune stacking issue
+  
+
+20170608
+- class.enc.inc
+  -- fixed self imposed rune buffing bug
+- /petfarm 
+  -- do_pet_farm_mode() will force checking of living pets
+
+
+20170604
+HUDUPDATE
+- HUD
+	-- increased watchspawn by 1 digit
+	-- added /zraius next to the agro range
+	-- removed the dynamic spawn counts
+WHITEWASH
+- #bind |combatdistance|combatradius
+
+
+20170603
+WHITEWASH-
+- #bind |watchspawn
+- /hunt complete rewrite
+  -- will "should" stop moving to the mobs last spot if it is dead
+  -- more output on distance and count
+  -- /mapshow will update with the mob being hunted
+  -- pets will be sent in if within 150 range 
+  -- delay for no mobs to kill moved to toons INI [Timer] -> tHunt_delay -> 30s 
+  -- uses watchspawn to keep count of current hunted mob in zone
+- MQ2MoveUtils.INI entries to help with being stuck on geometry. this file is located in the root MQ folder
+	[StuckLogic]
+	StuckLogic=on
+	DistStuck=0.20
+	PulseCheck=2
+	PulseUnstuck=5
+	TryToJump=off
+	TurnHalf=off
+
+
+20170527
+- /petfarm 
+  -- will adhear to /listexclude mobs
+  -- timer created for 0 mob counts. 15s, Core.INI -> Timer -> TPetFarm_delay
+  -- moved count output to echos()
+  -- added druid /petfarm mode
+- #bind /zradius ##
+	-- this will adjust the zradius settings on all mob acquisitions.
+  -- /zradius ## (valid 1-200)
+  -- default 50
+  -- added to /here default 30
+- #bind /resetcore
+  -- reloads all INIs for macro
+- redesign of DeclareVar() to allow for pre-existing declares
+
+
+20170526
+- added shadowknight, ranger (wooden whistle) and shaman to /petfarm mode
+- math error in rogue poison sub Bind_click_poison()
+
+
+20170525
+- name issue in the always on discs.
+- added enchanter to the petpull list
+- AANow and DiscNow are disabled in manual mode
+
+
+20170524
+- class.brd.inc
+  -- adjusted delays for song casting to match the actual cast time vice a default 3s
+	-- sorted a bug in spam casting the aura
+	
+
+20170513
+- class.enc.inc
+  -- /rb will force casting of missing runes
+  
+
+20170512
+WHITEWASH
+- Bind_setTieMode() and set_tie() || /tie
+	-- /tie [NAME]
+		-- /tie will now accept a name (not required) after it e.g. /tie FollowMeBastards or /bca //tie ${Me.DisplayName}
+	     this will change the /tietoon [NAME]
+		-- tie will only engage if the toon being tied to is in same zone!!!!!
+	-- the #bind command /tie shouldn't break core anymore. i hope
+- /bc sma1/2/g now points to /smartma [1|2|G|X]
+- /smartma 
+  -- New and Improved! (it's either new or improved.. not both..)
+  -- /smartma [1|2|G|X] will accept variables, they are not required. /smartma is still a toggle
+  -- /setpuller will clear all assist modes.
+  -- Clerics and Pullers will ignore this command and remain assistless
+	-- all assist adjustment code in core now refrence 1 source: Bind_smartMA(string _assist) 
+- #binds |tietoon|tietime|tiedistance
+- toast.inc
+  -- added wiz epic 2.0 to toast routine
+
+
+20170510
+- rewrite of cleric GoM cast.
+  -- reduced to 1 spell.
+
+
+20170509
+- added a timer check to cleric Quiet Miracle check. tCheck_QM = 10s default
+- added a timer check to paladin Marr's Gift check. tCheck_MG = 10s default
+- logic bug in sort_cursor() for the toons autoInventoryItem
+
+
+20170507
+WHITEWASH
+RNG Version 2.2.2
+- class.rng.inc
+  -- seperated swarm reverse DS. 2 ini entries, 1 for the spell, 1 for the debuff
+- class.bst.inc
+  -- corrected some targeting issues with focused paragon
+  -- #bind |paragon  
+- fixed GoM Dichotomic. dunno what the hell was wrong with it??
+
+
+20170506
+WHITEWASH
+- #binds |primary|secondry
+
+
+20170504
+WHITEWASH
+- logic change to /toastnow. will only engage when in combat
+- #binds |toastmobcount|toastengageat
+- added error control to:
+  -- toast controls /toastengageat 1-99, /toastmobcount 1-99
+- toasting will no longer work in manual mode.
+
+
+20170503
+Core Version 3.5.1
+- fixed a couple non defined variable resets causing the mac to end. may be more /shrug
+- adjusted core_cast() to account for NULL subroutine execution
+- rewrite of the /invis routine.
+  -- /bcaa //invis will still work
+  -- added /stack as a #bind
+- added error control to:
+  -- agro ranges /engageat 1-99, /smartengageat 1-99
+  -- cast_AA_snare()
+  -- cast_eradicate_magic()
+- renamed /toast -> /toastnow
+
+
+20170430
+- class.pal.inc
+  -- rearranged some of the skills/usage of skills.
+
+
+20170428
+- class.pal.inc
+  -- added controls for Marr's Gift similar to cleric QM. Self only unlike QM
+     -- /mg [toggle] to turn usage on or off
+     -- /mgpct [##] for pct HP/Manna to use.
+     
+
+20170427
+- adjustments to pet class pull code (MAG|BST|NEC)
+- corrected NULL subroutine value in core_cast()
+
+
+20170425
+WHITEWASH
+- more #bind(s)
+  -- |forage|fish|train|petfarm|drag|ri|hunt
+
+
+20170424
+Core Version 3.4.0
+WHITEWASH
+- implementing #bind for a majority of existing events. Adding several more
+  -- |healoverride|healself|healgroup|healxtarget|healpet|healcure|healaggressive|autoshrink|toast|companionswarm|companion
+  -- |spice|stop|setagro|smartma|setpull|HUDTime|banestrike|broadcast|ib|sb|pb|resetcore|verbose|buildpet
+  -- |rezeveryone|rezcombat|rezauto|rezemergency|rezenable|core|invites|facefast|stickbehind|hudupdate
+  -- |debuffmezz|debuffslow|debufftash|debuffmalo|debuffcripple|debufferadicate|debuffsnare|checkcash
+  -- |buffbc|bufftell|buffpet|buffitem|buffraid|buffraid|buffself|buffcombat|tie|ignorelos
+- /alto alternate to /stop, self only. suppose you could do a /bcaa //alto  or whatever
+- /combatmelee melee attack the curent target. manual mode
+- /combatrange range attack the current target. manual mode
+- /combatnuke nuke the current target. manual mode
+- /broadcast -> /hudbroadcast
+
+
+20170423
+- logic error in Gunthak Swabby's Eyepatch clicking.
+
+
+20170421
+- class.rng.inc
+  -- removed force of dicho casting on scarlet cheeta shortbuff. GFY DB...
+- adjusted remaining classes for prep_combat()
+
+
+20170420
+Core Version 3.3.0
+- check_disc_now()
+  -- keep a disc running at all times
+- adjusted for /autoskill usage
+- class.MNK.inc
+  -- Masters Aura
+  -- autoskills
+  -- /debuffsnare (aa crippling strike)
+  
+   
+20170415
+- introducing prep_combat()
+  -- replacement for all calsses to prep for combat and toasting
+
+
+20170413
+- misspelled miniature. Please see Note 1 at top.
+
+
+20170412
+- class.clr.inc
+  -- fixed cleric QM stacking issues
+
+
+20170410
+PAL Version 1.0.0
+- class.shd.inc
+  -- added in a few more AAs
+  -- rewrite of the agro routines. this could go badly :(
+  -- fixed spell Harmonius Disruption. i've no idea how i missed that one
+  -- fixed AAs Visage of Death/Decay stacking issues
+  -- added reflexive rancor disc line for an extra heal  when toasting
+  -- typo(s) in ${CrimsonBlade} and AA T`Vyl's Resolve. never said i could spell
+  -- wrote in epic 2.0 to toast
+- /toast in manual mode requires ${Me.Combat} to be TRUE. IE you have to be in combat
+- cast_disc_breather() will check for ${Me.CombatState} to be RESTING
+- check_engaged() adjusted combat check.
+- testing some changes to wiat_for_res()
+- class.pal.inc
+  -- rebuild of everything. ground up
+
+
+20170409
+- adjusted circle of items since they no longer use Aura Slots
+  -- renamed toast.inc synergy_click_Aura() -> synergy_click_Circle()
+- pet shrink no longer cares if its an item/spell or AA.
+
+
+20170408
+HUDUPDATE
+- can now use /toast in manual mode. has same effects as in auto mode.
+- fixed math problem in /watchspawn.. prob best to not subtract from 0 :(
+- rewrote check_ammo() to meet with core_cast()
+- pet owners can shrink with AAs again. sorry
+
+
+20170402
+- /givecoin [ammount] [stack] [plat|gold|copper|silver]
+  -- will give the ammount of coin to whatever you have targeted in stacks of whatever.
+  -- /givecoin 1000 5 gold .. will give gold, in stacks of 5, 1000 times to your target. 5k gold in total.
+
+
+20170331
+- reworking of pet healing for cleric. no longer uses pets class as basis. Strictly PetPoint % now.
+
+
+20170330
+HUDUPDATE
+WHITEWASH
+- /relay
+  -- will relay tells to a specific toon /relay PERSONTORELAYTO
+- redesign of curing.
+  -- less loops.. a lot less.
+  -- seperated AA curing to heal classes and item/spell curing is isolated.
+  -- core.clr.inc
+     -- added purify spirits and radient cure to group heal routine. can still disable with /healcure
+- /healaggressive
+  -- core.clr.inc
+  -- enabled will force interventions first
+  -- disabled will force remedys first
+  -- "Heal" in hud will be RED for enabled/damaging, GREEN for disabled/safe; clerics only
+     
+
+20170328
+- clerics will no longer QM/VM after a summon to corpse. they will wait for a rez.
+- changed war snare from Call of Challenge to Knee Strike.
+
+20170323
+- lots-o-changes (yes more) to core_cast()
+- class.wiz.inc
+  -- re-arranged several things to keep them nuking more.
+  -- adjusted for the new cast routines
+  
+
+20170322
+- Core Version 3.2.0
+- class.mage.inc
+  -- all cursor items work off core.loot.ini now
+- core_cast() 
+  -- validates that spells/items/aa/discs are ready before tyrying to use them
+  -- /call core_cast "whatever" NULL NULL
+     -- will figure out what you have and use it..
+- toast.inc
+  -- class AA Synergy's added. just need to work them in now
+
+
+20170321
+- events.inc
+  -- 16 anni stein fixed
+  
+
+20170320
+- sort_cursor() is replacing clear_cursor()
+  -- aligning everything to use the core.loot.ini
+
+
+20170319
+- CLR 2.1.1
+- DRU 2.0.1 
+- SHM 1.5.1
+- WAR 1.5.1 
+- PAL 0.5.1 
+- SHD 1.9.1 
+- WIZ 1.7.1 
+- ENC 1.4.1
+- MAG 2.0.1
+- RNG 2.2.1
+- BST 1.0.1 
+- BRD 1.5.1 
+- BER 1.6.1
+- ROG 1.5.1 
+- corrected the last of the subroutines with a . in the name
+- check_AA_now() will only execute when needed and only 1 time per itteration and not 3 times.
+- moved CHECKREZ to a better spot in the toon loop
+- various refinements to every class.XXX.inc
+
+
+20170318
+- CLEARCURSOR will not, if nothing is on the cursor.
+- adjustments to /tie. trying to catch a bug...
+  -- will not activate when command giver is not in same zone. may cause problems while zoning
+- core_cast()
+  -- will validate that disks requiring a target actually have a target to activate (blame the zerkers)
+  -- will try and acquire the forced target before it checkes to see if it failed on getting the target
+- class.shd.inc
+  -- added more control for dead targets to be released
+
+
+20170317
+- BEAT THE COMMA IN NAMED LIST... /finally
+- protection for /zonereset
+  -- will no longer update running zone info if the person making the list changes is not in the same zone.
+
+
+20170316
+- complete redesign of how cursor items are handled
+  -- foraged and fished items are now matched to core.loot.ini
+  -- same /loot?? commands apply to anything that can go on the cursor
+  -- delete the [foragelist] and [fishlist] section out of core.ini, or move them to core.loot.ini
+  -- effects mage summoned items
+  -- pet class and weapons
+- fixed logic error in CoTF Gunthak Swabby's Eyepatch buff clickie.
+- /lootignore
+  -- loot and cursor controls will completely ignore this item
+
+
+20170315
+- fixed math error in XTarget population
+
+
+20170213
+WHITEWASH
+- complete rewrite of the list control sub.
+  -- 266 lines of code to 58 /awwwwyahhhh
+  -- still cant get fucking commas in the mob names.
+- replace all instances of .CleanName -> .DisplayName
+  
+
+20170311
+- all rez switches moved under [Heal] in character ini. delete existing and let them rebuild
+  -- all classess have access to the rez switches now 
+     -- /rezcombat
+     -- /rezemergency
+     -- /rezauto
+     -- /rezeveryone
+- sped up /here command
+  -- will only attempt to stop the things it is doing
+   
+
+20170310
+WHITEWASH
+- lots of zone list control changes
+  -- alias renames:
+     -- /named -> /listnamed
+     -- /exclude -> /listexclude
+     -- /nocast -> /listnocast
+     -- /nomezz -> /listnomezz
+     -- /nomelee -> /listnomelee
+     -- /rmob -> /listrange
+     -- /nomagic -> /listnomagic
+     -- /nodisease -> /listnodisease
+     -- /nofire -> /listnofire
+     -- /nopoison -> /listnopoison
+     -- /nocold -> /listnocold
+     -- /nocorruption -> /listnocorruption
+     -- /huntmob -> /listhuntmob
+  -- ADDED /listremove
+     -- will remove your current target from ALL current zone lists.
+- corrected some logic in check_heal_ward() in class.clr.inc     
+- Sapping Strikes Disc added to class.ber.inc
+
+
+20170309
+- complete rewrite of how combat is stoped.
+  -- validates what it is stopping to see if it is even in progress
+
+
+20170308
+- Core Version 3.1.4
+WHITEWASH
+- update to MANY aliases
+  -- /: exclude, named, nomezz, nocast, nomelee, rmob, nomagic, nodisease, nofire, nopoison, nocold, nocorruption, huntmob
+  -- list controls do not require a ${Target.CleanName} or ${Target.DisplayName} in the hokey anymore. simply target the mob and issue the / command
+  -- will not add PCs to lists anymore only NPC
+- /huntmobagro [##|0|FALSE]
+  -- ## maximum range you will look for mobs to hunt
+  -- 0|FALSE will disable range checking setting it to zone wide
+-- updated HUD notices to display non-normal modes
+  
+
+20170306
+- changes to curing: 
+  -- /healcure is the only switch that is required now.
+  -- hardcoded radient cure and purify souls/group into curing routine
+  -- updated classes with new cure routine
+  -- out of combat timer added for curing. default 30 sec check
+  -- AAs: Radient Cure, Purified Spirits, Purify Soul, Group Purified Spirits all hardcoded now. First line of cure defense
+  -- can use items in inventory that will cure yourself
+  -- curing classes will cure while in combat [CLR|DRU|SHM|RNG|BST|BRD|PAL]. all other classes can use items to cure while out of combat. still need /healcure enabled
+    
+
+20170303
+HUDUPDATE
+-	fixed the HUD real/ingame time.
+
+
+20170302
+- /whohas [ITEMNAME] 
+  -- reports back in ECHOCHANNEL who has that item
+  -- works off partial names eg. /whohas fist
+  -- looks for augments too
+
+
+20170228
+- Hunter
+  -- new line in core.zone.ini
+     -- HuntMobList=|mobname1|mobname2
+  -- /hunt turns ON/OFF hunt mode  
+  -- /huntmob [TARGET] will set the current target mob in core.zone.ini as a hunted mob
+
+
+20170227
+- simple spawn watcher
+  -- /watchspawn NAME
+  -- non persistant
+  -- works on partial names zone wide
+  -- default timer to check zone for 1sec
+- HUDUPDATE
+  -- shows broadcast area GREE if on RED if off
+  -- added ## counter for watched spawns. next to current target debuffs 'till i find a better solution
+- more adjustments to the rez code. i will beat this rez token thing into submission  
+  -- Toon [Common] -> RezTokenList
+     -- list the classes you want to use rez tokens on
+  
+ 
+20170226
+- wizard AA evac [exodus]
+  -- /g gtfo and you are out..
+- cleric event to drop ToTD after set time. this will need fine tuning.
+ 
+
+20170225
+- cleared a lot of stale declare.inc entries
+- typo in common.inc .CurrentEndurance not a thing (maybe it should be). replaced with .PctEndurance
+- corrected lots of local variable name conventions
+- will not use breather in safezones.
+- /clean options are now in core.ini [hide] -> ????
+
+
+20170224
+- added /lootannounce
+  -- will announce the loot item in ECHOCHANNEL and leave it on the corpse.
+
+
+20170223
+WHITEWASH
+- replacing /port with /take
+  -- /take now acepts trade window. at least it should../shrug
+- declare.inc
+  -- replaced local variable cmd with _cmd to match established pattern
+  -- added several ECHOCHANNELs to commands
+  -- corrected some exit points
+- new command(s)
+  -- /rc will force [CLR|DRU|SHM] to cast AA Radient Cure
+  -- /purify forces [CLR] to cast AA Purify Spirits on the command giver
+  -- /bc handin
+     -- format: /bc handin |diamond|pearl|epicsword
+     -- this will tell all in your BC to hand in the 3 items listed to your current target
+     -- will take up to 4 items. all must be seperated with a pipe | for deleniation. eg: |item1|item2|item3|item4
+  -- /echoaugments
+     -- will write all augments to a file: core.augmentdump.ini
+     -- recursive of items worn, and bags/in bags/in items in bags.
+- info.inc updated
+     
+     
+20170221
+- Core Version 3.1.3
+HUDUPDATE
+- controls for swarm pets added
+  -- /petswarmengageat . ##% to send in the swarm pets/reengage them
+  -- /companionswarm .  enable/disable swarm pets
+- cleaned up the /whitewash function. had some old stuff in it.
+- ranger pet swarm added to burn
+
+
+20170220
+- WIZ Version 1.7.0
+- added wizards to the /debuffsnare switch with Atol's Shackles AA
+- rewrote wizzy burns
+  -- moved longer reuse AAs to burn routine
+- added error handeling for non snaring classes
+- cleric will QM lowest mana in group. if /useqm is off, they will still QM themselves
+- QM added to the HUD Notice list for clerics.
+
+
+20170218
+- enchanters will tash/slow/cripple in NUKE mode
+- druid/shaman call fail retry cast upped to 45 sec vice 30. getting more calls then rezes.
+
+
+20170217
+- healers will ignore control toon if they are not in the same zone. fuck that guy anyway..
+- added /lootwhat
+  -- will tell you your current [keep|sell|ignore|destroy] value for the top item on your cursor
+- small adjustment to the pull code
+- added /echochannel
+  -- can set the echo channel to whatever. FALSE to disable
+- updated cleric QM routine
+- ECHOCHANNEL added to:
+  -- cleric QM
+  -- mage CoTH
+- redesigned chanter debuf routine
+
+  
+20170216
+- Core Version 3.1.2
+- the MA will clear its assist settings so it does not try and assist the assit.
+- shaman splash will work with ma1 and ma2
+- rewrite of the pull/target acquisition code.
+  -- get_target() is now the only routine for finding a mob and getting it to camp
+  -- removed get_mob
+  -- removed pull_mob
+- toons will spout random insults on deaths again. best fucking thing ever!
+- /lootdestroy will destroy whats on your cursor as well.
+
+
+20170215
+- Core Version 3.1.1
+- aura clickies will make sure there is a space in the arua window first
+- put use_glyph() back in all the toast routines
+- will not try and use AAs when you dont have them
+- updated some function names in events.inc
+- added a channel echo "ECHOCHANNEL" in TOON [common] -> echoChannel=
+  -- ex: FALSE will disable (DEFAULT)
+  -- 1 would put output in channel 1
+  -- g would puu to group
+  -- rs raid say.. and so on
+  -- not a good idea to put it in bc. may trigger events..
+- echoChannel added to:
+  -- dying
+  -- rezzing
+  -- enc.inc Mezz Immune Target
+- condition for call vs rez. calls will still look for rez box after the fact. NOT IN COMBAT
+  
+
+20170214
+- enchanter will check for peridots when needed for spells
+
+
+20170213
+- Core Version 3.1.0 
+- all /target clears require target first. makes sense i suppose
+- get_assist_target() only regets target when needed/when there is a mismatch to the MAs target
+- correction to mage/wizard twincast
+- forced plugin validation for a lot of functions
+- updated several / commands to validate plugins and/or class control.
+- added CLEARCURSOR. gets shit off the cursor for whatever is in the Toon [Common] autoInventoryItem= list. Append TRUE to Clear everything no matter what it is
+- toons shouldn't ask corpses for modrods or weapons anymore. not like they would respond anyway.
+
+
+20170212
+- LDEBUG added to export debug output to MQLOG. this was prob a very bad idea.
+
+
+20170211
+- SDEBUG added for selective assistance in debugging.
+- corrected shaman to target the assist toon for twinheal nuke spells
+
+
+20170210
+- /sell 'ITEMNAME'
+  -- ITEMNAME in single quotes with the item you want to sell out of your inventory. It WILL sell all instances of the item in your inventory.
+  -- you can use 'lootfile' for the item name and it will match to the core.loot.ini and sell everything marked as Sell.
+  -- merchant needs to be open
+- info.inc updated
+- /lootsell will mark anything on your cursor to sell in core.loot.ini
+- added check_AA_now() to
+  -- ranger, druid, enchanter, berzerker, warrior, wizard, cleric, bard, beastlord, paladin, magician, necromancer, rogue, shadowknight, shaman
+  -- this replaces the bard check_AA_sionachies.
+- enchanters will cast DoTs now. not sure how i missed this one.
+
+
+20170209
+- wrote the HUDUPDATE out of wait_for_res(). Reversed the flow of wait_for_res() so the res acceptacnce is the last evaluation.
+- druid 2.0.0
+  -- built in synergy routine
+  -- redesigned heal variables to match druid heal spell lines and not clerics
+  -- added in more aa dps
+  -- added in more aa heal
+  -- moved AE heal ward to burns
+- check_AA_now()
+  -- [AANow] entry in toon INI. Hardcoded for 2 AAs
+  -- will keep both AAs up on the toon at all times.
+  -- this is designed for very fast cast AA with effects that you always want on the toon.
+  -- works for AAs ONLY.
+- /bc purify will have anyone with the AA Purified Spirits cast it on you.  
+- check_buffs_self() now knows the difference between item/spell/aa.
+- healers [clr|dru|shm|pal] will force mem of cure spells if /healcure is set and they are needed.
+- /buy 'ITEMNAME' ##
+  -- ITEMNAME name "Water Flask".. in SINGLE QUOTES
+  -- ## is the quantity you want to buy
+  -- merchant needs to be open
+
+
+20170208
+- Core Version 3.0.4
+- /bcsay forces all in bc to assist the sender, then everyone echos the word(s)
+  -- EXAMPLE: /bcsay hello ${Target.DisplayName} or /bcsay prepared to enter
+  -- there is a built in delay of 2-3 seconds for the response time from all but sender.
+  -- echoing toons must be in 80 of the sender
+  -- will remove all invis
+- all instances of variable Sender (local or outer) changed to _sender.
+- more changes to res routines
+ 
+
+20170207
+- fixed bug in pet buffing. would stop at 4. goes to 10 now.
+- all buffs limited to 10
+- fixed bard typo in do_rest hybrid list
+- added #event for death checks. hope this fucking works.
+
+
+20170206
+- Core Version 3.0.3
+- do_rest() will allow for /tell buffing
+- added some more dead mob checking to mag.inc. trying to catch a bug.
+- fixed delete functions in do_loot(). it works as advertised now, is recursive and deletes stacks.
+- fixed typo with wiz.inc for synergy
+- changed the following sub names:
+  -- clearCombat() -> clear_combat()
+  -- doTrainSkills() -> do_skill_train()
+  -- checkNoCastBuffs() -> check_no_cast_buffs()
+  -- tell_ResidentMage() -> tell_resident_mage() 
+  -- getAssistTarget() -> get_assist_target()
+  -- get_Mob() -> get_mob()  
+  -- checkEngaged() -> check_engaged()
+- removed get_target_2kill() replaced with get_assist_target()
+- removed get_target() replaced with get_assist_target()
+- started structure for versioning check_version() declare.inc
+
+
+20170204-05
+- Core Version 3.0.2
+HUDUPDATE
+- rewrite of the buff queue system.
+  -- max queue list definable in core.ini [general]->queueCountMax. default 10 (was 25)
+  -- max usable buffs that can be used for request is 8.
+- changed the following sub names:
+  -- setStop() -> set_stop()
+- HUD: added checks to the HUD that show which toons in your group have core automatic mode OFF.
+  -- /broadcast will enable/disable the HUD updates by toon
+ 
+
+20170204
+- Core Version 3.0.1
+WHITEWASH
+HUDUPDATE
+- burn routine has an issue with non di-rect target of named mobs (HEAL and DUAL modes). They no longer require isValidTarget() to function.
+- fixed cleric Veturika's when /healoveride was enabled.
+- added /healoveride checks to mage/enchanter manna checks.
+- added /healoveride checks to horn of unity.
+- HUD: creating an emergency rez system for Loyalty Token rez when your clr/dru decide to take a dirt nap.
+  -- criteria:
+  -- alias /rezemergency
+  -- cleric and druid (not gonna include paladins or shaman in the search) must be dead or non existant in 110 unit range
+  -- will not rez in safezones
+  -- hud represented by "?" in rez section
+- updated "all" calsses for the new rez check. no i didnt do the necro or monk.
+- WHITEWASH: corected a burn alias to be toast. ${burnMobCount} -> ${toastMobCount}
+- migrated toast routines for wizard, beastlord, rogue, warrior, berzerker, druid,
+- isolated Circle of Power clicks to toast routines only
+- changed the following sub names:
+  -- pull_Mob() -> pull_mob()
+  -- checkPet() -> check_pet()
+  -- useGlyph() -> use_glyph()
+  -- sendPet() -> send_pet()
+  -- setHome() -> set_home()
+  -- castServantNuke() -> cast_nuke_servant()
+  -- castRainNuke() -> cast_nuke_rain()
+  -- cast_gom_nuke() -> cast_nuke_GoM()
+  -- check_self_buffs() -> check_buffs_self()
+  -- check_raid_buffs() -> check_buffs_raid()
+  -- check_BC_buffs() -> check_buffs_BC()
+  -- check_tell_buffs() -> check_buffs_tell()
+  -- check_item_buffs() -> check_buffs_item()
+- refixed /tell buffing /sigh
+
+
+20170203
+- rebuilt echos() to replace echo_update()
+- fuck MQ2Twist... rebuilt bard in my own image.
+- BC/Tell buffs will work with items. use the item name for the buff name. and the item effect for the buff effect name.
+- bards can mez now. it's crude but effective.
+
+
+20170202
+- added Circle of Power to toast.inc
+- migrated Shadowknight toast routine
+- rewrite of magician toast
+- fixed all the /face commands to use ${If[${SetFaceFast},fast,]} alias /facefast
+- migrated rogue toast routine
+
+
+20170201
+- Core Version 3.0
+- WHITEWASH ..
+- starting changelog, yay me..
+- added toast.inc. goal is to put all burn routines into one place and get them to cooperate more effectively. this will take some time. started with ranger. cause well ranger and stuff.
+- moved the melee check out of the cast_nuke() 'cause it was hanging the SK on mob getting.
+- rewrote check_pet_buffs() to function same as self buffing.
+- rewrote get_mob() 1 less loop check.
+- redesigned the various INI's to one file. core.zone.ini
+- fixed a lot of the ranger burns.
+
+
+
