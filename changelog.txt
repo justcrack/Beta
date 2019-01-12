@@ -27,6 +27,10 @@ Plugins Required: MQ2Cast, MQ2Exchange, MQ2MoveUtils, MQ2Debuffs, MQ2DanNet, MQ2
     -- script: files use to aid database or character generation. these files are fair game, i will be overwriting them if i need
 
 
+BETA 0112.2
+- BC BUFFING
+  -- more adjustments.
+
 
 BETA 0112.2
 - BC BUFFING

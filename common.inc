@@ -864,7 +864,7 @@ sub check_buffs_BC()
 	/declare _i int local 0
 	/declare _DNqout string local
 	/declare _base2 string local
-	/declare _found bool TRUE
+	/declare _found bool
 	
 	| each toon
 	/while (${_toon} <= ${DanNet.PeerCount}) {
@@ -880,6 +880,7 @@ sub check_buffs_BC()
 
 		| each buff. cycle all ${setMaxBuffCount}, used or not
 		/for _count 1 to ${setMaxBuffCount}
+			/varset _found TRUE
 			| /echo 
 			| SDEBUG ${_count}::${setMaxBuffCount}::\at${_toonName}\ax::\aw${Buff${_count}}\ax
 			CHECKCOMBATCAST
@@ -1015,11 +1016,6 @@ sub check_buffs_BC()
 
 	UPDATEHUD FALSE
 /return
-
-
-
-${Spell[${Buff5}].HasSPA[374]} || ${Spell[${Buff5}].HasSPA[340]}
-
 
 
 
