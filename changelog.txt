@@ -28,6 +28,11 @@ Plugins Required: MQ2Cast, MQ2Exchange, MQ2MoveUtils, MQ2Debuffs, MQ2DanNet, MQ2
 
 
 
+BETA 0112.2
+- BC BUFFING
+  -- some corrections to the syntax. cross fingers...
+
+
 
 BETA 0112.01
 - ok, sice this has seemed to confused people since.. whenever..

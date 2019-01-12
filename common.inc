@@ -880,6 +880,8 @@ sub check_buffs_BC()
 
 		| each buff. cycle all ${setMaxBuffCount}, used or not
 		/for _count 1 to ${setMaxBuffCount}
+			| /echo 
+			| SDEBUG ${_count}::${setMaxBuffCount}::\at${_toonName}\ax::\aw${Buff${_count}}\ax
 			CHECKCOMBATCAST
 			
 			| make sure the count is in the correct range
@@ -915,14 +917,15 @@ sub check_buffs_BC()
 			}
 
 			| is the spell ready?
-			/if (!${Me.SpellReady[${Buff${_count}}]} && ${Me.Gem[${Buff${_count}}]}) /continue
+			| /if (!${Me.SpellReady[${Buff${_count}}]} && ${Me.Gem[${Buff${_count}}]}) /continue
 
 			| any buff slots available?
-			/dquery ${_toonName} -q "Me.FreeBuffSlots" -o _DNqout -t 1s
+			/dquery ${_toonName} -q "Me.FreeBuffSlots" -o _DNqout -t
 			/if (${_DNqout.Equal[0]}) /continue
 
-			| stacking / exist ?
+			| SPA or not?
 			/if (${Spell[${Buff${_count}}].HasSPA[374]} || ${Spell[${Buff${_count}}].HasSPA[340]}) {
+				| SDEBUG ${sep} SPA
 
 				| loop the effects
 				/for _i 1 to ${Spell[${Buff${_count}}].NumEffects}
@@ -937,11 +940,13 @@ sub check_buffs_BC()
 					/varset _base2 ${Spell[${Spell[${Buff${_count}}].Base2[${_i}]}].Name}
 
 					| do we have the triggered buff?
-					/dobserve ${_toonName} -q "Me.Buff[${_base2}].Name" -o _qBuffName${_count}${_i}${_toonName} -t 1s
+					/dobserve ${_toonName} -q "Me.Buff[${_base2}].Name" -o _qBuffName${_count}${_i}${_toonName}
+					| SDEBUG .Name2 _qBuffName${_count}${_i}${_toonName}:\at${_qBuffName${_count}${_i}${_toonName}}\ax
 					/if (!${Bool[${_qBuffName${_count}${_i}${_toonName}}]}) /varset _found FALSE
 
 					| does it stack
-					/dobserve ${_toonName} -q "Spell[${_base2}].NewStacks" -o _qBuffNewStacks${_count}${_i}${_toonName} -t 1s
+					/dobserve ${_toonName} -q "Spell[${_base2}].NewStacks" -o _qBuffNewStacks${_count}${_i}${_toonName}
+					| SDEBUG .NewStacks2 _qBuffNewStacks${_count}${_i}${_toonName}:\at${_qBuffNewStacks${_count}${_i}${_toonName}}\ax
 					/if (!${Bool[${_qBuffNewStacks${_count}${_i}${_toonName}}]}) /varset _found TRUE
 
 
@@ -963,16 +968,19 @@ sub check_buffs_BC()
 
 			| no secondary procing buffs. just check for the spells main name
 			} else {
+				| SDEBUG ${sep} NO SPA
 
 				/declare _qBuffName${_count}${_toonName} string local
 				/declare _qBuffStacks${_count}${_toonName} string local
 					
 				| has the buff?
-				/dobserve ${_toonName} -q "Me.Buff[${Buff${_count}}].Name" -o _qBuffName${_count}${_toonName} -t 1s
+				/dobserve ${_toonName} -q "Me.Buff[${Buff${_count}}].Name" -o _qBuffName${_count}${_toonName}
+				| SDEBUG .Name _qBuffName${_count}${_toonName}:\at${_qBuffName${_count}${_toonName}}\ax
 				/if (!${Bool[${_qBuffName${_count}${_toonName}}]}) /varset _found FALSE
 
 				| stacks				
-				/dobserve ${_toonName} -q "Me.Buff[${Buff${_count}}].Name" -o _qBuffStacks${_count}${_toonName} -t 1s
+				/dobserve ${_toonName} -q "Spell[${Buff${_count}}].NewStacks" -o _qBuffStacks${_count}${_toonName}
+				| SDEBUG .NewStacks _qBuffStacks${_count}${_toonName}:\at${_qBuffStacks${_count}${_toonName}}\ax
 				/if (!${Bool[${_qBuffStacks${_count}${_toonName}}]}) /varset _found TRUE
 
 
@@ -1007,6 +1015,11 @@ sub check_buffs_BC()
 
 	UPDATEHUD FALSE
 /return
+
+
+
+${Spell[${Buff5}].HasSPA[374]} || ${Spell[${Buff5}].HasSPA[340]}
+
 
 
 
