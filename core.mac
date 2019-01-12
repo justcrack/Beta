@@ -118,9 +118,9 @@
  *	USE: 
  *  NOTE: 
  ***|
-sub main()
+sub main(string _custom)
 	| Current Build
-	/call setDeclare currentBuild 			string outer 0109.03
+	/call setDeclare currentBuild 			string outer 0112.01
 	
 	| force SQL echos on for the start
 	/call setDeclare swEchosSQL 				bool outer FALSE
@@ -132,7 +132,7 @@ sub main()
 	/call setDeclare chrID 							string outer ${MacroQuest.Server}_${Me.Class.ShortName}_${Me.DisplayName}
 
 	| shopping time
-	/call initialize_core
+	/call initialize_core ${_custom}
 	
 	| maintenance mode loop lock
 	/while (${swMaintenance}) {
@@ -261,7 +261,6 @@ sub main()
 
 	}
 	
-	
 	| this is MQ2 reserved for end of macro
 	| :OnExit	
 	
@@ -274,7 +273,7 @@ sub main()
  *	USE: /call initialize_core
  *  NOTE: what did you expect?
  ***| 	
-sub initialize_core(string _ini)
+sub initialize_core(string _custom)
 	/mqclear
 	/if (${Target.ID}) /squelch /target clear
 	
@@ -299,8 +298,12 @@ sub initialize_core(string _ini)
 	
 	| SQLite Core Database
 	/if (!${Defined[dbCore]}) /declare dbCore string outer 
-	/varset dbCore macros\tc\data\dbCore.db
-
+	/if (${Bool[${_custom}]}) {
+		/varset dbCore macros\tc\data\dbCore.${_custom}.db
+	} else {
+		/varset dbCore macros\tc\data\dbCore.db
+	}
+	
 	| validate pulgins, reload if needed
 	/call verify_plugins FALSE	
 	
@@ -318,9 +321,6 @@ sub initialize_core(string _ini)
 	
 	| load class specific settings
 	/call pregen_${Me.Class.ShortName}
-	
-	| cycle through all clickies on character to build [itemclicke]
-	| /call intialize_item_buffs
 	
 	| load aliases
 	/call set_alias

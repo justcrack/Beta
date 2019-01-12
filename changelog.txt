@@ -29,13 +29,26 @@ Plugins Required: MQ2Cast, MQ2Exchange, MQ2MoveUtils, MQ2Debuffs, MQ2DanNet, MQ2
 
 
 
+BETA 0112.01
+- ok, sice this has seemed to confused people since.. whenever..
+- I have renamed the /buff group command to /buff other
+- /buff [other] will buff other players in your group that you are  not boxing.. e.g other real players.
+- BC Buffing
+  -- I've rewritten it to use dannet observations instead of queries. i'm hoping this will keep better track of the 
+     buffs on the target that the bufee is checking
+- /core migrate has been moved to /admin migrate with rest of the sql commands. (missed it first time.. shit happens)
+- most / commands have a second optional switch for supression. so /buff self on TRUE would tun on self buffs and echo nothing at all
+  -- i will get through them all eventually
+- fixed /class xtclass selection switch. not sure how i broke it. but its fixed now
+- Custom Databases
+  -- /mac TC\core.mac FRED4Prez will start core using a database named dbCore.FRED4Prez.db
+  -- if you choose to do this, it will require configurations just like any other instance would
+- class.clr.inc
+  -- AA Beacon of Life will not fire on raids
+  -- AA Silent Casting will not fire on raids
 
 
-
-
-
-BETA: 0109.01
-
+BETA: 0109.03
 - I'm moving some commands around.
   -- I dont think the edit/list/view sql stuff belongs in the /core control
 - /admin [get|list|table|maintenance|notice|reset|whitewash|zonereset]
@@ -46,7 +59,6 @@ BETA: 0109.01
 - /take
   -- now works for trade window. Give or take as well as NPC trades
 - more adjustments to the hud notification for characters that are auto or not
-
 - class.clr.inc
   -- will no longer use AA Focused Celestial Regeneration on raids
 	-- no more xtarget heal radius. this now works off your agro range
@@ -58,10 +70,7 @@ BETA: 0109.01
 	-- no more xtarget heal radius. this now works off your agro range
 
 
-
-
 BETA: 0106.02
-
 NEW COMMANDS
 - /edit [variable] ["value"] (add|delete) for list items
   -- direct edit access to any variable in the database

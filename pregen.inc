@@ -149,7 +149,7 @@ sub pregen_environment()
 	/call setDeclare lstPlugin																					string		outer "|MQ2Cast|MQ2Exchange|MQ2MoveUtils|MQ2Debuffs|MQ2DanNet|MQ2SQLite"
 
 	| buffs .. /buff []
-	/call setDeclare lstTypesBuff																				string		outer "|Self|Item|Combat|BC|Raid|Tell|Pet|Merc|Group|MGB"
+	/call setDeclare lstTypesBuff																				string		outer "|Self|Item|Combat|BC|Raid|Tell|Pet|Merc|Other|MGB"
 
 	| overrides .. /override []
   /call setDeclare lstTypesOverride																		string		outer "|EngagePct|Exclude|Loot|LOS|Melee|Name|Range|SafeNames|SafeZone|TrainSpell"
@@ -205,7 +205,7 @@ sub pregen_environment()
   /call setDeclare lstTypesPortItem																		string		outer "|primary|secondary|door|binden|stein|mirror|iksarstone|warportal|pokbrick|fellowship|brells|scepter|lamp|rofsignet|jaggedpine|tolans|touchstone|gorowyn|slide|arx|stratos|faithstone|gyrospire"
 
 	| admin stuff .. /admin []
-  /call setDeclare lstTypesAdmin																			string		outer "|get|list|table|maintenance|notice|reset|whitewash|zonereset"
+  /call setDeclare lstTypesAdmin																			string		outer "|maintenance|get|list|migrate|notice|reset|table|whitewash|zonereset"
 
  	| clickie item on off -- /onoff []
   /call setDeclare lstTypesOnOff																			string		outer "|horn|shrink"
@@ -525,7 +525,7 @@ sub pregen_character()
 	/call sql_control FALSE buff swBuffRaid															bool			outer FALSE
 	/call sql_control FALSE buff swBuffTell															bool			outer FALSE
 	/call sql_control FALSE buff swBuffMerc															bool			outer FALSE
-	/call sql_control FALSE buff swBuffGroup														bool			outer FALSE
+	/call sql_control FALSE buff swBuffOther														bool			outer FALSE
 	/call sql_control FALSE buff swBuffMGB															bool			outer FALSE
 
 	| cursor                                                      			
@@ -848,7 +848,7 @@ sub pregen_timers()
 	/call timer_set FALSE tBC_Buff																			string		outer 20s 	timer_check_buffs_BC
 	/call timer_set FALSE tRaid_Buff																		string		outer 20s 	timer_check_buffs_raid
 	/call timer_set FALSE tMerc_Buff																		string		outer 40s 	timer_check_buffs_merc
-	/call timer_set FALSE tGroup_Buff																		string		outer 5m	 	timer_check_buffs_group
+	/call timer_set FALSE tOther_buff																		string		outer 5m	 	timer_check_buffs_other
 	/call timer_set FALSE tTell_Buff																		string		outer	10s 	timer_check_buffs_tell
 	/call timer_set FALSE tMGB_Buff																			string		outer	5m 		timer_check_buffs_mgb                                   										
 	/call timer_set FALSE tCheck_Aura																		string		outer 3m 		timer_check_aura
@@ -3140,8 +3140,8 @@ sub hud_control(string _verbage)
 		HUDPATH "Core" "buff16" "19,362,57,25,25,25,${If[${swBuffPet},,_]}"
 		HUDPATH "Core" "buff17" "19,371,62,0,255,0,${If[${swBuffMerc},M,]}"
 		HUDPATH "Core" "buff18" "19,371,57,25,25,25,${If[${swBuffMerc},,_]}"
-		HUDPATH "Core" "buff19" "19,380,62,0,255,0,${If[${swBuffGroup},G,]}"
-		HUDPATH "Core" "buff20" "19,380,57,25,25,25,${If[${swBuffGroup},,_]}"
+		HUDPATH "Core" "buff19" "19,380,62,0,255,0,${If[${swBuffOther},O,]}"
+		HUDPATH "Core" "buff20" "19,380,57,25,25,25,${If[${swBuffOther},,_]}"
 		HUDPATH "Core" "buff21" "19,389,62,0,255,0,${If[${swBuffMGB},X,]}"
 		HUDPATH "Core" "buff22" "19,389,57,25,25,25,${If[${swBuffMGB},,_]}"
 
@@ -3290,7 +3290,7 @@ sub hud_control(string _verbage)
 		HUDPATH "Debug" "debug.tBM2" "19,245,170,100,149,237,${timer_check_buffs_merc}"
 		| timer - buff group
 		HUDPATH "Debug" "debug.tBG1" "3,220,180,255,255,255,tBG"
-		HUDPATH "Debug" "debug.tBG2" "19,245,180,100,149,237,${timer_check_buffs_group}"
+		HUDPATH "Debug" "debug.tBG2" "19,245,180,100,149,237,${timer_check_buffs_other}"
 		
 
 		| --- bottom row
@@ -3358,7 +3358,7 @@ sub mybutton_control()
 
 	| in charege command
 	/noparse /ini ".\..\MQ2MyButtons.ini" "Button6" "Label" "In Charge"
-	/noparse /ini ".\..\MQ2MyButtons.ini" "Button6" "Command" "/incharge"
+	/noparse /ini ".\..\MQ2MyButtons.ini" "Button6" "Command" "/imincharge"
 	/noparse /ini ".\..\MQ2MyButtons.ini" "Button6" "Red" "255"
 	/noparse /ini ".\..\MQ2MyButtons.ini" "Button6" "Green" "255"
 	/noparse /ini ".\..\MQ2MyButtons.ini" "Button6" "Blue" "255"

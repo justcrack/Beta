@@ -918,7 +918,7 @@ sub check_buffs_BC()
 			/if (!${Me.SpellReady[${Buff${_count}}]} && ${Me.Gem[${Buff${_count}}]}) /continue
 
 			| any buff slots available?
-			/dquery ${_toonName} -q "Me.FreeBuffSlots" -o _DNqout
+			/dquery ${_toonName} -q "Me.FreeBuffSlots" -o _DNqout -t 1s
 			/if (${_DNqout.Equal[0]}) /continue
 
 			| stacking / exist ?
@@ -930,29 +930,65 @@ sub check_buffs_BC()
 					/if (!${Bool[${Spell[${Spell[${Buff${_count}}].Base2[${_i}]}].Duration}]}) /continue
 					/if (!${_found}) /continue
 					
+					/declare _qBuffName${_count}${_i}${_toonName} string local
+					/declare _qBuffNewStacks${_count}${_i}${_toonName} string local
+
 					| parsing issues: set the name of the secondary spell before passing the request to the other toon. should not need to do this.
 					/varset _base2 ${Spell[${Spell[${Buff${_count}}].Base2[${_i}]}].Name}
 
 					| do we have the triggered buff?
-					/dquery ${_toonName} -q "Me.Buff[${_base2}].ID" -o _DNqout
+					/dobserve ${_toonName} -q "Me.Buff[${_base2}].Name" -o _qBuffName${_count}${_i}${_toonName} -t 1s
+					/if (!${Bool[${_qBuffName${_count}${_i}${_toonName}}]}) /varset _found FALSE
+
+					| does it stack
+					/dobserve ${_toonName} -q "Spell[${_base2}].NewStacks" -o _qBuffNewStacks${_count}${_i}${_toonName} -t 1s
+					/if (!${Bool[${_qBuffNewStacks${_count}${_i}${_toonName}}]}) /varset _found TRUE
+
+
+					|**
+
+					| do we have the triggered buff?
+					/dquery ${_toonName} -q "Me.Buff[${_base2}].ID" -o _DNqout -t 1s
+					SDEBUG .Base2.ID \at${_DNqout}\ax
 					/if (!${Bool[${_DNqout}]}) 	/varset _found FALSE
 
 					| does it stack
-					/dquery ${_toonName} -q "Spell[${_base2}].NewStacks" -o _DNqout
+					/dquery ${_toonName} -q "Spell[${_base2}].NewStacks" -o _DNqout -t 1s 
+					SDEBUG .Base2.NewStacks \at${_DNqout}\ax
 					/if (!${Bool[${_DNqout}]}) /varset _found TRUE
+
+					**|
 
 				/next _i
 
 			| no secondary procing buffs. just check for the spells main name
 			} else {
 
+				/declare _qBuffName${_count}${_toonName} string local
+				/declare _qBuffStacks${_count}${_toonName} string local
+					
 				| has the buff?
-				/dquery ${_toonName} -q "Me.Buff[${Buff${_count}}].Name" -o _DNqout
+				/dobserve ${_toonName} -q "Me.Buff[${Buff${_count}}].Name" -o _qBuffName${_count}${_toonName} -t 1s
+				/if (!${Bool[${_qBuffName${_count}${_toonName}}]}) /varset _found FALSE
+
+				| stacks				
+				/dobserve ${_toonName} -q "Me.Buff[${Buff${_count}}].Name" -o _qBuffStacks${_count}${_toonName} -t 1s
+				/if (!${Bool[${_qBuffStacks${_count}${_toonName}}]}) /varset _found TRUE
+
+
+	
+				|**
+				| has the buff?
+				/dquery ${_toonName} -q "Me.Buff[${Buff${_count}}].Name" -o _DNqout -t 1s
+				SDEBUG .Name \at${_DNqout}\ax
 				/if (!${Bool[${_DNqout}]}) /varset _found FALSE
 
 				| stacks				
-				/dquery ${_toonName} -q "Spell[${Buff${_count}}].NewStacks" -o _DNqout
+				/dquery ${_toonName} -q "Spell[${Buff${_count}}].NewStacks" -o _DNqout -t 1s
+				SDEBUG .NewStacks \at${_DNqout}\ax
 				/if (!${Bool[${_DNqout}]}) /varset _found TRUE
+				
+				**|
 
 			}
 
@@ -971,62 +1007,6 @@ sub check_buffs_BC()
 
 	UPDATEHUD FALSE
 /return
-
-
-
-
-| adapt this for blocked buffs on local side to mapped DB character entry. 
-| dont forget to credit Maskoi
-
-
-        | Open Blocked Buffs window temporarily to read blocked buffs
-        /if (!${Window[BlockedBuffWnd].Open} && !${BBWindowOpen}) {
-            /windowstate BlockedBuffWnd open
-            /varset BBWindowOpen 120m
-            /delay 10
-        } 
-        | Write all blocked buffs to Kissassist_Buffs.ini file
-        /for k 0 to ${BlockedBuffsCount}
-            /varset Blockedbuff ${Window[BlockedBuffWnd].Child[BW_BLOCKEDBUFF${k}_Button].Child[BBuff${k}].Tooltip}
-            /if (${Blockedbuff.Length}) {
-                /varset Blockedbufflist ${Blockedbufflist}|${Blockedbuff}
-            }
-        /next k
-        /if (${Blockedbufflist.Length}) /ini "KissAssist_Buffs.ini" "${Me.ID}" Blockedbuffs "${Blockedbufflist}"
-        /if (${Window[BlockedBuffWnd].Open}) /windowstate BlockedBuffWnd close
-        /varset WriteBuffsTimer 30s
-
-
-
-        | Open Blocked Pet Buffs window temporarily to read blocked buffs
-        /if (!${Window[BlockedPetBuffWnd].Open} && !${BPBWindowOpen}) {
-            /windowstate BlockedPetBuffWnd open
-            /varset BPBWindowOpen 120m
-            /delay 10
-        }
-        | Write all blocked buffs to Kissassist_Buffs.ini file
-        /for k 0 to 39
-            /varset Blockedbuff ${Window[BlockedPetBuffWnd].Child[BW_BLOCKEDPETBUFF${k}_Button].Child[BPBuff${k}].Tooltip}
-            /if (${Blockedbuff.Length}) {
-                 /varset Blockedbufflist ${Blockedbufflist}|${Blockedbuff}
-            }
-        /next k
-        /if (${Blockedbufflist.Length}) /ini "KissAssist_Buffs.ini" "${Me.Pet.ID}" Blockedbuffs "${Blockedbufflist}"
-        /if (${Window[BlockedPetBuffWnd].Open}) /windowstate BlockedPetBuffWnd close
-        /varset WriteBuffsPetTimer 30s
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1448,10 +1428,7 @@ sub set_xtarget()
 	/declare _name			string	local
 
 	| reset extended target slots	
-	/for _count 1 to 13
-		/if (${Bool[${setToonControl}]} && ${Bool[${setToonControlXTslot}]} == ${_count} && ${setToonControlProtect}) /continue
-		/xtarget set ${_count} Autohater
-	/next _count
+	/call clear_xtarget
 	
 	/call timer_update timer_set_xtarget ${tXHeal}
 		
@@ -1814,7 +1791,7 @@ sub clear_combat()
 		/varset Target2Kill 0
 	}
 	
-	/if (${Me.MercID} && ${Me.MercenaryStance.NotEqual[Passive]}) /stance Passive
+	| /if (${Me.MercID} && ${Me.MercenaryStance.NotEqual[Passive]}) /stance Passive
 	/if (${swBurnControl}) /varset swBurnControl FALSE
 	/if (${isValidTarget}) /varset isValidTarget FALSE
 	/if (${Stick.Active}) /squelch /stick off
@@ -1869,7 +1846,7 @@ sub cast_condition(str _condition)
 	} else /if (${${_condition}.Replace[^,$]}) {
 		/return TRUE
 		
-	| when in doubt, blame your little sister.	
+	| when in doubt, blame your little sister.
 	} 
 
 /return FALSE
@@ -2764,7 +2741,7 @@ sub check_buffs_manual(string _type)
 		/varset _PCMercenary pc
 		/varset _INIline Raid
 	} else /if (${_type.Equal[group]}) {
-		/call timer_update timer_check_buffs_group ${tGroup_Buff}
+		/call timer_update timer_check_buffs_other ${tOther_buff}
 		/varset _GroupRaid Group
 		/varset _PCMercenary pc
 		/varset _INIline Manual
@@ -5045,7 +5022,7 @@ sub check_buff_routines(bool _force)
 			/if (${swBuffPet} && ${Me.Pet.ID} && !${timer_check_buffs_pet}) /call check_buffs_pet
 			/if (${swBuffSelf} && (${Bool[${Aura1Spell}]} || ${Bool[${Aura2Spell}]}) && !${timer_check_aura}) /call check_aura
 			/if (${swBuffMerc} && !${timer_check_buffs_merc}) /call check_buffs_manual mercenary
-			/if (${swBuffGroup} && !${timer_check_buffs_group}) /call check_buffs_manual group
+			/if (${swBuffOther} && !${timer_check_buffs_other}) /call check_buffs_manual group
 			/if (${swBuffMGB} && !${timer_check_buffs_mgb}) /call check_buffs_mgb
 		}
 
@@ -7749,11 +7726,11 @@ sub set_character_xthealclass(bool _debug, string _verbage)
 		
 		| if its there, delete
 		/if (${XHealClass.Find[${_verbage}]}) {
-			/call sql_update ${_debug} ${Me.Class.ShortName} XHealClass ${list_delete[XHealClass, ${_verbage.Upper}]}
+			/call sql_update ${_debug} ${Me.Class.ShortName} XHealClass ${${list_delete[XHealClass, ${_verbage.Upper}]}}
 
 		| if its not there, add	
 		}	else /if (!${XHealClass.Find[${_verbage}]}) {
-			/call sql_update ${_debug} ${Me.Class.ShortName} XHealClass ${list_add[XHealClass, ${_verbage.Upper}]}
+			/call sql_update ${_debug} ${Me.Class.ShortName} XHealClass ${${list_add[XHealClass, ${_verbage.Upper}]}}
 		}			
 		
 		| update xtargets window and timer
@@ -7769,7 +7746,7 @@ sub set_character_xthealclass(bool _debug, string _verbage)
 		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${lstClassAll.Arg[${_count},|].Lower}\ax:${If[${XHealClass.Find[${lstClassAll.Arg[${_count},|]}]},${oon},${ooff}]}
 		/varset _sep TRUE
 	/next _count
-	VOUT /${Me.Class.ShortName.Lower} [${_listout}]
+	VOUT /${Me.Class.ShortName.Lower} xtclass [${_listout}]
 		
 /return
 
@@ -7993,6 +7970,17 @@ sub broadcast_status()
 /return
 
 
+|***
+ *	DES: just clears the xtarget list
+ *	USE: 
+ *  NOTE: 
+ ***| 
+sub clear_xtarget()
+	/declare _count int local 0
+	/for _count 1 to 13
+		/xtarget set ${_count} Autohater
+	/next _count
+/return
 
 
 
@@ -8076,5 +8064,107 @@ sub merc_control()
 
 /return TRUE
 
-        /if (${Window[MMGW_ManageWnd].Child[MMGW_SuspendButton].Enabled} && ${Mercenary.State.Equal[DEAD]}) /notify MMGW_ManageWnd MMGW_SuspendButton LeftMouseUp
 
+
+
+
+/if (${Window[MMGW_ManageWnd].Child[MMGW_SuspendButton].Enabled} && ${Mercenary.State.Equal[DEAD]}) /notify MMGW_ManageWnd MMGW_SuspendButton LeftMouseUp
+
+
+
+
+
+
+
+
+
+
+
+
+
+|***
+ *	DES: 
+ *	USE: 
+ *  NOTE: 
+ ***|
+sub check_buffs_blocked()
+
+
+
+
+
+
+/return
+
+
+
+
+
+
+lstPetBlockedSpells
+lstBlockedSpells
+
+
+
+
+
+
+
+
+
+
+| adapt this for blocked buffs on local side to mapped DB character entry. 
+| dont forget to credit Maskoi
+
+
+        | Open Blocked Buffs window temporarily to read blocked buffs
+        /if (!${Window[BlockedBuffWnd].Open} && !${BBWindowOpen}) {
+            /windowstate BlockedBuffWnd open
+            /varset BBWindowOpen 120m
+            /delay 10
+        } 
+        | Write all blocked buffs to Kissassist_Buffs.ini file
+        /for k 0 to 39
+            /varset Blockedbuff ${Window[BlockedBuffWnd].Child[BW_BLOCKEDBUFF${k}_Button].Child[BBuff${k}].Tooltip}
+            /if (${Blockedbuff.Length}) {
+                /varset Blockedbufflist ${Blockedbufflist}|${Blockedbuff}
+            }
+        /next k
+        /if (${Blockedbufflist.Length}) /ini "KissAssist_Buffs.ini" "${Me.ID}" Blockedbuffs "${Blockedbufflist}"
+        /if (${Window[BlockedBuffWnd].Open}) /windowstate BlockedBuffWnd close
+        /varset WriteBuffsTimer 30s
+
+
+
+        | Open Blocked Pet Buffs window temporarily to read blocked buffs
+        /if (!${Window[BlockedPetBuffWnd].Open} && !${BPBWindowOpen}) {
+            /windowstate BlockedPetBuffWnd open
+            /varset BPBWindowOpen 120m
+            /delay 10
+        }
+        | Write all blocked buffs to Kissassist_Buffs.ini file
+        /for k 0 to 39
+            /varset Blockedbuff ${Window[BlockedPetBuffWnd].Child[BW_BLOCKEDPETBUFF${k}_Button].Child[BPBuff${k}].Tooltip}
+            /if (${Blockedbuff.Length}) {
+                 /varset Blockedbufflist ${Blockedbufflist}|${Blockedbuff}
+            }
+        /next k
+        
+        
+        
+        /if (${Blockedbufflist.Length}) /ini "KissAssist_Buffs.ini" "${Me.Pet.ID}" Blockedbuffs "${Blockedbufflist}"
+        /if (${Window[BlockedPetBuffWnd].Open}) /windowstate BlockedPetBuffWnd close
+        /varset WriteBuffsPetTimer 30s
+
+
+
+
+
+
+${Window[BlockedBuffWnd].Child[BW_BLOCKEDBUFF3_Button].Child[Spell: Group Pact of the Wolf Form].Tooltip}
+
+
+
+Spell: Group Pact of the Wolf Form
+
+${Window[BlockedBuffWnd].Child[BW_BLOCKEDBUFF3_Button].Child[Spell: Group Pact of the Wolf Form].Name}

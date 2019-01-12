@@ -629,7 +629,7 @@ sub Bind_watchspawn(string _spawn)
  *  NOTE: starts/ends overrides
  ***|
 #bind override /override
-sub Bind_override(string _type, string _verbage)
+sub Bind_override(string _type, string _verbage, bool _silent)
 	/declare _count int local 0
 	/declare _bind string local Override
 	/declare _table string local character
@@ -645,6 +645,7 @@ sub Bind_override(string _type, string _verbage)
 	/next _count
 	
 	| spit out the results
+	/if (${_silent}) /return
 	/if (${swMQClear}) /mqclear
 	/for _count 1 to ${lstTypes${_bind}.Count[|]}
 		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${If[${sw${_bind}${lstTypes${_bind}.Arg[${_count},|]}},${cgood},${cinfo}]}${lstTypes${_bind}.Arg[${_count},|].Lower}\ax
@@ -661,7 +662,7 @@ sub Bind_override(string _type, string _verbage)
  *  NOTE:
  ***| 	
 #bind deBuff /debuff
-sub Bind_deBuff(string _type, string _verbage)
+sub Bind_deBuff(string _type, string _verbage, bool _silent)
 	/declare _count int local 0
 	/declare _bind string local deBuff
 	/declare _table string local character
@@ -694,6 +695,7 @@ sub Bind_deBuff(string _type, string _verbage)
 	/next _count
 	
 	| spit out the results
+	/if (${_silent}) /return
 	/for _count 1 to ${lstTypes${_bind}.Count[|]}
 		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${If[${sw${_bind}${lstTypes${_bind}.Arg[${_count},|]}},${cgood},${cinfo}]}${lstTypes${_bind}.Arg[${_count},|].Lower}\ax
 		/varset _sep TRUE
@@ -715,7 +717,7 @@ sub Bind_deBuff(string _type, string _verbage)
  *  NOTE:
  ***| 	
 #bind heal /heal
-sub Bind_heal(string _type, string _verbage)
+sub Bind_heal(string _type, string _verbage, bool _silent)
 	
 	/declare _count int local
 	/declare _bind string local Heal
@@ -742,8 +744,9 @@ sub Bind_heal(string _type, string _verbage)
 		}
 	/next _count
 
-	| heal xtarget correction
+	| heal xtarget correction(s)
 	/if (${_type.Equal[xtarget]}) {
+		/if (!${swHealXTarget}) /call clear_xtarget
 		/if (!${validate_expansion[TRUE, |16]}) {
 			/call set_switch ${_table} swHealXTarget FALSE
 			/return
@@ -760,6 +763,7 @@ sub Bind_heal(string _type, string _verbage)
 		}
 	}
 
+	/if (${_silent}) /return
 	/if (${swMQClear}) /mqclear
 	/for _count 1 to ${lstTypes${_bind}.Count[|]}
 		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[override]}) {
@@ -780,7 +784,7 @@ sub Bind_heal(string _type, string _verbage)
  *  NOTE:
  ***| 	
 #bind buff /buff
-sub Bind_buff(string _type, string _verbage)
+sub Bind_buff(string _type, string _verbage, bool _silent)
 	/declare _count int local 0
 	/declare _bind string local Buff
 	/declare _table string local buff
@@ -797,6 +801,7 @@ sub Bind_buff(string _type, string _verbage)
 	/next _count
 	
 	| spit out the results
+	/if (${_silent}) /return
 	/if (${swMQClear}) /mqclear
 	/for _count 1 to ${lstTypes${_bind}.Count[|]}
 		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${If[${sw${_bind}${lstTypes${_bind}.Arg[${_count},|]}},${cgood},${cinfo}]}${lstTypes${_bind}.Arg[${_count},|].Lower}\ax
@@ -882,7 +887,7 @@ sub Bind_cursor(string _type, string _verbage)
  *  NOTE: people should really stop dying
  ***| 	
 #bind rez /rez
-sub Bind_rez(string _type, string _verbage)
+sub Bind_rez(string _type, string _verbage, bool _silent)
 	/declare _count int local 0
 	/declare _bind string local Rez
 	/declare _table string local character
@@ -918,6 +923,7 @@ sub Bind_rez(string _type, string _verbage)
 
 	}
 
+	/if (${_silent}) /return
 	/varset _sep FALSE
 	/if (${swMQClear}) /mqclear
 	/for _count 1 to ${lstTypes${_bind}.Count[|]}
@@ -942,7 +948,7 @@ sub Bind_rez(string _type, string _verbage)
  *  NOTE: 
  ***| 
 #bind listControl /lc
-sub Bind_listControl(string _type, string _verbage)
+sub Bind_listControl(string _type, string _verbage, bool _silent)
 	/declare _properType string 	local
 	/declare _count int local 0
 	/declare _bind string local LC
@@ -1035,6 +1041,7 @@ sub Bind_listControl(string _type, string _verbage)
 	} 
 	
 	
+	/if (${_silent}) /return
 	/if (${swMQClear}) /mqclear
 	
 	| require a target. one that is not a PC
@@ -1058,7 +1065,7 @@ sub Bind_listControl(string _type, string _verbage)
  *  NOTE:
  ***|
 #bind petControl /pc
-sub Bind_petControl(string _type, string _verbage)
+sub Bind_petControl(string _type, string _verbage, bool _silent)
 	/declare _count int local 0
 	/declare _bind string local PC
 	/declare _table string local pet
@@ -1132,6 +1139,7 @@ sub Bind_petControl(string _type, string _verbage)
 
 	}
 	
+	/if (${_silent}) /return
 	/if (${swMQClear}) /mqclear
 	/for _count 1 to ${lstTypes${_bind}.Count[|]}
 		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${lstTypes${_bind}.Arg[${_count},|].Lower}\ax		
@@ -1154,7 +1162,7 @@ sub Bind_petControl(string _type, string _verbage)
  *  NOTE:
  ***| 
 #bind setTieControl /tc
-sub Bind_setTieControl(string _type, string _verbage)
+sub Bind_setTieControl(string _type, string _verbage, bool _silent)
 	/declare _count int local 0
 	/declare _bind string local TC
 	/declare _table string local movement
@@ -1200,7 +1208,7 @@ sub Bind_setTieControl(string _type, string _verbage)
 		/return
 		
 	| set tie distance		
-	} else /if (${_tcType.Equal[distance]}) {
+	} else /if (${_type.Equal[distance]}) {
 		/if (${Range.Between[1,99:${Int[${_verbage}]}]}) {
 			/call sql_update FALSE ${_table} setTieDistance ${_verbage} 
 		} else {
@@ -1208,6 +1216,8 @@ sub Bind_setTieControl(string _type, string _verbage)
 			/return
 		}
 	}
+
+	/if (${_silent}) /return
 	/if (${swMQClear}) /mqclear
 	/for _count 1 to ${lstTypes${_bind}.Count[|]}
 		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${lstTypes${_bind}.Arg[${_count},|].Lower}\ax		
@@ -1219,7 +1229,6 @@ sub Bind_setTieControl(string _type, string _verbage)
 		/varset _sep TRUE
 	/next _count
 	VOUT /${_bind.Lower} [${_listout}]
-
 /return TRUE
 
 
@@ -1259,7 +1268,7 @@ sub Bind_setTie(string _type)
  *  NOTE:
  ***| 	
 #bind burn /burn
-sub Bind_burn(string _type, string _verbage)
+sub Bind_burn(string _type, string _verbage, bool _silent)
 	
 	/declare _count int local 0
 	/declare _bind string local Burn
@@ -1294,6 +1303,7 @@ sub Bind_burn(string _type, string _verbage)
 
 	} 
 	
+	/if (${_silent}) /return
 	/if (${swMQClear}) /mqclear
 	/for _count 1 to ${lstTypes${_bind}.Count[|]}
 		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${lstTypes${_bind}.Arg[${_count},|]}\ax
@@ -1314,7 +1324,7 @@ sub Bind_burn(string _type, string _verbage)
  *  NOTE:
  ***|
 #bind Core /core
-sub Bind_Core(string _type, string _verbage, string _verbage2)
+sub Bind_Core(string _type, string _verbage, string _verbage2, bool _silent)
 
 	/declare _count int local 0
 	/declare _bind string local Core
@@ -1373,11 +1383,6 @@ sub Bind_Core(string _type, string _verbage, string _verbage2)
  	} else /if (${_type.Equal[expadjust]}) {
 		/call set_switch character swCorrectEXPAA ${_verbage} 
 
-	| migrate old INIS
- 	} else /if (${_type.Equal[migrate]}) {
-		/call ini_migration ${_type} ${_verbage}
-		/return
-
 	| check in game cash
 	} else /if (${_type.Equal[checkcash]}) {
 		/if (${Window[MKPW_ClaimWindow].Child[MKPW_ClaimClickHereBtn].Text.EqualCS[Claimed]}) {
@@ -1395,6 +1400,7 @@ sub Bind_Core(string _type, string _verbage, string _verbage2)
 				
 	}
 
+	/if (${_silent}) /return
 	/if (${swMQClear}) /mqclear	
 	/for _count 1 to ${lstTypes${_bind}.Count[|]}
 		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${lstTypes${_bind}.Arg[${_count},|]}\ax
@@ -1421,7 +1427,7 @@ sub Bind_Core(string _type, string _verbage, string _verbage2)
  *  NOTE: enable/disable many switches
  ***|
 #bind onoff /onoff
-sub Bind_onoff(string _type, string _verbage)
+sub Bind_onoff(string _type, string _verbage, bool _silent)
 	
 	/declare _count int local 0
 	/declare _listout string local
@@ -1434,6 +1440,7 @@ sub Bind_onoff(string _type, string _verbage)
 		} 
 	}
 	
+	/if (${_silent}) /return
 	/if (${swMQClear}) /mqclear
 	/for _count 1 to ${lstTypes${_bind}.Count[|]}
 		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${lstTypes${_bind}.Arg[${_count},|]}\ax
@@ -1532,7 +1539,7 @@ sub Bind_setAssist(string _verbage, string _name)
  *  NOTE:
  ***|
 #bind setCombatControl /cc
-sub Bind_setCombatControl(string _type, string _verbage)
+sub Bind_setCombatControl(string _type, string _verbage, bool _silent)
 	
 	/declare _count int local 0
 	/declare _bind string local CC
@@ -1846,7 +1853,7 @@ sub Bind_setMobAgro(int _setMobAgro)
  *  NOTE:
  ***|
 #bind setMovementControls /movement
-sub Bind_setMovementControls(string _type, string _verbage)
+sub Bind_setMovementControls(string _type, string _verbage, bool _silent)
 	/declare _count int local 0
 	/declare _bind string local Movement
 	/declare _listout string local
@@ -2063,7 +2070,7 @@ sub Bind_crew(int _crew)
  *  NOTE:
  ***|
 #bind echos /echos
-sub Bind_echos(string _type, string _verbage)
+sub Bind_echos(string _type, string _verbage, bool _silent)
 	/declare _count int local 0
 	/declare _bind string local Echos
 	/declare _table string local environment
@@ -2080,6 +2087,7 @@ sub Bind_echos(string _type, string _verbage)
 	/next _count
 	
 	| spit out the results
+	/if (${_silent}) /return
 	/for _count 1 to ${lstTypes${_bind}.Count[|]}
 		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${If[${sw${_bind}${lstTypes${_bind}.Arg[${_count},|]}},${cgood},${cinfo}]}${lstTypes${_bind}.Arg[${_count},|].Lower}\ax
 		/varset _sep TRUE
@@ -2166,7 +2174,7 @@ sub Bind_nav_to_target(string _name)
 
 
 |***
- *	DES: nclicks yes on a window option for some form of travel
+ *	DES: clicks yes on a window option for some form of travel
  *	USE: /take
  *  NOTE: 
  ***|
@@ -2198,7 +2206,7 @@ sub Bind_click_window_option()
 	| trade window
 	/if (${Window[Tradewnd]}) /nomodkey /notify Tradewnd TRDW_Trade_Button leftmouseup
 
-	| give to NPC
+	| give trade (inc NPC)
 	/if (${Window[GiveWnd]}) /squelch /notify GiveWnd GVW_Give_Button leftmouseup
 	
 /return
@@ -2378,7 +2386,7 @@ sub Bind_set_combat_here()
 	/if (${swBuffBC}) /call timer_update timer_check_buffs_BC ${defaultTimerDelay}
 	/if (${swBuffPet}) /call timer_update timer_check_buffs_pet ${defaultTimerDelay}
 	/if (${swBuffMerc}) /call timer_update timer_check_buffs_merc ${defaultTimerDelay}
-	/if (${swBuffGroup}) /call timer_update timer_check_buffs_group ${defaultTimerDelay}
+	/if (${swBuffOther}) /call timer_update timer_check_buffs_other ${defaultTimerDelay}
 	/if (${Bool[${Aura1Buff}]} || ${Bool[${Aura2Buff}]}) /call timer_update timer_check_aura ${defaultTimerDelay}
 	/if (${swBuffTell}) /call timer_update timer_check_buffs_tell ${defaultTimerDelay}
 	
@@ -2935,7 +2943,7 @@ sub Bind_core_info(string _type, string _verbage)
  *  NOTE: 
  ***|
 #bind Core_environment /environment
-sub Bind_Core_environment(string _type, string _verbage)
+sub Bind_Core_environment(string _type, string _verbage, bool _silent)
 	/declare _count int local 0
 	/declare _countArray int local 0
 	/declare _bind string local Environment
@@ -3128,7 +3136,7 @@ sub Bind_Core_environment(string _type, string _verbage)
  *  NOTE:
  ***| 
 #bind hud /hc
-sub Bind_hud(string _type, string _verbage)
+sub Bind_hud(string _type, string _verbage, bool _silent)
 
 	/declare _sep bool local
 	/declare _listout string local
@@ -3162,13 +3170,15 @@ sub Bind_hud(string _type, string _verbage)
 		}
 		VOUT Deleting MQ2HUD.INI ${sep} ${cinfo}${_verbage.Left[1].Upper}${_verbage.Right[-1].Lower}\ax
 		
-	} else {
-		/for _count 1 to ${lstTypes${_bind}.Count[|]}
-			/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${lstTypes${_bind}.Arg[${_count},|]}\ax
-			/varset _sep TRUE
-		/next _count
-		VOUT /${_bind.Lower} [${_listout}]
 	} 
+	
+	/if (${_silent}) /return
+
+	/for _count 1 to ${lstTypes${_bind}.Count[|]}
+		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${lstTypes${_bind}.Arg[${_count},|]}\ax
+		/varset _sep TRUE
+	/next _count
+	VOUT /${_bind.Lower} [${_listout}]
 /return
 
 
@@ -3180,7 +3190,7 @@ sub Bind_hud(string _type, string _verbage)
  *  NOTE: seriously..
  ***| 
 #bind admin /admin
-sub Bind_admin(string _type, string _verbage, string _verbage2)
+sub Bind_admin(string _type, string _verbage, string _verbage2, bool _silent)
 	/declare _sep bool local
 	/declare _listout string local
 	/declare _count int local 0
@@ -3197,6 +3207,11 @@ sub Bind_admin(string _type, string _verbage, string _verbage2)
 		/call initialize_core ${_verbage}
 		/return
 		
+	| migrate old INIS
+ 	} else /if (${_type.Equal[migrate]}) {
+		/call ini_migration ${_type} ${_verbage}
+		/return
+
 	| runs the whitewash routine to clear all aliases
 	} else /if (${_type.Equal[whitewash]}) {
 		/call whitewash
@@ -3377,7 +3392,7 @@ sub Bind_admin(string _type, string _verbage, string _verbage2)
 		} else /if (${_verbage.Equal[familiar]}) {
 			/mqclear
 			OUT Breastplates List ${sep} ${If[${Bool[${_verbage2}]},#${Int[${_verbage2}]},]}
-			/for _count 1 to 2
+			/for _count 1 to 3
 			/if (${Bool[${_verbage2}]} && ${_verbage2.NotEqual[${_count}]}) /continue
 				OUT setFam${cinfo}${_count}\ax ${sep} ${cnum}${sql_return[setFam${_count}, dummy]}\ax
 				OUT setFam${cinfo}${_count}\axBuff ${sep} ${cnum}${sql_return[setFam${_count}Buff, dummy]}\ax
@@ -3416,6 +3431,7 @@ sub Bind_admin(string _type, string _verbage, string _verbage2)
 
 	}
 
+	/if (${_silent}) /return
 	/if (${swMQClear}) /mqclear	
 	/for _count 1 to ${lstTypes${_bind}.Count[|]}
 		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${lstTypes${_bind}.Arg[${_count},|]}\ax
@@ -3424,5 +3440,4 @@ sub Bind_admin(string _type, string _verbage, string _verbage2)
 	/next _count
 	VOUT /${_bind.Lower} [${_listout}]
 /return
-
 

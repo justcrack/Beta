@@ -281,9 +281,9 @@ sub check_heal_group_CLR()
 	| AA heal stuffs
   /if (${hurtCount} && !${SafeZone} && !${timer_zoned_delay}) {
 	  /if (${hurtCount} > 2) {
-		  /if (${validate_cast[FALSE, alt, "Beacon of Life", ${Me.ID}]}) /call core_cast2 "Beacon of Life" alt 0 FALSE
+		  /if (!${Raid.Members} && ${validate_cast[FALSE, alt, "Beacon of Life", ${Me.ID}]}) /call core_cast2 "Beacon of Life" alt 0 FALSE
  			/if (${validate_cast[FALSE, alt, "Fury of Life", ${Me.ID}]}) /call core_cast2 "Fury of Life" alt 0 FALSE
-			/if (${validate_cast[FALSE, alt, "Silent Casting", ${Me.ID}]}) /call core_cast2 "Silent Casting" alt 0 FALSE
+			/if (!${Raid.Members} && ${validate_cast[FALSE, alt, "Silent Casting", ${Me.ID}]}) /call core_cast2 "Silent Casting" alt 0 FALSE
 			/if (${validate_cast[FALSE, alt, "Shield of Reverence", ${Me.ID}]}) /call core_cast2 "Shield of Reverence" alt 0 FALSE
 		}
 		
@@ -671,7 +671,7 @@ Sub cast_AA_celest_regen()
 	/if (${Me.AltAbilityReady[Mass Group Buff]} && ${Me.AltAbilityReady[Celestial Regeneration]} && !${Bool[${Me.Song[Celestial Regeneration]}]}) {
 		/if (${validate_cast[FALSE, alt, "Mass Group Buff", ${Me.ID}]}) /call core_cast2 "Mass Group Buff" alt ${Me.ID} FALSE
 		/if (${validate_cast[FALSE, alt, "Celestial Regeneration", ${Me.ID}]}) /call core_cast2 "Celestial Regeneration" alt ${Me.ID} FALSE
-		/if (${Bool[${Raid.Members}]}) /rs ${CRTXT}
+		| /if (${Bool[${Raid.Members}]}) /rs ${CRTXT}
 	} else /if (${Bool[${Me.Song[Celestial Regeneration]}]}) {
 		VOUT ${cbad}QUIT\ax trying to cast Celestial Regeneration while its running.	
 	}		
@@ -800,7 +800,7 @@ sub cast_alliance_CLR()
  *  NOTE:
  ***|
 #bind setCLR /clr
-sub Bind_setCLR(string _type, string _verbage)
+sub Bind_setCLR(string _type, string _verbage, bool _silent)
 	/if (!${validate_class[TRUE, |CLR]}) /return
 
 	/declare _sep bool local
@@ -921,6 +921,8 @@ sub Bind_setCLR(string _type, string _verbage)
 		}
 
 	}
+
+	/if (${_silent}) /return
 	/if (${swMQClear}) /mqclear
 	/for _count 1 to ${_lstClass.Count[|]}
 		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${_lstClass.Arg[${_count},|]}\ax
