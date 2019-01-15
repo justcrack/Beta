@@ -2988,7 +2988,7 @@ sub sort_familiar()
  *	DES: Adjusts the XTarget for visual purposes to heal setToonControl. *NO EFFECT ON HEALING
  *	USE: /call protect_always_xt & /control [toon name]
  *  NOTE: 
- ***|
+
 sub protect_always_xt()
 	/if (!${validate_expansion[FALSE, |16]}) /return
 	CHECKINPUTS
@@ -3003,7 +3003,7 @@ sub protect_always_xt()
 	}
 
 /return
-
+ ***|
 
 
 |***
@@ -3557,8 +3557,8 @@ sub check_for_corpse()
 		AMIDEAD
 		/if (!${timer_corpse_${NearestSpawn[${_count},pccorpse cleric radius ${setMaxRezRange}].ID}}) {
 			/varset _tmpID ${NearestSpawn[${_count},pccorpse cleric radius ${setMaxRezRange}].ID}
-			/if (${Select[${Me.Class.ShortName},CLR]} && ${Me.AltAbilityReady[${_divinerezCLR}]}) {
-				/if (${DivineRezCleric}) /call cast_rez ${_tmpID} ${_divinerezCLR}		
+			/if (${Select[${Me.Class.ShortName},CLR]} && ${Me.AltAbilityReady[${_divinerezCLR}]} && ${DivineRezCleric}) {
+				/call cast_rez ${_tmpID} ${_divinerezCLR}		
 			} else /if (${Select[${Me.Class.ShortName},CLR,DRU,PAL,SHM,NEC]} && ${Me.AltAbilityReady[${_rez${Me.Class.ShortName}}]}) {
 				/call cast_rez ${_tmpID} ${_rez${Me.Class.ShortName}}
 			} else /if (${swRezToken} && ${lstRezToken.Find[${Spawn[${_tmpID}].Class.ShortName}]}) {
@@ -6796,238 +6796,18 @@ sub validate_target(bool _error, int _tmpID)
 
 
 
-|***
- *	DES: displays the port and builds the command to the porting class
- *	USE: /port 
- *  NOTE: expect sarcasim if you cannot spell
- ***| 
-#bind port_list /port
-sub Bind_port_list(string _class, string _location, string _sublocation)
-	/declare _listout 				string 	local
-	/declare _listouttype			string 	local
-	/declare _sep 						bool 		local FALSE
-	/declare _country 				int 		local 0
-	/declare _count 					int 		local 0
-	/declare _state 					int 		local 0
-	/declare _portclass 			string 	local |druid|wizard|item
-	| /declare _porttype	 			string 	local |tl|group
-	/declare _continent 			string 	local |alaris|antonica|discord|faydwer|kunark|luclin|odus|serpentsspine|taelosia|planes|other
-	/declare _tell						bool		local FALSE
-
-	/if (${_class.Equal[item]}) {
-		
-		/declare _tmpItem string local FALSE
-
-		| primary anchor		
-		/if (${_location.Equal[primary]}) {
-			/varset _tmpItem Primary Anchor Transport Device
-			
-		| secondary anchor
-		} else /if (${_location.Equal[secondary]}) {
-			/varset _tmpItem Secondary Anchor Transport Device
-			
-		| magician summoned door
-		} else /if (${_location.Equal[door]}) {
-			/varset _tmpItem 
-			
-		} else /if (${_location.Equal[binden]}) {
-			/if (${Me.ItemReady[]}) {
-				/varset _tmpItem 
-			} else /if (${Me.ItemReady[The Fabled Binden Concerrentia]}) {
-				/varset _tmpItem The Fabled Binden Concerrentia
-			} 			
-			/if (!${FindItemCount[Quintessence of Knowledge]}) /return FALSE		
-
-		| drunkards stein
-		} else /if (${_location.Equal[stein]}) {
-			/varset _tmpItem Drunkard's Stein
-			
-		| TBM xpac mirror
-		} else /if (${_location.Equal[mirror]}) {
-			/varset _tmpItem Mirror Fragment of Anashti Sul
-			
-		} else /if (${_location.Equal[iksarstone]}) {
-			/varset _tmpItem Ancient Iksar Translocator Stone
-
-		| TSS necklace portal
-		} else /if (${_location.Equal[warportal]}) {
-			/varset _tmpItem Necklace of Warportal Fragments
-			/if (!${FindItemCount[Small Portal Fragments]})	/return FALSE
-
-		} else /if (${_location.Equal[pokbrick]}) {
-			/varset _tmpItem Brick of Knowledge
-
-		| fellowship clickie for those that have friends
-		} else /if (${_location.Equal[fellowship]}) {
-			/varset _tmpItem Fellowship Registration Insignia
-
-		} else /if (${_location.Equal[brells]}) {
-			/varset _tmpItem Mark of Brell
-
-		} else /if (${_location.Equal[scepter]}) {
-			/varset _tmpItem Scepter of Draconic Calling
-
-		} else /if (${_location.Equal[lamp]}) {
-			
-			/if (${_sublocation.Equal[]}) {
-				/varset _tmpItem Wishing Lamp: Zephyr's Flight
-			} else /if (${_sublocation.Equal[]}) {
-				/varset _tmpItem Wishing Lamp: Palace of Embers
-			} else /if (${_sublocation.Equal[]}) {
-				/varset _tmpItem Wishing Lamp: The Stone of Demesne
-			}
-
-		| signet of the crystal circle
-		} else /if (${_location.Equal[rofsignet]}) {
-			/varset _tmpItem Signet of the Crystal Circle
-
-		} else /if (${_location.Equal[jaggedpine]}) {
-			/varset _tmpItem Ring of Jaggedpine
-
-		} else /if (${_location.Equal[tolans]}) {
-			/varset _tmpItem Tolan's Darkwood Breastplate
-
-		| TBM port clickie
-		} else /if (${_location.Equal[touchstone]}) {
-			/varset _tmpItem Touchstone of Health
-
-		
-		} else /if (${_location.Equal[gorowyn]}) {
-			/varset _tmpItem Gorowyn Translocator Beacon
-
-		| zueria slide
-		} else /if (${_location.Equal[slide]}) {
-			
-			| Zueria Slide: Stonebrunt
-			| Zueria Slide: Great Divide
-			| Zueria Slide: North Ro
-			| Zueria Slide: Nektulos
-			| Zueria Slide: Dreadlands
-			| Zueria Slide: Skyfire
-			
-			/varset _tmpItem 
-
-		| arx key
-		} else /if (${_location.Equal[arx]}) {
-			/varset _tmpItem Arx Key
-
-		} else /if (${_location.Equal[stratos]}) {
-			/varset _tmpItem Stratos Air Platform
-
-		} else /if (${_location.Equal[faithstone]}) {
-			/declare _myDiety ${Me.Diety}
-			/declare _myRace ${Me.Race}
-			
-			/if (${_myDiety.Equal[Bertoxxulous]}) /varset _tmpItem Faithstone of Decay
-			/if (${_myDiety.Equal[Brell Serilis]}) /varset _tmpItem Faithstone of Underfoot
-			/if (${_myDiety.Equal[Bristlebane]}) /varset _tmpItem Faithstone of Mischief
-			/if (${_myDiety.Equal[Cazic-Thule]}) /varset _tmpItem Faithstone of Fear
-			| /if (${_myDiety.Equal[Erolissi Marr]}) /varset _tmpItem 
-			/if (${_myDiety.Equal[Innoruuk]} && ${_myRace.Equal[Human]}) /varset _tmpItem Faithstone of Spite
-			/if (${_myDiety.Equal[Innoruuk]} && ${_myRace.Equal[Dark Elf]}) /varset _tmpItem Faithstone of Hate
-			/if (${_myDiety.Equal[Karana]}) /varset _tmpItem Faithstone of Thunder
-			/if (${_myDiety.Equal[Mithaniel Marr]}) /varset _tmpItem Faithstone of Courage
-			/if (${_myDiety.Equal[Prexus]}) /varset _tmpItem Faithstone of the Learned
-			| /if (${_myDiety.Equal[Quellious]}) /varset _tmpItem 
-			/if (${_myDiety.Equal[Rallos Zek]}) /varset _tmpItem Spiritstone of the Feerott
-			/if (${_myDiety.Equal[Rodcet Nife]}) /varset _tmpItem Faithstone of Life
-			| /if (${_myDiety.Equal[Solusek Ro]}) /varset _tmpItem 
-			/if (${_myDiety.Equal[The Tribunal]}) /varset _tmpItem Faithstone of Deep Musing
-			/if (${_myDiety.Equal[Tunaree]}) /varset _tmpItem Faithstone of Nature
-			/if (${_myDiety.Equal[Veeshan]}) /varset _tmpItem Faithstone of the Dedicated
 
 
-		} else /if (${_location.Equal[gyrospire]}) {
-			/varset _tmpItem Gyrospire Relocation Device
-				
-		}
-			
-		| found an item
-		/if (${Bool[${_tmpItem}]}) {	
-			/if (!${Me.ItemReady[${_tmpItem}]}) /return FALSE
-			/if (${Me.Invis}) /makemevisible
-			/if (!${swModePersistent}) /call switch_clear_mode
-			/call set_stop NOECHO
-			/call clear_combat
-			/delay 1s !${Me.Casting.ID}
-			/if (${validate_cast[FALSE, item, "${_tmpItem}", ${Me.ID}]}) /call core_cast2 "${_tmpItem}" item 0 FALSE
-			/return
-		}
-		
-		/if (${swMQClear}) /mqclear
-		/for _count 1 to ${lstTypesPortItem.Count[|]}
-			/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${lstTypesPortItem.Arg[${_count},|].Lower}\ax
-			/varset _sep TRUE
-		/next _count
-		VOUT /port item [${_listout}]		
-		/return
-	}
+ /echo ${EverQuest.LastMouseOver.Name}
+ 
+ 
+ 
+ItemDisplayWindow
+IDW_ConvertButton
+IDW_ConvertButtonLabel
 
 
-	| druid port list
-	/declare _portDruidAlaris 											string local |beast|pillars|shardslanding
-	/declare _portDruidAntonica  										string local |commonlands|feerrott|karana|lavastorm|misty|ro|surefall|undershore|westkarna
-	/declare _portDruidDiscord 											string local |bloodfields|wallofslaughter
-	/declare _portDruidFaydwer 											string local |butcherblock|looping|steamfront
-	/declare _portDruidKunark 											string local |dreadlands|lceanium
-	/declare _portDruidLuclin 											string local |dawnshroud|grimling|nexus|twilight
-	/declare _portDruidOdus 												string local |buriedsea|stonebrunt|tempesttemple|tox
-	/declare _portDruidSerpentsspine							 	string local |blightfire|direwind|steppes
-	/declare _portDruidTaelosia 										string local |barindu|natimbi
-	/declare _portDruidPlanes 											string local |grounds|potime|brells|arcstone|knowledge|esianti
-	/declare _portDruidVelious 											string local |cobaltscar|wakening|greatdivide|iceclad
-	/declare _portDruidOther 												string local |primarypush|secondarypush|primary|secondary
-
-	| wizard port list
-	/declare _portWizardAlaris 											string local |pillars|sarith 
-	/declare _portWizardAntonica 										string local |northkarana|commonlands|nektulos|qeyenos|northro|cazic|undershore|westkarana
-	/declare _portWizardDiscord 										string local |wallofslaughter|bloodfields
-	/declare _portWizardFaydwer 										string local |fay|dragonscale
-	/declare _portWizardKunark 											string local |lceanium|dreadlands|skyfire
-	/declare _portWizardLuclin 											string local |dawnshroud|twilight|grimling
-	/declare _portWizardOdus 												string local |tempesttemple|katta
-	/declare _portWizardSerpentsspine							 	string local |tox|stonebrunt|icefall|sunderock|blightfire
-	/declare _portWizardTaelosia 										string local |barindu|natimbi
-	/declare _portWizardPlanes 											string local |grounds|potime|brells|arcstone|pok|esianti
-	/declare _portWizardVelious 										string local |cobaltscar|wakening|greatdivide|iceclad
-	/declare _portWizardOther 											string local |bind|nexus|primary|secondary|primarypush|secondarypush
-			
-	| sort the class
-	/if (${Bool[${_class.Find[druid]}]}) {
-		/varset _class Druid
-	} else /if (${Bool[${_class.Find[wizard]}]}) {
-		/varset _class Wizard
-	} else {
-		| build class types
-		/for _count 1 to ${_portclass.Count[|]}
-			/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${_portclass.Arg[${_count},|]}\ax
-			/varset _sep TRUE
-		/next _count
-		/varset _sep FALSE
-
-		| VOUT /port [${_listout}] [${cinfo}location\ax] [${_listouttype}]
-		VOUT /port [${_listout}] [${cinfo}location\ax]
-		/return
-	}
-	
-  | echo locations if class correct
-	/if (${Bool[${_class}]} && !${Bool[${_location}]}) {
-		/for _country 1 to ${_continent.Count[|]}
-			/for _state 1 to ${_port${_class}${_continent.Arg[${_country},|].Left[1].Upper}${_continent.Arg[${_country},|].Right[-1].Lower}.Count[|]}
-				/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${_port${_class}${_continent.Arg[${_country},|].Left[1].Upper}${_continent.Arg[${_country},|].Right[-1].Lower}.Arg[${_state},|]}\ax
-				/varset _sep TRUE
-			/next _state
-			VOUT ${_continent.Arg[${_country},|].Left[1].Upper}${_continent.Arg[${_country},|].Right[-1].Lower} [${_listout}] 
-			/varset _listout
-			/varset _sep
-		/next _country
-
-	| request port when class and location are present
-	} else /if (${Bool[${_class}]} && ${Bool[${_location}]}) {
-		/dex ${get_resident[${_class}, 100]} /taxi_service "${Me.DisplayName}" "${_location}"
-	}
-
-/return
+ 
 
 
 

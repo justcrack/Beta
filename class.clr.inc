@@ -226,9 +226,11 @@ sub check_heal_group_CLR()
 	}
 
 	| Arbitration
-  /if (${Group.Member[${hurtIndex}].PctHPs} < ${${hurtCLS}Point}*.${tmpHealOverride}*.5 || ${hurtCount} > ${useGroupHeal}) {
-    /call cast_divine_arbitration
-  }
+	/if (${swArbitrate} && ${useGroupHeal}) {
+	  /if (${Group.Member[${hurtIndex}].PctHPs} < ${${hurtCLS}Point}*.${tmpHealOverride}*.5 || ${hurtCount} > ${useGroupHeal}) {
+	    /call cast_divine_arbitration
+	  }
+	}
   
   | Forced Group Heals ONLY
 	/if (${switchForceGroupHeal}) {
@@ -807,7 +809,7 @@ sub Bind_setCLR(string _type, string _verbage, bool _silent)
 	/declare _listout string local
 	/declare _count int local 0
 	/declare _bind string local ${Me.Class.ShortName.Lower}
-  /declare _lstClass string local |aggressive|ch|fade|forcegroupheal|groupheal|grouphot|healpoint|issuance|rampage|retort|rod|spiregroup|spireraid|vp|xtclass|xttime|yaulp
+  /declare _lstClass string local |aggressive|arbitrate|ch|divinerez|fade|forcegroupheal|groupheal|grouphot|healpoint|issuance|rampage|retort|rod|spiregroup|spireraid|vp|xtclass|xttime|yaulp
 
 	| enable/disable lead with aggerssive heals
 	/if (${_type.Equal[aggressive]}) {
@@ -887,6 +889,10 @@ sub Bind_setCLR(string _type, string _verbage, bool _silent)
 	} else /if (${_type.Equal[grouphot]}) {
 		/call set_switch ${Me.Class.ShortName} useGroupHoT ${_verbage} 	
 
+	| arbitration (sheild AND AA)	
+	} else /if (${_type.Equal[arbitrate]}) {
+		/call set_switch ${Me.Class.ShortName} swArbitrate ${_verbage} 	
+
 	| set rampage tank toon
 	} else /if (${_type.Equal[rampage]}) {
 		/if (${Bool[${_verbage}]}) {
@@ -899,6 +905,10 @@ sub Bind_setCLR(string _type, string _verbage, bool _silent)
 	} else /if (${_type.Equal[healpoint]}) {
 		/call set_character_healpoint FALSE ${_verbage}
 		/return
+
+	| use divine rez
+	} else /if (${_type.Equal[divinerez]}) {
+		/call set_switch ${Me.Class.ShortName} DivineRezCleric ${_verbage} 	
 
 	| set the XTarget class to heal
 	} else /if (${_type.Equal[xtclass]}) {
@@ -927,7 +937,9 @@ sub Bind_setCLR(string _type, string _verbage, bool _silent)
 	/for _count 1 to ${_lstClass.Count[|]}
 		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${_lstClass.Arg[${_count},|]}\ax
 		/if (${_lstClass.Arg[${_count},|].Equal[aggressive]}) /varset _listout ${_listout}:${If[${switchHealAggressive},${oon},${ooff}]}
+		/if (${_lstClass.Arg[${_count},|].Equal[arbitrate]}) /varset _listout ${_listout}:${If[${swArbitrate},${oon},${ooff}]}
 		/if (${_lstClass.Arg[${_count},|].Equal[ch]}) /varset _listout ${_listout}:${If[${switchCompleteHeal},${cnum}${CompleteHealpct}\ax,${ooff}]}
+		/if (${_lstClass.Arg[${_count},|].Equal[divinerez]}) /varset _listout ${_listout}:${If[${DivineRezCleric},${oon},${ooff}]}
 		/if (${_lstClass.Arg[${_count},|].Equal[fade]}) /varset _listout ${_listout}:${If[${switchAAFade},${cnum}${useAAFadePct}\ax,${ooff}]}
 		/if (${_lstClass.Arg[${_count},|].Equal[forcegroupheal]}) /varset _listout ${_listout}:${If[${switchForceGroupHeal},${oon},${ooff}]}
 		/if (${_lstClass.Arg[${_count},|].Equal[groupheal]}) /varset _listout ${_listout}:${If[${useGroupHeal},${cnum}${useGroupHeal}\ax,${ooff}]}
@@ -947,4 +959,6 @@ sub Bind_setCLR(string _type, string _verbage, bool _silent)
 	/next _count
 	VOUT /${_bind} [${_listout}]
 /return
+
+
 

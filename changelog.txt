@@ -27,7 +27,26 @@ Plugins Required: MQ2Cast, MQ2Exchange, MQ2MoveUtils, MQ2Debuffs, MQ2DanNet, MQ2
     -- script: files use to aid database or character generation. these files are fair game, i will be overwriting them if i need
 
 
-BETA 0112.2
+
+
+
+
+
+BETA 0115.01
+- /hc [broadcast] has been removed. no longer needed
+- /port [guild]
+  -- /port guild TBL, will tell that toon to click the Broken Lands guild hall portal and take it.
+  -- ports are not broadcasted
+  -- just entering /port guild will give you a list of what i have added
+  -- added a lot of guildhall port clickies, like TBL or EoK or port paintings. Added the oned I had immediate access to. 
+     if there are more, let me know nad i'll add them
+- class.clr.inc
+  -- /clr [arbitrate] will enable or disable using arbitrates, Epic Shield and AA
+  -- arbitrates will no longer work if groupheal is off
+  -- /clr [divinerez] enable / disable using Divine Rez AA
+
+
+BETA 0112.3
 - BC BUFFING
   -- more adjustments.
 
@@ -37,9 +56,8 @@ BETA 0112.2
   -- some corrections to the syntax. cross fingers...
 
 
-
 BETA 0112.01
-- ok, sice this has seemed to confused people since.. whenever..
+- ok, since this has seemed to confused people since.. whenever..
 - I have renamed the /buff group command to /buff other
 - /buff [other] will buff other players in your group that you are  not boxing.. e.g other real players.
 - BC Buffing

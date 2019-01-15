@@ -170,7 +170,7 @@ sub pregen_environment()
 	/call setDeclare lstTypesCore																				string 		outer "|auto|checkcash|events|expadjust|expmaintain|explevel|fireworks|takeraidinvite|takegroupinvite|giveraidinvite"
 
 	| HUD .. /hc []
-	/call setDeclare lstTypesHUD																				string 		outer "|time|update|broadcast|delete"
+	/call setDeclare lstTypesHUD																				string 		outer "|time|update|delete"
 
 	| burns .. /burn []
 	/call setDeclare lstTypesBurn																				string		outer "|auto|count|engage|force"
@@ -201,8 +201,13 @@ sub pregen_environment()
 	| movement .. /movement []
   /call setDeclare lstTypesMovement																		string		outer "|Arc|Behind|Fast|Gather|GOTO|Home|Leash|Mount|Radius"
   
-	| port clickies .. /portitem []
+	| port clickies .. /port item []
   /call setDeclare lstTypesPortItem																		string		outer "|primary|secondary|door|binden|stein|mirror|iksarstone|warportal|pokbrick|fellowship|brells|scepter|lamp|rofsignet|jaggedpine|tolans|touchstone|gorowyn|slide|arx|stratos|faithstone|gyrospire"
+
+
+	| guild Hall port clickies .. /port guild []
+  /call setDeclare lstTypesPortGuildHall															string		outer "|lobby|TBL|qeynos|highhold|TBM|EoK|RoS|neriak1|neriak2|neriak3|neriakf|PoM|surefall|halas"
+
 
 	| admin stuff .. /admin []
   /call setDeclare lstTypesAdmin																			string		outer "|maintenance|get|list|migrate|notice|reset|table|whitewash|zonereset"
@@ -1304,6 +1309,7 @@ sub pregen_CLR()
 	/call sql_control FALSE CLR switchHealAggressive										bool			outer FALSE
 	/call sql_control FALSE CLR switchCompleteHeal											bool			outer FALSE
 	/call sql_control FALSE CLR CompleteHealpct													int 			outer 70	
+	/call sql_control FALSE CLR swArbitrate															bool			outer FALSE
 
 	| group heals (not cures) *mostly                                            		
 	/call sql_control FALSE CLR healWholeGroup 													string 		outer PREGENDATA
@@ -3205,6 +3211,13 @@ sub hud_control(string _verbage)
 		HUDPATH "Elements" "e.tar" "21,5,26,255,255,255,${Target.DisplayName}"
 
 
+	| elements HUD	
+	} else /if (${_verbage.Equal[dev]}) {
+
+		HUDPATH "DEV" "LastMouseOverText" "21,4,50,0,255,0,${If[${EverQuest.LastMouseOver},${EverQuest.LastMouseOver.Name},]}"
+		HUDPATH "DEV" "LastMouse7bg"      "21,2,50,0,0,0,${If[${EverQuest.LastMouseOver},█████████████████████████,]}"
+
+
 	| debug HUD
 	}	else /if (${_verbage.Equal[debug]}) {
 
@@ -3406,4 +3419,7 @@ sub mybutton_control()
 	/noparse /ini ".\..\MQ2MyButtons.ini" "Button12" "Blue" "153"
 
 /return
+
+
+
 
