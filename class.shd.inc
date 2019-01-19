@@ -356,13 +356,13 @@ sub Bind_setSHD(string _type, string _verbage)
 		/call set_switch ${Me.Class.ShortName} switchVoT Buffs ${_verbage}
 
 	| aa unity adjustment
-	} else /if (${Bool[${_type.Equal[unity]}]}) {
+	} else /if (${_type.Equal[unity]}) {
 		/if (${unityType.Equal[Azia]}) {
-			/call iniControl FALSE writeclass unityType											string	Spells "Beza"
+			/call sql_update FALSE ${Me.Class.ShortName} unityType "Beza"
 		} else /if (${unityType.Equal[Beza]}) {
-			/call iniControl FALSE writeclass unityType											string	Spells "Azia"
+			/call sql_update FALSE ${Me.Class.ShortName} unityType "Azia"
 		}
-		/call setDeclare SHDAAUnity																				"Dark Lord's Unity (${unityType})"
+		/call setDeclare SHDAAUnity "Dark Lord's Unity (${unityType})"
 
 
 	| defensive mob agro count

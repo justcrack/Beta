@@ -28,9 +28,28 @@ Plugins Required: MQ2Cast, MQ2Exchange, MQ2MoveUtils, MQ2Debuffs, MQ2DanNet, MQ2
 
 
 
-
-
-
+BETA 0119.01
+HUDUPDATE
+- /burn [raid]
+	-- enable or disable all burning while in raids
+     -- DB::character::swBurnRaid  
+- HUD
+  -- quite a few placement adjustments
+  -- added burn raid switch notice
+- class.mag.inc
+  -- fixed a dup declare in the pregen
+- class.shd.inc
+  -- forgot to change some ini controlls
+- class.clr.inc
+  -- building in a burn section. a lot of stuff has been rearranged.. see below
+     -- AA Beacon of Life seperated to be used when 1/2 or more of group is hurt
+     -- AA Celestial regeneration is no longer in group use. moved to burns. stacking checks have been removed. it will not double up with group regen if you are using it
+     -- AA Divine Guardian added to self heals
+     -- AA's Sient Casting and Divine Retribution set to stagger
+     -- AA Battle Frenzy will be used if aggressive healing is enabled
+     -- AA Divine Guardian will nto be use in raids unless it is a burn. still used in group as normal
+  -- correction to arbitrate use maths  
+  
 
 BETA 0115.01
 - /hc [broadcast] has been removed. no longer needed

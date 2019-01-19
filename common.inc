@@ -4866,7 +4866,7 @@ sub exit_class_loop()
 		}
 
 	}
-
+	
 /return FALSE
 
 
@@ -4878,6 +4878,9 @@ sub exit_class_loop()
  ***|
 sub is_burn_time()
 	/if (${SafeZone} && !${swOverrideSafeZone} && ${coreAuto}) /return FALSE
+	
+	| no raid burning if turned off
+	/if (!${swBurnRaid} && ${Raid.Members}) /return FALSE
 	
 	| if always set to burn, always burn while in combat
 	/if (${swBurnForce} && ${Me.Combat}) /return TRUE
@@ -4904,11 +4907,11 @@ sub is_burn_time()
 			/varset _mobID ${NearestSpawn[${_count}, npc radius ${setMobAgro}].ID}
 			/if (${swBurnAuto} && ${NameList.Find[${Spawn[id ${_mobID} radius ${setMobAgro}].DisplayName}]} && !${swOverrideName}) /return TRUE
 			/if (${setBurnCount}) {
-				/if (${SpawnCount[npc radius ${setMobAgro} ${If[${swOverrideLOS},,los]} targetable playerstate 4]} >= ${setBurnCount}) /return TRUE
+				/if (${SpawnCount[npc radius ${setMobAgro} targetable playerstate 4]} >= ${setBurnCount}) /return TRUE
 			}
 		/next _count 	
 	}
-
+	
 /return FALSE
 
 
@@ -4920,9 +4923,9 @@ sub is_burn_time()
  ***|
 sub check1offBuffs()
 	AMIDEAD
-	/if (${Me.Buff[Holistic Health].ID}) /call cure_Anashti_DT
+	| /if (${Me.Buff[Holistic Health].ID}) /call cure_Anashti_DT
 	| /if (${Me.Buff[Pyroignition].ID}) /call CurePyroignitionDot
-	/if (${Me.Buff[Withering Physicality].ID} || ${Me.Buff[Withering Limbs].ID} || ${Me.Buff[Withering Faith].ID}) /call CureDamselofDecay
+	| /if (${Me.Buff[Withering Physicality].ID} || ${Me.Buff[Withering Limbs].ID} || ${Me.Buff[Withering Faith].ID}) /call CureDamselofDecay
 
 /return
 
@@ -4935,9 +4938,7 @@ sub check1offBuffs()
  *  NOTE: 
  ***|
 sub last_supper()
-
 	| summon food and drink if we are using items	
-	
 	| summon food
 	/if (${Bool[${FoodDispenser}]}) {
 		/if (${FindItemCount[=${Food}]} < ${FoodCount}) {

@@ -173,7 +173,7 @@ sub pregen_environment()
 	/call setDeclare lstTypesHUD																				string 		outer "|time|update|delete"
 
 	| burns .. /burn []
-	/call setDeclare lstTypesBurn																				string		outer "|auto|count|engage|force"
+	/call setDeclare lstTypesBurn																				string		outer "|auto|count|engage|force|raid"
 
 	| rezurection .. /rez []
  	/call setDeclare lstTypesRez																				string		outer "|Combat|Everyone|Give|Pct|Range|Take|Token"
@@ -423,6 +423,8 @@ sub pregen_character()
 	/call sql_control FALSE character swBurnAuto												bool			outer FALSE
 	/call sql_control FALSE character setBurnPct												int				outer 80
 	/call sql_control FALSE character setBurnCount											int				outer 10
+	/call sql_control FALSE character swBurnRaid												bool			outer TRUE
+	
 
 	| combat controls (assist)
 	/call sql_control FALSE character setMA1			 											string 		outer FALSE
@@ -1645,6 +1647,9 @@ sub pregen_ENC()
  ***|
 sub pregen_MAG()
 	/declare _count int local 0
+	/declare _list int local 0
+	/declare _line string local NULL
+	
 	/call setDeclare MAGspire1																					string		outer "Fundament: First Spire of the Elements"
 	/call setDeclare MAGspire2																					string		outer "Fundament: Second Spire of the Elements"
 	/call setDeclare MAGspire3																					string		outer "Fundament: Third Spire of the Elements"
@@ -1693,11 +1698,7 @@ sub pregen_MAG()
 	/call sql_control FALSE MAG swModRod																bool	 		outer TRUE
 
 	/call sql_control FALSE MAG MAGPoint 																int 			outer 80
-	
-	/declare _count int local 0
-	/declare _list int local 0
-	/declare _line string local NULL
-	
+		
 	/call setDeclare lineType																						string		outer "|off|fire|magic|mix"
 	/call sql_control FALSE MAG lineCurrent															string 		outer FALSE
 	/call sql_control FALSE MAG lineFire																string		outer FALSE
@@ -3057,14 +3058,18 @@ sub hud_control(string _verbage)
 
 		| stuff for camp status
 		HUDPATH "Core" "camp1" "3,140,26,100,149,237,R        L"
-		HUDPATH "Core" "camp3" "19,150,26,0,255,0,${If[${swHomeSet},${setHomeRadius},]}"
-		HUDPATH "Core" "camp4" "19,185,26,0,255,0,${If[${swHomeSet},${setHomeLeash},]}"
+		HUDPATH "Core" "camp3" "19,151,26,255,255,255,${If[${swHomeSet},${setHomeRadius},]}"
+		HUDPATH "Core" "camp4" "19,180,26,255,255,255,${If[${swHomeSet},${setHomeLeash},]}"
 		HUDPATH "Core" "camp5" "19,150,26,25,25,25,${If[${swHomeSet},,##      ##]}"
+
+
+
+
 
 		| tie info
 		HUDPATH "Core" "tie1" "19,140,38,100,149,237,${setTieMode}"
 		HUDPATH "Core" "tie3" "19,167,38,255,255,255,${If[${swSetTie},${setTieDistance},]}"
-		HUDPATH "Core" "tie6" "19,1`,38,25,25,25,${If[${swSetTie},,##]}"
+		HUDPATH "Core" "tie6" "19,167,38,25,25,25,${If[${swSetTie},,##]}"
 		HUDPATH "Core" "tie7" "19,190,38,0,255,0,${If[${Bool[${setTieToon}]},${If[${Bool[${Spawn[${setTieToon}]}]},${setTieToon},]},]}"
 		HUDPATH "Core" "tie8" "19,190,38,255,0,0,${If[${Bool[${setTieToon}]},${If[!${Bool[${Spawn[${setTieToon}]}]},${If[${Bool[${setTieToon}]},${setTieToon},]},]},]}"
 		HUDPATH "Core" "tie9" "19,190,33,25,25,25,${If[${Bool[${setTieToon}]},,____]}"
@@ -3072,13 +3077,14 @@ sub hud_control(string _verbage)
 		| burn a thing
 		HUDPATH "Core" "burn1" "19,140,50,0,255,0,${If[${swBurnAuto},Burn,]}"
 		HUDPATH "Core" "burn2" "19,140,50,255,0,0,${If[${swBurnAuto},,Burn]}"
-		HUDPATH "Core" "burn3" "3,170,49,100,149,237,[     ][     ]"
-		HUDPATH "Core" "burn4" "19,175,50,255,255,255,${If[!${swBurnForce} && ${setBurnCount},${setBurnCount},]}"
-		HUDPATH "Core" "burn5" "19,175,50,25,25,25,${If[!${swBurnForce} && !${setBurnCount},##,]}"
-		HUDPATH "Core" "burn6" "19,177,50,255,0,0,${If[${swBurnForce},X,]}"
-		HUDPATH "Core" "burn7" "19,196,50,255,255,255,${If[!${swBurnForce} && ${setBurnPct},${setBurnPct},]}"
-		HUDPATH "Core" "burn8" "19,196,50,25,25,25,${If[!${swBurnForce} && !${setBurnPct},##,]}"
-		HUDPATH "Core" "burn9" "19,199,50,255,0,0,${If[${swBurnForce},X,]}"
+		HUDPATH "Core" "burncount1" "19,166,50,255,255,255,${If[!${swBurnForce} && ${setBurnCount},${setBurnCount},]}"
+		HUDPATH "Core" "burncount2" "19,166,45,255,0,0,${If[${swBurnForce},__,]}"
+		HUDPATH "Core" "burnforce1" "3,183,49,100,149,237,[      ]"
+		HUDPATH "Core" "burnforce2" "19,189,50,255,255,255,${If[!${swBurnForce} && ${setBurnPct},${setBurnPct},]}"
+		HUDPATH "Core" "burnforce3" "19,189,45,255,0,0,${If[${swBurnForce},__,]}"
+		
+		HUDPATH "Core" "burnraid1" "19,210,50,0,255,0,${If[${swBurnRaid},R,]}"
+		HUDPATH "Core" "burnraid2" "19,210,45,25,25,25,${If[${swBurnRaid},,_]}"		
 			
 		| rez
 		HUDPATH "Core" "rez1" "19,140,62,0,255,0,${If[${swRezTake},Rez,]}"

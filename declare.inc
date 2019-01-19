@@ -1279,12 +1279,16 @@ sub Bind_burn(string _type, string _verbage, bool _silent)
 	/if (${Bool[${_type.Find[auto]}]}) {
 		/call set_switch character swBurnAuto ${_verbage}  
 
+	| Burn in Raids
+	} else /if (${Bool[${_type.Find[raid]}]}) {
+		/call set_switch character swBurnRaid ${_verbage}  
+
 	| Mob count #
 	} else /if (${_type.Equal[count]}) {
 	 	/if (${Range.Between[1,99:${Int[${_verbage}]}]}) {
 			/call sql_update FALSE character setBurnCount ${_verbage} 
 		} else {
-			VOUT /${_bind.Lower} count(${cnum}${setBurnCount}\ax] when # of mobs in range ${cinfo}1 - 99\ax
+			VOUT /${_bind.Lower} count(${cnum}${setBurnCount}\ax) # of mobs in range ${cinfo}1 - 99\ax
 			/return
 		}
 
@@ -1311,6 +1315,7 @@ sub Bind_burn(string _type, string _verbage, bool _silent)
 		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[force]}) /varset _listout ${_listout}:${cnum}${If[${Bool[${swBurnForce}]},${oon},${ooff}]}\ax
 		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[engage]}) /varset _listout ${_listout}:${cnum}${setBurnPct}\ax
 		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[count]}) /varset _listout ${_listout}:${cnum}${setBurnCount}\ax
+		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[raid]}) /varset _listout ${_listout}:${cnum}${If[${Bool[${swBurnRaid}]},${oon},${ooff}]}\ax
 		/varset _sep TRUE
 	/next _count
 	VOUT /${_bind.Lower} [${_listout}]
@@ -1891,14 +1896,14 @@ sub Bind_setMovementControls(string _type, string _verbage, bool _silent)
 
 	| set home radius
 	} else /if (${_type.Equal[radius]}) {
-		/if (${Range.Between[1,200:${Int[${_verbage}]}]}) {
-			/if (${_verbage} < ${setHomeLeash}) {
-				VOUT ${onotice} ${sep} Radius must be greater then leash(${cnum}${setHomeLeash}\ax)
-				/return
-			}
+		/if (${Range.Between[1,99:${Int[${_verbage}]}]}) {
+			| /if (${_verbage} < ${setHomeLeash}) {
+			| 	VOUT ${onotice} ${sep} Radius must be greater then leash(${cnum}${setHomeLeash}\ax)
+			| 	/return
+			| }
 			/call sql_update FALSE movement setHomeRadius ${_verbage} 
 		} else {
-			VOUT /${_bind.Lower} radius(${cnum}${setHomeRadius}\ax) allowable range ${cinfo}1 - 200\ax
+			VOUT /${_bind.Lower} radius(${cnum}${setHomeRadius}\ax) allowable range ${cinfo}1 - 99\ax
 			/return
 		}
 		
@@ -1922,14 +1927,14 @@ sub Bind_setMovementControls(string _type, string _verbage, bool _silent)
 		
 	| set leash range
 	} else /if (${_type.Equal[leash]}) {
-		/if (${Range.Between[1,200:${Int[${_verbage}]}]}) {
+		/if (${Range.Between[1,99:${Int[${_verbage}]}]}) {
 			| /if (${setHomeRadius} > ${_verbage}) {
 			| 	VOUT ${onotice} ${sep} Leash must be less then radius(${cnum}${setHomeRadius}\ax)
 			| 	/return
 			| }
 			/call sql_update FALSE movement setHomeLeash ${_verbage} 
 		} else {
-			VOUT /${_bind.Lower} leash(${cnum}${setHomeLeash}\ax) allowable range ${cinfo}1 - 200\ax
+			VOUT /${_bind.Lower} leash(${cnum}${setHomeLeash}\ax) allowable range ${cinfo}1 - 99\ax
 			/return
 		}	
 

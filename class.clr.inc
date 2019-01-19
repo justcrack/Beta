@@ -52,7 +52,7 @@ sub core_CLR()
 		/if (${isValidTarget}) {
 			CHECKREZ
 			/call set_combat ${combat.Upper}
-			/if (${swBurnControl}) /call synergy_${Me.Class.ShortName}
+			/if (${swBurnControl}) /call burn_${Me.Class.ShortName}
 			/if (${swCombatMelee}) /call use_skill_melee ${Target2Kill}
 			/call disc_${Me.Class.ShortName}
 			/call check_deBuffs ${Target2Kill}
@@ -164,9 +164,7 @@ sub check_heal_group_CLR()
 	| Group Regen Heal 
  	/if (${useGroupHoT} && !${hurtCount} && !${SafeZone}) {
 	 	/if (${SpawnCount[npc radius ${setMobAgro} playerstate 4 targetable]} >= 1) {
-	 	 	/if (${Me.AltAbilityReady[Celestial Regeneration]} && !${Raid.Members} && !${Bool[${Me.Song[Celestial Regeneration]}]} && !${Bool[${Me.Song[Focused Celestial Regeneration]}]} && !${Bool[${Me.Song[${healWholeGroupHoT}]}]} && !${Bool[${Me.Song[Shear of Renewal]}]} && !${Bool[${Me.Song[Ghost of Renewal]}]}) {
-		 		/if (${validate_cast[FALSE, alt, "Celestial Regeneration", ${Me.ID}]}) /call core_cast2 "Celestial Regeneration" alt 0 FALSE
-		  } else /if (${Me.SpellReady[${healWholeGroupHoT}]} && !${Bool[${Me.Song[Celestial Regeneration]}]} && !${Bool[${Me.Song[Focused Celestial Regeneration]}]} && !${Bool[${Me.Song[${healWholeGroupHoT}]}]} && !${Bool[${Me.Song[Shear of Renewal]}]} && !${Bool[${Me.Song[Ghost of Renewal]}]}) {
+			/if (${Me.SpellReady[${healWholeGroupHoT}]} && !${Bool[${Me.Song[Focused Celestial Regeneration]}]} && !${Bool[${Me.Song[${healWholeGroupHoT}]}]} && !${Bool[${Me.Song[Shear of Renewal]}]} && !${Bool[${Me.Song[Ghost of Renewal]}]} && !${Bool[${Me.Song[Cloud of Renewal]}]}) {
 		    /if (${validate_cast[FALSE, spell, "${healWholeGroupHoT}", ${Me.ID}]}) /call core_cast2 "${healWholeGroupHoT}" 0 0 FALSE
 		  }
 		}
@@ -195,11 +193,6 @@ sub check_heal_group_CLR()
 		}
 	}
 	
-  | AA Spire
-	/if (!${Raid.Members} && ${Group.Member[${hurtIndex}].PctHPs} <= ${${hurtCLS}Point}*.${tmpHealOverride} && ${Group.Member[${hurtIndex}].Distance} <= ${Spell[${CLRspire3}].MyRange} && !${Bool[${Me.Song[Celestial Regeneration]}]} && !${SafeZone}) { 
-    /if (${validate_cast[FALSE, alt, "${CLRspire3}", ${Group.Member[${hurtIndex}].ID}]}) /call core_cast2 "${CLRspire3}" alt ${Group.Member[${hurtIndex}].ID} FALSE
-  }	
-  
 	| Dichotomic Heal
 	/if (${Me.Song[Gift of Mana].ID}) {
 		/if (${Me.SpellReady[${GoMNuke}]} && ${Group.Member[${hurtIndex}].PctHPs} < ${GoMpoint}*.${tmpHealOverride}) { 
@@ -209,25 +202,30 @@ sub check_heal_group_CLR()
   
 	/if (${switchAAFade} && ${Me.PctHPs} <= ${useAAFadePct}) /call cast_AA_fade
 
-	| Panic AA
+	| Panic AA single target heal
 	/if (${Me.AltAbilityReady[Burst of Life]}) {
 	  /if (${Group.Member[${hurtIndex}].PctHPs} <= 45*.${tmpHealOverride}) {
 			/if (${validate_cast[FALSE, alt, "Burst of Life", ${Group.Member[${hurtIndex}].ID}]}) /call core_cast2 "Burst of Life" alt ${Group.Member[${hurtIndex}].ID} FALSE
 	  }
 	}
+	
+	| panic group heal. AA Beacon oflife (3 min use)
+  /if ((${hurtCount} >= ${Math.Calc[${Group.Members}/2]}) && ${Group.Members}) {
+	  /if (${validate_cast[FALSE, alt, "Beacon of Life", ${Me.ID}]}) /call core_cast2 "Beacon of Life" alt 0 FALSE
+	}		  	
   
 	| Panic heal
 	/if (${Me.SpellReady[${healPanic}]}) {
 		/if (${Group.Member[${hurtIndex}].PctHPs} < 20*.${setHealOverride}) {
 			/if (${Me.Casting.ID}) /stopcast
 			/if (${validate_cast[FALSE, spell, "${healPanic}", ${Group.Member[${hurtIndex}].ID}]}) /call core_cast2 "${healPanic}" 0 ${Group.Member[${hurtIndex}].ID} FALSE
-			/if (${validate_cast[FALSE, alt, "Divine Guardian", ${Group.Member[${hurtIndex}].ID}]}) /call core_cast2 "Divine Guardian" alt ${Group.Member[${hurtIndex}].ID} FALSE
+			/if (!${Raid.Members} && ${validate_cast[FALSE, alt, "Divine Guardian", ${Group.Member[${hurtIndex}].ID}]}) /call core_cast2 "Divine Guardian" alt ${Group.Member[${hurtIndex}].ID} FALSE
 		}
 	}
 
 	| Arbitration
 	/if (${swArbitrate} && ${useGroupHeal}) {
-	  /if (${Group.Member[${hurtIndex}].PctHPs} < ${${hurtCLS}Point}*.${tmpHealOverride}*.5 || ${hurtCount} > ${useGroupHeal}) {
+	  /if (${Group.Member[${hurtIndex}].PctHPs} < ${${hurtCLS}Point}*.${tmpHealOverride}*.5 || ${hurtCount} >= ${useGroupHeal}) {
 	    /call cast_divine_arbitration
 	  }
 	}
@@ -257,7 +255,7 @@ sub check_heal_group_CLR()
 	
 	| issuance AE heal
 	/if (${switchIssuance} && !${SafeZone}) {
-		/if (${SpawnCount[npc radius ${setMobAgro} playerstate 4]} >= ${issuanceMobCount}) /call cast_issuance_heal
+		/if (${SpawnCount[npc radius ${setMobAgro} playerstate 4]} >= ${issuanceMobCount}) /call Bind_issuance
 	}
   
   | ward of surety short buff 
@@ -284,21 +282,9 @@ sub check_heal_group_CLR()
   /if (${hurtCount} && !${SafeZone} && !${timer_zoned_delay}) {
 	  /if (${hurtCount} > 2) {
 		  /if (!${Raid.Members} && ${validate_cast[FALSE, alt, "Beacon of Life", ${Me.ID}]}) /call core_cast2 "Beacon of Life" alt 0 FALSE
- 			/if (${validate_cast[FALSE, alt, "Fury of Life", ${Me.ID}]}) /call core_cast2 "Fury of Life" alt 0 FALSE
-			/if (!${Raid.Members} && ${validate_cast[FALSE, alt, "Silent Casting", ${Me.ID}]}) /call core_cast2 "Silent Casting" alt 0 FALSE
 			/if (${validate_cast[FALSE, alt, "Shield of Reverence", ${Me.ID}]}) /call core_cast2 "Shield of Reverence" alt 0 FALSE
 		}
 		
-		/if (${hurtCount} == 3) {
-		 	/if (${validate_cast[FALSE, alt, "Channeling the Divine", ${Me.ID}]}) /call core_cast2 "Channeling the Divine" alt 0 FALSE
-		} else /if (${hurtCount} == 4) {
- 			/if (${validate_cast[FALSE, alt, "Healing Frenzy", ${Me.ID}]}) /call core_cast2 "Healing Frenzy" alt 0 FALSE
- 		} else /if (${hurtCount} == 5) {
-			/if (${validate_cast[FALSE, alt, "Exquisite Benediction", ${Me.ID}]}) /call core_cast2 "Exquisite Benediction" alt 0 FALSE
-		} else /if (${hurtCount} == 6) {
-			/if (${validate_cast[FALSE, alt, "Divine Retribution", ${Me.ID}]}) /call core_cast2 "Divine Retribution" alt 0 FALSE
-			/call use_glyph
-		}
   } 
   
   
@@ -387,11 +373,12 @@ sub check_heal_self_CLR()
 		/if (${Debuff.Count}) {
 			| AA Purified Spirits SELF ONLY 0' range 2 min
 			/if (${validate_cast[FALSE, alt, "Purified Spirits", ${Me.ID}]}) /call core_cast2 "Purified Spirits" alt ${Me.ID} FALSE
+		}
+		/if (${Debuff.Count}) {
 			| AA Radient Cure SELF ONLY 100' range 1 min
 			/if (${validate_cast[FALSE, alt, "Radiant Cure", ${Me.ID}]}) /call core_cast2 "Radiant Cure" alt 0 FALSE 
 		}
 	}
-
 	
 	| heal breastplate
 	/if (${Bool[${BreastplateHeal}]} && ${Me.ItemReady[${BreastplateHeal}]}) {
@@ -400,6 +387,11 @@ sub check_heal_self_CLR()
 		}
 	}
 	
+	| Panic heal
+	/if (${Me.ID} < 20*.${setHealOverride}) {
+		/if (${Me.Casting.ID}) /stopcast
+		/if (${validate_cast[FALSE, alt, "Divine Guardian", ${Me.ID}]}) /call core_cast2 "Divine Guardian" alt ${Me.ID} FALSE
+	}
 	
  	| agressive healing sort
  	/if (${switchHealAggressive}) {
@@ -437,30 +429,9 @@ sub check_heal_self_CLR()
 		/next _count 
 	}				
 
-	| AA heal stuffs
-  /if (${hurtCount} && !${SafeZone} && !${timer_zoned_delay}) {
-	  /if (${Me.PctHPs} <= ${CLRPoint}*.${tmpHealOverride}*.7) {
-		  /if (${validate_cast[FALSE, alt, "Beacon of Life", ${Me.ID}]}) /call core_cast2 "Beacon of Life" alt 0 FALSE
- 			/if (${validate_cast[FALSE, alt, "Fury of Life", ${Me.ID}]}) /call core_cast2 "Fury of Life" alt 0 FALSE
-			/if (${validate_cast[FALSE, alt, "Silent Casting", ${Me.ID}]}) /call core_cast2 "Silent Casting" alt 0 FALSE
-			/if (${validate_cast[FALSE, alt, "Shield of Reverence", ${Me.ID}]}) /call core_cast2 "Shield of Reverence" alt 0 FALSE
-		}
-		
-		/if (${Me.PctHPs} <= ${CLRPoint}*.${tmpHealOverride}*.6) {
-		 	/if (${validate_cast[FALSE, alt, "Channeling the Divine", ${Me.ID}]}) /call core_cast2 "Channeling the Divine" alt 0 FALSE
-		} else /if (${Me.PctHPs} <= ${CLRPoint}*.${tmpHealOverride}*.5) {
- 			/if (${validate_cast[FALSE, alt, "Healing Frenzy", ${Me.ID}]}) /call core_cast2 "Healing Frenzy" alt 0 FALSE
- 		} else /if (${Me.PctHPs} <= ${CLRPoint}*.${tmpHealOverride}*.4) {
-			/if (${validate_cast[FALSE, alt, "Exquisite Benediction", ${Me.ID}]}) /call core_cast2 "Exquisite Benediction" alt 0 FALSE
-		} else /if (${Me.PctHPs} <= ${CLRPoint}*.${tmpHealOverride}*.3) {
-			/if (${validate_cast[FALSE, alt, "Divine Retribution", ${Me.ID}]}) /call core_cast2 "Divine Retribution" alt 0 FALSE
-			/call use_glyph
-		}
-  } 
-  
  	| issuance AE heal
 	/if (${switchIssuance} && !${SafeZone}) {
-		/if (${SpawnCount[npc radius ${setMobAgro} playerstate 4]} >= ${issuanceMobCount}) /call cast_issuance_heal
+		/if (${SpawnCount[npc radius ${setMobAgro} playerstate 4]} >= ${issuanceMobCount}) /call Bind_issuance
 	}
 
 	UPDATEHUD FALSE
@@ -687,9 +658,15 @@ Sub cast_AA_celest_regen()
  *	USE: spell must be memed.
  *  NOTE: 
  ***|
-sub cast_issuance_heal()
-	DEBUG cast_issuance_heal()
-	/if (!${Me.SpellReady[${healIssuance}]}) /return
+#bind issuance /issuance
+sub Bind_issuance()
+	/if (!${Select[${Me.Class.ShortName},CLR]}) /return FALSE
+	
+	DEBUG Bind_issuance()
+	/if (!${Me.SpellReady[${healIssuance}]}) {
+		/delay 2.5s ${Me.SpellReady[${healIssuance}]}
+	}
+
 	AMIDEAD
 	SIMPLEEXIT
 	CHECKINPUTS
@@ -774,11 +751,62 @@ sub check_heal_ward()
 |***
  *	DES: Cleric burn routines
  *	USE: establish all comp/trigger skills
- *	NOTE: all heal burns are located in the main heal routines
+ *	NOTE: 
  ***| 
-sub synergy_CLR()
-	DEBUG synergy_CLR()
+sub burn_CLR()
+	DEBUG burn_CLR()
 	SIMPLEEXIT
+	
+	| Group AA Celestial Regeneration
+ 	/if (${useGroupHoT} {
+ 	 	/if (${Me.AltAbilityReady[Celestial Regeneration]} && !${Bool[${Me.Song[Celestial Regeneration]}]} && !${Bool[${Me.Song[Focused Celestial Regeneration]}]}) {
+	 		/if (${validate_cast[FALSE, alt, "Celestial Regeneration", ${Me.ID}]}) /call core_cast2 "Celestial Regeneration" alt 0 FALSE
+	  } 
+	}
+
+	| reflect spells (3 min use)
+	/if (${validate_cast[FALSE, alt, "Shield of Reverence", ${Me.ID}]}) /call core_cast2 "Shield of Reverence" alt 0 FALSE
+
+	| alternate agro stuffs
+	| anti agro (9 min reuse)
+	/if (!${Me.Buff[Divine Retribution]}) {
+		/if (${validate_cast[FALSE, alt, "Silent Casting", ${Me.ID}]}) /call core_cast2 "Silent Casting" alt 0 FALSE
+	}
+	| melee block anti agro (20 min reuse)
+	/if (!${Me.Song[Silent Casting]}) {
+		/if (${validate_cast[FALSE, alt, "Divine Retribution", ${Me.ID}]}) /call core_cast2 "Divine Retribution" alt 0 FALSE
+	}
+
+	| heal power bost (15 min reuse)
+	/if (${validate_cast[FALSE, alt, "Fury of Life", ${Me.ID}]}) /call core_cast2 "Fury of Life" alt 0 FALSE
+
+	| 100% exceptional heal (15 min reuse)
+	/if (${validate_cast[FALSE, alt, "Healing Frenzy", ${Me.ID}]}) /call core_cast2 "Healing Frenzy" alt 0 FALSE
+
+
+ 	| 50% chance to twincast (10 min resuse)
+ 	/if (${validate_cast[FALSE, alt, "Channeling the Divine", ${Me.ID}]}) /call core_cast2 "Channeling the Divine" alt 0 FALSE
+
+	| heal ward (20 min reuse)
+	/if (${validate_cast[FALSE, alt, "Exquisite Benediction", ${Me.ID}]}) /call core_cast2 "Exquisite Benediction" alt 0 FALSE
+
+  | AA Spire (7min 30 sec reuse
+	/if (!${Me.Buff[Third Spire of Divinity]}) { 
+    /if (${validate_cast[FALSE, alt, "${CLRspire3}", ${Me.ID}]}) /call core_cast2 "${CLRspire3}" alt ${Me.ID} FALSE
+  }	
+  
+
+	| direct damage boost if using aggressive healing
+	/if (${switchHealAggressive}) {
+    /if (${validate_cast[FALSE, alt, "Battle Frenzy", ${Me.ID}]}) /call core_cast2 "Battle Frenzy" alt ${Me.ID} FALSE
+	}
+
+
+
+
+
+
+	
 	/call use_glyph
 	/call click_burn_circle
 	/call click_item_burn
