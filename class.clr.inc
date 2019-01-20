@@ -47,12 +47,12 @@ sub core_CLR()
 		/if (${swRetort}) /call check_buffs_tmp_list "${spellRetort}" "${spellRetortToon}"
 
 		/if (${swModRod} && ${validate_class[FALSE, ${lstClassCast}]}) /call use_mod_rod
+		/if (${swBurnControl}) /call burn_${Me.Class.ShortName}
 		/if (${exit_class_loop[]}) /return
 		
 		/if (${isValidTarget}) {
 			CHECKREZ
 			/call set_combat ${combat.Upper}
-			/if (${swBurnControl}) /call burn_${Me.Class.ShortName}
 			/if (${swCombatMelee}) /call use_skill_melee ${Target2Kill}
 			/call disc_${Me.Class.ShortName}
 			/call check_deBuffs ${Target2Kill}
@@ -210,7 +210,7 @@ sub check_heal_group_CLR()
 	}
 	
 	| panic group heal. AA Beacon oflife (3 min use)
-  /if ((${hurtCount} >= ${Math.Calc[${Group.Members}/2]}) && ${Group.Members}) {
+  /if ((${hurtCount} >= ${Math.Calc[${Group.Members}/2]}) && ${Group.Members} && !${SafeZone}) {
 	  /if (${validate_cast[FALSE, alt, "Beacon of Life", ${Me.ID}]}) /call core_cast2 "Beacon of Life" alt 0 FALSE
 	}		  	
   
@@ -263,12 +263,10 @@ sub check_heal_group_CLR()
 
 	| check for personal debuffs
 	/if (${swHealCure}) {
-		/if (${Debuff.Count}) {
-			| AA Purified Spirits SELF ONLY 0' range 2 min
-			/if (${validate_cast[FALSE, alt, "Purified Spirits", ${Me.ID}]}) /call core_cast2 "Purified Spirits" alt ${Me.ID} FALSE
-			| AA Radient Cure SELF ONLY 100' range 1 min
-			/if (${validate_cast[FALSE, alt, "Radiant Cure", ${Me.ID}]}) /call core_cast2 "Radiant Cure" alt 0 FALSE 
-		}
+		| AA Purified Spirits SELF ONLY 0' range 2 min
+		/if (${Debuff.Count} && ${validate_cast[FALSE, alt, "Purified Spirits", ${Me.ID}]}) /call core_cast2 "Purified Spirits" alt ${Me.ID} FALSE
+		| AA Radient Cure SELF ONLY 100' range 1 min
+		/if (${Debuff.Count} && ${validate_cast[FALSE, alt, "Radiant Cure", ${Me.ID}]}) /call core_cast2 "Radiant Cure" alt 0 FALSE 
 	}
 	
 	| heal breastplate
@@ -277,17 +275,7 @@ sub check_heal_group_CLR()
 			/if (${validate_cast[FALSE, item, "${BreastplateHeal}", ${Group.Member[${hurtIndex}].ID}]}) /call core_cast2 "${BreastplateHeal}" item ${Group.Member[${hurtIndex}].ID} FALSE
 		}
 	}
-	
-	| AA heal stuffs
-  /if (${hurtCount} && !${SafeZone} && !${timer_zoned_delay}) {
-	  /if (${hurtCount} > 2) {
-		  /if (!${Raid.Members} && ${validate_cast[FALSE, alt, "Beacon of Life", ${Me.ID}]}) /call core_cast2 "Beacon of Life" alt 0 FALSE
-			/if (${validate_cast[FALSE, alt, "Shield of Reverence", ${Me.ID}]}) /call core_cast2 "Shield of Reverence" alt 0 FALSE
-		}
-		
-  } 
-  
-  
+	  
 	AMIDEAD
 	/if (${switchAAFade} && ${Me.PctHPs} <= ${useAAFadePct}) /call cast_AA_fade
  	CHECKINPUTS
@@ -749,7 +737,7 @@ sub check_heal_ward()
 
  
 |***
- *	DES: Cleric burn routines
+ *	DES: burn routines
  *	USE: establish all comp/trigger skills
  *	NOTE: 
  ***| 
@@ -758,7 +746,7 @@ sub burn_CLR()
 	SIMPLEEXIT
 	
 	| Group AA Celestial Regeneration
- 	/if (${useGroupHoT} {
+ 	/if (${useGroupHoT}) {
  	 	/if (${Me.AltAbilityReady[Celestial Regeneration]} && !${Bool[${Me.Song[Celestial Regeneration]}]} && !${Bool[${Me.Song[Focused Celestial Regeneration]}]}) {
 	 		/if (${validate_cast[FALSE, alt, "Celestial Regeneration", ${Me.ID}]}) /call core_cast2 "Celestial Regeneration" alt 0 FALSE
 	  } 
@@ -768,20 +756,25 @@ sub burn_CLR()
 	/if (${validate_cast[FALSE, alt, "Shield of Reverence", ${Me.ID}]}) /call core_cast2 "Shield of Reverence" alt 0 FALSE
 
 	| alternate agro stuffs
-	| anti agro (9 min reuse)
-	/if (!${Me.Buff[Divine Retribution]}) {
-		/if (${validate_cast[FALSE, alt, "Silent Casting", ${Me.ID}]}) /call core_cast2 "Silent Casting" alt 0 FALSE
-	}
-	| melee block anti agro (20 min reuse)
-	/if (!${Me.Song[Silent Casting]}) {
-		/if (${validate_cast[FALSE, alt, "Divine Retribution", ${Me.ID}]}) /call core_cast2 "Divine Retribution" alt 0 FALSE
-	}
+		| anti agro (9 min reuse)
+		/if (!${Me.Buff[Divine Retribution].ID}) {
+			/if (${validate_cast[FALSE, alt, "Silent Casting", ${Me.ID}]}) /call core_cast2 "Silent Casting" alt 0 FALSE
+		}
+		| melee block anti agro (20 min reuse)
+		/if (!${Me.Song[Silent Casting].ID}) {
+			/if (${validate_cast[FALSE, alt, "Divine Retribution", ${Me.ID}]}) /call core_cast2 "Divine Retribution" alt 0 FALSE
+		}
 
-	| heal power bost (15 min reuse)
-	/if (${validate_cast[FALSE, alt, "Fury of Life", ${Me.ID}]}) /call core_cast2 "Fury of Life" alt 0 FALSE
+	| alternate heal boosts
+		| heal power bost: 35% (15 min reuse)
+		/if (!${Me.Buff[Healing Frenzy].ID}) {
+			/if (${validate_cast[FALSE, alt, "Flurry of Life", ${Me.ID}]}) /call core_cast2 "Flurry of Life" alt 0 FALSE
+		}
 
-	| 100% exceptional heal (15 min reuse)
-	/if (${validate_cast[FALSE, alt, "Healing Frenzy", ${Me.ID}]}) /call core_cast2 "Healing Frenzy" alt 0 FALSE
+		| 100% exceptional heal (15 min reuse)
+		/if (!${Me.Song[Flurry of Life].ID}) {
+			/if (${validate_cast[FALSE, alt, "Healing Frenzy", ${Me.ID}]}) /call core_cast2 "Healing Frenzy" alt 0 FALSE
+		}
 
 
  	| 50% chance to twincast (10 min resuse)
@@ -790,23 +783,16 @@ sub burn_CLR()
 	| heal ward (20 min reuse)
 	/if (${validate_cast[FALSE, alt, "Exquisite Benediction", ${Me.ID}]}) /call core_cast2 "Exquisite Benediction" alt 0 FALSE
 
-  | AA Spire (7min 30 sec reuse
-	/if (!${Me.Buff[Third Spire of Divinity]}) { 
-    /if (${validate_cast[FALSE, alt, "${CLRspire3}", ${Me.ID}]}) /call core_cast2 "${CLRspire3}" alt ${Me.ID} FALSE
+  | AA 3rd Spire (7min 30 sec reuse)
+	/if (!${Me.Buff[Third Spire of Divinity].ID}) { 
+    /if (${validate_cast[FALSE, alt, "${CLRspire3}", ${Me.ID}]}) /call core_cast2 "${CLRspire3}" alt 0 FALSE
   }	
   
-
 	| direct damage boost if using aggressive healing
 	/if (${switchHealAggressive}) {
-    /if (${validate_cast[FALSE, alt, "Battle Frenzy", ${Me.ID}]}) /call core_cast2 "Battle Frenzy" alt ${Me.ID} FALSE
+    /if (${validate_cast[FALSE, alt, "Battle Frenzy", ${Me.ID}]}) /call core_cast2 "Battle Frenzy" alt 0 FALSE
 	}
 
-
-
-
-
-
-	
 	/call use_glyph
 	/call click_burn_circle
 	/call click_item_burn
@@ -860,7 +846,7 @@ sub Bind_setCLR(string _type, string _verbage, bool _silent)
 			/return
 		}	else /if (!${Bool[${_verbage}]}) {
 			/call set_switch ${Me.Class.ShortName} switchIssuance ${_verbage} 	 
-		}		
+		}
 		
 	| mgb celestial regen
 	} else /if (${_type.Equal[regen]}) {

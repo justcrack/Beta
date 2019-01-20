@@ -3254,6 +3254,11 @@ sub hud_control(string _verbage)
 		| combat
 		HUDPATH "Debug" "debug.combat1" "19,70,170,255,0,0,${If[${Bool[${combat}]},${combat},]}"
 		HUDPATH "Debug" "debug.combat2" "19,70,170,255,255,255,${If[${Bool[${combat}]},,${combat}]}"
+		| burn
+		| HUDPATH "Debug" "debug.burn1" "19,70,180,255,0,0,${If[${swBurnControl},BURN,]}"
+		| HUDPATH "Debug" "debug.burn2" "19,70,180,255,255,255,${If[${swBurnControl},,BURN]}"
+
+
 
 
 		| --- row 3

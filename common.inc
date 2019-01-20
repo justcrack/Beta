@@ -940,6 +940,7 @@ sub check_buffs_BC()
 					| parsing issues: set the name of the secondary spell before passing the request to the other toon. should not need to do this.
 					/varset _base2 ${Spell[${Spell[${Buff${_count}}].Base2[${_i}]}].Name}
 
+					|***
 					| do we have the triggered buff?
 					/dobserve ${_toonName} -q "Me.Buff[${_base2}].Name" -o _qBuffName${_count}${_i}${_toonName}
 					| SDEBUG .Name2 _qBuffName${_count}${_i}${_toonName}:\at${_qBuffName${_count}${_i}${_toonName}}\ax
@@ -949,21 +950,19 @@ sub check_buffs_BC()
 					/dobserve ${_toonName} -q "Spell[${_base2}].NewStacks" -o _qBuffNewStacks${_count}${_i}${_toonName}
 					| SDEBUG .NewStacks2 _qBuffNewStacks${_count}${_i}${_toonName}:\at${_qBuffNewStacks${_count}${_i}${_toonName}}\ax
 					/if (!${Bool[${_qBuffNewStacks${_count}${_i}${_toonName}}]}) /varset _found TRUE
+					***|
 
-
-					|**
 
 					| do we have the triggered buff?
 					/dquery ${_toonName} -q "Me.Buff[${_base2}].ID" -o _DNqout -t 1s
-					SDEBUG .Base2.ID \at${_DNqout}\ax
+					| SDEBUG .Base2.ID \at${_DNqout}\ax
 					/if (!${Bool[${_DNqout}]}) 	/varset _found FALSE
 
 					| does it stack
 					/dquery ${_toonName} -q "Spell[${_base2}].NewStacks" -o _DNqout -t 1s 
-					SDEBUG .Base2.NewStacks \at${_DNqout}\ax
+					| SDEBUG .Base2.NewStacks \at${_DNqout}\ax
 					/if (!${Bool[${_DNqout}]}) /varset _found TRUE
 
-					**|
 
 				/next _i
 
@@ -974,6 +973,7 @@ sub check_buffs_BC()
 				/declare _qBuffName${_count}${_toonName} string local
 				/declare _qBuffStacks${_count}${_toonName} string local
 					
+				|**
 				| has the buff?
 				/dobserve ${_toonName} -q "Me.Buff[${Buff${_count}}].Name" -o _qBuffName${_count}${_toonName}
 				| SDEBUG .Name _qBuffName${_count}${_toonName}:\at${_qBuffName${_count}${_toonName}}\ax
@@ -983,21 +983,20 @@ sub check_buffs_BC()
 				/dobserve ${_toonName} -q "Spell[${Buff${_count}}].NewStacks" -o _qBuffStacks${_count}${_toonName}
 				| SDEBUG .NewStacks _qBuffStacks${_count}${_toonName}:\at${_qBuffStacks${_count}${_toonName}}\ax
 				/if (!${Bool[${_qBuffStacks${_count}${_toonName}}]}) /varset _found TRUE
+				**|
 
 
 	
-				|**
 				| has the buff?
 				/dquery ${_toonName} -q "Me.Buff[${Buff${_count}}].Name" -o _DNqout -t 1s
-				SDEBUG .Name \at${_DNqout}\ax
+				| SDEBUG .Name \at${_DNqout}\ax
 				/if (!${Bool[${_DNqout}]}) /varset _found FALSE
 
 				| stacks				
 				/dquery ${_toonName} -q "Spell[${Buff${_count}}].NewStacks" -o _DNqout -t 1s
-				SDEBUG .NewStacks \at${_DNqout}\ax
+				| SDEBUG .NewStacks \at${_DNqout}\ax
 				/if (!${Bool[${_DNqout}]}) /varset _found TRUE
 				
-				**|
 
 			}
 
@@ -4897,18 +4896,16 @@ sub is_burn_time()
 		/if (${SpawnCount[npc radius ${setMobAgro} targetable playerstate 4]} >= ${setBurnCount}) /return TRUE
 	}
 	
-	| healers mezers, and off combat routines simply check for a named in the local area to start a burn. no direct target of a named is required. just be in the area.
-	/if (${validate_class[FALSE, |CLR|DRU|SHM|ENC]}) /return FALSE
-	/declare _count int local 0
-	/declare _mobID int local 0
-	
+	| healers and off combat routines simply check for a named in the local area to start a burn. no direct target of a named is required. just be in the area.
+	/if (!${swCombatHeal}) /return FALSE
+
 	/if (${Bool[${combat}]}) {
+		/declare _count int local 0
+		/declare _mobID int local 0
+
 		/for _count 1 to ${SpawnCount[npc radius ${setMobAgro} playerstate 4]}
 			/varset _mobID ${NearestSpawn[${_count}, npc radius ${setMobAgro}].ID}
 			/if (${swBurnAuto} && ${NameList.Find[${Spawn[id ${_mobID} radius ${setMobAgro}].DisplayName}]} && !${swOverrideName}) /return TRUE
-			/if (${setBurnCount}) {
-				/if (${SpawnCount[npc radius ${setMobAgro} targetable playerstate 4]} >= ${setBurnCount}) /return TRUE
-			}
 		/next _count 	
 	}
 	

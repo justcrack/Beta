@@ -28,6 +28,13 @@ Plugins Required: MQ2Cast, MQ2Exchange, MQ2MoveUtils, MQ2Debuffs, MQ2DanNet, MQ2
 
 
 
+BETA 0120.01
+- is_burn_time()
+  -- routine adjusted for combat heal mode.
+- class.clr.inc
+  -- more adjustments to burn routine
+  
+
 BETA 0119.01
 HUDUPDATE
 - /burn [raid]
