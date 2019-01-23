@@ -3448,7 +3448,6 @@ sub Bind_admin(string _type, string _verbage, string _verbage2, bool _silent)
 
 
 
-
 |***
  *	DES: displays the port and builds the command to the porting class
  *	USE: /port 
@@ -3462,7 +3461,7 @@ sub Bind_port_list(string _class, string _location, string _sublocation)
 	/declare _country 				int 		local 0
 	/declare _count 					int 		local 0
 	/declare _state 					int 		local 0
-	/declare _portclass 			string 	local |druid|wizard|item
+	/declare _portclass 			string 	local |druid|wizard|item|guild
 	| /declare _porttype	 			string 	local |tl|group
 	/declare _continent 			string 	local |alaris|antonica|discord|faydwer|kunark|luclin|odus|serpentsspine|taelosia|planes|other
 	/declare _tell						bool		local FALSE

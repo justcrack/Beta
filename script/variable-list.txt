@@ -14,7 +14,6 @@
 
 Environment variables
 The following variables impact all toons running from that database.
-Change the variable on one toon and it impacts all toons.
 
 setMobLvlMin									[set] minimum # level of mob you are willing to consider valid
 setMobLvlMax									[set] maximum # level of mob you are willing to consider valid
@@ -87,7 +86,6 @@ hereZRadius										[set] sets zradius to a predefined default
 
 Character variables
 The following variables impact your specific character
-Change the variable on one toon will not alter any other toons
 
 swMaintenance									[switch] Locks the toon into a maintenance mode. core and / commands will work. nothing else will be watched/looped for
 DeathCount										[switch] how many times you have died
@@ -117,14 +115,16 @@ swAAFireworks									[switch] buy/use 100 AA fireworks when your bored as all h
 swTakeGroupInvite							[switch] take group invites (watches safe list)
 swTakeRaidInvite							[switch] take raid invites
 swGiveRaidInvite							[switch] hand out raid invites when request from a tell
-                              
+
+
 [burn]
 swBurnControl									[switch] 
 swBurnForce										[switch] firce burning 24/7
 swBurnAuto										[switch] burn on named mob as target
 setBurnPct										[set] % of mobs healt to start burns at
 setBurnCount									[set] # of mobs in agro range to start burning
-                              
+
+
 [combat]  
 setMA1												[set] manual assist 1
 setMA2		 		                [set] manual assist 2
@@ -150,7 +150,8 @@ swCombatRange									[switch] use range during combat
 swCombatNuke									[switch] use nukes during combat
 swCombatDoT										[switch] use dots during combat
 swCombatHeal									[switch] heal in or out of combat
-                              
+
+
 ;rez
 lstRezToken						        [list] list of class short names to use rez tokens on
 swRezTake											[switch] take rezes
@@ -160,14 +161,17 @@ setMaxRezRange		 		        [set] area to res dead people in
 swRezGive											[switch] cast rezes (needed for using tokens too)
 swRezCombat										[switch] rez during combat
 swRezEveryone									[switch] rex everyone (RTFM)
-                              
+
+
 ;spire control               
 spireRaid		 									[set] spire # to use during group burns
 spireGroup		 								[set] spire # to use during raid burns
-  
+
+
 ;watchspawn stuff            
 watchSpawn										[set] name of spawn to watch for
-                              
+
+
 ;movement
 swHomeSet											[switch] use a home camp
 setHomeRadius		 		          [set] area to let toon move freely
@@ -176,13 +180,15 @@ swStickBehind									[switch] stick behind mob for combat
 swFaceFast										[switch] use face fast
 setFaceArc										[switch] up to 45 deg facing arc of target
 setMount                      [set] name of mount to use.. seriously.. why...	
-                              
+
+
 ;tie
 setTieToon										[set] name of toon to tie too
 setTieDistance		 		        [set] distance to pulse tie at
 swTieLock											[switch] emualte old school follow
 setTieMode	                  [set] [nav|stick] set the method of tie to use
-                              
+
+
 ;debuff        
 swdeBuffCripple								[switch] use cripple debuff
 swdeBuffMezz									[switch] use mez
@@ -191,7 +197,8 @@ swdeBuffTash									[switch] use tash
 swdeBuffSlow									[switch] use slows
 swdeBuffEradicate							[switch] use aa eradicate (RNG,DRU,SHM,WIZ,ENC,MAG)
 swdeBuffSnare									[switch] use aa snare
-                        
+
+
 ;override
 swOverrideLOS									[switch] override line of sight checks
 swOverrideSafeZone						[switch] override safe zone control
@@ -203,7 +210,8 @@ swOverrideMelee								[switch] ** under construction **
 swOverrideLoot								[switch] override loot checks (try and always loot)
 swOverrideSafeNames						[switch] override safe name list check (accept everyone)
 swOverrideTrainSpell					[switch] override train spell caps. cast spells forever
-                         
+
+
 ;buffs
 lstBuffRemove	
 swBuffItem										[switch] use buff items
@@ -234,13 +242,14 @@ Aura1Spell	 		              [set] aura to cast
 Aura1Buff		 		              [set] aura buff in aura window to watch for
 Aura2Spell	 		              [set] aura to cast
 Aura2Buff	                    [set] aura buff in aura window to watch for
+
               
 ;cursor                             			
 swAutoCursor									[switch] force auto using of loot file anytime somthing corsses your cursor
-                                     			
 echoChannel										[set] 
 relayTells	                  [set] name of toon to relay all tells too. this is annoying as fuck
 ClassChannel	                [set] channel core will echo a lot of things too if set
+
 
 ;general settings for mode item usage
 setModeAgro	                  [set] acceptable range use for off modes
@@ -318,15 +327,18 @@ clickOddItem1	                [set]
 clickOddItem2	                [set] 
 clickOddItem3			            [set] 
 clickOddItem4			            [set] 
-                       
+
+
 ;alwasy up AAs 
 AANow1												[set] aa to alwasy keep on
 AANow2												[set] aa to alwasy keep on
-                         
+
+
 ;always up Discs
 DiscNow1											[set] disc to alwasy keep on
 DiscNow2											[set] disc to alwasy keep on
-                            
+
+
 ;melee
 kick													[switch] use kick
 bash													[switch] use bash
@@ -345,6 +357,7 @@ tigerclaw											[switch] use tigerclaw
 flyingkick										[switch] use flyingkick
 roundkick											[switch] use roundkick
 
+
 ;food
 Food													[set] food to eat
 FoodDispenser                 [set] item to summon food
@@ -352,6 +365,8 @@ FoodCount                     [set] how much of the food to keep
 Drink                         [set] drink to .. drink..
 DrinkDispenser                [set] item to summon drinks
 DrinkCount                    [set] how many drinks to keep
+
+
 
 switchNukeDelay               [switch] enable nuke delays
 buffGem                       [set] gem in spell bar you want to use for buffs (e.g. gem8)
@@ -402,6 +417,7 @@ cureDisease                   [set] spell to cure disease
 cureCorrupt                   [set] spell to cure corruption
 noCureList		 		            [list] list of bad buffs to NOT cure
 clickHealItem		 		          [list] list of clickie heal items
+
 
 ;onoff types  
 switchShrink									[switch] auto use shrink item clickie

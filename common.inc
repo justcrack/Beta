@@ -1219,9 +1219,9 @@ sub do_rest()
 				}				
 				
 			} else /if (${Select[${Me.Class.ShortName},DRU]}) {
-				/if (${swHealGroup} && ${swOverrideCombat}) /call check_heal_group_${Me.Class.ShortName}
+				/if (${swHealGroup} && ${swCombatHeal}) /call check_heal_group_${Me.Class.ShortName}
 			} else /if (${Select[${Me.Class.ShortName},SHM]}) {
-				/if (${swHealGroup} && ${swOverrideCombat}) /call check_heal_group_${Me.Class.ShortName}
+				/if (${swHealGroup} && ${swCombatHeal}) /call check_heal_group_${Me.Class.ShortName}
 				/if (${Me.PctMana} < 60*.${tmpHealOverride} && !${swNeedRez}) /call check_cani
 			} else /if (${Select[${Me.Class.ShortName},ENC]}) {
 			} else /if (${Select[${Me.Class.ShortName},WIZ]}) {
@@ -5624,7 +5624,6 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub)
 
 			| /if (${Me.Song[Gift of Mana (${GoMLevel})].ID}) /call cast_nuke_GoM ${_tmpID}
 			/if (${Me.Song[Gift of Mana].ID}) /call cast_nuke_GoM ${_tmpID}
-
 			VSPELL Spell ${sep} ${csp}${_spell}\ax ${sep} [${ctar}${Spawn[id ${_tmpID}].DisplayName}\ax]
 			/call MQ2Cast "${_spell}" ${If[${Bool[${_type}]},${_type},gem${Me.Gem[${_spell}]}]} ${If[${Bool[${_sub}]},${_sub},]} -targetid|${_tmpID}
 		}
@@ -7083,7 +7082,7 @@ sub sql_schema(bool _debug)
  *  _scope - outer, local, global
  *  _value - value of the data you wish to change
  ***|
-sub sql_control(bool _debug, string _table, string _field, strint _type, string _scope, string _value)
+sub sql_control(bool _debug, string _table, string _field, strint _type, string _scope, string _value, bool _spell)
 	/if (${_debug}) /echo \awsql_update\ax(table:\at${_table}\ax field:\at${_field}\ax type:\at${_type}\ax scope:\at${_scope}\ax value:\at${_value}\ax)
 	/declare _count int local 0 
 	/declare _tmpVar string local
@@ -7132,7 +7131,7 @@ sub sql_control(bool _debug, string _table, string _field, strint _type, string 
 			/next _count	
 			
 			
-		| if we are passing does not equal whats in the database, take new value and reattach query
+		| if what we are passing does not equal whats in the database, take new value and reattach query
 		} else /if (${_value.NotEqual[PREGENDATA]}) {
 			/sqlite ${dbCore} dummy UPDATE ${_table} SET ${_field}="${_value}" WHERE chrID="${chrID}"
 			/sqlite ${dbCore} dummy SELECT ${_field} FROM ${_table} WHERE chrID="${chrID}"
@@ -7157,8 +7156,10 @@ sub sql_control(bool _debug, string _table, string _field, strint _type, string 
 
 
 	| This isn't even my final form!
+	|**
+
 	/if (${Me.Book[${Me.Book[${${_field}} Rk. III]}].ID}) {
-		/varset ${_field} ${Me.Book[${Me.Book[${${_field}} Rk. III]}].Name} 
+		/varset ${_field} ${Me.Book[${Me.Book[${${_field}} Rk. III]}].Name}
 	} else /if (${Me.Book[${Me.Book[${${_field}} Rk. II]}].ID}) {
 		/varset ${_field} ${Me.Book[${Me.Book[${${_field}} Rk. II]}].Name}
 	} else /if (${Me.CombatAbility[${${_field}} Rk. III]}) {
@@ -7166,8 +7167,158 @@ sub sql_control(bool _debug, string _table, string _field, strint _type, string 
 	} else /if (${Me.CombatAbility[${${_field}} Rk. II]}) {
 		/varset ${_field} ${${_field}} Rk. II
 	}	
+**|
+
+
+	| is it something that can have ranks?
+ | /if (!${Spell[${${_field}}].ID}) /return TRUE
+  
+  
+  | Not a spell, move on
+  
+  /if (!${_spell}) /return
+  | /if (${Spell[${${_field}}].Name.Equal[Unknown Spell]}) /return TRUE
+ 
+	| /if (${Int[${${_field}}]} >= 0 ) /return TRUE
+  
+ 	| not a spell
+  | /if (${Spell[${${_field}}].Name.Equal[0]}) /return TRUE
+  
+	| /if (${Int[${Spell[${${_field}}].Name}]} == 0) /return TRUE
+
+	| /if (${Int[${Spell[${${_field}}].Name}]} == 0 ) /return TRUE
+	| /if (!${Me.Book[${Spell[${${_field}}].RankName}]} && !${Me.CombatAbility[${Spell[${${_field}}].RankName}]}) /return TRUE
+			
+			| SDEBUG ${_field} ${sep} ${${_field}}
+			/varset ${_field} ${Spell[${${_field}}].RankName}
+
+		  /if (${_debug}) VSQL \aw${_table}\ax::\aw${_field}\ax::\ag${${_field}}\ax
+      
+     	| /if (!${Spell[${${_field}}].ID}) /return TRUE
+     	| /varset ${_field} ${Spell[${${_field}}].RankName}
+     	
+      | /varset ${_field} ${rank_add[FALSE, "${${_field}}"]}
 
 /return TRUE
+
+
+
+
+
+
+
+
+
+${Int[10m]}
+
+
+
+${Spell[Eyrzekla's Mending].ID}
+
+${Spell[Eyrzekla's Mending].Class}
+
+
+
+${Me.Book[${Spell[${${_field}}].RankName}]}
+
+
+${Me.Book[Eyrzekla's Mending]}
+
+${Me.Book[${Me.Book[${${_field}} Rk. III]}].ID}
+
+${Spell[Eyrzekla's Mending].Name}
+
+${Int[${Spell[Eyrzekla's Mending].Name}]} > 0
+
+${Spell[0].Name}
+
+${Bool[${Spell[Eyrzekla's Mending].Name}]}
+${Bool[${Spell[50].Name}]}
+
+${Spell[${Int[10m]}].Name}
+
+
+Eyrzekla's Mending
+
+
+${Me.CombatAbility[${Spell[Breather].RankName}]}
+
+
+
+
+${Int[Eyrzekla's Mending]}
+
+
+
+
+|***
+ *	DES: adds ranknames to spells 
+ *	USE:/call rank_add [debug] [name] / ${rank_add[FALSE, "name"]}
+ *  NOTE: 
+ ***|
+sub rank_add(bool _debug, string _spell)
+	/if (${_debug}) /echo Start Name:\at${_spell}\ax
+	
+	
+	
+	
+	
+	
+	
+	| /if (!${Spell[${_spell}].ID}) /return ${_spell}
+	| /if (${Int[${_spell}]} != 0) /return ${_spell}
+	| /if (!${Me.Book[${Spell[${${_field}}].RankName}]} && !${Me.CombatAbility[${Spell[${${_field}}].RankName}]}) /return ${_spell}
+
+	| rk3 spell
+	/if (${Me.Book[${Me.Book[${_spell} Rk. III]}].ID}) {
+		/varset _spell ${Me.Book[${Me.Book[${_spell} Rk. III]}].Name} 
+	
+	| rk2 spell
+	} else /if (${Me.Book[${Me.Book[${_spell} Rk. II]}].ID}) {
+		/varset _spell ${Me.Book[${Me.Book[${_spell} Rk. II]}].Name}
+
+	| rk1 spell
+	} else /if (${Me.Book[${Me.Book[${_spell}]}].ID}) {
+		/varset _spell ${Me.Book[${Me.Book[${_spell}]}].Name}
+
+	| rk3 disc
+	} else /if (${Me.CombatAbility[${_spell} Rk. III]}) {
+	 	/varset _spell ${${_spell}} Rk. III
+
+	| rk2 disc
+	} else /if (${Me.CombatAbility[${_spell} Rk. II]}) {
+	 	/varset _spell ${_spell} Rk. II
+	
+	| rk1 disc
+	} else /if (${Me.CombatAbility[${_spell} Rk. II]}) {
+	 	/varset _spell ${_spell}
+
+	} 
+
+	/if (${_debug}) /echo End Name:\at${_spell}\ax
+
+/return ${_spell}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -7350,6 +7501,31 @@ sub sql_return(string _variable, string _query)
 
 
 |***
+ *	DES: delete colums from tables
+ *	USE: 
+ *  NOTE: attention span of a fucking gnat...
+ ***|
+sub sql_delete(string _table, string _variable)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/return
+
+
+
+|***
  *	DES: controls for the current zone
  *	USE: /call control_zone
  *  NOTE: 
@@ -7378,46 +7554,6 @@ sub control_zone(bool _debug)
 	/next _count
 	
 /return
-
-
-
-|***
- *	DES: adds ranknames to spells 
- *	USE:/call rank_add [debug] [name] / ${rank_add[FALSE, "name"]}
- *  NOTE: 
- ***|
-sub rank_add(bool _debug, string _spell)
-	/if (${_debug}) /echo Start Name:\at${_spell}\ax
-
-	| rk3 spell
-	/if (${Me.Book[${Me.Book[${_spell} Rk. III]}].ID}) {
-		/varset _spell ${Me.Book[${Me.Book[${_spell} Rk. III]}].Name} 
-	
-	| rk2 spell
-	} else /if (${Me.Book[${Me.Book[${_spell} Rk. II]}].ID}) {
-		/varset _spell ${Me.Book[${Me.Book[${_spell} Rk. II]}].Name}
-
-	| rk1 spell
-	} else /if (${Me.Book[${Me.Book[${_spell}]}].ID}) {
-		/varset _spell ${Me.Book[${Me.Book[${_spell}]}].Name}
-
-	| rk3 disc
-	} else /if (${Me.CombatAbility[${_spell} Rk. III]}) {
-	 	/varset _spell ${${_spell}} Rk. III
-
-	| rk2 disc
-	} else /if (${Me.CombatAbility[${_spell} Rk. II]}) {
-	 	/varset _spell ${_spell} Rk. II
-	
-	| rk1 disc
-	} else /if (${Me.CombatAbility[${_spell} Rk. II]}) {
-	 	/varset _spell ${_spell}
-
-	} 
-
-	/if (${_debug}) /echo End Name:\at${_spell}\ax
-
-/return ${_spell}
 
 
 

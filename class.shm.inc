@@ -160,9 +160,9 @@ sub check_heal_group_SHM()
 		/if (${Me.SpellReady[${healIntervention1}]}) {
 			/if (${validate_cast[FALSE, spell, "${healIntervention1}", ${Group.Member[${hurtIndex}].ID}]}) /call core_cast2 "${healIntervention1}" 0 ${Group.Member[${hurtIndex}].ID} check_group_HP
 		} else /if (${Me.SpellReady[${healMain}]}) {
-			/if (${validate_cast[FALSE, spell, "${healMain}", ${Group.Member[${hurtIndex}].ID}]}) /call core_cast2 "${Group.Member[${hurtIndex}].ID}" 0 ${Group.Member[${hurtIndex}].ID} check_group_HP
-		} 
-	} 
+			/if (${validate_cast[TRUE, spell, "${healMain}", ${Group.Member[${hurtIndex}].ID}]}) /call core_cast2 "${healMain}" 0 ${Group.Member[${hurtIndex}].ID} check_group_HP
+		}
+	}
   
  	| Reckless Heals
 	:recklessheals
@@ -418,7 +418,7 @@ sub cast_talisman()
 	CHECKEXIT
 	CHECKINPUTS
 	/call timer_update timer_cast_Talisman ${tTalisman}
-	/if (${validate_cast[FALSE, spell, "${spellTalisman}", ${Me.ID}]}) /call core_cast2 "${spellTalisman}" ${buffGem} ${Me.ID} FALSE
+	/if (${validate_cast[FALSE, FIND, "${spellTalisman}", ${Me.ID}]}) /call core_cast2 "${spellTalisman}" ${buffGem} ${Me.ID} FALSE
 /return
 
 
@@ -593,7 +593,7 @@ sub Bind_setSHM(string _type, string _verbage)
 
 
 	| canni HP pct
-	} else /if (${_type.Equal[cannihp]}) {
+	} else /if (${_type.Equal[cannihps]}) {
 		/if (${Range.Between[1,99:${Int[${_verbage}]}]}) {
 			/call sql_update FALSE ${Me.Class.ShortName} CanniPctHPs ${_verbage}
 		} else {

@@ -28,11 +28,22 @@ Plugins Required: MQ2Cast, MQ2Exchange, MQ2MoveUtils, MQ2Debuffs, MQ2DanNet, MQ2
 
 
 
+BETA 0123.01
+- missed a couple override combat switches.
+- sql_control()
+  -- fixed a bug with rank generation
+  -- fixed a bug with timer durations being converted to spells.. don't ask..
+- clasas.shm.inc
+  -- issue with target ID in main heal
+
+
 BETA 0120.01
 - is_burn_time()
   -- routine adjusted for combat heal mode.
 - class.clr.inc
   -- more adjustments to burn routine
+- class.shm.inc
+  -- fixed a typo on cannishps command  
   
 
 BETA 0119.01
