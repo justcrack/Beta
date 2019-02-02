@@ -31,10 +31,12 @@ sub core_DRU()
 
 	/while (${prep_combat[]}) {
 		CHECKINPUTS
-		/if (${swHealGroup}) /call check_heal_group_${Me.Class.ShortName}
+		/if (${swHealSelf} && !${Group.Members}) /call check_heal_self_${Me.Class.ShortName}
+		/if (${swHealGroup} && ${Group.Members}) /call check_heal_group_${Me.Class.ShortName}
 		/if (${swHealXTarget}) /call check_heal_XTarget_${Me.Class.ShortName}
+		/if (${swHealPet} && ${Group.Members}) /call check_heal_pet_${Me.Class.ShortName}
 		/if (${swHealCure}) /call cast_cure
-		/if (${swHealPet}) /call check_heal_pet_${Me.Class.ShortName}
+
 		/if (${exit_class_loop[]}) /return
 
 		/if (${isValidTarget}) {
@@ -219,7 +221,6 @@ sub check_heal_group_DRU()
 	  }	
 	
 	}
-
 	
 	| single target heals
   	/if (${Me.SpellReady[${healRejuvilation}]}) {
@@ -232,6 +233,51 @@ sub check_heal_group_DRU()
 	
 	UPDATEHUD FALSE
 /return
+
+
+
+
+|***
+ *	DES: self heal only
+ *	USE: /call check_heal_self_${Me.Class.ShortName}
+ *  NOTE: 
+ ***|
+sub check_heal_self_DRU()
+	DEBUG check_heal_self_DRU()
+	AMIDEAD
+	CHECKEXIT
+	CHECKTIE
+	
+	UPDATEHUD "HEAL Self"
+	/if (${Me.PctHPs} > ${DRUPoint}*.${tmpHealOverride}) /return
+	/declare _count int local 0
+	| Panic heal
+	/if (${Me.SpellReady[${healPanic}]}) {
+		/if (${Me.PctHPs} < 20*.${setHealOverride}) {
+			/if (${Me.Casting.ID}) /stopcastMe.ID} FALSE
+		}
+	}  	
+	
+	| single AA heals
+	/if (${Me.PctHPs} < ${${hurtCLS}Point}*.6*.${tmpHealOverride} && ${Me.AltAbilityReady[peaceful Convergence of Spirits]}) {
+		/if (${validate_cast[FALSE, alt, "Convergence of Spirits", ${Me.ID}]}) /call core_cast2 "Convergence of Spirits" alt ${Me.ID} FALSE
+	}
+	/if (${Me.PctHPs} < ${${hurtCLS}Point}*.5*.${tmpHealOverride} && ${Me.AltAbilityReady[Convergence of Spirits]}) {
+		/if (${validate_cast[FALSE, alt, "Peaceful Convergence of Spirits", ${Me.ID}]}) /call core_cast2 "Peaceful Convergence of Spirits" alt ${Me.ID} FALSE
+	}
+  
+	
+	| single target heals
+	/if (${Me.SpellReady[${healRejuvilation}]}) {
+   /if (${validate_cast[FALSE, spell, "${healRejuvilation}", ${Me.ID}]}) /call core_cast2 "${healRejuvilation}" 0 ${Me.ID} FALSE
+  } else /if (${Me.SpellReady[${healSanavida}]}) {
+    /if (${validate_cast[FALSE, spell, "${healSanavida}", ${Me.ID}]}) /call core_cast2 "${healSanavida}" 0 ${Me.ID} FALSE
+  } else /if (${Me.SpellReady[${healAdrenaline}]}) {
+    /if (${validate_cast[FALSE, spell, "${healAdrenaline}", ${Me.ID}]}) /call core_cast2 "${healAdrenaline}" 0 ${Me.ID} FALSE
+  } 	
+
+/return
+
 
 
 |***

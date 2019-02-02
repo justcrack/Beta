@@ -223,7 +223,7 @@ sub mode_skill_train(string _skilltype)
 		}
 	}
 	
-	UPDATEHUD
+	UPDATEHUD FALSE
 /return
 
 
@@ -239,14 +239,11 @@ sub mode_fish()
 	/if (!${Me.Standing}) /stand
 	/if (${Me.ItemReady[Fisherman's Companion]} && !${Me.ItemReady[Brell's Fishin' Pole]}) {
 		/if (${Me.Invis}) /docommand /makemevisable
-		/If (${validate_cast[FALSE, item, "Fisherman's Companion", ${Me.ID}]}) /call core_cast2 "Fisherman's Companion" item ${Me.ID}
+		/if (${validate_cast[FALSE, item, "Fisherman's Companion", ${Me.ID}]}) /call core_cast2 "Fisherman's Companion" item ${Me.ID}
 		CLEARCURSOR TRUE
 	}
 	/if (${Me.AbilityReady[fishing]}) /doability fishing
-	/delay 16
-	CLEARCURSOR TRUE
-	/doevents
-	UPDATEHUD
+	UPDATEHUD FALSE
 /return
 
 
@@ -263,9 +260,8 @@ sub mode_forage()
 	/if (!${swAutoCursor}) /varset swAutoCursor TRUE
 	/if (!${Me.Standing}) /stand
 	/if (${Me.AbilityReady[forage]}) /doability forage
-	/call sort_cursor TRUE
-	/autoinventory
-	UPDATEHUD
+	/delay 1s
+	UPDATEHUD FALSE
 /return
 
 
@@ -295,7 +291,7 @@ sub mode_drag()
 			}
 		/next _count
 	}
-	UPDATEHUD
+	UPDATEHUD FALSE
 /return
 
 
@@ -324,7 +320,7 @@ sub mode_hunt()
 
 	:haveatarget
 	/if (!${Target2Kill}) {
-		/call create_timer timer_wait_for_mob_to_kill ${tHunt_delay}
+		/call timer_set timer_wait_for_mob_to_kill ${tHunt_delay}
 		/call check_buff_routines TRUE
 	}
 
@@ -335,12 +331,12 @@ sub mode_hunt()
 	/if (${Spawn[${Target2Kill}].ID}) {
 		/call mode_get_mob
 	} else /if (${Spawn[${Target2Kill}].Dead} || !${Spawn[${Target2Kill}].ID} || !${timer_scorched_earth_fail}) {
-		/if (!${timer_scorched_earth_fail}) /call create_timer timer_scorched_earth_ignore_${Target2Kill} ${tScorchedEarth_ignore} 
+		/if (!${timer_scorched_earth_fail}) /call timer_set timer_scorched_earth_ignore_${Target2Kill} ${tScorchedEarth_ignore} 
 		/call set_stop NOECHO
 		/call clear_combat
 	}	
 		
-	UPDATEHUD
+	UPDATEHUD FALSE
 /return
 
 
@@ -404,7 +400,7 @@ sub mode_petfarm()
 		/varset _nameloop 1
 		/if (${timer_Petfarm_delay}) /goto :loopfindmob
 
-		/if (!${timer_Petfarm_delay}) /call create_timer timer_Petfarm_delay ${tPetfarm_delay}
+		/if (!${timer_Petfarm_delay}) /call timer_update timer_Petfarm_delay ${tPetfarm_delay}
 		/if (${Me.Pet.Target.ID}) /pet back off
 		/if (${Me.AltAbilityReady[Summon Companion]} && ${Me.Pet.Distance} > 80) {
 			/if (${validate_cast[FALSE, alt, "Summon Companion", ${Me.Pet.ID}]}) /call core_cast2 "Summon Companion" alt 0 FALSE
@@ -441,7 +437,7 @@ sub mode_petfarm()
 	/if (${Me.Pet.Target.ID} != ${Target2Kill}) /goto :gettarget
 	/if (${Spawn[${Target2Kill}].Type.NotEqual[CORPSE]}) /goto :loopwaittilldead
 
-	UPDATEHUD
+	UPDATEHUD FALSE
 /return
 
 
@@ -502,7 +498,7 @@ sub mode_scorched_earth()
 			/if (${SpawnCount[npc ${If[${swOverrideLOS},,los]} radius ${setModeAgro} targetable]}) {
 				/varset _spawnCount ${SpawnCount[npc ${If[${swOverrideLOS},,los]} radius ${setModeAgro} targetable]}	
 				/varset Target2Kill ${Spawn[${NearestSpawn[1, npc ${If[${swOverrideLOS},,los]} radius ${setModeAgro} targetable]}].ID}
-				/call create_timer timer_scorched_earth_fail ${tScorchedEarth_fail}
+				/call timer_set timer_scorched_earth_fail ${tScorchedEarth_fail}
 
 				:loopignoreddmob
 				
@@ -528,7 +524,7 @@ sub mode_scorched_earth()
 		/varset _spawnCount 0
 		/varset Target2Kill 0
 		/varset _nameloop 1
-		/if (!${timer_ScorchedEarth_delay}) /call create_timer timer_ScorchedEarth_delay ${tScorchedEarth_delay}
+		/if (!${timer_ScorchedEarth_delay}) /call timer_set timer_ScorchedEarth_delay ${tScorchedEarth_delay}
 		/if (${Me.Pet.Target.ID}) /pet back off
 		/if (${Me.Pet.ID} && ${Me.AltAbilityReady[Summon Companion]} && ${Me.Pet.Distance} > 80) {
 			/if (${validate_cast[FALSE, alt, "Summon Companion", ${Me.Pet.ID}]}) /call core_cast2 "Summon Companion" alt 0 FALSE
@@ -544,7 +540,7 @@ sub mode_scorched_earth()
 		/if (${Spawn[${Target2Kill}].ID}) {
 			/call mode_get_mob
 		} else /if (${Spawn[${Target2Kill}].Dead} || !${Spawn[${Target2Kill}].ID} || !${timer_scorched_earth_fail}) {
-			/if (!${timer_scorched_earth_fail}) /call create_timer timer_scorched_earth_ignore_${Target2Kill} ${tScorchedEarth_ignore} 
+			/if (!${timer_scorched_earth_fail}) /call timer_set timer_scorched_earth_ignore_${Target2Kill} ${tScorchedEarth_ignore} 
 			/call set_stop NOECHO
 			/call clear_combat
 		}
@@ -596,7 +592,7 @@ sub mode_harvest()
 		/if (${GroundItemCount[${HarvestList.Arg[${_count},|]}]}) {
 			/call get_ground_harvest "${HarvestList.Arg[${_count},|]}"
 		} else {
-			/if (!${timer_Harvest_delay}) /call create_timer timer_Harvest_delay ${tHarvest_delay}
+			/if (!${timer_Harvest_delay}) /call timer_set timer_Harvest_delay ${tHarvest_delay}
 		}
 	/next _count	
 
@@ -885,7 +881,7 @@ sub mode_open(string _type)
 	AMIDEAD
 	UPDATEHUD "Open"
 
-	/call create_timer timer_mode_open ${tMode_Open}
+	/call timer_set timer_mode_open ${tMode_Open}
 	/declare _tmpID int local
 
 	/if (${SpawnCount[${modeOpenItem} npc radius 20]}) {

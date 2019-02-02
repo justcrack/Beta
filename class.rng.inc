@@ -40,7 +40,7 @@ sub core_RNG()
 		}
 	
 		/if (${coreAuto}) {	
-			/if (${switchAAFade} && ${Me.PctHPs} <= ${useAAFadePct}) /call cast_AA_fade
+			CHECKFADE
 			/if (${swModRod} && ${validate_class[FALSE, ${lstClassCast}]}) /call use_mod_rod
 			/if (${validate_class[FALSE, ${lstClassMelee}]}) /call cast_stamina_recovery
 		}

@@ -454,9 +454,9 @@ sub check_aura()
 		/return
 	}
 
-	/declare _count int local
-	/declare _aura int local
-	/declare _found bool false
+	/declare _count int local 0
+	/declare _aura int local 0
+	/declare _found bool FALSE
 
 	/for _aura 1 to 2
 		CHECKCOMBATCAST
@@ -464,70 +464,29 @@ sub check_aura()
 			/for _count 1 to 2	
 				CHECKCOMBATCAST
 				/if (${Bool[${Aura${_aura}Buff}]}) {
-					/if (${Bool[${Me.Aura[${_count}].Name.Equal[${Aura${_aura}Buff}]}]}) /varset _found TRUE
-					/if (${Bool[${Me.Aura[${_count}].Name.Equal[${Aura${_aura}Spell}]}]}) /varset _found TRUE
-					| /if (${Bool[${Me.Aura[${_count}].Name.Equal[${Ini[${INIClass},Aura,Aura${_aura}Spell]}]}]}) /varset _found TRUE
-					| /if (${Bool[${Me.Aura[${_count}].Name.Equal[${Ini[${INIClass},Aura,Aura${_aura}Buff]}]}]}) /varset _found TRUE
+					
+					/if (${Me.Aura[${_count}].Name.Equal[${Aura${_aura}Buff}]}) {
+						/varset _found TRUE
+						/continue
+					}
+					/if (${Me.Aura[${_count}].Name.Equal[${Spell[${Aura${_aura}Spell}].RankName}]}) {
+						/varset _found TRUE
+						/continue
+					}
+
 				}
 			/next _count
+			
 			/if (!${_found}) {
 				/if (${validate_cast[FALSE, spell, "${Aura${_aura}Spell}", ${Me.ID}]}) /call core_cast2 "${Aura${_aura}Spell}" ${buffGem} ${Me.ID} FALSE
 			} else /if (${_found}) {
 				/varset _found FALSE
 			}
+		
 		}
 	/next _aura
 	
 	UPDATEHUD FALSE
-/return
-
-
-
-|***
- *	DES: looks for clickies in your inventory and adds them to toons INI
- *	USE: /call intialize_item_buffs
- *  NOTE: 
- ***|
-sub intialize_item_buffs()
-	AMIDEAD
-	CHECKINPUTS
-
-	/declare _tmpSlot         														     						int			local 0
-	/declare _tmpContItem																									int			local 0
-	/declare _tmpClickItemList																						string	local ${Ini[${INIClass},ClickItems]}
-	/if (!${Defined[ClickItem]}) /declare ClickItem												int			outer 1
-	/if (!${Defined[UseItem]}) /declare UseItem[40]                  			string	outer 
-	/if (!${Defined[SelfItem]}) /declare SelfItem[${UseItem.Size}]   			string 	outer 
-	/if (!${Defined[SpellItem]}) /declare SpellItem[${UseItem.Size}]   		string	outer 
-
-	/for _tmpSlot 1 to 32
-		AMIDEAD
-		/if (${Bool[${InvSlot[${_tmpSlot}].Item.Container}]}) {
-			/for _tmpContItem 1 to ${InvSlot[${_tmpSlot}].Item.Container}
-				AMIDEAD
-				/if (${Me.Inventory[${_tmpSlot}].Item[${_tmpContItem}].ID} && ${Me.Inventory[${_tmpSlot}].Item[${_tmpContItem}].Spell.ID} && ${Me.Inventory[${_tmpSlot}].Item[${_tmpContItem}].EffectType.Equal[Click Inventory]} && ${Me.Level}>=${Me.Inventory[${_tmpSlot}].Item[${_tmpContItem}].RequiredLevel}) {
-					/if (${Bool[${_tmpClickItemList.Find[${Me.Inventory[${_tmpSlot}].Item[${_tmpContItem}].Spell}]}]} && ${Bool[${Ini[${INIClass},ClickItems,${Me.Inventory[${_tmpSlot}].Item[${_tmpContItem}].Spell},TRUE]}]}) { 
-					  /varset UseItem[${ClickItem}] TRUE
-					  /varset SelfItem[${ClickItem}] ${Me.Inventory[${_tmpSlot}].Item[${_tmpContItem}].Name}
-					  /varset SpellItem[${ClickItem}] ${Me.Inventory[${_tmpSlot}].Item[${_tmpContItem}].Spell}		  
-					  /varcalc ClickItem ${ClickItem}+1
-					} else /if (!${_tmpClickItemList.Find[${Me.Inventory[${_tmpSlot}].Item[${_tmpContItem}].Spell}]}) {
-					 	/ini "${INIClass}" "ClickItems" "${Me.Inventory[${_tmpSlot}].Item[${_tmpContItem}].Spell}" "FALSE"
-					}
-				}
-			/next _tmpContItem
-		} else /if (!${Bool[${InvSlot[${_tmpSlot}].Item.Container}]} && ${InvSlot[${_tmpSlot}].Item.ID} && ${InvSlot[${_tmpSlot}].Item.Spell.ID} && ${InvSlot[${_tmpSlot}].Item.EffectType.Equal[Click Inventory]} && ${Me.Level}>=${InvSlot[${_tmpSlot}].Item.RequiredLevel}) {
-			AMIDEAD
-			/if (${Bool[${_tmpClickItemList.Find[${Me.Inventory[${_tmpSlot}].Spell}]}]} && ${Bool[${Ini[${INIClass},ClickItems,${Me.Inventory[${_tmpSlot}].Spell},TRUE]}]}) { 
-				/varset UseItem[${ClickItem}] TRUE		
-				/varset SelfItem[${ClickItem}] ${InvSlot[${_tmpSlot}].Item}
-				/varset SpellItem[${ClickItem}] ${InvSlot[${_tmpSlot}].Item.Spell}
-				/varcalc ClickItem ${ClickItem}+1
-			} else /if (!${_tmpClickItemList.Find[${Me.Inventory[${_tmpSlot}].Spell}]}) {
-				/ini "${INIClass}" "ClickItems" "${InvSlot[${_tmpSlot}].Item.Spell}" "FALSE"
-			}
-		}
-	/next _tmpSlot
 /return
 
 
@@ -2708,13 +2667,13 @@ sub cast_nuke_GoM(int _tmpID)
 		/target ID ${_tmpID}
 		/if (!${cast_condition[GoMNukeCondition]}) /return
 		VSPELL GoM ${sep} ${csp}${GoMNuke}\ax ${sep} [${ctar}${Spawn[id ${_tmpID}].DisplayName}\ax]
-		/call MQ2Cast "${GoMNuke}" gem${Me.Gem[${GoMNuke}]} -targetid|${_tmpID}
+		/call MQ2Cast "${Spell[${GoMNuke}].RankName}" gem${Me.Gem[${GoMNuke}]} -targetid|${_tmpID}
 	} else /if (${Me.SpellReady[${GoMNuke2}]}) {
 		/if (${Me.CurrentMana} < ${Spell[${GoMNuke2}].Mana} || ${Me.CurrentMana} < 2) /return 
 		/target ID ${_tmpID}
 		/if (!${cast_condition[GoMNuke2Condition]}) /return
 		VSPELL GoM Backup ${sep} ${csp}${GoMNuke2}\ax ${sep} [${ctar}${Spawn[id ${_tmpID}].DisplayName}\ax]
-		/call MQ2Cast "${GoMNuke2}" gem${Me.Gem[${GoMNuke2}]} -targetid|${_tmpID}
+		/call MQ2Cast "${Spell[${GoMNuke2}].RankName}" gem${Me.Gem[${GoMNuke2}]} -targetid|${_tmpID}
 	}
 
 /return
@@ -2810,7 +2769,7 @@ sub check_buffs_manual(string _type)
 				/if (!${Target.Buff[${ManualBuff${_x}Check}].ID}) {
 					CLEARCURSOR TRUE
 					VSPELL ${_GroupRaid} Buffing ${sep} ${csp}${Buff${_x}}\ax on [${cpc}${${_GroupRaid}.Member[${_i}].DisplayName}\ax]
-					/call MQ2Cast "${Buff${_x}}" ${buffGem} -targetid|${${_GroupRaid}.Member[${_i}].ID} 
+					/call MQ2Cast "${Spell[${Buff${_x}}].RankName}" ${buffGem} -targetid|${${_GroupRaid}.Member[${_i}].ID} 
 				}
 			/next _x	
 		/next _i
@@ -4960,8 +4919,8 @@ sub last_supper()
 	| one drink of a kadim constitution is almost 6k
 
 	| eat, drink and be merry
-	/if (${FindItemCount[=${Food}]} && ${Me.Hunger} < 3000) /useitem "${Food}"
-	/if (${FindItemCount[=${Drink}]} && ${Me.Thirst} < 3000) /useitem "${Drink}"
+	/if (${FindItemCount[${Food}]} && ${Me.Hunger} < 3000) /useitem "${Food}"
+	/if (${FindItemCount[${Drink}]} && ${Me.Thirst} < 3000) /useitem "${Drink}"
 			
 /return
 
@@ -5462,6 +5421,7 @@ sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 		
 	| check spell
 	/if (${_type.Equal[spell]}) {
+		/varset _spell ${Spell[${_spell}].RankName}
 		/if (!${Bool[${Me.Book[${_spell}]}]}) /return FALSE
 		/if (!${Me.SpellReady[${_spell}]} && ${Spell[${_spell}].SpellType.Equal[Utility Beneficial]}) /return FALSE
 		/if (!${Me.SpellReady[${_spell}]} && !${Spell[${_spell}].SpellType.Equal[Beneficial]} && !${Spell[${_spell}].Category.Equal[Heals]}) /return FALSE
@@ -5604,7 +5564,7 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub)
 	
 	| what type is it?
 	/if (${_type.Equal[FIND]}) {
-		/if (${Me.Book[${_spell}]}) {
+		/if (${Me.Book[${Spell[${_spell}].RankName}]}) {
 			/varset _type ${buffGem}
 		} else /if (${Me.AltAbilityReady[${_spell}]}) {	
 			/varset _type alt
@@ -5617,6 +5577,9 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub)
 
 	| spell
 	/if (!${Select[${_type},alt,item,disc,pulse]}) {
+		| correct the rank
+		/varset _spell ${Spell[${_spell}].RankName}
+		
 		/if (${_tmpID} == 0) {
 			VSPELL Spell ${sep} ${csp}${_spell}\ax
 			/call MQ2Cast "${_spell}" ${If[${Bool[${_type}]},${_type},gem${Me.Gem[${_spell}]}]} ${If[${Bool[${_sub}]},${_sub},]}
@@ -5624,7 +5587,7 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub)
 
 			| /if (${Me.Song[Gift of Mana (${GoMLevel})].ID}) /call cast_nuke_GoM ${_tmpID}
 			/if (${Me.Song[Gift of Mana].ID}) /call cast_nuke_GoM ${_tmpID}
-			VSPELL Spell ${sep} ${csp}${_spell}\ax ${sep} [${ctar}${Spawn[id ${_tmpID}].DisplayName}\ax]
+			VSPELL Spell ${sep} ${csp}${Spell[${_spell}].RankName}\ax ${sep} [${ctar}${Spawn[id ${_tmpID}].DisplayName}\ax]
 			/call MQ2Cast "${_spell}" ${If[${Bool[${_type}]},${_type},gem${Me.Gem[${_spell}]}]} ${If[${Bool[${_sub}]},${_sub},]} -targetid|${_tmpID}
 		}
 
@@ -6924,24 +6887,29 @@ sub check_buffs_tmp_list(string _spell, string _toonList)
 	CHECKTIE
 	
 	/declare _count int local
-	/declare _growthToon string local
+	/declare _buffToon string local
 	/declare _DNqout string local
 
 	/for _count 1 to ${_toonList.Count[|]}
 		/if (!${Bool[${_toonList.Arg[${_count},|]}]}) /continue
-		/varset _growthToon ${_toonList.Arg[${_count},|]}
+		/varset _buffToon ${_toonList.Arg[${_count},|]}
 		
 		| ready?
 		/if (!${Me.SpellReady[${_spell}]}) /return
 		
 		| me?
-		/if (${_toonList.Arg[${_count},|].Equal[${Me.DisplayName}]} && !${Me.Buff[${_spell}].ID}) {
-			/if (${validate_cast[FALSE, spell, "${_spell}", ${Me.ID}]}) /call core_cast2 "${_spell}" 0 ${Me.ID} FALSE
-			/continue
-		}		
+		/if (${swBuffSelf}) {
+			/if (${_toonList.Arg[${_count},|].Equal[${Me.DisplayName}]} && !${Me.Buff[${_spell}].ID}) {
+				/if (${validate_cast[FALSE, spell, "${_spell}", ${Me.ID}]}) /call core_cast2 "${_spell}" 0 ${Me.ID} FALSE
+				/continue
+			}		
+		}
+		
+		| get out if not buffing others
+		/if (!${swBuffBC}) /return
 		
 		| ini set to FALSE?
-		/if (!${Bool[${_growthToon}]}) /return
+		/if (!${Bool[${_buffToon}]}) /return
 		
 		| seriously dont buff corpses
 		/if (${Spawn[${_toonList.Arg[${_count},|]}].Type.Equal[corpse]}) /continue
@@ -7147,106 +7115,29 @@ sub sql_control(bool _debug, string _table, string _field, strint _type, string 
 	| what has been added to DB
 	/if (${_debug}) VSQL \aw${_table}\ax::\aw${_field}\ax::\ag${_value}\ax
 	
-	| define the variable if it does not exist
-	/if (!${Defined[${_field}]}) /declare ${_field} ${_type} outer
-	| populate the variable
-	/varset ${_field} ${sqlite.Result[dummy 1 ${_field}]}
 
-	| /if (${_debug}) /echo field:\at${_field}\ax:::\at${${_field}}\ax
+	| is this an update from edit or to establish
+	| /if (${_type.Equal[UPDATE]}) {
+		
+		| just update the data and call it a night.
+		| /varset ${_field} ${_value}
+		
+	| } else {
+		| define the variable if it does not exist
+		/if (!${Defined[${_field}]}) /declare ${_field} ${_type} outer
+		| populate the variable
+		/varset ${_field} ${sqlite.Result[dummy 1 ${_field}]}
+	| }
 
-
-	| This isn't even my final form!
-	|**
-
-	/if (${Me.Book[${Me.Book[${${_field}} Rk. III]}].ID}) {
-		/varset ${_field} ${Me.Book[${Me.Book[${${_field}} Rk. III]}].Name}
-	} else /if (${Me.Book[${Me.Book[${${_field}} Rk. II]}].ID}) {
-		/varset ${_field} ${Me.Book[${Me.Book[${${_field}} Rk. II]}].Name}
-	} else /if (${Me.CombatAbility[${${_field}} Rk. III]}) {
-		/varset ${_field} ${${_field}} Rk. III
-	} else /if (${Me.CombatAbility[${${_field}} Rk. II]}) {
-		/varset ${_field} ${${_field}} Rk. II
-	}	
-**|
-
-
-	| is it something that can have ranks?
- | /if (!${Spell[${${_field}}].ID}) /return TRUE
-  
-  
   | Not a spell, move on
-  
   /if (!${_spell}) /return
-  | /if (${Spell[${${_field}}].Name.Equal[Unknown Spell]}) /return TRUE
- 
-	| /if (${Int[${${_field}}]} >= 0 ) /return TRUE
-  
- 	| not a spell
-  | /if (${Spell[${${_field}}].Name.Equal[0]}) /return TRUE
-  
-	| /if (${Int[${Spell[${${_field}}].Name}]} == 0) /return TRUE
 
-	| /if (${Int[${Spell[${${_field}}].Name}]} == 0 ) /return TRUE
-	| /if (!${Me.Book[${Spell[${${_field}}].RankName}]} && !${Me.CombatAbility[${Spell[${${_field}}].RankName}]}) /return TRUE
-			
-			| SDEBUG ${_field} ${sep} ${${_field}}
-			/varset ${_field} ${Spell[${${_field}}].RankName}
-
-		  /if (${_debug}) VSQL \aw${_table}\ax::\aw${_field}\ax::\ag${${_field}}\ax
+	| adjust rank names for spells
+  /varset ${_field} ${Spell[${${_field}}].RankName}
+  /if (${_debug}) VSQL \aw${_table}\ax::\aw${_field}\ax::\ag${${_field}}\ax
       
-     	| /if (!${Spell[${${_field}}].ID}) /return TRUE
-     	| /varset ${_field} ${Spell[${${_field}}].RankName}
-     	
-      | /varset ${_field} ${rank_add[FALSE, "${${_field}}"]}
-
 /return TRUE
 
-
-
-
-
-
-
-
-
-${Int[10m]}
-
-
-
-${Spell[Eyrzekla's Mending].ID}
-
-${Spell[Eyrzekla's Mending].Class}
-
-
-
-${Me.Book[${Spell[${${_field}}].RankName}]}
-
-
-${Me.Book[Eyrzekla's Mending]}
-
-${Me.Book[${Me.Book[${${_field}} Rk. III]}].ID}
-
-${Spell[Eyrzekla's Mending].Name}
-
-${Int[${Spell[Eyrzekla's Mending].Name}]} > 0
-
-${Spell[0].Name}
-
-${Bool[${Spell[Eyrzekla's Mending].Name}]}
-${Bool[${Spell[50].Name}]}
-
-${Spell[${Int[10m]}].Name}
-
-
-Eyrzekla's Mending
-
-
-${Me.CombatAbility[${Spell[Breather].RankName}]}
-
-
-
-
-${Int[Eyrzekla's Mending]}
 
 
 
@@ -7258,16 +7149,6 @@ ${Int[Eyrzekla's Mending]}
  ***|
 sub rank_add(bool _debug, string _spell)
 	/if (${_debug}) /echo Start Name:\at${_spell}\ax
-	
-	
-	
-	
-	
-	
-	
-	| /if (!${Spell[${_spell}].ID}) /return ${_spell}
-	| /if (${Int[${_spell}]} != 0) /return ${_spell}
-	| /if (!${Me.Book[${Spell[${${_field}}].RankName}]} && !${Me.CombatAbility[${Spell[${${_field}}].RankName}]}) /return ${_spell}
 
 	| rk3 spell
 	/if (${Me.Book[${Me.Book[${_spell} Rk. III]}].ID}) {
@@ -7298,27 +7179,6 @@ sub rank_add(bool _debug, string _spell)
 	/if (${_debug}) /echo End Name:\at${_spell}\ax
 
 /return ${_spell}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -7896,7 +7756,7 @@ sub broadcast_status()
 |***
  *	DES: just clears the xtarget list
  *	USE: 
- *  NOTE: 
+ *  NOTE: really thats all it does
  ***| 
 sub clear_xtarget()
 	/declare _count int local 0
@@ -7904,6 +7764,29 @@ sub clear_xtarget()
 		/xtarget set ${_count} Autohater
 	/next _count
 /return
+
+
+
+|***
+ *	DES: checks to see if something is ready to be used
+ *	USE: 
+ *  NOTE:
+ ***| 
+sub check_ready(string _type, string _skill)
+
+	/if (${_type.Equal[spell]}) {
+		/if (${Me.SpellReady[${Spell[${_skill}].RankName}]}) /return TRUE
+
+	} else /if (${_type.Equal[alt]}) {
+		/if (${Me.AltAbilityReady[${_skill}]}) /return TRUE
+		
+	} else /if (${_type.Equal[disc]}) {
+	} else /if (${_type.Equal[item]}) {
+
+	}
+
+/return FALSE
+
 
 
 

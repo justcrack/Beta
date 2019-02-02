@@ -46,7 +46,8 @@ sub core_BST()
 		}
 
 		/if (${coreAuto}) {	
-			/if (${switchAAFade} && ${Me.PctHPs} <= ${useAAFadePct}) /call cast_AA_fade
+			CHECKFADE
+			/call check_mana_BST
 			/if (${swModRod} && ${validate_class[FALSE, ${lstClassCast}]}) /call use_mod_rod
 			/if (${validate_class[FALSE, ${lstClassMelee}]}) /call cast_stamina_recovery
 		}	
@@ -111,6 +112,7 @@ sub check_mana_BST()
 	/if (${switchConsumeSpirit}) {
 		/if (${Me.PctMana} < ${ConsumeSpiritPct}*.${tmpHealOverride}) {
 		 	/if (${validate_cast[FALSE, alt, "Consumption of Spirit", ${Me.ID}]}) /call core_cast2 "Consumption of Spirit" alt ${Me.ID} FALSE
+		 	/return
 		}
 	}
 	
@@ -122,41 +124,43 @@ sub check_mana_BST()
 		/if (${Me.PctMana} < ${selfParagonPct}*.${tmpHealOverride}) {
 			/if (!${Me.Song[Focused Paragon].ID} && !${Me.Song[Paragon of Spirits].ID}) {
 				/if (${validate_cast[FALSE, alt, "Focused Paragon of Spirits", ${Me.ID}]}) /call core_cast2 "Focused Paragon of Spirits" alt ${Me.ID} FALSE
+				/return
 			}
 		}
 	}
 	
+	/if (${Raid.Members}) /return
+	/if (!${Group}) /return
+	
 	| group paragon
-	/if (${switchGroupParagon} && !${Raid.Members} && ${Me.AltAbilityReady[Paragon of Spirit]}) {
+	/if (${switchGroupParagon} && ${Me.AltAbilityReady[Paragon of Spirit]}) {
 		/declare _count int local 0
-		/if (${Group}) {
-			/declare _hurtCount int local 0
-			/for _count 0 to ${Group}
-				/if (${Group.Member[${_count}].Type.NotEqual[CORPSE]} && ${Group.Member[${_count}].ID}) /continue
-				/if (${Group.Member[${_count}].Distance} < 100) /continue
-				/if (${Group.Member[${_count}].DisplayName.Equal[${Me.DisplayName}]}) /continue
+		/declare _hurtCount int local 0
+		/for _count 0 to ${Group}
+			/if (${Group.Member[${_count}].Type.NotEqual[CORPSE]} && ${Group.Member[${_count}].ID}) /continue
+			/if (${Group.Member[${_count}].Distance} < 100) /continue
+			/if (${Group.Member[${_count}].DisplayName.Equal[${Me.DisplayName}]}) /continue
 
-				| Manna				
-				/if (${lstClassCast.Find[${Group.Member[${_count}].Class.ShortName}]}) {
-					/if (${Group.Member[${_count}].PctMana} < ${groupParagonPct}*.${tmpHealOverride}) {
-						/varcalc _hurtCount ${_hurtCount}+1
-				 	}
-				}
-			 	
-			 	| Endurance
-				/if (${lstClassMelee.Find[${Group.Member[${_count}].Class.ShortName}]}) {
-					/if (${Group.Member[${_count}].PctEndurance} < ${groupParagonPct}*.${tmpHealOverride}) {
-						/varcalc _hurtCount ${_hurtCount}+1
-				 	}
-				}			 	
-			 	
-			/next _count
-			
-			/if (${_hurtCount} > 1) {
-				ECHOCHANNEL Paragon of Spirits
-				/if (${validate_cast[FALSE, alt, "Paragon of Spirit", ${Me.ID}]}) /call core_cast2 "Paragon of Spirit" alt 0 FALSE
-			}	
-		}
+			| Manna				
+			/if (${lstClassCast.Find[${Group.Member[${_count}].Class.ShortName}]}) {
+				/if (${Group.Member[${_count}].PctMana} < ${groupParagonPct}*.${tmpHealOverride}) {
+					/varcalc _hurtCount ${_hurtCount}+1
+			 	}
+			}
+		 	
+		 	| Endurance
+			/if (${lstClassMelee.Find[${Group.Member[${_count}].Class.ShortName}]}) {
+				/if (${Group.Member[${_count}].PctEndurance} < ${groupParagonPct}*.${tmpHealOverride}) {
+					/varcalc _hurtCount ${_hurtCount}+1
+			 	}
+			}			 	
+		 	
+		/next _count
+		
+		/if (${_hurtCount} > 1) {
+			ECHOCHANNEL Paragon of Spirits
+			/if (${validate_cast[FALSE, alt, "Paragon of Spirit", ${Me.ID}]}) /call core_cast2 "Paragon of Spirit" alt 0 FALSE
+		}	
 	}
 	
 /return
@@ -330,7 +334,7 @@ sub Bind_setBST(string _type, string _verbage)
 		/call set_switch ${Me.Class.ShortName} swModRod ${_verbage} 	
 
 	| healpoint
-	} else /if (${_type.Find[healpoint]}) {
+	} else /if (${_type.Equal[healpoint]}) {
 		/call set_character_healpoint FALSE ${_verbage}
 		/return
 
@@ -353,7 +357,7 @@ sub Bind_setBST(string _type, string _verbage)
 			VOUT /${_bind} paragon [${cinfo}${groupParagonPct}\ax] allowable range ${sep} ${cinfo}1 - 99\ax
 			/return
 		} else {
-		 	/call set_switch ${Me.Class.ShortName} switchGroupParagon ${_verbage}  
+		 	/call set_switch ${Me.Class.ShortName} switchGroupParagon ${_verbage}
 		}
 
 	| consume spirit AA

@@ -107,7 +107,7 @@ useGlyph	                    [set] the glyph you want to use during raids
 swSoS													[switch] use SoS invisibility. THIS IS A PLACEHOLDER FOR ALL BUT ROGUES
 setToonControl	              [set] sets a control ton for health watching for healers
 setRestPct		 		            [set] HP/Mana/Stamina % you want to sit your fat ass down at
-swCorrectEXPAA								[switch] ato correct using exp or aa depending on %s set
+swCorrectEXPAA								[switch] auto correct using exp or aa depending on %s set
 setLvlPct		 		              [set] level you wish to maintain before swapping to aa
 setLvlMax		 		              [set] % of your level you wish to keep before swapping to AA
 swEventsInc										[switch] use the core.events.inc file
@@ -582,7 +582,6 @@ switchIssuance								[switch]
 issuanceMobCount              [set] 
 healIssuance                  [set] 
 doYaulp                       [switch]
-useYaulpPct                   [set] 
 spellYaulp                    [set] 
 sumWeaponSpell                [set] 
 sumWeaponItem                 [set] 

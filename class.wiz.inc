@@ -47,7 +47,7 @@ sub core_WIZ()
 		}
 		
 		/if (${coreAuto}) {	
-			/if (${switchAAFade} && ${Me.PctHPs} <= ${useAAFadePct}) /call cast_AA_fade
+			CHECKFADE
 			/if (${swModRod} && ${validate_class[FALSE, ${lstClassCast}]}) /call use_mod_rod
 		}	
 	}	

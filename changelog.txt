@@ -17,7 +17,7 @@ MQ2DanNet: https://drive.google.com/open?id=1nHtokSxlprmaoWhW4prvwsQLXmJ5j1r6
 
 Welcome to a new Core..
 
-Please read everyhing below. Then.. Fucking read it again. If, after the second go through, you have questions, feel free to ask.
+Please read everyhing below. Then.. Read it again. If, after the second go through, you have questions, feel free to ask.
 
 Plugins Required: MQ2Cast, MQ2Exchange, MQ2MoveUtils, MQ2Debuffs, MQ2DanNet, MQ2SQLite, MQ2Nav
   
@@ -27,7 +27,31 @@ Plugins Required: MQ2Cast, MQ2Exchange, MQ2MoveUtils, MQ2Debuffs, MQ2DanNet, MQ2
     -- script: files use to aid database or character generation. these files are fair game, i will be overwriting them if i need
 
 
+BETA 0202.01
+- core.pregen.ini
+  -- rogue added to pregeneration
+- /forage and /fish
+  -- corrected a cursor inventory issue. should not lock client anymore... i think...
+- modes scorch and hunt timers should work correctly now
+- spell ranks
+  -- so the fucking /edit command has been giving me issues with ranks on spells. or better, the inability to tell spells from anything else
+     to deal with this, i just quit doing spell ranks all together. core_cast2() will sort spell ranks from now on and save me the issues
+	   previously, if you echoed a spell variable, say /echo ${healIssuance1} it would give you the spell with rank. this is no longer the case
+- check_buffs_tmp_list() this is the routine that does things like wards or chanter auspice runes, shammy growth..
+  -- adjusted to obey the buff self and bc switches
+- class.bst.inc
+  -- was missing the call for selfparagon/groupparagon/consumespirit
+  -- logic adjustments to bst paragon(s)/consume
+  -- fixed dup variable for growl line
+- class.clr.inc
+  -- corrected some /goto names for aggressive healing sorts
+  -- ID mismatch in self healing
+- class.dru.inc
+  -- built in druids /heal self routine
 
+  
+
+  
 BETA 0123.01
 - missed a couple override combat switches.
 - sql_control()

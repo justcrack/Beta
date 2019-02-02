@@ -2859,9 +2859,7 @@ sub Bind_sql_edit(string _variable, string _value, string _add_delete)
 			}
 	
 			| update the _value into the DB						
-			| /echo /sqlite dbCore dummy UPDATE ${_table} SET ${_variable}="${_value}" WHERE ${_whereField}="${_whereValue}"
 			/sqlite ${dbCore} dummy UPDATE ${_table} SET ${_variable}="${_value}" WHERE ${_whereField}="${_whereValue}"
-			
 			/sqlite ${dbCore} dummy SELECT ${_variable} FROM ${_table} WHERE ${_whereField}="${_whereValue}"
 
 
@@ -2871,9 +2869,9 @@ sub Bind_sql_edit(string _variable, string _value, string _add_delete)
 			| SDEBUG New Value ${${_variable}}
 
 			| fix the _value rank if needed
-			/if (${_table.NotEqual[environment]}) {
-				/varset ${_variable} ${rank_add[FALSE, "${_value}"]}
-			}
+			| /if (${_table.NotEqual[environment]}) {
+			| 	/varset ${_variable} ${rank_add[FALSE, "${_value}"]}
+			| }
 
 			| results!
 			VSQL /edit ${sep} ${cinfo}${_table}\ax::${cinfo}${_variable}\ax::${If[${sqlite.Status[dummy].Equal[Success]},${cgood}${_value}\ax,${cbad}${${_variable}}\ax]}\ax
