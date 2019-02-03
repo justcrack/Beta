@@ -1325,52 +1325,54 @@ sub click_item_swarm(int _tmpID)
  *  NOTE: 
  ***|
 sub sort_cursor(bool _ignoreTimer)
-	/if (!${Bool[${_ignoreTimer}]} && ${timer_clear_cursor}) /return
 	/if (!${Cursor.ID}) /return
+	/if (!${Bool[${_ignoreTimer}]} && ${timer_clear_cursor}) /return
 	AMIDEAD
-	/declare _cursorChoice string local 
 
 	| we have faith in the all mighty AutoInventoryItem=
 	/if (${Bool[${autoInventoryItem.Find[${Cursor.Name}]}]}) /autoinventory 
 
-	/if (!${Bool[${_ignoreTimer}]} && ${Bool[${autoInventoryItem.Find[${Cursor.Name}]}]}) {
+	/if (!${Bool[${_ignoreTimer}]} && ${autoInventoryItem.Find[${Cursor.Name}]}) {
 		/if (${swAutoCursor} && ${timer_clear_cursor}) /return
-		/if (!${swAutoCursor} && !${Bool[${autoInventoryItem.Find[${Cursor.Name}]}]}) /return
-		/if (!${Cursor.ID}) /return
+		/if (!${swAutoCursor} && !${autoInventoryItem.Find[${Cursor.Name}]}) /return
 	}
 	
 	| allow for absence of override for not in same zone as master looter
 	/if (!${swAutoCursor} && !${swOverrideLoot} && !${Bool[${_ignoreTimer}]}) /return
 	
-	/while (${Cursor.ID}) {
-		CHECKINPUTS
+	/if (!${Cursor.ID}) /return
+	/declare _cursorChoice string local 
 
-		| corect the INI entry if not set for the new form
-		/if (!${Ini[${INILoot},${Cursor.Name.Left[1]},${Cursor.Name}].Length}) {
-			/ini "${INILoot}" "${Cursor.Name.Left[1]}" "${Cursor.Name}" "|Keep"
-		} else /if (!${Ini[${INILoot},"${Cursor.Name.Left[1]}","${Cursor.Name}"].Count[|]}) {
-			VOUT Fixing Loot: ${Cursor.Name}
-			/ini "${INILoot}" "${Cursor.Name.Left[1]}" "${Cursor.Name}" |${Ini[${INILoot},"${Cursor.Name.Left[1]}","${Cursor.Name}"]}
-		}		
-		
-		/if (${Cursor.ID}) /varset _cursorChoice ${Ini[${INILoot},"${Cursor.Name.Left[1]}","${Cursor.Name}"].Arg[1,|]}
+	| corect the INI entry if not set for the new form
+	/if (!${Ini[${INILoot},${Cursor.Name.Left[1]},${Cursor.Name}].Length}) {
+		/ini "${INILoot}" "${Cursor.Name.Left[1]}" "${Cursor.Name}" "|Keep"
+	| its int he ini, but its an old entry format so fix it
+	} else /if (!${Ini[${INILoot},"${Cursor.Name.Left[1]}","${Cursor.Name}"].Count[|]}) {
+		VOUT Fixing Loot: ${Cursor.Name}
+		/ini "${INILoot}" "${Cursor.Name.Left[1]}" "${Cursor.Name}" |${Ini[${INILoot},"${Cursor.Name.Left[1]}","${Cursor.Name}"]}
+	}		
+	
+	| wtf we gotta do with the item?
+	/if (${Cursor.ID}) /varset _cursorChoice ${Ini[${INILoot},"${Cursor.Name.Left[1]}","${Cursor.Name}"].Arg[1,|]}
 
-		/if (${Bool[${autoInventoryItem.Find[${Cursor.Name}]}]} || ${Select[${_cursorChoice},Keep,Sell,Announce]}) {
-			/if (${Select[${_cursorChoice},Announce]}) ECHOCHANNEL - Cursor .. ${Cursor.Name}
-			/if (${Cursor.ID}) VOUT Cursor ${sep} ${okeep} ${sep} ${cinfo}${Cursor.Name}\ax ${sep} (${cnum}${FindItemCount[=${Cursor.Name}]}\ax)
-			/if (${Cursor.ID}) /nomodkey /autoinventory
-		} else /if (${Select[${_cursorChoice},Destroy]}) {
-			/if (${Cursor.ID}) VOUT Cursor ${sep} ${odestroy} ${sep} ${cinfo}${Cursor.Name}\ax
-			/if (${Cursor.ID} && ${_cursorChoice.Equal[Destroy]}) /nomodkey /destroy
-		} else /if (${Select[${_cursorChoice},Leave]}) {
-			/if (${Cursor.ID}) VOUT Cursor ${sep} ${oleave} ${sep} ${cinfo}${Cursor.Name}\ax
-			/if (${Cursor.ID} && ${_cursorChoice.Equal[Leave]}) /nomodkey /drop
-		} else /if (${Select[${_cursorChoice},Ignore]}) {
-			/break
-		}
-		/delay 1
-	} 
-	/if (${swAutoCursor}) /call timer_update timer_clear_cursor ${tClear_Cursor}
+	| do the things that we do best
+	/if (${autoInventoryItem.Find[${Cursor.Name}]} || ${Select[${_cursorChoice},Keep,Sell,Announce]}) {
+		/if (${Select[${_cursorChoice},Announce]}) ECHOCHANNEL - Cursor .. ${Cursor.Name}
+		/if (${Cursor.ID}) VOUT Cursor ${sep} ${okeep} ${sep} ${cinfo}${Cursor.Name}\ax ${sep} (${cnum}${FindItemCount[=${Cursor.Name}]}\ax)
+		/if (${Cursor.ID}) /nomodkey /autoinventory
+	} else /if (${Select[${_cursorChoice},Destroy]}) {
+		/if (${Cursor.ID}) VOUT Cursor ${sep} ${odestroy} ${sep} ${cinfo}${Cursor.Name}\ax
+		/if (${Cursor.ID} && ${_cursorChoice.Equal[Destroy]}) /nomodkey /destroy
+	} else /if (${Select[${_cursorChoice},Leave]}) {
+		/if (${Cursor.ID}) VOUT Cursor ${sep} ${oleave} ${sep} ${cinfo}${Cursor.Name}\ax
+		/if (${Cursor.ID} && ${_cursorChoice.Equal[Leave]}) /nomodkey /drop
+	} else /if (${Select[${_cursorChoice},Ignore]}) {
+		/break
+	}
+
+	/if (${swAutoCursor}) {
+		/call timer_update timer_clear_cursor ${tClear_Cursor}
+	}
 /return
 
 
@@ -2861,6 +2863,7 @@ sub set_tie()
 
 		/if (${Navigation.MeshLoaded}) {
 			/if (!${Navigation.Active} && ${Spawn[pc ${setTieToon}].Distance} > ${setTieDistance}) {
+				/if (${Target.ID}) /squelch /target clear
 				/squelch /face ID ${Spawn[pc ${setTieToon}].ID} ${If[${swFaceFast},fast,]}
 				/squelch /nav spawn pc ${setTieToon}
 		
@@ -2881,6 +2884,7 @@ sub set_tie()
 	} else /if (${setTieMode.Equal[stick]}) {
 		| all present and or accounted for SIR!
 		/if (${Spawn[pc ${setTieToon}].Distance} > ${setTieDistance}) {
+			/if (${Target.ID}) /squelch /target clear
 			/squelch /face ID ${Spawn[pc ${setTieToon}].ID} ${If[${swFaceFast},fast,]}
 			/squelch /stick ID ${Spawn[pc ${setTieToon}].ID} ${setTieDistance} UW
 		}
@@ -4898,7 +4902,7 @@ sub last_supper()
 	| summon food
 	/if (${Bool[${FoodDispenser}]}) {
 		/if (${FindItemCount[=${Food}]} < ${FoodCount}) {
-			/if (${validate_cast[FALSE, item, "${FoodDispenser}", ${Me.ID}]}) /call core_cast2 "${FoodDispenser}" item ${Me.ID} FALSE
+			/if (${validate_cast[FALSE, item, "${FoodDispenser}", ${Me.ID}]}) /call core_cast2 "${FoodDispenser}" item 0 FALSE
 			CLEARCURSOR TRUE
 		}		
 	}
@@ -4906,7 +4910,7 @@ sub last_supper()
 	| summon drink
 	/if (${Bool[${DrinkDispenser}]}) {
 		/if (${FindItemCount[=${Drink}]} < ${DrinkCount}) {
-			/if (${validate_cast[FALSE, item, "${DrinkDispenser}", ${Me.ID}]}) /call core_cast2 "${DrinkDispenser}" item ${Me.ID} FALSE
+			/if (${validate_cast[FALSE, item, "${DrinkDispenser}", ${Me.ID}]}) /call core_cast2 "${DrinkDispenser}" item 0 FALSE
 			CLEARCURSOR TRUE
 		}		
 	}
@@ -7681,13 +7685,13 @@ sub check_health_xtarget()
 
 	/for _count 1 to 13
   	/if (!${Me.XTarget[${_count}].ID}) /continue
+  	/if (${Me.XTarget[${_count}].Dead}) /continue
   	/if (${Me.XTarget[${_count}].PctHPs} > ${hurtPctHP}) /continue
   	/if (${Me.XTarget[${_count}].Distance} > ${setMobAgro}) /continue
 		/if (${Me.XTarget[${_count}].DisplayName.Equal[${RampageTank}]}) /continue
 		/if (${lstNoHeal.Find[${Me.XTarget[${_count}].DisplayName}]}) /continue
   	/if (!${Me.XTarget[${_count}].Type.Equal[PC]} && !${ProtectNPCList.Find[${Me.XTarget[${_count}].DisplayName}]}) /continue
 		/if (${Me.XTarget[${_count}].PctHPs} > ${${Me.XTarget[${_count}].Class.ShortName}Point}*.${tmpHealOverride}) /continue
-		/if (!${Me.XTarget[${_count}].Dead} && ${Me.XTarget[${_count}].PctHPs} <= ${hurtPctHP}) {
 
 		/varset hurtIndex ${_count}
 		/varset hurtPctHP ${Me.XTarget[${_count}].PctHPs}

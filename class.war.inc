@@ -20,10 +20,9 @@ sub core_WAR()
 
 	/while (${prep_combat[]}) {
 		CHECKINPUTS
-		/if (${exit_class_loop[]}) /return
-
 		/if (${swHealSelf}) /call patch_heal_${Me.Class.ShortName}
 		/if (${swHealCure}) /call cast_cure
+		/if (${exit_class_loop[]}) /return
 
 		/if (${isValidTarget}) {
 			/call set_combat ${combat.Upper}
@@ -58,8 +57,7 @@ sub disc_WAR()
 	AMIDEAD
 
 	CHECKINPUTS
-	/call check_exit TRUE
-	/if (${Bool[${Macro.Return}]}) /return
+	/if (${check_exit[]}) /return
 	/if (${is_target_dead[${Target2Kill}]}) /return
 	
 	/if (${swAgro}) /call get_agro_${Me.Class.ShortName}
@@ -161,9 +159,7 @@ sub burn_WAR()
 	AMIDEAD
 
 	CHECKINPUTS
-	/call check_exit
-	/if (${Bool[${Macro.Return}]}) /return	
-	
+	/if (${check_exit[]}) /return	
 	
 	/if (${validate_cast[FALSE, disc, "${DiscAttention}", ${Me.ID}]}) /call core_cast2 "${DiscAttention}" disc ${Target2Kill} FALSE
 	/if (${validate_cast[FALSE, disc, "${DiscPhantom}", ${Me.ID}]} && ${Me.TargetOfTarget.Name.NotEqual[${Me.DisplayName}]}) /call core_cast2 "${DiscPhantom}" disc ${Target2Kill} FALSE

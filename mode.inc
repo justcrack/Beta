@@ -201,13 +201,13 @@ sub mode_skill_train(string _skilltype)
 	
 	AMIDEAD
 	UPDATEHUD "Skill Train"
+	/delay 1
 
-
-	| /if (${Me.Skill[Taunt]} < ${Skill[Taunt].SkillCap} && ${Me.AbilityReady[Taunt]}) /doability Taunt
-	| /if (${Me.Skill[Disarm]} < ${Skill[Disarm].SkillCap} && ${Me.AbilityReady[Disarm]}) /doability Disarm
-	| /if (${Me.Skill[Bash]} < ${Skill[Bash].SkillCap} && ${Me.AbilityReady[Bash]}) /doability Bash
-	| /if (${Me.Skill[Kick]} < ${Skill[Kick].SkillCap} && ${Me.AbilityReady[Kick]}) /doability Kick
-	| /if (${Me.Skill[Sneak]} < ${Skill[Sneak].SkillCap} && ${Me.AbilityReady[Sneak]}) /doability sneak
+	/if (${Me.Skill[Taunt]} < ${Skill[Taunt].SkillCap} && ${Me.AbilityReady[Taunt]}) /doability Taunt
+	/if (${Me.Skill[Disarm]} < ${Skill[Disarm].SkillCap} && ${Me.AbilityReady[Disarm]}) /doability Disarm
+	/if (${Me.Skill[Bash]} < ${Skill[Bash].SkillCap} && ${Me.AbilityReady[Bash]}) /doability Bash
+	/if (${Me.Skill[Kick]} < ${Skill[Kick].SkillCap} && ${Me.AbilityReady[Kick]}) /doability Kick
+	/if (${Me.Skill[Sneak]} < ${Skill[Sneak].SkillCap} && ${Me.AbilityReady[Sneak]}) /doability sneak
 	
 	/if (${Target.ID} && ${Target.ID} != ${Me.ID}) {
 		/if (${Me.Skill[Begging]} < ${Skill[Begging].SkillCap} && ${Me.AbilityReady[Begging]}) /doability begging
@@ -240,7 +240,6 @@ sub mode_fish()
 	/if (${Me.ItemReady[Fisherman's Companion]} && !${Me.ItemReady[Brell's Fishin' Pole]}) {
 		/if (${Me.Invis}) /docommand /makemevisable
 		/if (${validate_cast[FALSE, item, "Fisherman's Companion", ${Me.ID}]}) /call core_cast2 "Fisherman's Companion" item ${Me.ID}
-		CLEARCURSOR TRUE
 	}
 	/if (${Me.AbilityReady[fishing]}) /doability fishing
 	UPDATEHUD FALSE

@@ -99,7 +99,7 @@ sub pregen_environment()
 	/call sql_control FALSE environment swDisableMQ2Melee								bool			outer TRUE
 	/call sql_control FALSE environment swXpacControl										bool			outer TRUE
 	/call sql_control FALSE environment swBuffGemHold										bool			outer TRUE
-	/call sql_control FALSE environment setMQFontSize										int				outer 2
+	/call sql_control FALSE environment setMQFontSize										int				outer 3
 	/call sql_control FALSE environment swMQCaptions										bool			outer off
 	/call sql_control FALSE environment swAutoAssist										bool			outer off
 	/call sql_control FALSE environment setMaxBuffCount									int				outer 10
@@ -1849,7 +1849,7 @@ sub pregen_PAL()
 	/call setDeclare PALEpic1																						string		outer "Fiery Defender"
 	/call setDeclare PALEpic15																					string		outer "Heartwood Blade"
 	/call setDeclare PALEpic2																						string		outer "Nightbane, Sword of the Valiant"
-	/call sql_control FALSE PAL NECAlliance															string		outer "Holy Alliance"
+	/call sql_control FALSE PAL PALAlliance															string		outer PREGENDATA
 	/call setDeclare PALAAUnity																					string		outer "Divine Protector's Unity"
 	/call setDeclare PALAAFade																					string		outer "Balefire Burst"
 	
@@ -2014,7 +2014,7 @@ sub pregen_RNG()
 	/call setDeclare RNGEpic1																						string		outer "Earthcaller"
 	/call setDeclare RNGEpic15																					string		outer "Heartwood Blade"
 	/call setDeclare RNGEpic2																						string		outer "Aurora, the Heartwood Blade"
-	/call sql_control FALSE RNG RNGAlliance															string		outer "Bosquestalker's Alliance"
+	/call sql_control FALSE RNG RNGAlliance															string		outer PREGENDATA
 	/call setDeclare RNGAAUnity																					string		outer "Wildstalker's Unity (${unityType})"
 	/call setDeclare RNGAAFade																					string		outer "Cover Tracks"
 	
@@ -2100,7 +2100,7 @@ sub pregen_ROG()
 	/call setDeclare ROGEpic1																						string		outer "Ragebringer"
 	/call setDeclare ROGEpic15																					string		outer "Fatestealer"
 	/call setDeclare ROGEpic2																						string		outer "Nightshade, Blade of Entropy"
-	/call sql_control FALSE ROG ROGAlliance															string		outer "Poisonous Alliance"
+	/call sql_control FALSE ROG ROGAlliance															string		outer PREGENDATA
 	/call setDeclare ROGAAUnity																					string		outer FALSE
 	/call setDeclare ROGAAFade																					string		outer "Escape"
 	
@@ -2111,32 +2111,32 @@ sub pregen_ROG()
 	/call timer_set FALSE tClick_Poison																	string		outer 30s 	timer_click_poison
 	/call sql_control FALSE ROG AEMelee					 												bool	 		outer FALSE
                                              		
-	/call sql_control FALSE MNK DiscDicho																string		outer "Dichotomic Weapons"
+	/call sql_control FALSE MNK DiscDicho																string		outer PREGENDATA
 	/call sql_control FALSE ROG DiscRest				 												string 		outer PREGENDATA
-	/call sql_control FALSE ROG DiscAggro 															string 		outer "Disorientation"
-	/call sql_control FALSE ROG DiscAssault 														string 		outer "Barrage"
-	/call sql_control FALSE ROG DiscBleed 															string 		outer "Hack"
-	/call sql_control FALSE ROG DiscPlay	 															string 		outer "Knifeplay Discipline"
-	/call sql_control FALSE ROG DiscPhantom															string 		outer "Phantom Assassin"
-	/call sql_control FALSE ROG DiscHack																string 		outer "Jugular Hack"
-	/call sql_control FALSE ROG DiscHiddenBlade													string 		outer "Hidden Blade"
-	/call sql_control FALSE ROG DiscBladePoison													string 		outer "Reefcrawler Blade"
-	/call sql_control FALSE ROG DiscSneakAttack													string 		outer "Daggergash"
-	/call sql_control FALSE ROG DiscShadowHunter												string 		outer "Shadow-Hunter's Dagger"
-	/call sql_control FALSE ROG DiscDisassociative											string 		outer "Disassociative Puncture"
-	/call sql_control FALSE ROG DiscAspBleeder													string 		outer "Aceleus Discipline"
-	/call sql_control FALSE ROG DiscBlinding														string 		outer "Blinding Brilliance"
+	/call sql_control FALSE ROG DiscAggro 															string 		outer PREGENDATA
+	/call sql_control FALSE ROG DiscAssault 														string 		outer PREGENDATA
+	/call sql_control FALSE ROG DiscBleed 															string 		outer PREGENDATA
+	/call sql_control FALSE ROG DiscPlay	 															string 		outer PREGENDATA
+	/call sql_control FALSE ROG DiscPhantom															string 		outer PREGENDATA
+	/call sql_control FALSE ROG DiscHack																string 		outer PREGENDATA
+	/call sql_control FALSE ROG DiscHiddenBlade													string 		outer PREGENDATA
+	/call sql_control FALSE ROG DiscBladePoison													string 		outer PREGENDATA
+	/call sql_control FALSE ROG DiscSneakAttack													string 		outer PREGENDATA
+	/call sql_control FALSE ROG DiscShadowHunter												string 		outer PREGENDATA
+	/call sql_control FALSE ROG DiscDisassociative											string 		outer PREGENDATA
+	/call sql_control FALSE ROG DiscAspBleeder													string 		outer PREGENDATA
+	/call sql_control FALSE ROG DiscBlinding														string 		outer PREGENDATA
                                              		
 	| disable for burn                         		
-	/call sql_control FALSE ROG DiscVision 															string 		outer "Thief's Vision"
+	/call sql_control FALSE ROG DiscVision 															string 		outer PREGENDATA
                                              		
 	| burn                                     		
 	/call sql_control FALSE ROG DiscPinPoint 														string 		outer "Pinpoint Deficiencies"
-	/call sql_control FALSE ROG DiscMark 																string 		outer "Wide-Eyed Mark"
-	/call sql_control FALSE ROG DiscEradicator 													string 		outer "Executioner Discipline"
-	/call sql_control FALSE ROG DiscRazor 															string 		outer "Razor's Edge Discipline"
-	/call sql_control FALSE ROG DiscFrenzy 															string 		outer "Frenzied Stabbing Discipline"
-	/call sql_control FALSE ROG DiscTwistedChance												string 		outer "Twisted Chance Discipline"
+	/call sql_control FALSE ROG DiscMark 																string 		outer PREGENDATA
+	/call sql_control FALSE ROG DiscEradicator 													string 		outer PREGENDATA
+	/call sql_control FALSE ROG DiscRazor 															string 		outer PREGENDATA
+	/call sql_control FALSE ROG DiscFrenzy 															string 		outer PREGENDATA
+	/call sql_control FALSE ROG DiscTwistedChance												string 		outer PREGENDATA
                                              		              				        	
 	/call sql_control FALSE ROG TwistedShank														string 		outer "Twisted Shank"
 	/call sql_control FALSE ROG AbsorbingAgent													string 		outer "Absorbing Agent"
@@ -2334,7 +2334,7 @@ sub pregen_SHM()
 	/call sql_control FALSE SHM RandRezDelay														int 			outer 10
                                           		
   /call sql_control FALSE SHM healSurge																string 		outer "Spiritual Surge"
-  /call sql_control FALSE SHM healMain																	string 		outer "Krasir's Mending"
+  /call sql_control FALSE SHM healMain																string 		outer "Krasir's Mending"
   /call sql_control FALSE SHM healIntervention1												string 		outer "Historian's Intervention"
   /call sql_control FALSE SHM healReckless1														string 		outer "Reckless Regeneration"
   /call sql_control FALSE SHM healReckless2														string 		outer FALSE
@@ -2390,7 +2390,7 @@ sub pregen_WAR()
 	/call setDeclare WAREpic1																						string		outer "Jagged Blade of War"
 	/call setDeclare WAREpic15																					string		outer "Champion's Sword of Eternal Power"
 	/call setDeclare WAREpic2																						string		outer "Kreljnok's Sword of Eternal Power"
-	/call sql_control FALSE WAR WARAlliance															string		outer FALSE
+	/call sql_control FALSE WAR WARAlliance															string		outer PREGENDATA
 	/call setDeclare WARAAUnity																					string		outer FALSE
 	/call setDeclare WARAAFade																					string		outer FALSE
 	

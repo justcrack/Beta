@@ -704,11 +704,16 @@ sub check_heal_ward()
 		/if (!${check_ready[spell, "${healWard}"]}) /return
 
 		| me?
-		/if (${_wardToon.Equal[${Me.DisplayName}]} && !${Me.Song[${healWard}].ID}) {
-			/if (${validate_cast[FALSE, spell, "${healWard}", ${Me.ID}]}) /call core_cast2 "${healWard}" 0 ${Me.ID} FALSE
-			/return
+		/if (${swBuffSelf}) {
+			/if (${_wardToon.Equal[${Me.DisplayName}]} && !${Me.Song[${healWard}].ID}) {
+				/if (${validate_cast[FALSE, spell, "${healWard}", ${Me.ID}]}) /call core_cast2 "${healWard}" 0 ${Me.ID} FALSE
+				/return
+			}
 		}
 
+		| get out if not buffing others
+		/if (!${swBuffBC}) /return
+		
 		| not here?
 		/if (!${Spawn[pc ${_wardToon}].ID}) /continue 
 		
