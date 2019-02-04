@@ -127,12 +127,12 @@ sub check_harvest()
 	/if (${Me.Buff[Improved Twincast].ID} || ${Me.Buff[${TwincastSpell}].ID}) /return
 
 	/if (${switchGather}) {
-		/if (!${Me.SpellReady[${Spell[GatherSpell].RankName}]}) {
+		/if (!${Me.SpellReady[${Spell[${GatherSpell}].RankName}]}) {
 			/if (${validate_cast[FALSE, alt, "Forceful Rejuvenation", ${Me.ID}]}) /call core_cast2 "Forceful Rejuvenation" alt 0 FALSE
 			/delay 5			
 		}
 		/if (${Me.PctMana} < ${GatherPercent}*.${tmpHealOverride}) {
-			/if (${Me.SpellReady[${Spell[GatherSpell].RankName}]}) {
+			/if (${Me.SpellReady[${Spell[${GatherSpell}].RankName}]}) {
 				/if (${validate_cast[FALSE, spell, "${GatherSpell}", ${Me.ID}]}) /call core_cast2 "${GatherSpell}" 0 0 FALSE
 			}
 			/if (${Me.AltAbilityReady[Harvest of Druzzil]}) {

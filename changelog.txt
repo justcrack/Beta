@@ -29,7 +29,26 @@ Plugins Required: MQ2Cast, MQ2Exchange, MQ2MoveUtils, MQ2Debuffs, MQ2DanNet, MQ2
 
 
 
-   
+BETA 0204.01
+- new mode /mode summon
+  -- will summon your corpse in lobby
+      - need to be in the lobby
+      - need to have plat
+      - helps to have a corpse somewhere or you will waste that plat
+      - moves you to the NPCs needed, buys the items, gives to summoner and then ends the mode
+      - thats it
+- squelched a couple (read that as a lot) assist/target commands
+- adjustment to the burn checks. should not fire at all when no mobs in range and on auto
+- more adjustments to the spell ranks for discs
+- /mode petfarm and scorch
+  -- fixed a spawnsort calculation issue
+- class.wiz.inc
+  -- correct a rank issue in the gather routine
+- class.war.inc
+  -- removed some unwanted $'s
+- class.shm.inc     
+  -- adjusted the canni routine a bit more.
+ 
    
 BETA 0202.02
 - core.pregen.ini
@@ -47,8 +66,6 @@ BETA 0202.02
   -- correct the spell rank issue with canni
 - class.wiz.inc
   -- correcte the rank issue for harvest spell     
-
-
 
 
 BETA 0202.01

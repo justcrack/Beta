@@ -117,6 +117,7 @@ sub do_mode()
 	/if (${swModeOpen} && !${timer_mode_open}) /call mode_open
 	/if (${swModeSkill}) /call mode_skill_train
 	/if (${swModeCollect}) /call mode_collect
+	/if (${swModeSummon}) /call mode_summon
 
 /return
 
@@ -161,11 +162,11 @@ sub mode_get_mob()
 	| at the mob, do something about it		
 	} else /if (${Spawn[${Target2Kill}].LineOfSight} && ${Spawn[${Target2Kill}].Distance} <= ${setMobAgro}) {
 		/squelch /face ID ${Target2Kill} nolook ${If[${swFaceFast},fast,]}
-		/target ID ${Target2Kill}
+		/squelch /target ID ${Target2Kill}
 	}
 					
 	/if (${Spawn[${Target2Kill}].Distance} < ${setMobAgro} && ${Spawn[${Target2Kill}].Distance} > 31) {
-		/target ID ${Target2Kill}
+		/squelch /target ID ${Target2Kill}
 		/if (${Me.Pet.ID} && !${Me.Pet.Target.ID}) /pet attack
 		/if (${Target.ID} && ${Spawn[${Target2Kill}].LineOfSight}) /range
 	} else /if (${Spawn[${Target2Kill}].Distance} < ${setCombatDistance}) {
@@ -216,7 +217,7 @@ sub mode_skill_train(string _skilltype)
 	| Bind Wounds
 	/if (${Me.AbilityReady[Bind Wound]} && ${FindItem[=Bandages].ID}) {
 		/if (${Me.Skill[Bind Wound]} < ${Skill[Bind Wound].SkillCap} && ${Me.PctHPs} < 99*.${tmpHealOverride}) {
-			/target ID ${Me.ID}
+			/squelch /target ID ${Me.ID}
 		  /delay 3s ${Target.ID} == ${Me.ID}
 			/delay 2s
 			/doability "Bind Wound"
@@ -284,7 +285,7 @@ sub mode_drag()
 
 			/varset _corpseID ${NearestSpawn[${_count},pccorpse radius 110].ID}
 			/if (${Spawn[${_corpseID}].Distance} > 15) {
-				/target id ${_corpseID}
+				/squelch /target id ${_corpseID}
 				/delay 5 ${Target.ID} == ${_corpseID}
 				/corpse
 			}
@@ -359,7 +360,6 @@ sub mode_petfarm()
 	UPDATEHUD "Pet Farm"
 	:loopfindmob
 	/doevents
-	/if (!${swModePetfarm}) /return
 	/if (!${Select[${Me.Class.ShortName},MAG,ENC,NEC,BST,SHD,SHM,RNG,DRU]} || (${SafeZone} && !${swOverrideSafeZone})) {
 		/call echos failboat 0 0 0 0
 		/call switch_clear_mode
@@ -370,16 +370,16 @@ sub mode_petfarm()
 	
 	/if (${Select[${Me.Class.ShortName},MAG]} && ${switchHealPet}) /call pet_heal_MAG
 
-	/if (${SpawnCount[npc ${If[${swOverrideLOS},,los]} radius ${setMobAgro} setzradius ${setzradius} targetable]}) {
-		/varset _spawnCount ${SpawnCount[npccorpse ${If[${swOverrideLOS},,los]} radius ${setMobAgro} setzradius ${setzradius}]}	
-		/varset Target2Kill ${Spawn[${NearestSpawn[1, ${If[${swOverrideLOS},,los]} npc radius ${setMobAgro} setzradius ${setzradius} targetable]}].ID}
+	/if (${SpawnCount[npc ${If[${swOverrideLOS},,los]} radius ${setMobAgro} zradius ${setzradius} targetable]}) {
+		/varset _spawnCount ${SpawnCount[npc ${If[${swOverrideLOS},,los]} radius ${setMobAgro} zradius ${setzradius}]}	
+		/varset Target2Kill ${Spawn[${NearestSpawn[1, ${If[${swOverrideLOS},,los]} npc radius ${setMobAgro} zradius ${setzradius} targetable]}].ID}
 
 		| skip excluded mobs
 		:loopnamedmob
 		/if (${ExcludeList.Find[${Spawn[id ${Target2Kill}].DisplayName}]})	{
 			/varcalc _nameloop ${_nameloop}+1
 			/if (${_spawnCount} > 1) {
-				/varset Target2Kill ${Spawn[${NearestSpawn[${_nameloop}, ${If[${swOverrideLOS},,los]} npc radius ${setMobAgro} setzradius ${setzradius} targetable]}].ID}
+				/varset Target2Kill ${Spawn[${NearestSpawn[${_nameloop}, ${If[${swOverrideLOS},,los]} npc radius ${setMobAgro} zradius ${setzradius} targetable]}].ID}
 
 				/goto :loopnamedmob
 			} else {
@@ -410,7 +410,7 @@ sub mode_petfarm()
 	
 	:gettarget
 	/doevents
-	/target ID ${Target2Kill}
+	/squelch /target ID ${Target2Kill}
 	/if (!${ExcludeList.Find[${Spawn[id ${Target2Kill}].DisplayName}]}) {
 		/if (!${Pet.Target.ID}) {
 			/delay 5
@@ -480,11 +480,11 @@ sub mode_scorched_earth()
 		
 		| find something in our local range first
 		/while (${_tmpRange} <= ${setMobAgro} && !${Target2Kill}) {
-			/if (${SpawnCount[npc ${If[${swOverrideLOS},,los]} range ${setMobLvlMin} ${setMobLvlMax} radius ${_tmpRange} setzradius ${setzradius} targetable]}) {
-				/for _count 1 to ${SpawnCount[npc ${If[${swOverrideLOS},,los]} range ${setMobLvlMin} ${setMobLvlMax} radius ${_tmpRange} setzradius ${setzradius} targetable]}
+			/if (${SpawnCount[npc ${If[${swOverrideLOS},,los]} range ${setMobLvlMin} ${setMobLvlMax} radius ${_tmpRange} zradius ${setzradius} targetable]}) {
+				/for _count 1 to ${SpawnCount[npc ${If[${swOverrideLOS},,los]} range ${setMobLvlMin} ${setMobLvlMax} radius ${_tmpRange} zradius ${setzradius} targetable]}
 					AMIDEAD
 					/if (!${ExcludeList.Find[${Spawn[id ${_tmpID}].DisplayName}]}) {
-						/varset _tmpID ${NearestSpawn[${_count}, npc ${If[${swOverrideLOS},,los]} range ${setMobLvlMin} ${setMobLvlMax} radius ${_tmpRange} setzradius ${setzradius} targetable].ID}
+						/varset _tmpID ${NearestSpawn[${_count}, npc ${If[${swOverrideLOS},,los]} range ${setMobLvlMin} ${setMobLvlMax} radius ${_tmpRange} zradius ${setzradius} targetable].ID}
 					}
 			
 				/next _count
@@ -833,7 +833,6 @@ sub mode_trainspell(string _type)
 	UPDATEHUD "Train Spell"
 	
 	/if (${_type.Equal[specialize]} && !${swModeTrainspellSPC}) {
-		| /echo specialize
 		/varset swModeTrainspellSPC TRUE
 	}
 
@@ -885,7 +884,7 @@ sub mode_open(string _type)
 
 	/if (${SpawnCount[${modeOpenItem} npc radius 20]}) {
 		/varset _tmpID ${Spawn[${modeOpenItem} npc radius 20].ID}
-		/target ID ${_tmpID}
+		/squelch /target ID ${_tmpID}
 		/if (${Target.Dead}) /return
 		/delay 2s ${Target.ID} == ${_tmpID}
 		/open
@@ -895,3 +894,102 @@ sub mode_open(string _type)
 
 	UPDATEHUD FALSE
 /return
+
+
+
+|***
+ *	DES: summons a corpse in lobby
+ *	USE: /call mode_summon | /mode summon
+ *  NOTE: 
+ ***|
+sub mode_summon(string _type)
+
+	UPDATEHUD "Summon Corpse"
+
+	| set stone to buy
+	/declare _soulstone string local
+	/if (${Me.Level} <= 110) /varset _soulstone Draconic Soulstone
+	/if (${Me.Level} <= 105) /varset _soulstone	Torrential Soulstone
+	/if (${Me.Level} <= 100) /varset _soulstone	Coalescent Soulstone
+	/if (${Me.Level} <= 95) /varset _soulstone Luminous Soulstone
+	/if (${Me.Level} <= 90)	/varset _soulstone Phantasmal Soulstone
+	/if (${Me.Level} <= 85)	/varset _soulstone Iridescent Soulstone
+	/if (${Me.Level} <= 80)	/varset _soulstone Prismatic Soulstone
+	/if (${Me.Level} <= 75)	/varset _soulstone Glowing Soulstone
+	/if (${Me.Level} <= 70)	/varset _soulstone Pristine Soulstone
+	/if (${Me.Level} <= 55)	/varset _soulstone Faceted Soulstone
+	/if (${Me.Level} <= 50)	/varset _soulstone Greater Soulstone
+	/if (${Me.Level} <= 40)	/varset _soulstone Soulstone
+	/if (${Me.Level} <= 30)	/varset _soulstone Lesser Soulstone
+	/if (${Me.Level} <= 20)	/varset _soulstone Minor Soulstone
+
+	:start
+
+	| in the lobby?
+	/if (${Zone.ShortName.NotEqual[GuildLobby]}) /goto :bailmode
+
+	| do we need to buy a stone?
+  /if (!${FindItem[${_soulstone}].ID}) {
+
+		/nav spawn npc A Disciple of Luclin
+
+		:priestinventory
+			/delay 10s ${Navigation.Active}
+			/delay 1s
+			/squelch /target A Disciple of Luclin
+			/delay 1s
+			/nomodkey /click right target
+			/delay 5s ${Window[MerchantWnd].Open}
+			/if (!${Window[MerchantWnd].Open}) /goto :priestinventory
+		
+		/delay 1s
+		/call vendor_buy "${_soulstone}" 1
+
+		:closepriestinventory
+			/nomodkey /notify MerchantWnd MW_Done_Button LeftMouseUp
+			/delay 10
+			/if (${Window[MerchantWnd].Open}) /goto :closepriestinventory
+  }
+
+	/if (!${FindItem[${_soulstone}].ID}) /goto :start
+
+	| move to rezer
+  /nav spawn npc A Priest of Luclin
+  /delay 10s ${Navigation.Active}
+
+	| get stone on cursor
+  /itemnotify "${_soulstone}" leftmouseup
+  /delay 5
+
+	:givetopriest
+	  /squelch /target A Priest of Luclin
+	  /delay 5
+	  /nomodkey /click left target
+	  /delay 5
+	  /delay 5s ${Window[GiveWnd].Open}
+	  /if (!${Window[GiveWnd].Open}) /goto :givetopriest
+		/if (${Window[GiveWnd].Open}) {
+			/notify GiveWnd GVW_Give_Button leftmouseup
+			/delay 3s
+			/if (${Window[GiveWnd].Open}) /goto :GiveSoulStone
+		}
+
+	:CloseInvWnd
+		/if (${Window[InventoryWindow].Open}) {
+			/nomodkey /notify InventoryWindow IW_DoneButton LeftMouseUp
+			/delay 5
+			/if (${Window[InventoryWindow].Open}) /goto :CloseInvWnd
+		}
+
+
+  /if (${Window[InventoryWindow].Open}) /nomodkey /notify InventoryWindow IW_DoneButton LeftMouseUp
+  /delay 5
+
+	:bailmode
+	/squelch /target clear
+	/varset swModeSummon FALSE
+
+	UPDATEHUD FALSE
+
+/return
+

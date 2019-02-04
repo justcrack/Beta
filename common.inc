@@ -173,7 +173,7 @@ sub check_engaged()
  ***|
 sub give_to_pet()
 	/if (${Target.ID} != ${Me.Pet.ID}) {
-		/target ID ${Me.Pet.ID}
+		/squelch /target ID ${Me.Pet.ID}
 		/delay 1s ${Target.ID} == ${Me.Pet.ID}
 	}
 	:loopgiveitem
@@ -1593,7 +1593,7 @@ sub get_assist_target()
 					/varset Target2Kill ${Me.XTarget[1].ID}
 					/delay 1
 					/if (${Spawn[id ${Target2Kill}].Distance} <= ${setMobAgro} && ${Target.ID} != ${Target2Kill}) {
-						/if (${swCombatMelee} || ${swCombatRange} || ${swCombatNuke} || ${swCombatDoT}) /target ID ${Target2Kill}
+						/if (${swCombatMelee} || ${swCombatRange} || ${swCombatNuke} || ${swCombatDoT}) /squelch /target ID ${Target2Kill}
 					}
 					/return
 				}
@@ -1606,7 +1606,7 @@ sub get_assist_target()
 					/varset Target2Kill ${Me.XTarget[1].ID}
 					/delay 1
 					/if (${Spawn[id ${Target2Kill}].Distance} <= ${setMobAgro} && ${Target.ID} != ${Target2Kill}) {
-						/if (${swCombatMelee} || ${swCombatRange} || ${swCombatNuke} || ${swCombatDoT}) /target ID ${Target2Kill}
+						/if (${swCombatMelee} || ${swCombatRange} || ${swCombatNuke} || ${swCombatDoT}) /squelch /target ID ${Target2Kill}
 					}
 					/return
 				}	
@@ -1621,7 +1621,7 @@ sub get_assist_target()
 	/if (${SpawnCount[npc radius ${setMobAgro}]} && (${Bool[${setMA1}]} || ${Bool[${setMA2}]})) {
 		| setMA1
 		/if (${Bool[${setMA1}]} && ${Bool[${Spawn[${setMA1}].ID}]} && !${Bool[${Spawn[${setMA1}].Dead}]}) {
-			/if (${swCombatMelee} || ${swCombatRange} || ${swCombatNuke} || ${swCombatDoT}) /assist ${setMA1}
+			/if (${swCombatMelee} || ${swCombatRange} || ${swCombatNuke} || ${swCombatDoT}) /squelch /assist ${setMA1}
 			/delay 1s ${Me.AssistComplete}
 			| /if (!${Target2Kill} && ${Target.ID} && ${Spawn[${Target.ID}].Type.Equal[npc]}) {
 			/if (!${Target2Kill} && ${Target.ID}) {
@@ -1634,7 +1634,7 @@ sub get_assist_target()
 	
 		| setMA2
 		} else /if (${Bool[${setMA2}]} && ${Bool[${Spawn[${setMA2}].ID}]} && !${Bool[${Spawn[${setMA2}].Dead}]} && (!${Bool[${Spawn[${setMA1}].ID}]} || ${Bool[${Spawn[${setMA1}].Dead}]})) {
-			/if (${swCombatMelee} || ${swCombatRange} || ${swCombatNuke} || ${swCombatDoT}) /assist ${setMA2}
+			/if (${swCombatMelee} || ${swCombatRange} || ${swCombatNuke} || ${swCombatDoT}) /squelch /assist ${setMA2}
 			/delay 1s ${Me.AssistComplete}
 			| /if (!${Target2Kill} && ${Target.ID} && ${Spawn[${Target.ID}].Type.Equal[npc]}) {
 			/if (!${Target2Kill} && ${Target.ID}) {
@@ -1666,7 +1666,7 @@ sub get_assist_target()
 		
 		/if (${Spawn[${Target2Kill}].ID}) {
 			/if (${Target.ID} != ${Target2Kill} && ${Spawn[${Target2Kill}].ID}) {
-				/target ID ${Target2Kill}
+				/squelch /target ID ${Target2Kill}
 			}
  		} else /if (!${Spawn[${Target2Kill}].ID}) {
  		
@@ -2008,7 +2008,7 @@ sub get_target_2kill()
 
 	/if (${is_target_dead[${Target2Kill}]}) /return
 	/if (${Target.ID} != ${Target2Kill} && ${Spawn[id ${Target2Kill}].Distance} <= ${setMobAgro}) {
-		/target ID ${Target2Kill}
+		/squelch /target ID ${Target2Kill}
 	}	
 	| /if (${coreAuto} && ${Target.Distance} > ${setMobAgro}) /call clear_combat
 /return
@@ -2228,7 +2228,7 @@ sub send_pet(int _tmpID)
 		/if (!${validate_target[FALSE, ${Target2Kill}]}) /return
 	}
 
-	/target ID ${Target2Kill}
+	/squelch /target ID ${Target2Kill}
 	
 	/if (${swPet}) {
 		/if (${Me.Pet.ID} && (${Target.PctHPs} <= ${setPetEngagePct} || ${swOverrideEngagePct}) && !${Bool[${Me.Pet.Target}]}) {
@@ -2457,7 +2457,7 @@ sub use_skill_melee(int _tmpID)
 	/if (${is_target_dead[${_tmpID}]}) /return
 	
 	/if (${Target.ID} != ${_tmpID}) {
-		/target ID ${_tmpID}
+		/squelch /target ID ${_tmpID}
 		/delay 5 ${Target.ID} == ${_tmpID}
 	}
 	
@@ -2666,13 +2666,13 @@ sub cast_nuke_GoM(int _tmpID)
 	/if (${Me.SpellReady[${GoMNuke}]}) {
 		/if (${Me.CurrentMana} < ${Spell[${GoMNuke}].Mana} || ${Me.CurrentMana} < 2) /return 
 
-		/target ID ${_tmpID}
+		/squelch /target ID ${_tmpID}
 		/if (!${cast_condition[GoMNukeCondition]}) /return
 		VSPELL GoM ${sep} ${csp}${GoMNuke}\ax ${sep} [${ctar}${Spawn[id ${_tmpID}].DisplayName}\ax]
 		/call MQ2Cast "${Spell[${GoMNuke}].RankName}" gem${Me.Gem[${GoMNuke}]} -targetid|${_tmpID}
 	} else /if (${Me.SpellReady[${GoMNuke2}]}) {
 		/if (${Me.CurrentMana} < ${Spell[${GoMNuke2}].Mana} || ${Me.CurrentMana} < 2) /return 
-		/target ID ${_tmpID}
+		/squelch /target ID ${_tmpID}
 		/if (!${cast_condition[GoMNuke2Condition]}) /return
 		VSPELL GoM Backup ${sep} ${csp}${GoMNuke2}\ax ${sep} [${ctar}${Spawn[id ${_tmpID}].DisplayName}\ax]
 		/call MQ2Cast "${Spell[${GoMNuke2}].RankName}" gem${Me.Gem[${GoMNuke2}]} -targetid|${_tmpID}
@@ -2747,7 +2747,7 @@ sub check_buffs_manual(string _type)
 	
 				| stop what you're doing and get the target
 				/if (${Stick.Active}) /squelch /stick off
-				/target ID ${${_GroupRaid}.Member[${_i}].ID}
+				/squelch /target ID ${${_GroupRaid}.Member[${_i}].ID}
 				/delay 1s ${Target.ID} == ${${_GroupRaid}.Member[${_i}].ID}
 				/delay 1s ${Target.BuffCount}
 				/delay 1s
@@ -3655,14 +3655,14 @@ sub cast_rez(int _tmpID, string _rezAA)
 		/if (!${swRezToken}) {
 			| /if (!${Spawn[pccorpse ${_tmpID}].ID}) /return
 			/delay 5s !${Me.Casting.ID}
-			/target ID ${_tmpID}
+			/squelch /target ID ${_tmpID}
 			/delay 1s ${Target.ID} == ${_tmpID}
 			/if (${validate_cast[FALSE, alt, "${_rezAA}", ${Me.ID}]}) /call core_cast2 "${_rezAA}" alt ${_tmpID} FALSE
 
 		| token rez
 		} else /if (${swRezToken}) {
 			/delay 5s !${Me.Casting.ID}
-			/target ID ${_tmpID}
+			/squelch /target ID ${_tmpID}
 			/delay 1s ${Target.ID} == ${_tmpID}
 			/if (${validate_cast[FALSE, item, "Token of Resurrection", ${Me.ID}]}) /call core_cast2 "Token of Resurrection" item ${_tmpID} FALSE
 		}
@@ -3932,7 +3932,7 @@ sub check_buffs_tell()
 
 	| bards are a pita..
 	/if (${Select[${Me.Class.ShortName},BRD]} && ${Me.Casting.ID}) /call pulse_stop
-	/target ID ${_tmpID}
+	/squelch /target ID ${_tmpID}
 	/delay 5s ${Target.ID} == ${_tmpID}
 	/if (${Target.ID} != ${_tmpID} || !${Target.ID}) /return
 	
@@ -4420,7 +4420,7 @@ sub get_target(bool _debug)
 		}
 	
 		| target the pull
-		/if (${Target.ID} != ${Target2Kill}) /target ID ${Target2Kill}
+		/if (${Target.ID} != ${Target2Kill}) /squelch /target ID ${Target2Kill}
 		
 		/varset _tmpCombatRange ${Spawn[id ${Target2Kill}].MaxRangeTo}
 	}
@@ -4521,7 +4521,7 @@ sub get_target(bool _debug)
 
 	| pet auto send to kill
 	} else /if (${Target2Kill} && ${Spawn[id ${Target2Kill}].Distance} <= ${setMobAgro} && ${Select[${Me.Class.ShortName},MAG,NEC,BST,ENC]}) {
-		/if (${Target.ID} != ${Target2Kill}) /target ID ${Target2Kill}
+		/if (${Target.ID} != ${Target2Kill}) /squelch /target ID ${Target2Kill}
 		/if (${Target.ID} && !${Bool[${Me.Pet.Target}]}) {
 			/squelch /pet attack		
 		}
@@ -4839,7 +4839,10 @@ sub exit_class_loop()
  *  NOTE: we work off establised assist target for non healers only.
  ***|
 sub is_burn_time()
-	/if (${SafeZone} && !${swOverrideSafeZone} && ${coreAuto}) /return FALSE
+	/if (${coreAuto}) {
+		/if (${SafeZone} && !${swOverrideSafeZone}) /return FALSE
+		/if (!${SpawnCount[npc radius ${setMobAgro} playerstate 4]}) /return FALSE
+	}
 	
 	| no raid burning if turned off
 	/if (!${swBurnRaid} && ${Raid.Members}) /return FALSE
@@ -5481,6 +5484,7 @@ sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 	
 	| check disc
 	} else /if (${_type.Equal[disc]}) {
+		/varset _spell ${Spell[${_spell}].RankName}
 		/if (!${Bool[${_spell}]}) /return FALSE
 		/if (!${Me.CombatAbilityReady[${_spell}]}) /return FALSE
 		/if (${Me.CurrentEndurance} < ${Spell[${_spell}].EnduranceCost}) /return FALSE
@@ -5497,6 +5501,7 @@ sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 
 	| check disc that requires running disc slot
 	} else /if (${_type.Equal[activedisc]}) {
+		/varset _spell ${Spell[${_spell}].RankName}
 		/if (${_debug}) OUT ${cbug}validate_cast(error:${_debug}, type:${_type}, name:${_spell}, RunningDisc:${Bool[${Me.ActiveDisc}]})\ax
 		/if (!${Bool[${_spell}]}) /return FALSE
 		/if (${Bool[${Me.ActiveDisc}]}) /return FALSE
@@ -5538,6 +5543,7 @@ sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 
 	| check bard shit.. gotta be difficult..
 	} else /if (${_type.Equal[pulse]}) {
+		/varset _spell ${Spell[${_spell}].RankName}
 		/if (${Me.CurrentMana} < ${Spell[${_spell}].Mana}) /return FALSE
 		/if (${Me.Buff[${_spell}].Duration.Seconds} > 6) /return FALSE
 		/if (${Me.Song[${_spell}].Duration.Seconds} > 6) /return FALSE
@@ -5561,7 +5567,7 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub)
 	| make sure we have our target 
 	/if (${Bool[${_tmpID}]}) {
 		/if (${Target.ID} != ${_tmpID}) {
-			/target ID ${_tmpID}
+			/squelch /target ID ${_tmpID}
 			/delay 1s ${Target.ID} == ${_tmpID}
 		}
 	}
@@ -5579,8 +5585,9 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub)
 		}
 	} 	
 
+
 	| spell
-	/if (!${Select[${_type},alt,item,disc,pulse]}) {
+	/if (!${Select[${_type},alt,item,disc,pulse,epicitem,activedisc]}) {
 		| correct the rank
 		/varset _spell ${Spell[${_spell}].RankName}
 		
@@ -5598,8 +5605,12 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub)
 		| bc output if enabled
 		VBC Spell "${_spell}" ${_tmpID} 0 		
 
+
 	| AA
 	} else /if (${Select[${_type},alt]}) {
+		
+		/if (${Me.BardSongPlaying}) /call pulse_stop
+		
 		/if (${_tmpID} == 0) {
 			VALT AA ${sep} ${csp}${_spell}\ax
 			/call MQ2Cast "${_spell}" alt 
@@ -5611,18 +5622,23 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub)
 		| bc output if enabled
 		VBC Alt "${_spell}" ${_tmpID} 0 
 
+
 	| item
 	} else /if (${Select[${_type},item,epicitem]}) {
+		/if (${Me.BardSongPlaying}) /call pulse_stop
 		/if (${_tmpID} == 0) {
 			VITEM Item ${sep} ${citem}${_spell}\ax
 			/call MQ2Cast "${_spell}" item
 		} else /if (${_tmpID} != 0 && ${Target.ID}) {
-			VITEM Item ${sep} ${citem}${_spell}\ax ${sep} [${ctar}${Spawn[id ${_tmpID}].DisplayName}\ax]
+			VITEM Item ${sep} ${citem}${_spell}\ax ${sep} [${ctar}${Spawn[id ${_tmpID}].DisplayName}\ax]			
 			/call MQ2Cast "${_spell}" item -targetid|${_tmpID}
 		}
 
 	| disc
 	} else /if (${Select[${_type},disc,activedisc]}) {
+		/varset _spell ${Spell[${_spell}].RankName}
+		/if (${Me.BardSongPlaying}) /call pulse_stop
+		/varset _spell ${Spell[${_spell}].RankName}
 		/if (${_tmpID} == 0) VDISC Disc ${sep} ${csp}${_spell}\ax
 		/if (${_tmpID} != 0 && ${Target.ID}) VDISC Disc ${sep} ${csp}${_spell}\ax ${sep} [${ctar}${Spawn[ID ${_tmpID}].DisplayName}\ax]
 		VBC Disc "${_spell}" ${_tmpID} 0 
@@ -5632,11 +5648,12 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub)
 
 	| bard song	
 	} else /if (${Select[${_type},pulse]}) {
+		/varset _spell ${Spell[${_spell}].RankName}
 		| bards can move while casting
 		/if (${swCombatMelee}) /call stick_to_target
 	
 		| stop any playing songs for the new one
-		/if (${Me.BardSongPlaying}) /melody stop
+		/if (${Me.BardSongPlaying}) /call pulse_stop
 
 		/if (${_tmpID} == 0) VPULSE Pulse ${sep} ${csp}${_spell}\ax
 		/if (${_tmpID} != 0 && ${Target.ID}) VPULSE Pulse ${sep} ${csp}${_spell}\ax ${sep} [${ctar}${Spawn[ID ${_tmpID}].DisplayName}\ax]
@@ -5651,7 +5668,7 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub)
 		}
 
 		/delay 2
-		/if (${Me.BardSongPlaying}) /melody stop
+		/if (${Me.BardSongPlaying}) /call pulse_stop
 	}
 	
 

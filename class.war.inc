@@ -100,10 +100,10 @@ sub get_agro_WAR()
 	/if (${AEMelee}) {
 		/if (${validate_cast[FALSE, disc, "$${DiscWade}", ${Me.ID}]} && ${SpawnCount[npc ${If[${swOverrideLOS},,los]} radius 30 targetable]} >= 3) /call core_cast2 "${DiscWade}" disc 0 FALSE
 		/if (${validate_cast[FALSE, alt, "${AAAETaunt}", ${Me.ID}]} && ${SpawnCount[npc ${If[${swOverrideLOS},,los]} radius 50 targetable]} >= 2) /call core_cast2 "${AAAETaunt}" alt 0 FALSE
-		/if (${validate_cast[FALSE, disc, "$${DiscChallenge}", ${Me.ID}]} && ${SpawnCount[npc ${If[${swOverrideLOS},,los]} radius 30 targetable]} >= 3) /call core_cast2 "${DiscChallenge}" disc 0 FALSE
+		/if (${validate_cast[FALSE, disc, "${DiscChallenge}", ${Me.ID}]} && ${SpawnCount[npc ${If[${swOverrideLOS},,los]} radius 30 targetable]} >= 3) /call core_cast2 "${DiscChallenge}" disc 0 FALSE
 	}
 
-	/if (${validate_cast[FALSE, disc, "$${DiscCyclone}", ${Target2Kill}]} && ${Me.TargetOfTarget.Name.NotEqual[${Me.CleanName}]}) /call core_cast2 "${DiscCyclone}" disc ${Target2Kill} FALSE
+	/if (${validate_cast[FALSE, disc, "${DiscCyclone}", ${Target2Kill}]} && ${Me.TargetOfTarget.Name.NotEqual[${Me.CleanName}]}) /call core_cast2 "${DiscCyclone}" disc ${Target2Kill} FALSE
 
 	/if (${validate_cast[FALSE, disc, "${DiscShout}", ${Me.ID}]}) /call core_cast2 "${DiscShout}" disc 0 FALSE
 

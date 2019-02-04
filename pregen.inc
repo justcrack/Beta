@@ -187,7 +187,7 @@ sub pregen_environment()
   /call setDeclare lstTypesTC																					string		outer "|distance|lock|mode|name|time"
 
 	| off modes .. /mode []
-	/call setDeclare lstTypesMode																				string		outer "|Agro|Collect|Drag|Drink|Fish|Forage|Harvest|HarvestCount|Hunt|Lush|Open|Petfarm|Scorch|Skill|Tradeskill|Trainspell"
+	/call setDeclare lstTypesMode																				string		outer "|Agro|Collect|Drag|Drink|Fish|Forage|Harvest|HarvestCount|Hunt|Lush|Open|Petfarm|Scorch|Skill|Summon|Tradeskill|Trainspell"
 
 	| spires .. /cls spire []
 	/call setDeclare lstTypesSpire																			string		outer "|0|1|2|3"
@@ -580,6 +580,8 @@ sub pregen_character()
 	/call setDeclare swModeTrainspellSPC																bool			outer FALSE
 	/call setDeclare swModeOpen																					bool			outer FALSE	
 	/call setDeclare swModeCollect																			bool			outer FALSE	
+	/call setDeclare swModeSummon																				bool			outer FALSE	
+	
 	/call sql_control FALSE mode setModeAgro														int				outer FALSE 
 	/call sql_control FALSE mode setModeHarvestCount										int				outer 999
 

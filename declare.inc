@@ -2218,13 +2218,10 @@ sub Bind_click_window_option()
 
 
 
-${Window[ConfirmationDialogbox]}
-${Window[Tradewnd]}
 
 | are these useful ?
 /squelch /notify ConfirmationDialogBox OK_Button leftmouseup
 /squelch /notify TradeWND TRDW_Trade_Button leftmouseup
-/squelch /notify GiveWnd GVW_Give_Button leftmouseup
 /squelch /notify TaskTemplateSelectWnd TaskTemplateSelectAcceptButton leftmouseup
 /squelch /notify ProgressionTemplateSelectWnd ProgressionTemplateSelectAcceptButton leftmouseup
 
@@ -2235,7 +2232,7 @@ ${Window[Tradewnd]}
 
 
 |***
- *	DES: nclicks yes on a window option for some form of travel
+ *	DES: stack invis
  *	USE: /invis
  *  NOTE: 
  ***|
@@ -2338,8 +2335,9 @@ sub Bind_click_door()
 sub Bind_cls()
 	/call Bind_clear_corpse_sub
 	/if (${swBCClean}) {
-		/dgaexecute /clear_corpse_sub
+		/dgexecute /clear_corpse_sub
 	} 
+	/call Bind_clear_corpse_sub
 /return
 
 |***
@@ -2546,7 +2544,7 @@ sub Bind_bcsay(string _verbage, string _sender, int _tmpID)
 	| everyone else
 	/if (${_sender.NotEqual[${Me.DisplayName}]}) {
 		/if (${Bool[${Spawn[pc ${_sender} radius 60].ID}]}) {
-			/target ID ${_tmpID}
+			/squelch /target ID ${_tmpID}
 			/delay 10s ${Target.ID} == ${_tmpID}
 			/if (${Target.ID} == ${_tmpID}) {
 				/delay ${Int[${Math.Calc[${Math.Rand[20]}+10]}]}
