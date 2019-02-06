@@ -285,7 +285,7 @@ sub cast_alliance_ROG(int _tmpID)
  	| have the alliance on it already?
 	/if (${Target.Buff[${${Me.Class.ShortName}Alliance}].ID}) /return FALSE
 	| spell ready?
-	/if (!${Me.SpellReady[${${Me.Class.ShortName}Alliance}]}) /return FALSE
+	/if (!${check_ready[disc, "${${Me.Class.ShortName}Alliance}"]}) /return FALSE
 	| no target
 	/if (${is_target_dead[${_tmpID}]}) /return
 

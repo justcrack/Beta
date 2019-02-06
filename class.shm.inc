@@ -125,7 +125,7 @@ sub check_heal_group_SHM()
 	| Group regeneration
  	/if (${useGroupHoT} && !${hurtCount}) { 
  		/if (${SpawnCount[npc radius ${setMobAgro} playerstate 4 targetable]}) {
-	 	 	/if (${Me.SpellReady[${healWholeGroupHoT}]} && !${Bool[${Me.Song[Celestial Regeneration]}]} && !${Bool[${Me.Song[${healWholeGroupHoT}]}]} && !${Bool[${Me.Song[Elixir of the Seas]}]} && !${Bool[${Me.Song[Elixir of Wulthan]}]}) {
+	 	 	/if (${check_ready[spell, "${healWholeGroupHoT}"]} && !${Bool[${Me.Song[Celestial Regeneration]}]} && !${Bool[${Me.Song[${healWholeGroupHoT}]}]} && !${Bool[${Me.Song[Elixir of the Seas]}]} && !${Bool[${Me.Song[Elixir of Wulthan]}]}) {
 		    /if (${validate_cast[FALSE, spell, "${healWholeGroupHoT}", ${Me.ID}]}) /call core_cast2 "${healWholeGroupHoT}" 0 ${Me.ID} FALSE
 		  }
 		}
@@ -152,14 +152,14 @@ sub check_heal_group_SHM()
 
 	| aggressive switch sort 	
   /if (${switchHealAggressive}) {
- 		/if (${Me.SpellReady[${healReckless1}]} || ${Me.SpellReady[${healReckless2}]} || ${Me.SpellReady[${healReckless3}]}) /goto :recklessheals
+ 		/if (${check_ready[spell, "${healReckless1}"]} || ${check_ready[spell, "${healReckless2}"]} || ${check_ready[spell, "${healReckless3}"]}) /goto :recklessheals
  	} 	
  	
 	| intervention/main heals
 	/if (${Group.Member[${hurtIndex}].PctHPs} <= ${${hurtCLS}Point}*.${tmpHealOverride}) {
-		/if (${Me.SpellReady[${healIntervention1}]}) {
+		/if (${check_ready[spell, "${healIntervention1}"]}) {
 			/if (${validate_cast[FALSE, spell, "${healIntervention1}", ${Group.Member[${hurtIndex}].ID}]}) /call core_cast2 "${healIntervention1}" 0 ${Group.Member[${hurtIndex}].ID} check_group_HP
-		} else /if (${Me.SpellReady[${healMain}]}) {
+		} else /if (${check_ready[spell, "${healMain}"]}) {
 			/if (${validate_cast[TRUE, spell, "${healMain}", ${Group.Member[${hurtIndex}].ID}]}) /call core_cast2 "${healMain}" 0 ${Group.Member[${hurtIndex}].ID} check_group_HP
 		}
 	}
@@ -168,10 +168,8 @@ sub check_heal_group_SHM()
 	:recklessheals
   /if (${Group.Member[${hurtIndex}].PctHPs} <= ${${hurtCLS}Point}*.${tmpHealOverride}) {
 		/for _count 1 to 3
-			/if (${Me.SpellReady[${healReckless${_count}}]}) {
-				/if (${validate_cast[FALSE, spell, "${healReckless${_count}}", ${Group.Member[${hurtIndex}].ID}]}) /call core_cast2 "${healReckless${_count}}" 0 ${Group.Member[${hurtIndex}].ID} check_group_HP
-				/break
-			}
+			/if (${validate_cast[FALSE, spell, "${healReckless${_count}}", ${Group.Member[${hurtIndex}].ID}]}) /call core_cast2 "${healReckless${_count}}" 0 ${Group.Member[${hurtIndex}].ID} check_group_HP
+			/break
 		/next _count 
 	}
 	
@@ -231,14 +229,14 @@ sub check_heal_XTarget_SHM()
 
 	| aggressive switch
   /if (${switchHealAggressive}) {
- 		/if (${Me.SpellReady[${healReckless1}]} || ${Me.SpellReady[${healReckless2}]} || ${Me.SpellReady[${healReckless3}]}) /goto :recklessheals
+ 		/if (${check_ready[spell, "${healReckless1}"]} || ${check_ready[spell, "${healReckless2}"]} || ${check_ready[spell, "${healReckless3}"]}) /goto :recklessheals
  	} 	
  	
 	| intervention/main heals
 	/if (${Me.XTarget[${hurtIndex}].PctHPs} <= ${${hurtCLS}Point}*.${tmpHealOverride}) {
-		/if (${Me.SpellReady[${healIntervention1}]}) {
+		/if (${check_ready[spell, "${healIntervention1}"]}) {
 			/if (${validate_cast[FALSE, spell, "${healIntervention1}", ${Me.XTarget[${hurtIndex}].ID}]}) /call core_cast2 "${healIntervention1}" 0 ${Me.XTarget[${hurtIndex}].ID} check_group_HP
-		} else /if (${Me.SpellReady[${healMain}]}) {
+		} else /if (${check_ready[spell, "${healMain}"]}) {
 			/if (${validate_cast[FALSE, spell, "${healMain}", ${Me.XTarget[${hurtIndex}].ID}]}) /call core_cast2 "${healMain}" 0 ${Me.XTarget[${hurtIndex}].ID} check_group_HP
 		} 
 	} 
@@ -246,11 +244,11 @@ sub check_heal_XTarget_SHM()
 	| reckless heals
 	:recklessheals
 	/if (${Me.XTarget[${hurtIndex}].PctHPs} <= ${${hurtCLS}Point}*.${tmpHealOverride}) {
-  	/if (${Me.SpellReady[${healReckless1}]}) {
+  	/if (${check_ready[spell, "${healReckless1}"]}) {
     	/if (${validate_cast[FALSE, spell, "${healReckless1}", ${Me.XTarget[${hurtIndex}].ID}]}) /call core_cast2 "${healReckless1}" 0 ${Me.XTarget[${hurtIndex}].ID} check_group_HP
-    } else /if (${Me.SpellReady[${healReckless2}]}) {
+    } else /if (${check_ready[spell, "${healReckless2}"]}) {
       /if (${validate_cast[FALSE, spell, "${healReckless2}", ${Me.XTarget[${hurtIndex}].ID}]}) /call core_cast2 "${healReckless2}" 0 ${Me.XTarget[${hurtIndex}].ID} check_group_HP
-    } else /if (${Me.SpellReady[${healReckless3}]}) {
+    } else /if (${check_ready[spell, "${healReckless3}"]}) {
       /if (${validate_cast[FALSE, spell, "${healReckless3}", ${Me.XTarget[${hurtIndex}].ID}]}) /call core_cast2 "${healReckless3}" 0 ${Me.XTarget[${hurtIndex}].ID} check_group_HP
     } 
   }
@@ -287,14 +285,14 @@ sub check_heal_pet_SHM()
 	
 	| aggressive switch sort 	
   /if (${switchHealAggressive}) {
- 		/if (${Me.SpellReady[${healReckless1}]} || ${Me.SpellReady[${healReckless2}]} || ${Me.SpellReady[${healReckless3}]}) /goto :recklessheals
+ 		/if (${check_ready[spell, "${healReckless1}"]} || ${check_ready[spell, "${healReckless2}"]} || ${check_ready[spell, "${healReckless3}"]}) /goto :recklessheals
  	} 	
  	
 	| intervention/main heals
 	/if (${Group.Member[${hurtIndex}].Pet.PctHPs} <= ${PetPoint}) {
-		/if (${Me.SpellReady[${healIntervention1}]}) {
+		/if (${check_ready[spell, "${healIntervention1}"]}) {
 			/if (${validate_cast[FALSE, spell, "${healIntervention1}", ${Group.Member[${hurtIndex}].Pet.ID}]}) /call core_cast2 "${healIntervention1}" 0 ${Group.Member[${hurtIndex}].Pet.ID} check_group_HP
-		} else /if (${Me.SpellReady[${healMain}]}) {
+		} else /if (${check_ready[spell, "${healMain}"]}) {
 			/if (${validate_cast[FALSE, spell, "${healMain}", ${Group.Member[${hurtIndex}].Pet.ID}]}) /call core_cast2 "${healMain}" 0 ${Group.Member[${hurtIndex}].Pet.ID} check_group_HP
 		} 
 	} 
@@ -303,10 +301,8 @@ sub check_heal_pet_SHM()
 	:recklessheals
   /if (${Group.Member[${hurtIndex}].Pet.PctHPs} <= ${PetPoint}) {
 		/for _count 1 to 3
-			/if (${Me.SpellReady[${healReckless${_count}}]}) {
-				/if (${validate_cast[FALSE, spell, "${healReckless${_count}}", ${Group.Member[${hurtIndex}].Pet.ID}]}) /call core_cast2 "${healReckless${_count}}" 0 ${Group.Member[${hurtIndex}].Pet.ID} check_group_HP
-				/break
-			}
+			/if (${validate_cast[FALSE, spell, "${healReckless${_count}}", ${Group.Member[${hurtIndex}].Pet.ID}]}) /call core_cast2 "${healReckless${_count}}" 0 ${Group.Member[${hurtIndex}].Pet.ID} check_group_HP
+			/break
 		/next _count 
 	}
 	
@@ -323,7 +319,7 @@ sub check_heal_pet_SHM()
 sub cast_surge_heal()
 	DEBUG cast_surge_heal()
 	/if (!${Bool[${TC1}]} && !${Bool[${TC1}]}) /return
-	/if (!${Me.SpellReady[${TC1}]} && !${Me.SpellReady[${TC2}]}) /return
+	/if (!${check_ready[spell, "${TC1}"]} && !${check_ready[spell, "${TC2}"]}) /return
 	/if (${is_target_dead[${Target2Kill}]}) /return	
 
 	CHECKEXIT
@@ -347,15 +343,15 @@ sub cast_surge_heal()
 	
 	/if (!${Spawn[${_tmpID}].LineOfSight} || ${Spawn[${_tmpID}].Distance} > ${Spell[${TC1}].MyRange}) /return
 	
-  /if (${Me.SpellReady[${TC1}]} && !${Me.Song[Healing Twincast].ID}) {
+  /if (${check_ready[spell, "${TC1}"]} && !${Me.Song[Healing Twincast].ID}) {
 		/if (${validate_cast[FALSE, spell, "${TC1}", ${_tmpID}]}) /call core_cast2 "${TC1}" 0 ${_tmpID} FALSE
-	} else /if (${Me.SpellReady[${TC2}]} && !${Me.Song[Healing Twincast].ID}) {
+	} else /if (${check_ready[spell, "${TC2}"]} && !${Me.Song[Healing Twincast].ID}) {
 		/if (${validate_cast[FALSE, spell, "${TC2}", ${_tmpID}]}) /call core_cast2 "${TC2}" 0 ${_tmpID} FALSE
 	}
 
 	| spalsh surge heal	
-	/if (${Me.SpellReady[${healSurge}]} && ${Me.Song[Healing Twincast].ID}) {
-		/delay 2.25s ${Me.SpellReady[${healSurge}]}
+	/if (${check_ready[spell, "${healSurge}"]} && ${Me.Song[Healing Twincast].ID}) {
+		/delay 2.25s ${Me.SpellReady[${Spell[${healSurge}].RankName}]}
 		/if (${validate_cast[FALSE, spell, "${healSurge}", ${_tmpID}]}) /call core_cast2 "${healSurge}" 0 ${_tmpID} FALSE
 	}
 /return
@@ -496,9 +492,8 @@ sub check_cani()
  	DEBUG alliance_SHM()
 	CHECKEXIT
 	CHECKINPUTS
-	
-	/if (!${Me.Gem[${SHMAlliance}]}) /return FALSE
-	/if (!${Me.SpellReady[${SHMAlliance}]}) /return FALSE
+
+	/if (!${check_ready[spell, "${SHMAlliance}"]}) /return FALSE
 	
 	/if (${swAssistG}) {
 		/target pc ${Group.MainAssist}

@@ -270,17 +270,16 @@ sub mez_adds()
 		} else {
 			/squelch /target id ${_tmpID}
 			/delay 5 ${Target.ID} == ${_tmpID}
-			| /delay 2.25s ${Me.SpellReady[${spellMez}]}
 			/if (${SpawnCount[npc los radius 30 setzradius 15 targetable]} > 1 ) {
 				VOUT ${sepO} ${cinfo}${SpawnCount[npc radius 30 setzradius 15]}\ax ${sepC} ${If[${SpawnCount[npc los radius 30 setzradius 15 targetable]} == 1,Target,Targets]} in point blank range.
 
 				/if (${swdeBuffTash}) /call cast_tash ${_tmpID}
 				
-				/if (${Me.Gem[${spellpbaeMez}]} && ${Me.SpellReady[${spellpbaeMez}]}) {
+				/if (${check_ready[spell, "${spellpbaeMez}"]}) {
 					/if (${Me.Casting.Name.NotEqual[${spellpbaeMez}]}) /call interrupt
 					/if (${validate_cast[FALSE, spell, "${spellpbaeMez}", ${Me.ID}]}) /call core_cast2 "${spellpbaeMez}" 0 0 FALSE
 				}
-				/if (${Me.Gem[${spellStun}]} && ${Me.SpellReady[${spellStun}]}) {
+				/if (${check_ready[spell, "${spellStun}"]}) {
 					/if (${Me.Casting.Name.NotEqual[${spellStun}]}) /call interrupt
 					/if (${validate_cast[FALSE, spell, "${spellStun}", ${Me.ID}]}) /call core_cast2 "${spellStun}" 0 0 FALSE
 				}
@@ -344,7 +343,7 @@ sub cast_mez(int _tmpID)
 	}
 	
 	| mez ready?
-	/delay 2.25s ${Me.SpellReady[${spellMez}]}
+	/delay 2.25s ${Me.SpellReady[${Spell[${spellMez}].RankName}]}
 	/if (${validate_cast[FALSE, spell, "${spellMez}", ${_tmpID}]}) /call core_cast2 "${spellMez}" 0 ${_tmpID} check_for_adds
 	/if (${Select[${castReturn},CAST_SUCCESS,CAST_IMMUNE,CAST_NOHOLD,CAST_TAKEHOLD]}) {
 		/call timer_update timer_mez_${_tmpID} ${Spell[${spellMez}].Duration.Seconds}s

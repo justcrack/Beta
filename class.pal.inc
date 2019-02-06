@@ -308,20 +308,15 @@ sub check_heal_group_PAL()
 	CHECKTIE
 	
 	/declare _count int local 0
-	/varset hurtIndex ${Group.Member[${Me}].Index}
-	/varset hurtPctHP ${If[${setHealOverride},${Float[${setHealOverride}].Centi},99.99]}
-	/varset hurtCLS ${Me.Class.ShortName}
-	/varset hurtCount 0
-
 
 	| Do group members need healing? 
-  /call check_HP_PAL
+  /call check_health_group
   
 	UPDATEHUD "HEAL Group"
 	/if (${useShieldFlash}) /call cast_AA_shield_flash
 
 	| Panic Splash
-	/if (${Bool[${Group.Members}]}) {
+	/if (${Group}) {
 	  /if (${Group.Member[${hurtIndex}].PctHPs} <= 45*.${tmpHealOverride}) {
 			/if (${validate_cast[FALSE, spell, "${splashPanic}", ${Me.ID}]}) /call core_cast2 "${splashPanic}" 0 0 FALSE
 		}
@@ -395,18 +390,18 @@ sub check_heal_XTarget_PAL()
 	/call check_no_cast_buff
 
 	| Touch Heal
-  /if (${Me.XTarget[${hurtID}].PctHPs} <= ${${hurtCLS}Point}*.${tmpHealOverride}) {
-	  /if (${validate_cast[FALSE, spell, "${healTouch}", ${Me.XTarget[${hurtIndex}].}]}) /call core_cast2 "${healTouch}" 0 ${Me.XTarget[${hurtIndex}].} check_health_group
+  /if (${Me.XTarget[${hurtIndex}].PctHPs} <= ${${hurtCLS}Point}*.${tmpHealOverride}) {
+	  /if (${validate_cast[FALSE, spell, "${healTouch}", ${Me.XTarget[${hurtIndex}].}]}) /call core_cast2 "${healTouch}" 0 ${Me.XTarget[${hurtIndex}].} FALSE
 	}
 	
 	| Burst Heal 
   /if (${Me.XTarget[${hurtIndex}].PctHPs} <= ${${hurtCLS}Point}*.${tmpHealOverride}) {
-  	/if (${validate_cast[FALSE, spell, "${healBurst}", ${Me.XTarget[${hurtIndex}].ID}]}) /call core_cast2 "${healBurst}" 0 ${Me.XTarget[${hurtIndex}].ID} check_health_group
+  	/if (${validate_cast[FALSE, spell, "${healBurst}", ${Me.XTarget[${hurtIndex}].ID}]}) /call core_cast2 "${healBurst}" 0 ${Me.XTarget[${hurtIndex}].ID} FALSE
   }		
 
 	| Burst Heal 
   /if (${Me.XTarget[${hurtIndex}].PctHPs} <= ${${hurtCLS}Point}*.${tmpHealOverride}) {
-  	/if (${validate_cast[FALSE, spell, "${healLight}", ${Me.XTarget[${hurtIndex}].ID}]}) /call core_cast2 "${healLight}" 0 ${Me.XTarget[${hurtIndex}].ID} check_health_group
+  	/if (${validate_cast[FALSE, spell, "${healLight}", ${Me.XTarget[${hurtIndex}].ID}]}) /call core_cast2 "${healLight}" 0 ${Me.XTarget[${hurtIndex}].ID} FALSE
   }		
 
 	UPDATEHUD FALSE
@@ -429,16 +424,8 @@ sub check_heal_pet_PAL()
 
 	/declare _count int local 0
 	/varset hurtIndex ${Group.Member[${Me}].Index}
-	/varset hurtPctHP 100
   
-	/for _count 0 to ${Group}
-		/if (!${Group.Member[${_count}].Pet.ID}) /continue
-    /if (${Group.Member[${_count}].Pet.PctHPs} >= ${PetPoint}) /continue
-    /if (${Group.Member[${_count}].Pet.Distance} > ${setMobAgro}) /continue
-    /if (${Group.Member[${_count}].Pet.PctHPs} >= ${hurtPctHP}) /continue
-		/varset hurtIndex ${_count}
-		/varset hurtPctHP ${Group.Member[${_count}].Pet.PctHPs}
-  /next _count
+	/call check_health_pet
 
 	| any pets hurt?
   /if (${Group.Member[${hurtIndex}].ID} == ${Me.ID}) {
@@ -450,51 +437,19 @@ sub check_heal_pet_PAL()
   
 	| Burst Heal 
   /if (${Group.Member[${hurtIndex}].Pet.PctHPs} <= ${PetPoint}) {
-  	/if (${validate_cast[FALSE, spell, "${healBurst}", ${Group.Member[${hurtIndex}].Pet.ID}]}) /call core_cast2 "${healBurst}" 0 ${Group.Member[${hurtIndex}].Pet.ID} check_health_group
+  	/if (${validate_cast[FALSE, spell, "${healBurst}", ${Group.Member[${hurtIndex}].Pet.ID}]}) /call core_cast2 "${healBurst}" 0 ${Group.Member[${hurtIndex}].Pet.ID} FALSE
   }		
 
 	| Light Heal 
   /if (${Group.Member[${hurtIndex}].Pet.PctHPs} <= ${PetPoint}) {
-  	/if (${validate_cast[FALSE, spell, "${healLight}", ${Group.Member[${hurtIndex}].Pet.ID}]}) /call core_cast2 "${healLight}" 0 ${Group.Member[${hurtIndex}].Pet.ID} check_health_group
+  	/if (${validate_cast[FALSE, spell, "${healLight}", ${Group.Member[${hurtIndex}].Pet.ID}]}) /call core_cast2 "${healLight}" 0 ${Group.Member[${hurtIndex}].Pet.ID} FALSE
   }		
 
 	| Touch Heal 
   /if (${Group.Member[${hurtIndex}].Pet.PctHPs} <= ${PetPoint}) {
-  	/if (${validate_cast[FALSE, spell, "${healTouch}", ${Group.Member[${hurtIndex}].Pet.ID}]}) /call core_cast2 "${healTouch}" 0 ${Group.Member[${hurtIndex}].Pet.ID} check_health_group
+  	/if (${validate_cast[FALSE, spell, "${healTouch}", ${Group.Member[${hurtIndex}].Pet.ID}]}) /call core_cast2 "${healTouch}" 0 ${Group.Member[${hurtIndex}].Pet.ID} FALSE
   }
 
-/return
-
-
-
-|***
- *	DES: Fast check to see if anyone is hurt worse then person currently being healed.
- *	USE: added as a subcheck for core_cast2
- *  NOTE: 
- ***|
-sub check_HP_PAL()
-	DEBUG check_HP_PAL()
-
-	/declare _count int local 0
-
-	/for _count 0 to ${Group}
-		/if (${Group.Member[${_count}].PctHPs} > ${${Group.Member[${_count}].Class.ShortName}Point}*.${tmpHealOverride}) /continue
-		/if (${Group.Member[${_count}].PctHPs} > ${hurtPctHP}) /continue
-		/if (${Group.Member[${_count}].Distance} > ${setMobAgro}) /continue
-		/if (!${Group.Member[${_count}].Present} || ${Group.Member[${_count}].Dead}) /continue
-		/if (${Group.Member[${_count}].DisplayName.Equal[${RampageTank}]}) /continue
-		/if (${lstNoHeal.Find[${Group.Member[${_count}].DisplayName}]}) /continue
-
-		| we found a slacker
-		/varset hurtIndex ${_count}
-		/varset hurtPctHP ${Group.Member[${_count}].PctHPs}
-		/varset hurtCLS ${Group.Member[${_count}].Class.ShortName}
-		/varcalc hurtCount ${hurtCount}+1
-		/if (${useGroupHeal}) {
-			/if (${hurtCount} >= ${useGroupHeal}) /break
-		}
-	
-	/next _count
 /return
 
 
@@ -614,7 +569,7 @@ sub cast_alliance_PAL(int _tmpID)
 	| have the alliance on it already?
 	/if (${Target.Buff[${${Me.Class.ShortName}Alliance}].ID}) /return FALSE
 	| spell ready?
-	/if (!${Me.SpellReady[${${Me.Class.ShortName}Alliance}]}) /return FALSE
+	| /if (!${check_ready[spell, "${${Me.Class.ShortName}Alliance}"]}) /return FALSE
 	| no target
 	/if (${is_target_dead[${_tmpID}]}) /return
 
@@ -636,19 +591,6 @@ sub cast_alliance_PAL(int _tmpID)
 #bind pal_splash /splash
 sub Bind_pal_splash()
 	/if (!${validate_class[TRUE, |PAL]}) /return FALSE
-
-	| mem spell if we do not have it	
-	| /if (!${Bool[${Me.Gem[${splashCure}]}]} && !${coreAuto}) /call mem_spell TRUE "${splashCure}" ${buffGem} FALSE
-	
-	| echo time remaining on splash
-	 /if (!${Me.SpellReady[${splashCure}]}) {
-	 	VOUT ${cinfo}${splashCure}\ax ${sep} time left (${cnum}${Me.GemTimer[${splashCure}].Seconds}\ax)
-	 	/return FALSE
-	 }
-	
-	AMIDEAD
-	CHECKEXIT
-  CHECKINPUTS	
 
 	| splash
 	VOUT Splashing these dumb asses ${sep}

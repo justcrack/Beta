@@ -1987,7 +1987,7 @@ sub cast_nuke_rain()
 		CHECKINPUTS
 		/if (${is_target_dead[${Target2Kill}]}) /return
 
-		/if (${Spawn[${Target2Kill}].LineOfSight} && ${Me.SpellReady[${RainNuke${_count}}]} && ${Spawn[${Target2Kill}].Distance} <= ${Spell[${RainNuke${_count}}].MyRange} && ${Me.CurrentMana} >= ${Spell[${RainNuke${_count}}].Mana}) {
+		/if (${Spawn[${Target2Kill}].LineOfSight}) {
 			/if (${validate_cast[FALSE, spell, "${RainNuke${_count}}", ${Target2Kill}]}) /call core_cast2 "${RainNuke${_count}}" 0 ${Target2Kill} cast_break
 			/if (${Select[${castReturn},CAST_SUCCESS]}) /call timer_update timer_Nuke_Delay ${tNuke_Delay}
 		}
@@ -2659,23 +2659,26 @@ sub cast_nuke_GoM(int _tmpID)
 	CHECKEXIT
 	CHECKINPUTS
 
-	/while (${Me.Casting.ID} && (${Me.Gem[${GoMNuke}]} || ${Me.Gem[${GoMNuke2}]})) {
-		/delay 1
-	}
+	| /if (${Me.Casting.ID} && (${Me.Gem[${GoMNuke}]} || ${Me.Gem[${GoMNuke2}]})) {
+	| 	/delay 
+	| }
 	
+	| nuke 1
 	/if (${Me.SpellReady[${GoMNuke}]}) {
 		/if (${Me.CurrentMana} < ${Spell[${GoMNuke}].Mana} || ${Me.CurrentMana} < 2) /return 
 
 		/squelch /target ID ${_tmpID}
 		/if (!${cast_condition[GoMNukeCondition]}) /return
 		VSPELL GoM ${sep} ${csp}${GoMNuke}\ax ${sep} [${ctar}${Spawn[id ${_tmpID}].DisplayName}\ax]
-		/call MQ2Cast "${Spell[${GoMNuke}].RankName}" gem${Me.Gem[${GoMNuke}]} -targetid|${_tmpID}
+		/call MQ2Cast "${GoMNuke}" gem${Me.Gem[${GoMNuke}]} -targetid|${_tmpID}
+
+	| nuke 2
 	} else /if (${Me.SpellReady[${GoMNuke2}]}) {
 		/if (${Me.CurrentMana} < ${Spell[${GoMNuke2}].Mana} || ${Me.CurrentMana} < 2) /return 
 		/squelch /target ID ${_tmpID}
 		/if (!${cast_condition[GoMNuke2Condition]}) /return
 		VSPELL GoM Backup ${sep} ${csp}${GoMNuke2}\ax ${sep} [${ctar}${Spawn[id ${_tmpID}].DisplayName}\ax]
-		/call MQ2Cast "${Spell[${GoMNuke2}].RankName}" gem${Me.Gem[${GoMNuke2}]} -targetid|${_tmpID}
+		/call MQ2Cast "${GoMNuke2}" gem${Me.Gem[${GoMNuke2}]} -targetid|${_tmpID}
 	}
 
 /return
@@ -3281,7 +3284,7 @@ sub cast_yaulp()
 	
 	| use spell Yaulp
 	/if (${Bool[${spellYaulp}]} && ${Me.Gem[${spellYaulp}]}) {
-		/if (${Me.SpellReady[${spellYaulp}]} && ${Spell[${spellYaulp}].NewStacks}) {
+		/if (${${Spell[${spellYaulp}].NewStacks}) {
 			/if (${validate_cast[FALSE, spell, "${spellYaulp}", ${Me.ID}]}) /call core_cast2 "${spellYaulp}" 0 0 FALSE
 		}
 	
@@ -3309,11 +3312,10 @@ sub cast_yaulp()
 sub cast_stamina_recovery()
  	/if (${Defined[DiscRest]}) {
 		/if (!${Bool[${DiscRest}]}) /return
-	 	/if (!${Me.CombatAbilityReady[${DiscRest}]}) /return
  	} else /if (!${Defined[DiscRest]}) {
  		/return
  	}
- 	/if (${SafeZone} && !${swOverrideSafeZone} || !${Me.CombatAbilityReady[${DiscRest}]} || ${swAmIDead}) /return
+ 	/if (${SafeZone} && !${swOverrideSafeZone} || !${Me.CombatAbilityReady[${Spell[${DiscRest}].RankName}]} || ${swAmIDead}) /return
 	/if (${Me.PctEndurance} > 33) /return
 	AMIDEAD
 	CHECKINPUTS
@@ -3391,11 +3393,11 @@ sub mem_spell(bool _echo, string _spellname, string _spellgem, bool _wait)
 	/memspell ${_gem} "${Spell[${_spellname}].RankName}"
 	/if (${_wait}) {
 		| :waitforgem
-		/delay 1m ${Me.SpellReady[${_spellname}]}
+		/delay 1m ${Me.SpellReady[${Spell[${_spellname}].RankName}]}
 		/delay 4
-		/if (!${Me.SpellReady[${_spellname}]}) /goto :waitforgem
+		/if (!${Me.SpellReady[${Spell[${_spellname}].RankName}]}) /goto :waitforgem
 	} else /if (!${_wait}) {
-		/delay 3s ${Me.SpellReady[${_spellname}]}
+		/delay 3s ${Me.SpellReady[${Spell[${_spellname}].RankName}]}
 	}
 
 /return TRUE
@@ -3927,7 +3929,7 @@ sub check_buffs_tell()
 	/if (${FindItem[${Buff${_tmpVAR}}].ID}) {
 		/if (${FindItem[${Buff${_tmpVAR}}].TimerReady} > 20) /return
 	} else {
-		/if (!${Me.SpellReady[${Buff${_tmpVAR}}]} && ${Me.Gem[${Buff${_tmpVAR}}]}) /return
+		/if (!${Me.SpellReady[${Spell[${Buff${_tmpVAR}}].RankName}]} && ${Me.Gem[${Buff${_tmpVAR}}]}) /return
 	}	
 
 	| bards are a pita..
@@ -4487,6 +4489,10 @@ sub get_target(bool _debug)
 		| disc pull mob
 		} else /if (${Me.CombatAbilityReady[${setRangeDisc}]}) {
 			/if (${validate_cast[FALSE, disc, "${setRangeDisc}", ${Target2Kill}]}) /call core_cast2 "${setRangeDisc}" disc ${Target2Kill} FALSE
+
+		| AA pull mob
+		} else /if (${Me.AltAbilityReady[${setRangeAA}]}) {
+			/if (${validate_cast[FALSE, alt, "${setRangeAA}", ${Target2Kill}]}) /call core_cast2 "${setRangeAA}" alt ${Target2Kill} FALSE
 
 		| pew pew
 		} else {
@@ -5580,7 +5586,7 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub)
 			/varset _type alt
 		} else /if (${Me.CombatAbilityReady[${_spell}]}) {
 			/varset _type disc
-		} else /if (${Me.ItemReady[${_spell}]}) {
+		} else /if (${Me.ItemReady[${Spell[${_spell}].RankName}]}) {
 			/varset _type item
 		}
 	} 	
@@ -5795,11 +5801,11 @@ sub cast_slow(int _tmpID)
 	
 	| if the spell is identified in the INI and memed we will use that over the AA
 	/if (${Bool[${Me.Gem[${spellSlow}]}]}) {
-		/delay 2.25s ${Me.SpellReady[${spellSlow}]}	
+		/delay 2.25s ${Me.SpellReady[${Spell[${spellSlow}].RankName}]}	
 		/if (${validate_cast[FALSE, spell, "${spellSlow}", ${_tmpID}]}) /call core_cast2 "${spellSlow}" 0 ${_tmpID} FALSE
 
 	| spell not identified, using AA.
-	} else /if (${spellSlow.Equal[NULL]} || !${Bool[${spellSlow}]} || !${Bool[${Me.Gem[${spellSlow}]}]}) {
+	} else /if ((${spellSlow.Equal[NULL]} || !${Bool[${spellSlow}]} || !${Bool[${Me.Gem[${spellSlow}]}]}) && ${spellSlow.NotEqual[Time's Antithesis]}) {
 		/if (${Select[${Me.Class.ShortName},ENC]}) /varset spellSlow Slowing Helix
 		/if (${Select[${Me.Class.ShortName},SHM]}) /varset spellSlow Turgur's Swarm
 		/if (${Select[${Me.Class.ShortName},BST]}) /varset spellSlow Sha's Reprisal
@@ -5807,6 +5813,12 @@ sub cast_slow(int _tmpID)
 
 		/delay 2.25s ${Me.AltAbilityReady[${spellSlow}]}	
 		/if (${validate_cast[FALSE, alt, "${spellSlow}", ${_tmpID}]}) /call core_cast2 "${spellSlow}" alt ${_tmpID} FALSE
+
+	| Time clickie slow
+	} else /if (${spellSlow.Equal[Time's Antithesis]}) {
+		/delay 6s ${Me.ItemReady[${spellSlow}]}	
+		/if (${validate_cast[FALSE, item, "${spellSlow}", ${_tmpID}]}) /call core_cast2 "${spellSlow}" item ${_tmpID} FALSE
+		
 	}
 	
 	| set time based upn cast return	
@@ -5848,7 +5860,7 @@ sub cast_malo(int _tmpID)
 
 	| now the spell 
 	/if (${Bool[${Me.Gem[${spellMalo}]}]}) {
-		/delay 2.25s ${Me.SpellReady[${spellMalo}]}	
+		/delay 2.25s ${Me.SpellReady[${Spell[${spellMalo}].RankName}]}	
 		/if (${validate_cast[FALSE, spell, "${spellMalo}", ${_tmpID}]}) /call core_cast2 "${spellMalo}" 0 ${_tmpID} FALSE
 		
 	| fall back to AA	
@@ -5909,7 +5921,7 @@ sub cast_cripple(int _tmpID)
 
 	| spell first
 	/if (${Bool[${Me.Gem[${spellCripple}]}]}) {
-		/delay 2.25s ${Me.SpellReady[${spellCripple}]}	
+		/delay 2.25s ${Me.SpellReady[${Spell[${spellCripple}].RankName}]}	
 		/if (${Select[${Me.Class.ShortName},ENC]}) {
 			/if (${validate_cast[FALSE, spell, "${spellCripple}", ${_tmpID}]})  /call core_cast2 "${spellCripple}" 0 ${_tmpID} check_for_adds
 		} else {
@@ -6910,6 +6922,7 @@ sub check_buffs_tmp_list(string _spell, string _toonList)
 	/declare _count int local
 	/declare _buffToon string local
 	/declare _DNqout string local
+	/varset _spell ${Spell[${_spell}].RankName}
 
 	/for _count 1 to ${_toonList.Count[|]}
 		/if (!${Bool[${_toonList.Arg[${_count},|]}]}) /continue
@@ -7667,7 +7680,12 @@ sub sql_clear(bool _debug, string _query)
  ***|
 sub check_health_group()
 	/declare _count int local 0
+	| /declare _hurtPctHP ${If[${setHealOverride},${Float[${setHealOverride}].Centi},99.99]}
 
+	| /varset hurtIndex ${Group.Member[${Me}].Index}
+	| /varset hurtCLS ${Me.Class.ShortName}
+	| /varset hurtCount 0
+		
 	/for _count 0 to ${Group}
 		/if (${Group.Member[${_count}].PctHPs} > ${${Group.Member[${_count}].Class.ShortName}Point}*.${tmpHealOverride}) /continue
 		/if (${Group.Member[${_count}].PctHPs} > ${hurtPctHP}) /continue
@@ -7677,8 +7695,8 @@ sub check_health_group()
 		/if (${lstNoHeal.Find[${Group.Member[${_count}].DisplayName}]}) /continue
 
 		| we found a slacker
-		/varset hurtIndex ${_count}
 		/varset hurtPctHP ${Group.Member[${_count}].PctHPs}
+		/varset hurtIndex ${_count}
 		/varset hurtCLS ${Group.Member[${_count}].Class.ShortName}
 		/varcalc hurtCount ${hurtCount}+1
 		/if (${useGroupHeal}) {
@@ -7728,6 +7746,7 @@ sub check_health_xtarget()
  ***|
 sub check_health_pet()
 	/declare _count int local 0
+	| /varset hurtPctHP 100
 	
 	/for _count 0 to ${Group}
 		/if (!${Group.Member[${_count}].Pet.ID}) /continue
@@ -7793,16 +7812,20 @@ sub clear_xtarget()
  *	USE: 
  *  NOTE:
  ***| 
-sub check_ready(string _type, string _skill)
+sub check_ready(string _type, string _tocheck)
 
 	/if (${_type.Equal[spell]}) {
-		/if (${Me.SpellReady[${Spell[${_skill}].RankName}]}) /return TRUE
+		| /if (!${Me.Gem[${Spell[${_tocheck}].RankName}]}) /return FALSE
+		/if (${Me.SpellReady[${Spell[${_tocheck}].RankName}]}) /return TRUE
 
 	} else /if (${_type.Equal[alt]}) {
-		/if (${Me.AltAbilityReady[${_skill}]}) /return TRUE
+		/if (${Me.AltAbilityReady[${_tocheck}]}) /return TRUE
 		
 	} else /if (${_type.Equal[disc]}) {
+		/if (${Me.CombatAbility[${Spell[${_tocheck}].RankName}]}) /return TRUE
+		
 	} else /if (${_type.Equal[item]}) {
+		/if (${Me.ItemReady[${_tocheck}]}) /return TRUE
 
 	}
 

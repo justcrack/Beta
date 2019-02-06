@@ -218,7 +218,7 @@ sub check_bloom()
 	CHECKTIE
 
 	/if (${switchGather}) {
-		/if (!${Me.SpellReady[${GatherSpell}]}) {
+		/if (!${check_ready[spell, ${GatherSpell}]} && ${check_ready[alt, "Forceful Rejuvenation"]}) {
 			/if (${validate_cast[FALSE, alt, "Forceful Rejuvenation", ${Me.ID}]}) /call core_cast2 "Forceful Rejuvenation" alt 0 FALSE
 			/delay 5			
 		}

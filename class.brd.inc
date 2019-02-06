@@ -179,24 +179,27 @@ sub cast_servant_swarm(int _tmpID)
 		/return
 	}
 	
-	/if (${Spawn[${_tmpID}].LineOfSight} && ${Target.PctHPs} > 10 && ${Spawn[${_tmpID}].Distance} < ${setMobAgro}) {
-		/call get_target_2kill
-		/if (${Target.ID}) /pet swarm
+	/call get_target_2kill
+	/if (${Target.ID}) /pet swarm
 
-		/if (${Me.AltAbilityReady[${ServantNukeAA1}]}) {
-			/call pulse_stop
-			/if (${validate_cast[FALSE, alt, "${ServantNukeAA1}", ${_tmpID}]}) /call core_cast2 "${ServantNukeAA1}" alt ${_tmpID} FALSE
-			/return
-		} else /if (${Me.AltAbilityReady[${ServantNukeAA2}]}) {
-			/call pulse_stop
-			/if (${validate_cast[FALSE, alt, "${ServantNukeAA2}", ${_tmpID}]}) /call core_cast2 "${ServantNukeAA2}" alt ${_tmpID} FALSE
-			/return
-		} else /if (${Me.SpellReady[${songServantNuke}]}) {
-			/call pulse_stop
-			/if (${validate_cast[FALSE, pulse, "${songServantNuke}", ${_tmpID}]}) /call core_cast2 "${songServantNuke}" pulse ${_tmpID} FALSE
-						/return
-		}
+	| /call pulse_stop
+	/if (${validate_cast[FALSE, alt, "${ServantNukeAA1}", ${_tmpID}]}) {
+		/call core_cast2 "${ServantNukeAA1}" alt ${_tmpID} FALSE
+		/return
 	}
+
+	| /call pulse_stop
+	/if (${validate_cast[FALSE, alt, "${ServantNukeAA2}", ${_tmpID}]}) {
+		/call core_cast2 "${ServantNukeAA2}" alt ${_tmpID} FALSE
+		/return
+	}
+
+	| /call pulse_stop
+	/if (${validate_cast[FALSE, pulse, "${songServantNuke}", ${_tmpID}]}) {
+		/call core_cast2 "${songServantNuke}" pulse ${_tmpID} FALSE
+		/return
+	}
+
 /return TRUE
 
 
@@ -303,10 +306,10 @@ sub mez_adds_BRD()
 		} else {
 			/squelch /target id ${_tmpID}
 			/delay 5 ${Target.ID} == ${_tmpID}
-			/delay 4s ${Me.SpellReady[${spellpbaeMez}]}
+			/delay 4s ${check_ready[spell, "${spellpbaeMez}"]}
 			/if (${SpawnCount[npc los radius 30 setzradius 15 targetable]} > 3 ) {
 				VOUT ${sepO} ${cinfo}${SpawnCount[npc radius 30 setzradius 15]}\ax ${sepC} Targets in point blank range.
-				/if (${Me.Gem[${spellpbaeMez}]} && ${Me.SpellReady[${spellpbaeMez}]}) {
+				/if (${check_ready[spell, "${spellpbaeMez}"]}) {
 					/if (${Me.Casting.Name.NotEqual[${spellpbaeMez}]}) /call pulse_stop
 					/if (${validate_cast[FALSE, pulse, "${spellpbaeMez}", ${Me.ID}]}) /call core_cast2 "${spellMez}" pulse 0 FALSE
 
@@ -351,7 +354,7 @@ sub cast_mez_BRD(int _tmpID)
 		/return
 	}
 	/if (${Me.CurrentMana}>${Spell[${spellMez}].Mana}) {
-		/delay 6s ${Me.SpellReady[${spellMez}]}
+		/delay 6s ${Me.SpellReady[${Spell[${spellMez}].RankName}]}
 		/target ID ${_tmpID}
 		/delay 5 ${Target.ID} == ${_tmpID}
 		/if (${validate_cast[FALSE, pulse, "${spellMez}", ${_tmpID}]}) /call core_cast2 "${spellMez}" pulse ${_tmpID} FALSE

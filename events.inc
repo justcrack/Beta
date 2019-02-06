@@ -9,26 +9,27 @@
 
 
 
-|***
-
-sub SpeakLine()
+sub events_speakline()
 	/if (!${swEventsInc}) /return
+	
 	/if (${Spawn[${Param0}].Distance} > 50) /bc I need to Move Closer To ${Param0}
 	:speakloop
+	
 		/if (${Me.Combat}) /attack off
 		/if (${Stick.Status.Equal[ON]}) /stick off
-		/if (${Spawn[${Param0}].Distance}>50) {
-	 		/delay 1s ${Spawn[${Param0}].Distance}>50
+		/if (${Spawn[${Param0}].Distance} > 50) {
+	 		/delay 1s ${Spawn[${Param0}].Distance} > 50
 	 		/goto :speakloop
+	
 		} else {
 	 		/target ${Param0}
-	 		/delay 1s ${Target.CleanName.Equal[${Param0}]}
-	 	/say ${Param1}
+	 		/delay 1s ${Target.DisplayName.Equal[${Param0}]}
+		 	/say ${Param1}
 		}
-		:exitSpeakLine
+
+
 /return
 
-***|
 
 
 
@@ -130,6 +131,7 @@ sub Event_16stein6(string line)
 
 |********************************************************************************************
  ** Depths of Darkhollow (September 2005)
+ **|
 
  
 #Event hatchet1 "#*#Hatchet hefts a weighted throwing axe in his offhand#*#"
@@ -297,109 +299,109 @@ sub event_hatchet6
 
 #Event Aelfric1 "Touched tenderly.#*#"
 sub Event_Aelfric1
-  /call SpeakLine "Aelfric the Flautist" "Where will you be?"
+  /call events_speakline "Aelfric the Flautist" "Where will you be?"
 /return
 
 
 #Event Aelfric2 "Where will you be?#*#"
 sub Event_Aelfric2
-  /call SpeakLine "Aelfric the Flautist" "Dreaming with me."
+  /call events_speakline "Aelfric the Flautist" "Dreaming with me."
 /return
 
 
 #Event Aelfric3 "Dreaming with me.#*#"
 sub Event_Aelfric3
-  /call SpeakLine "Aelfric the Flautist" "Please,"
+  /call events_speakline "Aelfric the Flautist" "Please,"
 /return
 
 
 #Event Aelfric4 "Please,#*#"
 sub Event_Aelfric4
-  /call SpeakLine "Aelfric the Flautist" "everybody, hear the music."
+  /call events_speakline "Aelfric the Flautist" "everybody, hear the music."
 /return
 
 
 #Event Britton1 "When she and I split ways,#*#"
 sub Event_Britton1
-  /call SpeakLine "Britton Harmony" "it felt like the end of my days."
+  /call events_speakline "Britton Harmony" "it felt like the end of my days."
 /return
 
 
 #Event Britton2 "it felt like the end of my days.#*#"
 sub Event_Britton2
-  /call SpeakLine "Britton Harmony" "Until I suddenly,"
+  /call events_speakline "Britton Harmony" "Until I suddenly,"
 /return
 
 
 #Event Britton3 "Until I suddenly,#*#"
 sub Event_Britton3
-  /call SpeakLine "Britton Harmony" "Suddenly realized"
+  /call events_speakline "Britton Harmony" "Suddenly realized"
 /return
 
 
 #Event Britton4 "suddenly realized#*#"
 sub Event_Britton4
-  /call SpeakLine "Britton Harmony" "this life was better off alone."
+  /call events_speakline "Britton Harmony" "this life was better off alone."
 /return
 
 
 #Event Britton5 "this life was better off alone.#*#"
 sub Event_Britton5
-  /call SpeakLine "Britton Harmony" "Solitude was the best gift you ever gave me."
+  /call events_speakline "Britton Harmony" "Solitude was the best gift you ever gave me."
 /return
 
 
 #Event Randal1  "Ol' Nilipus hailed from Misty Thicket#*#"
 sub Event_Randal1
-  /call SpeakLine "Randal Reedsea" "Where'er he smelled Jumjum he'd pick it."
+  /call events_speakline "Randal Reedsea" "Where'er he smelled Jumjum he'd pick it."
 /return
 
 
 #Event Randal2 "Where'er he smelled Jumjum he'd pick it#*#"
 sub Event_Randal2
-  /call SpeakLine "Randal Reedsea" "The halflings grew cross"
+  /call events_speakline "Randal Reedsea" "The halflings grew cross"
 /return
 
 
 #Event Randal3 "The halflings grew cross#*#"
 sub Event_Randal3
-  /call SpeakLine "Randal Reedsea" "When their profits were lost,"
+  /call events_speakline "Randal Reedsea" "When their profits were lost,"
 /return
 
 
 #Event Randal4 "When their profits were lost,#*#"
 sub Event_Randal4
-  /call SpeakLine "Randal Reedsea" "screamin', 'Where is that brownie? I'll kick it!'"
+  /call events_speakline "Randal Reedsea" "screamin', 'Where is that brownie? I'll kick it!'"
 /return
 
 
 #Event Seth1 "Another night, in eternal darkness.#*#"
 sub Event_Seth1
-  /call SpeakLine "Seth Kimble" "Time bleeds like a wound that's lost all meaning."
+  /call events_speakline "Seth Kimble" "Time bleeds like a wound that's lost all meaning."
 /return
 
 
 #Event Seth2 "Time bleeds like a wound that's lost all meaning.#*#"
 sub Event_Seth2
-  /call SpeakLine "Seth Kimble" "It's a long winter in the swirling chaotic void."
+  /call events_speakline "Seth Kimble" "It's a long winter in the swirling chaotic void."
 /return
 
 
 #Event Seth3 "It's a long winter in the swirling chaotic void.#*#"
 sub Event_Seth3
-  /call SpeakLine "Seth Kimble" "This is my torture,"
+  /call events_speakline "Seth Kimble" "This is my torture,"
 /return
 
 
 #Event Seth4 "This is my torture,#*#"
 sub Event_Seth4
-  /call SpeakLine "Seth Kimble" "my pain and suffering!"
+  /call events_speakline "Seth Kimble" "my pain and suffering!"
 /return
 
 
 #Event Seth5 "my pain and suffering!#*#"
 sub Event_Seth5
-  /call SpeakLine "Seth Kimble" "Pinch me, O'Death. . ."
+  /call events_speakline "Seth Kimble" "Pinch me, O'Death. . ."
 /return
 
 
@@ -414,7 +416,6 @@ sub Event_queenae(string line, string Direction)
   /bc Sendaii is going to AE ${Direction}
 /return
 
- **|
 
 
 |********************************************************************************************
@@ -1444,7 +1445,7 @@ sub Event_ToRWither()
 
 |********************************************************************************************
  ** The Darkened Sea (October 2014)
- **|
+
 
 #Event AM4 "#*#Electricity begins to form all around your body#*#"
 sub Event_AM4()
@@ -1576,13 +1577,13 @@ sub Event_AMRunAwayFiveOne()
   /delay 2s ${Me.Moving}
   /delay 12s !${Me.Moving}
 /return
-
+ **|
 
 
 
 |********************************************************************************************
  ** The Broken Mirror (November 2015)
- **|
+
  
  
 
@@ -1778,7 +1779,7 @@ sub CureDeathStrikeDT()
   }
 /return
 
-
+ **|
 
 
 
@@ -1793,7 +1794,7 @@ sub CureDeathStrikeDT()
  *	Healer classes If they get Withering Physicality XIII they need to use Distillate of Immunization XIII
  *	Healer classes If they get Withering Faith XIII they need to use Distillate of Immunization XV
  *	Tank classes If they get Withering Physicality XIII they need to use Distillate of Immunization XIII
- ***|
+
 sub CureDamselofDecay()
   /if (!${swEventsInc}) /return
   AMIDEAD
@@ -1814,7 +1815,7 @@ sub CureDamselofDecay()
 		/if (${Me.Buff[Withering Physicality XIII].ID} && ${Me.ItemReady[Distillate of Immunization XIII]}) /call core_cast2 "Distillate of Immunization XIII" item 0 FALSE
 	}
 /return
-
+ ***|
 
 
 
@@ -1861,7 +1862,7 @@ sub setAkkapanCamp()
 
 |********************************************************************************************
  ** Empires of Kunark (November 16, 2017)
- **|
+
 
 
 | **Talendor (VP 2 group raid)
@@ -1883,12 +1884,12 @@ sub Event_Nexona()
 /return
 
 
-
+ **|
 
 
 
 
 
 |********************************************************************************************
- ** The Burning Lands (DEcember 11, 2018)
+ ** The Burning Lands (December 11, 2018)
  **|

@@ -127,12 +127,12 @@ sub check_harvest()
 	/if (${Me.Buff[Improved Twincast].ID} || ${Me.Buff[${TwincastSpell}].ID}) /return
 
 	/if (${switchGather}) {
-		/if (!${Me.SpellReady[${Spell[${GatherSpell}].RankName}]}) {
+		/if (!${check_ready[spell, "${Spell[${GatherSpell}].RankName}"]}) {
 			/if (${validate_cast[FALSE, alt, "Forceful Rejuvenation", ${Me.ID}]}) /call core_cast2 "Forceful Rejuvenation" alt 0 FALSE
 			/delay 5			
 		}
 		/if (${Me.PctMana} < ${GatherPercent}*.${tmpHealOverride}) {
-			/if (${Me.SpellReady[${Spell[${GatherSpell}].RankName}]}) {
+			/if (${check_ready[spell, "${Spell[${GatherSpell}].RankName}"]}) {
 				/if (${validate_cast[FALSE, spell, "${GatherSpell}", ${Me.ID}]}) /call core_cast2 "${GatherSpell}" 0 0 FALSE
 			}
 			/if (${Me.AltAbilityReady[Harvest of Druzzil]}) {
@@ -201,7 +201,7 @@ sub burn_WIZ()
 	| alternate twincast
 	/if (!${Me.Buff[${TwincastSpell}].ID}) {
 		/if (${validate_cast[FALSE, alt, "Improved Twincast", ${Me.ID}]}) /call core_cast2 "Improved Twincast" alt 0 FALSE
-	} else /if (!${Me.Buff[Improved Twincast].ID} && !${Me.AltAbilityReady[Improved Twincast]} && ${Me.SpellReady[${TwincastSpell}]}) {
+	} else /if (!${Me.Buff[Improved Twincast].ID} && !${Me.AltAbilityReady[Improved Twincast]} && ${check_ready[spell, "${TwincastSpell}"]}) {
 		/if (${validate_cast[FALSE, spell, "${TwincastSpell}", ${Me.ID}]}) /call core_cast2 "${TwincastSpell}" 0 0 FALSE
 	}
 	
@@ -255,7 +255,7 @@ sub force_twincast_WIZ()
 	/if (${is_target_dead[${Target2Kill}]}) /return
 	/if (!${timer_force_twincast}) /call timer_update timer_force_twincast ${tForce_Twincast}
 	/if (!${cast_condition[NukeTwincastCondition]}) /return
-	/if (!${Me.Buff[Improved Twincast].ID} && !${Me.Buff[Twincast].ID} && ${Me.SpellReady[${TwincastSpell}]}) {
+	/if (!${Me.Buff[Improved Twincast].ID} && !${Me.Buff[Twincast].ID} && ${check_ready[spell, "${TwincastSpell}"]}) {
 		/if (${validate_cast[FALSE, spell, "${TwincastSpell}", ${Me.ID}]}) /call core_cast2 "${TwincastSpell}" 0 0 FALSE
 		/return
 	} else /if (!${Me.Buff[Improved Twincast].ID} && !${Me.Buff[${TwincastSpell}].ID} && !${Me.Buff[Twincast].ID}) {

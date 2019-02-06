@@ -101,6 +101,7 @@ lstRangeItemSummon	          [list] list of summoned ranged items to use
 strRangeSpell	                [set] spell to use for ranged pulling
 setRangeClickItem	            [set] click item to use for ranged pulling
 setRangeDisc	                [set] disc to use for ranged pulling
+setRangeAA		                [set] aa to use for ranged pulling
 autoInventoryItem	            [list] list of anything you want to go into inv entory as fast as fucking possible
 stoponDS	                    [switch] stop melee on target with DS
 useGlyph	                    [set] the glyph you want to use during raids

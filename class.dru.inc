@@ -181,12 +181,10 @@ sub check_heal_group_DRU()
  	/call check_no_cast_buff
 
 	| Panic heal
-	/if (${Me.SpellReady[${healPanic}]}) {
-		/if (${Group.Member[${hurtIndex}].PctHPs} < 20*.${setHealOverride}) {
-			/if (${Me.Casting.ID}) /stopcast
-			/if (${validate_cast[FALSE, spell, "${healPanic}", ${Group.Member[${hurtIndex}].ID}]}) /call core_cast2 "${healPanic}" 0 ${Group.Member[${hurtIndex}].ID} FALSE
-		}
-	}  	
+	/if (${Group.Member[${hurtIndex}].PctHPs} < 20*.${setHealOverride}) {
+		/if (${Me.Casting.ID}) /stopcast
+		/if (${validate_cast[FALSE, spell, "${healPanic}", ${Group.Member[${hurtIndex}].ID}]}) /call core_cast2 "${healPanic}" 0 ${Group.Member[${hurtIndex}].ID} FALSE
+	}
 	
 	
 	| single AA heals
@@ -203,7 +201,7 @@ sub check_heal_group_DRU()
 
 	  /if (${hurtCount} && !${SafeZone}) {
 	  	
-	  	/if (${hurtCount} > 3 && ${Me.SpellReady[${healWholeGroup}]}) {
+	  	/if (${hurtCount} > 3 && ${check_ready[spell, "${healWholeGroup}"]}) {
 	  		/if (${validate_cast[FALSE, spell, "${healWholeGroup}", ${Me.ID}]}) /call core_cast2 "${healWholeGroup}" 0 ${Me.ID} FALSE
 	  	} 	
 	  	
@@ -223,11 +221,11 @@ sub check_heal_group_DRU()
 	}
 	
 	| single target heals
-  	/if (${Me.SpellReady[${healRejuvilation}]}) {
+  	/if (${check_ready[spell, "${healRejuvilation}"]}) {
      /if (${validate_cast[FALSE, spell, "${healRejuvilation}", ${Group.Member[${hurtIndex}].ID}]}) /call core_cast2 "${healRejuvilation}" 0 ${Group.Member[${hurtIndex}].ID} FALSE
-    } else /if (${Me.SpellReady[${healSanavida}]}) {
+    } else /if (${check_ready[spell, "${healSanavida}"]}) {
       /if (${validate_cast[FALSE, spell, "${healSanavida}", ${Group.Member[${hurtIndex}].ID}]}) /call core_cast2 "${healSanavida}" 0 ${Group.Member[${hurtIndex}].ID} FALSE
-    } else /if (${Me.SpellReady[${healAdrenaline}]}) {
+    } else /if (${check_ready[spell, "${healAdrenaline}"]}) {
       /if (${validate_cast[FALSE, spell, "${healAdrenaline}", ${Group.Member[${hurtIndex}].ID}]}) /call core_cast2 "${healAdrenaline}" 0 ${Group.Member[${hurtIndex}].ID} FALSE
     } 
 	
@@ -252,7 +250,7 @@ sub check_heal_self_DRU()
 	/if (${Me.PctHPs} > ${DRUPoint}*.${tmpHealOverride}) /return
 	/declare _count int local 0
 	| Panic heal
-	/if (${Me.SpellReady[${healPanic}]}) {
+	/if (${check_ready[spell, "${healPanic}"]}) {
 		/if (${Me.PctHPs} < 20*.${setHealOverride}) {
 			/if (${Me.Casting.ID}) /stopcastMe.ID} FALSE
 		}
@@ -268,11 +266,11 @@ sub check_heal_self_DRU()
   
 	
 	| single target heals
-	/if (${Me.SpellReady[${healRejuvilation}]}) {
+	/if (${check_ready[spell, "${healRejuvilation}"]}) {
    /if (${validate_cast[FALSE, spell, "${healRejuvilation}", ${Me.ID}]}) /call core_cast2 "${healRejuvilation}" 0 ${Me.ID} FALSE
-  } else /if (${Me.SpellReady[${healSanavida}]}) {
+  } else /if (${check_ready[spell, "${healSanavida}"]}) {
     /if (${validate_cast[FALSE, spell, "${healSanavida}", ${Me.ID}]}) /call core_cast2 "${healSanavida}" 0 ${Me.ID} FALSE
-  } else /if (${Me.SpellReady[${healAdrenaline}]}) {
+  } else /if (${check_ready[spell, "${healAdrenaline}"]}) {
     /if (${validate_cast[FALSE, spell, "${healAdrenaline}", ${Me.ID}]}) /call core_cast2 "${healAdrenaline}" 0 ${Me.ID} FALSE
   } 	
 
@@ -312,7 +310,7 @@ sub check_heal_XTarget_DRU()
 	/call check_no_cast_buff
 
 	| panic heal
-	/if (${Me.SpellReady[${healPanic}]}) {
+	/if (${check_ready[spell, "${healPanic}"]}) {
 		/if (${Me.XTarget[${hurtIndex}].PctHPs} < 20*.${setHealOverride}) {
 			/if (${Me.Casting.ID}) /stopcast
 			/if (${validate_cast[FALSE, spell, "${healPanic}", ${Me.XTarget[${hurtIndex}].ID}]}) /call core_cast2 "${healPanic}" 0 ${Me.XTarget[${hurtIndex}].ID} check_health_group
@@ -321,11 +319,11 @@ sub check_heal_XTarget_DRU()
 	
   /if (${Me.XTarget[${hurtIndex}].PctHPs} <= ${${hurtCLS}Point}*.${tmpHealOverride}) {
 		/if (${Me.Casting.ID}) /stopcast
-  	/if (${Me.SpellReady[${healRejuvilation}]}) {
+  	/if (${check_ready[spell, "${healRejuvilation}"]}) {
      /if (${validate_cast[FALSE, spell, "${healRejuvilation}", ${Me.XTarget[${hurtIndex}].ID}]}) /call core_cast2 "${healRejuvilation}" 0 ${Me.XTarget[${hurtIndex}].ID} check_health_group
-    } else /if (${Me.SpellReady[${healSanavida}]}) {
+    } else /if (${check_ready[spell, "${healSanavida}"]}) {
       /if (${validate_cast[FALSE, spell, "${healSanavida}", ${Me.XTarget[${hurtIndex}].ID}]}) /call core_cast2 "${healSanavida}" 0 ${Me.XTarget[${hurtIndex}].ID} check_health_group
-    } else /if (${Me.SpellReady[${healAdrenaline}]}) {
+    } else /if (${check_ready[spell, "${healAdrenaline}"]}) {
       /if (${validate_cast[FALSE, spell, "${healAdrenaline}", ${Me.XTarget[${hurtIndex}].ID}]}) /call core_cast2 "${healAdrenaline}" 0 ${Me.XTarget[${hurtIndex}].ID} check_health_group
     } 
   } 	
@@ -362,9 +360,9 @@ sub check_heal_pet_DRU()
 
   
   /if (${Group.Member[${hurtIndex}].Pet.PctHPs} < ${PetPoint}) {
-  	/if (${Me.SpellReady[${healRejuvilation}]}) {
+  	/if (${check_ready[spell, "${healRejuvilation}"]}) {
     	/if (${validate_cast[FALSE, spell, "${healRejuvilation}", ${Group.Member[${hurtIndex}].Pet.ID}]}) /call core_cast2 "${healRejuvilation}" 0 ${Group.Member[${hurtIndex}].Pet.ID} check_health_group
-  	} else /if (${Me.SpellReady[${healSanavida}]}) {
+  	} else /if (${check_ready[spell, "${healSanavida}"]}) {
     	/if (${validate_cast[FALSE, spell, "${healSanavida}", ${Group.Member[${hurtIndex}].Pet.ID}]}) /call core_cast2 "${healSanavida}" 0 ${Group.Member[${hurtIndex}].Pet.ID} check_health_group
     }
   } 

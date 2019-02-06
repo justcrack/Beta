@@ -1,7 +1,7 @@
 |***
  *	modes.inc
  *	Core Mode Specific Functions
- *
+ *	for doing strange stuff....
  *
  *
  ***|
@@ -934,7 +934,7 @@ sub mode_summon(string _type)
 		/nav spawn npc A Disciple of Luclin
 
 		:priestinventory
-			/delay 10s ${Navigation.Active}
+			/delay 10s !${Navigation.Active}
 			/delay 1s
 			/squelch /target A Disciple of Luclin
 			/delay 1s
@@ -955,7 +955,7 @@ sub mode_summon(string _type)
 
 	| move to rezer
   /nav spawn npc A Priest of Luclin
-  /delay 10s ${Navigation.Active}
+  /delay 10s !${Navigation.Active}
 
 	| get stone on cursor
   /itemnotify "${_soulstone}" leftmouseup

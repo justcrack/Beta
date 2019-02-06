@@ -2159,8 +2159,9 @@ sub Bind_grab(string _name)
 		/return
 	} else /if (${Ground[${_name}].Distance3D} <= 20 ) {
 		/invoke ${Ground[${_name}].Grab}
-		/delay 1s ${Cursor.ID}
-		VOUT /grab ${sep} ${cinfo}${Cursor.Name}\ax
+		| /delay 1s ${Cursor.ID}
+		| /delay 1s ${Cursor.ID}
+		| /if (${Cursor.ID}) VOUT /grab ${sep} ${cinfo}${Cursor.Name}\ax
 	}
 /return
 
@@ -2579,7 +2580,7 @@ sub Bind_get_the_fuck_out()
 
 	/if (${Me.ItemReady[${setGTFO}]}) {
 		/if (${validate_cast[FALSE, item, "${setGTFO}", ${Me.ID}]}) /call core_cast2 "${setGTFO}" item 0 FALSE
-	} else /if (${Me.SpellReady[${setGTFO}]}) {
+	} else /if (${Me.SpellReady[${Spell[${setGTFO}].RankName}]}) {
 		/if (${validate_cast[FALSE, spell, "${setGTFO}", ${Me.ID}]}) /call core_cast2 "${setGTFO}" 0 0 FALSE
 	} else /if (${Me.AltAbility[${setGTFO}].ID}) {
 		/if (${validate_cast[FALSE, alt, "${setGTFO}", ${Me.ID}]}) /call core_cast2 "${setGTFO}" alt 0 FALSE

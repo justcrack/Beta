@@ -401,6 +401,7 @@ sub pregen_character()
 	/call sql_control FALSE character strRangeSpell											string		outer FALSE
 	/call sql_control FALSE character setRangeClickItem									string		outer FALSE
 	/call sql_control FALSE character setRangeDisc											string		outer FALSE
+	/call sql_control FALSE character setRangeAA												string		outer FALSE
 	/call sql_control FALSE character autoInventoryItem									string		outer "|FALSE"
 	/call sql_control FALSE character stoponDS													bool			outer FALSE		
 	/call sql_control FALSE character useGlyph													string		outer FALSE
@@ -693,7 +694,7 @@ sub pregen_character()
 		/call sql_control FALSE ${Me.Class.ShortName} frenzy							bool			outer FALSE
 	}
 	/if (${Select[${Me.Class.ShortName},ROG]}) {
-		/declare flagSoS																									bool						outer FALSE
+		/declare flagSoS																									bool			outer FALSE
 		/call sql_control FALSE ${Me.Class.ShortName} backstab						bool			outer FALSE
 	}
 	/if (${Select[${Me.Class.ShortName},BRD,BER,MNK,ROG]}) {

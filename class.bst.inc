@@ -182,7 +182,7 @@ sub patch_heal_BST()
  		/if (${validate_cast[FALSE, alt, "Warder's Gift", ${Me.ID}]}) /call core_cast2 "Warder's Gift" alt 0 FALSE
 	}
 
-	/if (${Me.PctHPs} <= ${${Me.Class.ShortName}Point}*.${tmpHealOverride} && ${Me.SpellReady[${FastHeal}]}) {
+	/if (${Me.PctHPs} <= ${${Me.Class.ShortName}Point}*.${tmpHealOverride}) {
 		/if (${validate_cast[FALSE, spell, "${FastHeal}", ${Me.ID}]}) /call core_cast2 "${FastHeal}" 0 ${Me.ID} FALSE
 	}
 	/call click_item_heal
