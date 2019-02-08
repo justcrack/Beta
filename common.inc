@@ -1744,7 +1744,7 @@ sub is_target_dead(int _tmpID)
  ***|
 sub clear_combat()
 
-	/if (${Select[${Me.Class.ShortName},BRD]} && (${Me.Casting.ID} || ${Me.BardSongPlaying})) {
+	/if (${Select[${Me.Class.ShortName},BRD]}) {
 		/melody stop
 		/stopsong
 		/stopcast

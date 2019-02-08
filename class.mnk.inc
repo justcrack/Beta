@@ -64,6 +64,7 @@ sub disc_MNK()
 	/if (${Me.PctAggro} >= ${setAgroPct}) {
 		/if (${validate_cast[FALSE, alt, "${AASilent}", ${Me.ID}]}) /call core_cast2 "${AASilent}" alt 0 FALSE
 	}
+	/if (${validate_cast[FALSE, disc, "${DiscWu}", ${Me.ID}]} && !${Me.Song[${DiscWu}].ID}) /call core_cast2 "${DiscWu}" disc 0 FALSE
 	/if (${validate_cast[FALSE, disc, "${DiscDoubleAttack}", ${Me.ID}]}) /call core_cast2 "${DiscDoubleAttack}" disc 0 FALSE
 	/if (${validate_cast[FALSE, alt, "${AAZanFi}", ${Me.ID}]}) /call core_cast2 "${AAZanFi}" alt 0 FALSE
 	/if (${validate_cast[FALSE, disc, "${DiscMonkey}", ${Target2Kill}]}) /call core_cast2 "${DiscMonkey}" disc ${Target2Kill} FALSE	

@@ -456,7 +456,6 @@ sub pregen_character()
 	/call sql_control FALSE character swCombatHeal											bool			outer FALSE
 
 	| rez	control
-	/call setDeclare lstRezToken																				string 		outer "${lstClassAll}"
 	/call setDeclare swValidRezFound 																		bool	 		outer FALSE
 	/call setDeclare setRezWindowPct 																		int 			outer 0
 	| /call setDeclare switchRez																					bool			outer FALSE
@@ -1773,6 +1772,7 @@ sub pregen_MNK()
 	/call sql_control FALSE MNK DiscStorm																string		outer "Eye of the Storm"
 	/call sql_control FALSE MNK DiscRest																string		outer "Breather"
 	/call sql_control FALSE MNK DiscDelayDeath													string		outer "Refuse Death"
+	/call sql_control FALSE MNK DiscWu																	string		outer PREGENDATA
 	
 	/call sql_control FALSE MNK AASilent																string		outer "Silent Strikes"
 	/call sql_control FALSE MNK AAThunder																string		outer "Infusion of Thunder"
@@ -2114,7 +2114,7 @@ sub pregen_ROG()
 	/call timer_set FALSE tClick_Poison																	string		outer 30s 	timer_click_poison
 	/call sql_control FALSE ROG AEMelee					 												bool	 		outer FALSE
                                              		
-	/call sql_control FALSE MNK DiscDicho																string		outer PREGENDATA
+	/call sql_control FALSE ROG DiscDicho																string		outer PREGENDATA
 	/call sql_control FALSE ROG DiscRest				 												string 		outer PREGENDATA
 	/call sql_control FALSE ROG DiscAggro 															string 		outer PREGENDATA
 	/call sql_control FALSE ROG DiscAssault 														string 		outer PREGENDATA

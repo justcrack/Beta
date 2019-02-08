@@ -28,6 +28,15 @@ Plugins Required: MQ2Cast, MQ2Exchange, MQ2MoveUtils, MQ2Debuffs, MQ2DanNet, MQ2
 
 
 
+BETA 0208.01
+- found a dup in the lstRezToken. its not there anymore
+- class.rog.inc
+  -- error in the rogues pregen. dicho was set for monks
+- class.dru.inc
+  -- more changes to get it in line with the cleric
+- class.mnk.inc
+  -- added disc Fists of Wu to rotation  
+
 
 BETA 0206.01
 - corrected numerous .RankName issues for spells and discs

@@ -308,7 +308,11 @@ sub check_heal_group_PAL()
 	CHECKTIE
 	
 	/declare _count int local 0
-
+	/varset hurtIndex ${Group.Member[${Me}].Index}
+	/varset hurtPctHP ${If[${setHealOverride},${Float[${setHealOverride}].Centi},99.99]}
+	/varset hurtCLS ${Me.Class.ShortName}
+	/varset hurtCount 0
+	
 	| Do group members need healing? 
   /call check_health_group
   

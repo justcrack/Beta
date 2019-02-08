@@ -208,7 +208,7 @@ sub check_heal_group_CLR()
 	}		  	
   
 	| Panic heal
-	/if (${Group.Member[${hurtIndex}].PctHPs} < 20*.${tmpHealOverride}) {
+	/if (${Group.Member[${hurtIndex}].PctHPs} < 20*.${tmpHealOverride} && ${Me.SpellReady[${Spell[${healPanic}].RankName}]}) {
 		/if (${validate_cast[FALSE, spell, "${healPanic}", ${Group.Member[${hurtIndex}].ID}]} && ${Me.Casting.ID}) /stopcast
 		/call core_cast2 "${healPanic}" 0 ${Group.Member[${hurtIndex}].ID} FALSE
 		/if (!${Raid.Members} && ${validate_cast[FALSE, alt, "Divine Guardian", ${Group.Member[${hurtIndex}].ID}]}) /call core_cast2 "Divine Guardian" alt ${Group.Member[${hurtIndex}].ID} FALSE
@@ -452,34 +452,32 @@ sub check_heal_XTarget_CLR()
 	}
 
 	| panic heal
-	/if (${Me.XTarget[${hurtIndex}].PctHPs} < 20*.${tmpHealOverride}) {
+	/if (${Me.XTarget[${hurtIndex}].PctHPs} < 20*.${tmpHealOverride} && ${Me.SpellReady[${Spell[${healPanic}].RankName}]}) {
 		/if (${Me.Casting.ID}) /stopcast
 		/if (${validate_cast[FALSE, spell, "${healPanic}", ${Me.XTarget[${hurtIndex}].ID}]}) /call core_cast2 "${healPanic}" 0 ${Me.XTarget[${hurtIndex}].ID} FALSE
 	}
 	
  	| agressive healing sort
  	/if (${switchHealAggressive}) {
- 		/for _count 1 to 4
- 			/if (${Me.SpellReady[${Spell[${healIntervention${_count}}].RankName}]}) /goto :interventions
- 		/next _count
+ 		/if (${Me.SpellReady[${Spell[${healIntervention1}].RankName}]} || ${Me.SpellReady[${Spell[${healIntervention2}].RankName}]} || ${Me.SpellReady[${Spell[${healIntervention3}].RankName}]} || ${Me.SpellReady[${Spell[${healIntervention4}].RankName}]}) /goto :aggressivesort
  	} 
 	
 	| Remedy Heals 
   /if (${Me.XTarget[${hurtIndex}].PctHPs} <= ${${hurtCLS}Point}*.${tmpHealOverride}) {
 		/for _count 1 to 3
-			/if (${validate_cast[FALSE, spell, "${healRemedy${_count}}", ${Me.XTarget[${hurtIndex}].ID}]}) {
-				/call core_cast2 "${healRemedy${_count}}" 0 ${Me.XTarget[${hurtIndex}].ID} check_health_group
+			/if (${Me.SpellReady[${Spell[${healRemedy${_count}}].RankName}]}) {
+				/if (${validate_cast[FALSE, spell, "${healRemedy${_count}}", ${Me.XTarget[${hurtIndex}].ID}]}) /call core_cast2 "${healRemedy${_count}}" 0 ${Me.XTarget[${hurtIndex}].ID} FALSE
 				/break
 			}
-		/next _count 
+		/next _count
 	}	
 	
 	| Intervention Heals
-	:interventions
+	:aggressivesort
   /if (${Me.XTarget[${hurtIndex}].PctHPs} <= ${${hurtCLS}Point}*.${tmpHealOverride}) {
 		/for _count 1 to 4
-			/if (${validate_cast[FALSE, spell, "${healIntervention${_count}}", ${Me.XTarget[${hurtIndex}].ID}]}) {
-				/call core_cast2 "${healIntervention${_count}}" 0 ${Me.XTarget[${hurtIndex}].ID} check_health_group
+			/if (${Me.SpellReady[${Spell[${healIntervention${_count}}].RankName}]}) {
+				/if (${validate_cast[FALSE, spell, "${healIntervention${_count}}", ${Me.XTarget[${hurtIndex}].ID}]}) /call core_cast2 "${healIntervention${_count}}" 0 ${Me.XTarget[${hurtIndex}].ID} FALSE
 				/break
 			}
 		/next _count
@@ -488,11 +486,11 @@ sub check_heal_XTarget_CLR()
 	| Renewal Heals
   /if (${Me.XTarget[${hurtIndex}].PctHPs} <= ${${hurtCLS}Point}*.${tmpHealOverride}) {
 		/for _count 1 to 3
-			/if (${validate_cast[FALSE, spell, "${healRenewal${_count}}", ${Me.XTarget[${hurtIndex}].ID}]}) {
-				/call core_cast2 "${healRenewal${_count}}" 0 ${Me.XTarget[${hurtIndex}].ID} check_health_group
+			/if (${Me.SpellReady[${Spell[${healRenewal${_count}}].RankName}]}) {
+				/if (${validate_cast[FALSE, spell, "${healRenewal${_count}}", ${Me.XTarget[${hurtIndex}].ID}]}) /call core_cast2 "${healRenewal${_count}}" 0 ${Me.XTarget[${hurtIndex}].ID} FALSE
 				/break
 			}
-		/next _count 
+		/next _count
 	}	
 	
 	UPDATEHUD FALSE
@@ -527,10 +525,8 @@ sub check_heal_pet_CLR()
 	
  	| agressive healing sort
  	/if (${switchHealAggressive}) {
- 		/for _count 1 to 4
- 			/if (${Me.SpellReady[${Spell[${healIntervention${_count}}].RankName}]}) /goto :interventions
- 		/next _count
- 	}
+ 		/if (${Me.SpellReady[${Spell[${healIntervention1}].RankName}]} || ${Me.SpellReady[${Spell[${healIntervention2}].RankName}]} || ${Me.SpellReady[${Spell[${healIntervention3}].RankName}]} || ${Me.SpellReady[${Spell[${healIntervention4}].RankName}]}) /goto :aggressivesort
+ 	} 
  	
  	| Remedy Heals 
   /if (${Group.Member[${hurtIndex}].Pet.PctHPs} <= ${PetPoint}) {
@@ -543,7 +539,7 @@ sub check_heal_pet_CLR()
 	}
 	
 	| Intervention Heals
-	:interventions
+	:aggressivesort
   /if (${Group.Member[${hurtIndex}].Pet.PctHPs} <= ${PetPoint}) {
 		/for _count 1 to 4
 			/if (${validate_cast[FALSE, spell, "${healIntervention${_count}}", ${Group.Member[${hurtIndex}].Pet.ID}]}) {
@@ -564,7 +560,7 @@ sub check_heal_pet_CLR()
 	}
 		
 	| Panic heal
-	/if (${Group.Member[${hurtIndex}].Pet.PctHPs} < .20*${PetPoint}) {
+	/if (${Group.Member[${hurtIndex}].Pet.PctHPs} < .20*${PetPoint} && ${Me.SpellReady[${Spell[${healPanic}].RankName}]}) {
 		/if (${Me.Casting.ID}) /stopcast
 		/if (${validate_cast[FALSE, spell, "${healPanic}", ${Group.Member[${hurtIndex}].Pet.ID}]}) /call core_cast2 "${healPanic}" 0 ${Group.Member[${hurtIndex}].Pet.ID} FALSE
 		/return
@@ -599,7 +595,7 @@ sub cast_divine_arbitration()
   }
   
   | heal speed boost
-  /if (${validate_cast[FALSE, alt, "Celestial Rapidity", ${Me.ID}]}) /call core_cast2 "Celestial Rapidity" alt 0 FALSE
+  /if (!${Raid.Members} && ${validate_cast[FALSE, alt, "Celestial Rapidity", ${Me.ID}]}) /call core_cast2 "Celestial Rapidity" alt 0 FALSE
 	
 	/if (${setDivinetoGroupHeal} && ${useGroupHeal}) {
 		/if (${validate_cast[FALSE, spell, "${healWholeGroup}", ${Me.ID}]}) /call core_cast2 "${healWholeGroup}" 0  FALSE

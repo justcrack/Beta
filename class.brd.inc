@@ -95,7 +95,7 @@ sub disc_BRD()
 	CHECKINPUTS
 
 	/if (${is_target_dead[${Target2Kill}]}) {
-		/call pulse_stop
+		/call clear_combat
 		/return
 	}
 	
@@ -116,7 +116,7 @@ sub disc_BRD()
 	/if (${Spawn[${Target2Kill}].PctHPs} > 50) {
 		/if (${validate_cast[FALSE, alt, "Boastful Bellow", ${Target2Kill}]}) /call core_cast2 "Boastful Bellow" alt ${Target2Kill} FALSE	
 		/if (${is_target_dead[${Target2Kill}]}) {
-			/call pulse_stop
+			/call clear_combat
 			/return
 		}
 	}
@@ -156,7 +156,7 @@ sub click_DPS_BRD()
 	CHECKEXIT
 	CHECKINPUTS
 	/if (${is_target_dead[${Target2Kill}]}) {
-		/call pulse_stop
+		/call clear_combat
 		/return
 	}
 	/if (${swCombatMelee}) /call stick_to_target
@@ -175,7 +175,7 @@ sub cast_servant_swarm(int _tmpID)
 	CHECKEXIT
 	CHECKINPUTS
 	/if (${is_target_dead[${Target2Kill}]}) {
-		/call pulse_stop
+		/call clear_combat
 		/return
 	}
 	
@@ -251,7 +251,7 @@ sub pulse()
 	/for _count 1 to ${_list.Size}
 		/for _index 1 to ${_list[${_count}].Count[|]}
 			/if (${is_target_dead[${Target2Kill}]}) {
-				/call pulse_stop
+				/call clear_combat
 				/return
 			}
 
@@ -396,7 +396,7 @@ sub burn_BRD()
 	CHECKEXIT
 	CHECKINPUTS
 	/if (${is_target_dead[${Target2Kill}]}) {
-		/call pulse_stop
+		/call clear_combat
 		/return
 	}
 
@@ -430,7 +430,7 @@ sub pulse_slow(int _tmpID)
 	CHECKEXIT
 	CHECKINPUTS
 	/if (${is_target_dead[${Target2Kill}]}) {
-		/call pulse_stop
+		/call clear_combat
 		/return
 	}
 		
