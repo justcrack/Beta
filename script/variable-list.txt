@@ -41,7 +41,7 @@ swBuffGemHold									[switch] remember the spell that was in the buff gem and p
 setMQFontSize									[switch] # for font size in MQ window
 swMQCaptions									[switch] stupid leader caption MQ adds to character headders
 swAutoAssist									[switch] set EQ AUTOASSIST off
-setMaxBuffCount								[set] maximum buff count cycled by Core
+setMaxBuffCount								[set] maximum buff count cycled by Core (10 is default)
 swMealinManual								[switch] eats food while in manual mode
 lstNoInvite										[list] list of people to never invite (seriously im an introvert anyways)
 lstNoRez											[list] list of people to never rez (fuck them)
@@ -57,9 +57,8 @@ swBCEnter											[switch] broadcast /enter command
 swBCInvis											[switch] broadcast /invis command
 swBCKillMob										[switch] broadcast /killmob command
 swBCClean											[switch] broadcast /cls command
-swBCAnchor										[switch] broadcast /anchor command
 swEchosAlt										[switch] echo Alt usage in MQ window
-swEchosSpell									[switch] echo Spell usage in Mw window
+swEchosSpell									[switch] echo Spell usage in MQ window
 swEchosDisc										[switch] echo Disc usage in MQ window
 swEchosItem										[switch] echo Item usage in the MQ window
 swEchosMelee									[switch] echo Melee usage in the MQ window
@@ -397,8 +396,6 @@ BERPoint                      [set] ##% health heal point
 PALPoint                      [set] ##% health heal point
 GoMpoint                      [set] ##% health heal point
 XHealClass                    [set] ##% health heal point
-setToonControlXTslot          [set] xtarget slot to use for control toon
-setToonControlProtect         [set] 
 
 
 ;heals                            			
@@ -734,6 +731,7 @@ DiscShuriken						      [set]
 DiscStorm						          [set] 
 DiscRest						          [set] 
 DiscDelayDeath						    [set] 
+DiscWu										    [set] 
 AASilent						          [set] 
 AAThunder						          [set] 
 AAFocus						            [set] 

@@ -351,7 +351,6 @@ sub check_heal_pet_DRU()
 
 	/declare _count int local 0
 	/varset hurtIndex ${Group.Member[${Me}].Index}
-	/varset hurtPctHP 100
   
 	/call check_health_pet
 
@@ -360,7 +359,6 @@ sub check_heal_pet_DRU()
  		UPDATEHUD FALSE
  		/return
 	}
-
   
   /if (${Group.Member[${hurtIndex}].Pet.PctHPs} < ${PetPoint}) {
   	/if (${Me.SpellReady[${Spell[${healRejuvilation}].RankName}]}) {

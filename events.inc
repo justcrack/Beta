@@ -12,7 +12,7 @@
 sub events_speakline()
 	/if (!${swEventsInc}) /return
 	
-	/if (${Spawn[${Param0}].Distance} > 50) /bc I need to Move Closer To ${Param0}
+	/if (${Spawn[${Param0}].Distance} > 50) /echo I need to Move Closer To ${Param0}
 	:speakloop
 	
 		/if (${Me.Combat}) /attack off
@@ -137,7 +137,7 @@ sub Event_16stein6(string line)
 #Event hatchet1 "#*#Hatchet hefts a weighted throwing axe in his offhand#*#"
 Sub event_hatchet1
   /if (!${swEventsInc}) /return
-  /bc I NEED TO RUN AWAY
+  /echo I NEED TO RUN AWAY
   /declare running 						int 		local
   /declare distanceNow 				float 	local
   /declare distanceBefore 		float 	local
@@ -152,21 +152,21 @@ Sub event_hatchet1
   :moveAway
    /squelch /face fast away id ${MoveToID}
 
-   /if (${Spawn[${MoveToID}].Distance}>=${StopDistance}) {
+   /if (${Spawn[${MoveToID}].Distance} >= ${StopDistance}) {
      /keypress forward
-     /bc I am far from Hatchet!!!
+     /echo I am far from Hatchet!!!
      /return
    }   
-   /if (${distanceTimer}==0) {
-     /if (${Me.Sneaking         }) {
+   /if (${distanceTimer} == 0) {
+     /if (${Me.Sneaking}) {
        /varset distanceModifier 2
      } else {
        /varset distanceModifier 1
      }
      /varset distanceNow ${Spawn[${MoveToID}].Distance}
-     /if (${Math.Calc[${distanceBefore}-${distanceNow}]}<${Math.Calc[10/${distanceModifier}]}) {
+     /if (${Math.Calc[${distanceBefore}-${distanceNow}]} < ${Math.Calc[10/${distanceModifier}]}) {
        /keypress forward
-       /if (${Math.Rand[99]}>50) {
+       /if (${Math.Rand[99]} > 50) {
          /keypress strafe_right hold
        } else {
          /keypress strafe_left hold
@@ -181,12 +181,12 @@ Sub event_hatchet1
      }
       /if (${running}==0) {
         /keypress forward
-        /if (${Spawn[${MoveToID}].Distance}<=${StopDistance}) {
+        /if (${Spawn[${MoveToID}].Distance} <= ${StopDistance}) {
           /varset running 1
           /keypress forward hold
         }
       } else {
-        /if (${Spawn[${MoveToID}].Distance}>=${StopDistance}) {
+        /if (${Spawn[${MoveToID}].Distance} >= ${StopDistance}) {
           /varset running 0
           /keypress forward
         }
@@ -198,36 +198,36 @@ Sub event_hatchet1
 #Event hatchet2 "#*#Hatchet lifts his axe high#*#"
 Sub event_hatchet2
   /if (!${swEventsInc}) /return
-  /bc I NEED TO RUN BETWEEN HIS LEGS
-  /declare running 		int 	local
-  /declare distanceNow 		float 	local
-  /declare distanceBefore 	float 	local
-  /declare distanceModifier 	int 	local
-  /declare MoveToID		int	local ${Spawn[Hatchet].ID}
-  /declare StopDistance		int	local 6
-  /declare distanceTimer 	timer 15
-  /varset distanceBefore ${Spawn[${MoveToID}].Distance}
+  /echo I NEED TO RUN BETWEEN HIS LEGS
+  /declare running							int local
+  /declare distanceNow					float local
+  /declare distanceBefore				float local
+  /declare distanceModifier			int local
+  /declare MoveToID							int local ${Spawn[Hatchet].ID}
+  /declare StopDistance					int	local 6
+  /declare distanceTimer				timer 15
+  /varset distanceBefore 				${Spawn[${MoveToID}].Distance}
   /varset distanceModifier 1
   /varset running 0
 
   :moveToSpawn
    /squelch /face fast nolook id ${MoveToID}
 
-   /if (${Spawn[${MoveToID}].Distance}<${StopDistance}) {
+   /if (${Spawn[${MoveToID}].Distance} < ${StopDistance}) {
      /keypress forward
-     /bc I am at Hatchet!!!
+     /echo I am at Hatchet!!!
      /return
    }
-   /if (${distanceTimer}==0) {
+   /if (${distanceTimer} == 0) {
      /if (${Me.Sneaking}) {
        /varset distanceModifier 2
      } else {
        /varset distanceModifier 1
      }
      /varset distanceNow ${Spawn[${MoveToID}].Distance}
-     /if (${Math.Calc[${distanceBefore}-${distanceNow}]}<${Math.Calc[10/${distanceModifier}]}) {
+     /if (${Math.Calc[${distanceBefore}-${distanceNow}]} < ${Math.Calc[10/${distanceModifier}]}) {
        /keypress forward
-       /if (${Math.Rand[99]}>50) {
+       /if (${Math.Rand[99]} > 50) {
          /keypress strafe_right hold
        } else {
          /keypress strafe_left hold
@@ -240,14 +240,14 @@ Sub event_hatchet2
      /varset distanceBefore ${Spawn[${MoveToID}].Distance}
      /varset distanceTimer 15
      }
-      /if (${running}==0) {
+      /if (${running} == 0) {
         /keypress forward
-        /if (${Spawn[${MoveToID}].Distance}>=${StopDistance}) {
+        /if (${Spawn[${MoveToID}].Distance} >= ${StopDistance}) {
           /varset running 1
           /keypress forward hold
         }
       } else {
-        /if (${Spawn[${MoveToID}].Distance}<${StopDistance}) {
+        /if (${Spawn[${MoveToID}].Distance} < ${StopDistance}) {
           /varset running 0
           /keypress forward
         }
@@ -260,7 +260,7 @@ Sub event_hatchet2
 #Event hatchet3 "#*#Breakneck hoists an arm back#*#"
 Sub event_hatchet3
   /if (!${swEventsInc}) /return
-  /bc I NEED TO DUCK
+  /echo I NEED TO DUCK
   /if (${Me.Class.Name.Equal[BARD]}) /twist off
  :TopDuck
   /if (${Me.State.NotEqual[DUCK]}) /keypress DUCK
@@ -271,7 +271,7 @@ Sub event_hatchet3
 /return
 
 Sub event_hatchet4
-  /bc RUN AWAY FROM THE NAMED!!!
+  /echo RUN AWAY FROM THE NAMED!!!
   /if (${Stick.Status[ON]}) /stick off
   /mqp
 /return
@@ -281,7 +281,7 @@ Sub event_hatchet4
 #Event hatchet4 "#*#Breakneck locks eyes with you and snorts#*#"
 #Event hatchet5 "#*#Hatchet the torturer levels#*#"
 Sub event_hatchet5
-  /bc HE IS CHARGING SOMEONE
+  /echo HE IS CHARGING SOMEONE
 /return
 
 
@@ -292,7 +292,7 @@ Sub event_hatchet5
 #Event hatchet6 "#*#You outdistance the reach#*#"
 #Event hatchet6 "#*#Hatchet's axe passes#*#"
 sub event_hatchet6
-  /bc DANGER IS GONE!
+  /echo DANGER IS GONE!
   /if (${Me.State.Equal[DUCK]}) /keypress DUCK
 /return
 
@@ -407,13 +407,13 @@ sub Event_Seth5
 
 #Event queenlocation "#*#Sendaii begins to look in your direction#*#"
 sub Event_queenlocation
-  /bc Queen is heading right for me
+  /echo Queen is heading right for me
 /return
 
 
 #Event queenae "#*#Sendaii glances to her #1# as she adjusts her footing.#*#"
 sub Event_queenae(string line, string Direction)
-  /bc Sendaii is going to AE ${Direction}
+  /echo Sendaii is going to AE ${Direction}
 /return
 
 
@@ -452,7 +452,7 @@ sub Event_Sleeper
 
 #Event UnstableCharge	"#*#An unstable charge courses through you.#*#"
 sub Event_UnstableCharge
-  /bc CHARGE ON ME...CURE!!!
+  /echo CHARGE ON ME...CURE!!!
 /return
 
 #Event Front "#*#The mighty prismatic dragon prepares a terrible tail strike!#*#"
@@ -478,7 +478,7 @@ sub Event_Back
 #Event QueenAE 	"#*#Queen Malarian anchors her feet to the ground and prepares to unleash a wave of burning acid#*#"
 sub Event_QueenAE
   /if (!${swEventsInc}) /return
-  /bc Getting away from Queen
+  /echo Getting away from Queen
   /if (${Spawn[Queen Malarian].Distance}>30) /return
   /return
   /target clear
@@ -493,7 +493,7 @@ sub Event_QueenAE
 #Event QueenAdd "#*#You see the queen glare at you#*#"
 sub Event_QueenAdd
   /if (!${swEventsInc}) /return
-  /bc I NEED to RUN AWAY!
+  /echo I NEED to RUN AWAY!
   /target clear
   /play QueenAdd smart
   /delay 1s ${Me.Moving}
@@ -517,23 +517,23 @@ sub Event_QueenAdd
 #Event BrektRock "#*#A shadow passes over you#*#"
 sub Event_BrektRock
   /if (!${swEventsInc}) /return
-  /bc GET AWAY FROM THE RAID NOW!!
+  /echo GET AWAY FROM THE RAID NOW!!
 /return
 
 
 #Event BrektFeet "#*#Lord Brekt prepares to unleash his fury on the mortals at his feet#*#"
 Sub_Event_BrektFeet
   /if (!${swEventsInc}) /return
-  /bc GET AWAY FROM BREKT'S FEET
+  /echo GET AWAY FROM BREKT'S FEET
 /return
 
 
 #Event BrektDT "#*#You are corrupted by discordant energy#*#"
 Sub_Event_BrekDT
   /if (!${swEventsInc}) /return
-  /bc Possible got the DT
+  /echo Possible got the DT
   /delay 1s ${Me.Buff[Discordant Doom].ID}
-  /if (${Me.Buff[Discordant Doom].ID}) /bc I NEED A CURE!!!
+  /if (${Me.Buff[Discordant Doom].ID}) /echo I NEED A CURE!!!
 /return
 
 
@@ -542,7 +542,7 @@ sub Event_Mindblight(Line, Direction)
   /if (!${swEventsInc}) /return
   /if (${Direction.Equal[southwest]}) {
     /if (${Spawn[npc =The Mindblight].ID}) /return
-    /bc Moving NE
+    /echo Moving NE
     /moveto loc 201 -79
     /delay 2s ${MoveTo.Moving}
     /delay 20s !${MoveTo.Moving}
@@ -550,7 +550,7 @@ sub Event_Mindblight(Line, Direction)
   }
   /if (${Direction.Equal[northwest]}) {
     /if (${Spawn[npc =The Mindblight].ID}) /return
-    /bc Moving SE
+    /echo Moving SE
     /moveto loc 94 -86
     /delay 2s ${MoveTo.Moving}
     /delay 20s !${MoveTo.Moving}
@@ -558,7 +558,7 @@ sub Event_Mindblight(Line, Direction)
   }
   /if (${Direction.Equal[southeast]}) {
     /if (${Spawn[npc =The Mindblight].ID}) /return
-    /bc Moving NW
+    /echo Moving NW
     /moveto loc 215 71
     /delay 2s ${MoveTo.Moving}
     /delay 20s !${MoveTo.Moving}
@@ -566,7 +566,7 @@ sub Event_Mindblight(Line, Direction)
   }
   /if (${Direction.Equal[northeast]}) {
     /if (${Spawn[npc =The Mindblight].ID}) /return
-    /bc Moving SW
+    /echo Moving SW
     /moveto loc 92 82
     /delay 2s ${MoveTo.Moving}
     /delay 20s !${MoveTo.Moving}
@@ -577,7 +577,7 @@ sub Event_Mindblight(Line, Direction)
 
 #Event mindshear "#*#You get the feeling that someone is watching you#*#"
 sub Event_mindshear
-  /bc i need to move away from the raid
+  /echo i need to move away from the raid
 /return
 
 
@@ -593,7 +593,7 @@ sub Event_mindshear
 sub Event_CV2Corrupt(string Line, string Name)
   /if (!${swEventsInc}) /return
   /if (!${Name.Find[${Me.Name}]}) /return
-  /bc I NEED to RUN AWAY!
+  /echo I NEED to RUN AWAY!
   /target clear
   /play SeethCorrupt smart
   /delay 1s ${Me.Moving}
@@ -619,7 +619,7 @@ sub Event_CV2Corrupt(string Line, string Name)
 sub Event_Beast(line, person)
   /if (!${swEventsInc}) /return
   /if (${person.Equal[${Me}]}) {
-    /bc say I got beast ONE!!
+    /echo say I got beast ONE!!
     /target clear
     /play path1 smart
     /delay 1s ${Me.Moving}
@@ -637,7 +637,7 @@ sub Event_Beast(line, person)
 #Event LCWhip "#*#A whip wraps around your limbs!#*#"
 sub Event_LCWhip
   /if (!${swEventsInc}) /return
-  /bc I NEED to RUN AWAY!
+  /echo I NEED to RUN AWAY!
   /target clear
   /play LCWhip smart
   /delay 1s ${Me.Moving}
@@ -672,21 +672,21 @@ sub Event_LCWhip
 #Event SpineFreeze "#*#Spinerfreezer's eye all focus upon you#*#"
 sub Event_Spinefreeze
   /if (!${swEventsInc}) /return
-  /bc I NEED TO RUN AWAY!!
+  /echo I NEED TO RUN AWAY!!
 /return
 
 
 #Event RunAway "#*#The Tentacle of Terror Mentor points at you#*#"
 sub Event_Runaway
   /if (!${swEventsInc}) /return
-  /bc I NEED TO RUN AWAY!!
+  /echo I NEED TO RUN AWAY!!
 /return
 
 
 #Event CVSisterRun "#*##1# lashes out with debilitating energy#*#"
 sub Event_CVSisterRun(string Line, string Name)
   /if (!${swEventsInc}) /return
-  /bc I NEED TO RUN AWAY FROM ${Name}!!
+  /echo I NEED TO RUN AWAY FROM ${Name}!!
 /return
 
 
@@ -694,7 +694,7 @@ sub Event_CVSisterRun(string Line, string Name)
 sub Event_GolemAEArg
   /if (!${swEventsInc}) /return
   /if (!${Spawn[Avatar of Steel].LineOfSight}) /return
-  /bc I NEED to RUN AWAY!
+  /echo I NEED to RUN AWAY!
   /target clear
   /play RunFromGolem smart
   /delay 1s ${Me.Moving}
@@ -707,11 +707,11 @@ sub Event_GolemAEArg
 #Event GolemSteelAdd "#*#drops a piece of steel from its body#*#"
 sub Event_GolemSteelAdd
   /if (!${swEventsInc}) /return
-  /bc Add UP!!!
+  /echo Add UP!!!
   |**
   /return
   /if (!${Spawn[a steel pattern].ID}) /return
-  /bc Killing this mofo steel pattern!!
+  /echo Killing this mofo steel pattern!!
   /target id ${Spawn[a steel pattern].ID}
   /play SteelAdd smart reverse
   /delay 1s ${Me.Moving}
@@ -724,35 +724,35 @@ sub Event_GolemSteelAdd
 #Event RTCure "Seek out the purity stone to remove the filth that surrounds you."
 sub Event_RTCure
   /if (!${swEventsInc}) /return
-  /bc I NEED TO BE CURED!
+  /echo I NEED TO BE CURED!
 /return
 
 
 #Event RTCureDone "You have been cleansed."
 sub Event_RTCureDone
   /if (!${swEventsInc}) /return
-  /bc CURED
+  /echo CURED
 /return
 
 
 #Event RTJump "Jump from this tower as the ultimate sacrifice to Sholoth!"
 sub Event_RTJump
   /if (!${swEventsInc}) /return
-  /bc I NEED TO JUMP!
+  /echo I NEED TO JUMP!
 /return
 
 
 #Event RTJumpDone "You have made the proper sacrifice."
 sub Event_RTJumpDone
   /if (!${swEventsInc}) /return
-  /bc I JUMPED
+  /echo I JUMPED
 /return
 
 
 #Event RTSludge "Your feet are stuck in a pool of sludge.#*#"
 sub Event_RTSludge
   /if (!${swEventsInc}) /return
-  /bc MOVE ME MAFUKKA in SLUDGE!!!
+  /echo MOVE ME MAFUKKA in SLUDGE!!!
 /return
 
  **|
@@ -770,7 +770,7 @@ sub Event_DainBanish(string Line, string PersonOne, string PersonTwo, string Per
   /declare sPersonThree 	string local ${PersonThree}
   
   /if (${sPersonOne.Equal[${Me.CleanName}]} || ${sPersonTwo.Equal[${Me.CleanName}]} || ${sPersonThree.Equal[${Me.CleanName}]}) {
-    /bc Running out of arena
+    /echo Running out of arena
     /play RunFromArena smart
     /delay 10s ${Me.Moving}
     :MoveFromArena
@@ -800,7 +800,7 @@ sub Event_danela(string Line, string Person, string Person2)
 |#Event chapterhouse "Your bones are burning#*#"
 sub Event_chapterhouse()
 	/if (!${swEventsInc}) /return
-  /bc I NEED to RUN AWAY!
+  /echo I NEED to RUN AWAY!
   /target clear
   /echo running to pool
   /play ChapterPool smart
@@ -831,7 +831,7 @@ sub Event_ChaptDot(string line, string Name)
 sub Event_Zalikor()
 	/if (!${swEventsInc}) /return
   /if (!${Zone.ShortName.Equal[breedinggrounds_raid]}) /return
-  /bc I need to RUN!!!
+  /echo I need to RUN!!!
   /if (${Me.Casting.ID}) /call Interrupt
   :TopOfDrake
    /play Zalikor smart slow normal
@@ -871,7 +871,7 @@ sub Event_eggs()
   /if (!${swEventsInc}) /return
   /if (!${Zone.ShortName.Equal[breedinggrounds_raid]}) /return
   /varset DoLeash 0
-  /bc I need to up top!!!
+  /echo I need to up top!!!
   /if (${Me.Casting.ID}) /call Interrupt
   :TopOfEggs
    /play eggs smart slow normal
@@ -886,7 +886,7 @@ sub Event_eggs()
 #Event FindleFireBall1 "#*#You feel an inner warmth as Findlewill points at you#*#"
 sub Event_FindleFireBall1()
   /if (!${swEventsInc}) /return
-  /bc I NEED to RUN! Have Fireball!
+  /echo I NEED to RUN! Have Fireball!
   /target clear
   :TopOfFireBallSub
    /echo running south
@@ -899,7 +899,7 @@ sub Event_FindleFireBall1()
     /delay 1s ${Me.Buff[Engulfing Flames].ID}
     /if (!${Me.Ducking} && !${Me.Moving}) /keypress DUCK
    /if (!${Me.Buff[Engulfing Flames].ID}) /goto :WaitFireBallDot
-   /bc I have the fireball DoT on me now!
+   /echo I have the fireball DoT on me now!
    :WaitFireBallDotFade
     /if (!${Me.Ducking}) /keypress DUCK
     /delay 1s ${Me.Buff[Engulfing Flames].ID}
@@ -924,7 +924,7 @@ sub Event_FindleFireBall1()
 sub Event_FindleFireBall2(string Line, string Name)
   /if (!${swEventsInc}) /return
   /if (${Spawn[Findlewill].Distance}>40) /return
-  /bc I NEED to run away from Findle!
+  /echo I NEED to run away from Findle!
   /target clear
   /echo Running away from Findle
   /play RunFromFindle smart
@@ -940,7 +940,7 @@ sub Event_FindleFireBall2(string Line, string Name)
 #Event XorbbEye "#*#You are consumed by a sense of power watching and hating you#*#"
 sub Event_XorbbEye()
   /if (!${swEventsInc}) /return
-  /bc I NEED to RUN! Have Fire Emote!
+  /echo I NEED to RUN! Have Fire Emote!
   /target clear
   /echo Breaking LoS
   /play XorbbEye smart
@@ -962,7 +962,7 @@ sub Event_XorbbEye()
 #Event Xorbb3 "King Xorbb shouts '|${Me.CleanName}|'"
 sub Event_Xorbb3()
   /if (!${swEventsInc}) /return
-  /bc I need to face away from him for a bit
+  /echo I need to face away from him for a bit
   /beep
   /stop
   /stop
@@ -991,7 +991,7 @@ sub Event_ChelsMove(string Line, string Area)
 sub Event_KilsevRage(string Line, string Person)
 	/if (!${swEventsInc}) /return
  /if (${Person.Equal[${Me.CleanName}]}) {
-    /bc I HAVE TO KITE!!!
+    /echo I HAVE TO KITE!!!
     /if (!${Defined[KilsevRaged]}) {
       /declare KilsevRaged int outer 1
     } else {
@@ -1070,7 +1070,7 @@ sub Event_ChelsStopDPS()
 sub Event_AaryonarGaze()
 	/if (!${swEventsInc}) /return
   /declare CasterClasses string local "|DRU|CLR|SHM|ENC|NEC|MAG|WIZ|"
-  /bc OH SHIT HE BE LOOKIN AT ME
+  /echo OH SHIT HE BE LOOKIN AT ME
   /if (${Target.CleanName.Equal[Aaryonar]}) {
     /melee off
     /stick off
@@ -1089,7 +1089,7 @@ sub Event_AaryonarGaze()
      /goto :AaryonarGaze
    }
    /melee on
-   /bc Gaze is off me!
+   /echo Gaze is off me!
 /return
 
 
@@ -1112,7 +1112,7 @@ sub Event_AaryonarGaze()
 #Event AaryonarGazeOff "Aaryonar turns his gaze away from you."
 sub Event_AaryonarGazeOff()
 	/if (!${swEventsInc}) /return
-  /bc He cant handle looking at my junk!
+  /echo He cant handle looking at my junk!
   /if (${Target.CleanName.Equal[Aaryonar]}) /target clear
 /return
 
@@ -1121,7 +1121,7 @@ sub Event_AaryonarGazeOff()
 #Event ZlaAE "You are covered in filth#*#"
 sub Event_ZlaAE()
 	/if (!${swEventsInc}) /return
-  /bc I NEED to RUN AWAY!
+  /echo I NEED to RUN AWAY!
   /target clear
   /echo running away
   /play ZlaxRun smart
@@ -1146,7 +1146,7 @@ sub Event_ZlaAE()
 
 #Event Naggy "Your skin begins to glow#*#"
 sub Event_Naggy()
-  /bc I GOT NAGGY EMOTE!!
+  /echo I GOT NAGGY EMOTE!!
 /return
 
  **|
@@ -1168,7 +1168,7 @@ sub Event_PrimeCloud(string Line, string Person)
   /echo ${Line.Arg[1]} - ${Line.Arg[2]} - ${Line.Arg[3]} - ${Line.Arg[4]} - ${Line.Arg[5]} - ${Line.Arg[6]} - ${Line.Arg[7]} - ${Line.Arg[8]} - ${Line.Arg[9]}
   /echo ${Line}
   /if (${Line.Find[${Me.CleanName}]}) {
-    /bc I HAVE TO KITE!!!
+    /echo I HAVE TO KITE!!!
     /if (!${swEventsInc}) /return
     /if(${DoLeash}) /varset DoLeash 0
 
@@ -1190,7 +1190,7 @@ sub Event_PrimeCloud(string Line, string Person)
 #Event PrimeDoT "#*#Your flesh begins to bubble and ooze#*#"
 sub Event_PrimeDoT()
 	/if (!${swEventsInc}) /return
-  /bc I NEED A CURE!!
+  /echo I NEED A CURE!!
 /return
 
 
@@ -1232,7 +1232,7 @@ sub Event_BurningPrison()
 #Event NeriakShock "#*#The golem glows and begins to hum, turning its head toward you.#*#"
 sub Event_NeriakShock()
 	/if (!${swEventsInc}) /return
-  /bc I need to run away from the raid shock emote
+  /echo I need to run away from the raid shock emote
   /if (!${swEventsInc}) /return
   /if (${DoLeash}) /leash off
   /play shock smart
@@ -1247,7 +1247,7 @@ sub Event_NeriakShock()
 sub Event_NeriakChill(string line)
 	/if (!${swEventsInc}) /return
   /if (${line.Find[${Me}]}) {
-    /bc I need to run away from the raid got essense emote
+    /echo I need to run away from the raid got essense emote
     /if (!${swEventsInc}) /return
     /if (${DoLeash}) /leash off
     /play shock smart
@@ -1263,7 +1263,7 @@ sub Event_NeriakChill(string line)
 sub Event_NeriakCold()
 	/if (!${swEventsInc}) /return
   /if (${lstClassMelee.Find[${Me.Class.Name}]}) {
-    /bc moving back!
+    /echo moving back!
     /squelch /stick 120 moveback
     /delay 12s
     /squelch /stick off
@@ -1274,7 +1274,7 @@ sub Event_NeriakCold()
 #Event NeriakPulse "#*#An energy pulse moves toward you.#*#"
 sub Event_NeriakPulse()
 	/if (!${swEventsInc}) /return
-  /bc I need to run away from the raid from pulse!
+  /echo I need to run away from the raid from pulse!
   /if (${DoLeash}) /leash off
   /play pulse smart
   /delay 15s ${AdvPath.Waypoints} < 1
@@ -1349,7 +1349,7 @@ sub Event_Bixie2Safe(string line)
 #Event SlaveThokWhip "#*#Slave Driver Thokk coils up his whip and aims for your head#*#"
 sub Event_SlaveThokWhip()
 	/if (!${swEventsInc}) /return
-	/bc I NEED TO DUCK
+	/echo I NEED TO DUCK
 	/if (${Me.Class.Name.Equal[BARD]}) /twist off
 	:TopDuck
 		/if (${Me.State.NotEqual[DUCK]}) /keypress DUCK
@@ -1363,7 +1363,7 @@ sub Event_SlaveThokWhip()
 #Event SlaveThokStand	"#*#Slave Driver Thokk's whip passes harmlessly overhead#*#"
 sub Event_SlaveThokStand()
 	/if (!${swEventsInc}) /return
-	/bc Danger Gone!
+	/echo Danger Gone!
   /if (${Me.State.Equal[DUCK]}) /keypress DUCK
 /return
 
@@ -1372,7 +1372,7 @@ sub Event_SlaveThokStand()
 #Event DSOn "#*#Warchanter Neezzee begins to cast a spell. <Chaotic Rune>#*#"
 sub Event_DSOn()
 	/if (!${swEventsInc}) /return
-	/bc I have DS on
+	/echo I have DS on
 	/if (${lstClassMelee.Find[${Me.Class.Name}]} || ${lstClassMelee.Find[${Me.Class.ShortName}]}) {
 		/target myself
 		/delay 1s ${Target.ID}==${Me.ID}
@@ -1388,7 +1388,7 @@ sub Event_DSOn()
 #Event DSOff "#*#The mystic symbol fades#*#"
 sub Event_DSOff()
 	/if (!${swEventsInc}) /return
-	/bc DS Gone!
+	/echo DS Gone!
 	/if (${lstClassMelee.Find[${Me.Class.Name}]} || ${lstClassMelee.Find[${Me.Class.ShortName}]}) /target clear
 /return
 
@@ -1420,7 +1420,7 @@ sub Event_ToRClaySafe()
 #Event ToRSplashAcid "#*#A splash of acid strikes you in the face#*#"
 sub Event_ToRSplashAcid()
 	/if (!${swEventsInc}) /return
-  /bc I got splash emote!
+  /echo I got splash emote!
   /target myself
   /if (${Me.Class.Name.Equal[BARD]}) /twist off
   /delay 3s
@@ -1451,7 +1451,7 @@ sub Event_ToRWither()
 sub Event_AM4()
 	/if (!${swEventsInc}) /return
 	/if (!${Zone.ShortName.Equal[arxmentis_raid]}) /return
-	| /bc I have to run away from raid!!!
+	| /echo I have to run away from raid!!!
 	/declare tempx float local ${Me.X}
 	/declare tempy float local ${Me.Y}
 	| =/moveto loc 104 1.06
@@ -1513,7 +1513,7 @@ sub Event_VitioWeapon()
 #Event VitioClose		"#*#begins to focus the power of the citadel#*#"
 sub Event_VitioClose()
 	/if (!${swEventsInc}) /return
-  | /bc Get close to him!
+  | /echo Get close to him!
 	/declare tempx float local ${Me.X}
 	/declare tempy float local ${Me.Y}
 	/call create_timer VitioWeaponTimer 10s
@@ -1529,7 +1529,7 @@ sub Event_VitioClose()
 #Event AMGolemLT "#*#a mortuis vifens gains health as he drains the life force from those standing nearby#*#"
 sub Event_AMGolemLT()
 	/if (!${swEventsInc}) /return
-  | /bc need to get away from golem!
+  | /echo need to get away from golem!
 /return
 
 
@@ -1537,7 +1537,7 @@ sub Event_AMGolemLT()
 #Event AMRunAwayBlob "#*#a phasma frigasia points a bony finger at you!#*#"
 sub Event_AMRunAwayBlob()
  	/if (!${swEventsInc}) /return
-	| /bc Got Blob emote!
+	| /echo Got Blob emote!
   /if (${Spawn[Principal Ex-Vicarum Nomia].Distance}>150) /return
   /target clear
   /play runfromboss3 smart
@@ -1551,7 +1551,7 @@ sub Event_AMRunAwayBlob()
 #Event AMRunAwayFive "#*#Heads up, |${Me.CleanName}|!#*#"
 sub Event_AMRunAwayFive()
 	/if (!${swEventsInc}) /return
-  | /bc Got Heads up Emote!!
+  | /echo Got Heads up Emote!!
   /declare tempx float local ${Me.X}
   /declare tempy float local ${Me.Y}
   /target clear
@@ -1566,7 +1566,7 @@ sub Event_AMRunAwayFive()
 #Event AMRunAwayFiveOne "#*#You feel energy gathering. Only motion can set if free#*#"
 sub Event_AMRunAwayFiveOne()
 	/if (!${swEventsInc}) /return
-  | /bc Got Gathering Emote!!
+  | /echo Got Gathering Emote!!
   /declare tempx float local ${Me.X}
   /declare tempy float local ${Me.Y}
   /target clear
@@ -1669,7 +1669,7 @@ sub Event_DecayRaid()
 #Event InnyDT "#*#You feel a sense of doom upon you#*#"
 sub Event_InnyDT()
   /if (!${swEventsInc}) /return
-  | /bc Got Inny DT emote!
+  | /echo Got Inny DT emote!
   /if (${Spawn[Innoruuk].Distance}>150) /return
   /play CureInnyDT
   /target clear
@@ -1694,7 +1694,7 @@ sub Event_InnyDT()
 | #Event AnashtiSulDT "#*#The power of Sul runs through you, sparking in your hands.#*#"
 | sub Event_AnashtiSulDT()
 |  /if (!${swEventsInc}) /goto :Event_AnashtiSulDT
-|  /bc Got DT emote!
+|  /echo Got DT emote!
 |  :Event_AnashtiSulDT
 | /return
 

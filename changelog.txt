@@ -16,10 +16,13 @@ MQ2DanNet: https://drive.google.com/open?id=1nHtokSxlprmaoWhW4prvwsQLXmJ5j1r6
 
 
 Welcome to a new Core..
+- WIKI (in progress) -- https://github.com/exspes007/Beta/wiki
 
 Please read everyhing below. Then.. Read it again. If, after the second go through, you have questions, feel free to ask.
 
+
 Plugins Required: MQ2Cast, MQ2Exchange, MQ2MoveUtils, MQ2Debuffs, MQ2DanNet, MQ2SQLite, MQ2Nav
+  
   
 - file structure
   -- i've added 2 folders. 
@@ -28,14 +31,31 @@ Plugins Required: MQ2Cast, MQ2Exchange, MQ2MoveUtils, MQ2Debuffs, MQ2DanNet, MQ2
 
 
 
+BETA 211.01
+HUDUPDATE
+- WIKI -- started the wiki for the beta changes. could use some imput..
+  -- https://github.com/exspes007/Beta/wiki
+- removed the deathcounter 
+- souple small updates to the pregen.ini file
+- /port item lamp [zephyr|palace|stone]
+- /port item slide [stonebrunt|greatdivide|ro|nektulos|dreadlands|skyfire]
+- class.shm.inc
+  -- updated healing routines to be in line with cleric.
+  -- the /heal self will need some testing by someone that plays a shaman
+- class.dru.inc
+  -- got rid of an unneeded pct variable check
+- class.clr.inc
+  -- got rid of an unneeded pct variable check
+
+
 BETA 0208.01
-- found a dup in the lstRezToken. its not there anymore
+- found a dupe in the lstRezToken. its not there anymore
 - class.rog.inc
   -- error in the rogues pregen. dicho was set for monks
 - class.dru.inc
   -- more changes to get it in line with the cleric
 - class.mnk.inc
-  -- added disc Fists of Wu to rotation  
+  -- added disc Fists of Wu to rotation
 
 
 BETA 0206.01
@@ -43,8 +63,8 @@ BETA 0206.01
 - class.war.inc
   -- corected part of the pregen file
 - class.clr.inc
-  -- some logic adjustments on how spelled availability is checked
-  -- adjusted the HP calculation for whos hurt. reduced it to only the heal point setting for class and the override% if any
+  -- some logic adjustments on how spelle availability is checked
+  -- adjusted the HP calculation for who's hurt. reduced it to only the heal point setting for class and the override% if any
   -- removed force group heals only option
   -- Yes, i'm still on the hunt to make the cleric faster
 - ranged pulling with AAs

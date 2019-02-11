@@ -6273,7 +6273,7 @@ sub watch_for_death()
 		/doevents flush
 		/delay 2s
 		| update death count
-		/call sql_update FALSE character DeathCount "${Int[${Math.Calc[${DeathCount}+1]}]}"
+		| /call sql_update FALSE character DeathCount "${Int[${Math.Calc[${DeathCount}+1]}]}"
 
 
 		| stop all the things(s)

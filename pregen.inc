@@ -387,7 +387,7 @@ sub pregen_character()
 	/call setDeclare mobList																						string		outer
 	/call setDeclare addList 																						string 		outer	
 
-	/call sql_control FALSE character DeathCount 												int				outer
+	| /call sql_control FALSE character DeathCount 												int				outer
 	/call sql_control FALSE character coreAuto				 									bool			outer FALSE
 	/call sql_control FALSE character lstNoCastWith											string		outer "|FALSE"
 	/call sql_control FALSE character lstNoMeleeWith										string		outer "|FALSE"
@@ -3090,7 +3090,7 @@ sub hud_control(string _verbage)
 		| rez
 		HUDPATH "Core" "rez1" "19,140,62,0,255,0,${If[${swRezTake},Rez,]}"
 		HUDPATH "Core" "rez2" "19,140,62,255,0,0,${If[${swRezTake},,Rez]}"
-		HUDPATH "Core" "rezcount1" "19,163,62,255,255,255,${DeathCount}"
+		| HUDPATH "Core" "rezcount1" "19,163,62,255,255,255,${DeathCount}"
 
 		HUDPATH "Core" "rezG1" "19,191,62,0,255,0,${If[${swRezGive},G,]}"
 		HUDPATH "Core" "rezG2" "19,191,57,25,25,25,${If[${swRezGive},,_]}"

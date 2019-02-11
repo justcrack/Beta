@@ -3571,15 +3571,20 @@ sub Bind_port_list(string _class, string _location, string _sublocation)
 			
 		| magician summoned door
 		} else /if (${_location.Equal[door]}) {
-			/varset _tmpItem 
-			
+			/varset _tmpItem Bulwark of Many Portals
+		
+		| PoP port click
 		} else /if (${_location.Equal[binden]}) {
-			/if (${Me.ItemReady[]}) {
-				/varset _tmpItem 
+			/if (${Me.ItemReady[The Binden Concerrentia]}) {
+				/varset _tmpItem The Binden Concerrentia
 			} else /if (${Me.ItemReady[The Fabled Binden Concerrentia]}) {
 				/varset _tmpItem The Fabled Binden Concerrentia
 			} 			
-			/if (!${FindItemCount[Quintessence of Knowledge]}) /return FALSE		
+			
+			/if (!${FindItemCount[Quintessence of Knowledge]}) {
+				VOUT ${owarning} NO ${sep} \atQuintessence of Knowledge\ax
+				/return FALSE
+			}
 
 		| drunkards stein
 		} else /if (${_location.Equal[stein]}) {
@@ -3589,14 +3594,19 @@ sub Bind_port_list(string _class, string _location, string _sublocation)
 		} else /if (${_location.Equal[mirror]}) {
 			/varset _tmpItem Mirror Fragment of Anashti Sul
 			
+		| EoK port clickie
 		} else /if (${_location.Equal[iksarstone]}) {
 			/varset _tmpItem Ancient Iksar Translocator Stone
 
 		| TSS necklace portal
 		} else /if (${_location.Equal[warportal]}) {
 			/varset _tmpItem Necklace of Warportal Fragments
-			/if (!${FindItemCount[Small Portal Fragments]})	/return FALSE
-
+			/if (!${FindItemCount[Small Portal Fragments]})	{
+				VOUT ${owarning} NO ${sep} \atSmall Portal Fragments\ax
+				/return FALSE
+			}
+			
+		| PoK port brick
 		} else /if (${_location.Equal[pokbrick]}) {
 			/varset _tmpItem Brick of Knowledge
 
@@ -3610,36 +3620,50 @@ sub Bind_port_list(string _class, string _location, string _sublocation)
 		} else /if (${_location.Equal[scepter]}) {
 			/varset _tmpItem Scepter of Draconic Calling
 
+		| TBL port lamp
 		} else /if (${_location.Equal[lamp]}) {
 			
+			/if (!${Bool[${_sublocation}]}) {
+				/declare _sublist string local |zephyr|palace|stone
+				/declare _sublistout string local
+
+				/for _count 1 to ${_sublist.Count[|]}
+					/varset _sublistout ${_sublistout} ${If[${_sep},${sep},]} ${cinfo}${_sublist.Arg[${_count},|]}\ax
+					/varset _sep TRUE
+				/next _count
+				VOUT /port item slide [${_sublistout}]
+				/return FALSE
+			}			
 			
-			
-			
-			/if (${_sublocation.Equal[]}) {
+			/if (${_sublocation.Equal[Zephyr]}) {
+				/while (!${FindItem[Wishing Lamp: Zephyr's Flight].ID}) {
+					/convertitem Wishing Lamp:
+					/delay 1s					
+				}
 				/varset _tmpItem Wishing Lamp: Zephyr's Flight
-			} else /if (${_sublocation.Equal[]}) {
+			} else /if (${_sublocation.Equal[Palace]}) {
+				/while (!${FindItem[Wishing Lamp: Palace of Embers].ID}) {
+					/convertitem Wishing Lamp:
+					/delay 1s					
+				}
 				/varset _tmpItem Wishing Lamp: Palace of Embers
-			} else /if (${_sublocation.Equal[]}) {
-				/varset _tmpItem Wishing Lamp: The Stone of Demesne
+			} else /if (${_sublocation.Equal[Stone]}) {
+				/while (!${FindItem[Wishing Lamp: The Stone of Demesne].ID}) {
+					/convertitem Wishing Lamp:
+					/delay 1s					
+				}
+				/varset _tmpItem Wishing Lamp: The Stone of Demesne				
 			}
-
-
-		| ${FindItem[Wishing Lamp:].InvSlot}
-
-
-		| ${FindItem[Wishing Lamp:].InvSlot.Name.Equal[Wishing Lamp: Palace of Embers]}
-
-		| ${FindItem[Wishing Lamp:].InvSlot.Name.Equal[]}
-
-
 
 		| signet of the crystal circle
 		} else /if (${_location.Equal[rofsignet]}) {
 			/varset _tmpItem Signet of the Crystal Circle
 
+		| jaggedpine ring from epic ornament quests
 		} else /if (${_location.Equal[jaggedpine]}) {
 			/varset _tmpItem Ring of Jaggedpine
 
+		| tolans Ranger BP
 		} else /if (${_location.Equal[tolans]}) {
 			/varset _tmpItem Tolan's Darkwood Breastplate
 
@@ -3647,21 +3671,68 @@ sub Bind_port_list(string _class, string _location, string _sublocation)
 		} else /if (${_location.Equal[touchstone]}) {
 			/varset _tmpItem Touchstone of Health
 
-		
+		| ROS port clickie
 		} else /if (${_location.Equal[gorowyn]}) {
 			/varset _tmpItem Gorowyn Translocator Beacon
 
 		| zueria slide
 		} else /if (${_location.Equal[slide]}) {
+
+			/if (!${Bool[${_sublocation}]}) {
+				/declare _sublist string local |stonebrunt|greatdivide|ro|nektulos|dreadlands|skyfire
+				/declare _sublistout string local
+
+				/for _count 1 to ${_sublist.Count[|]}
+					/varset _sublistout ${_sublistout} ${If[${_sep},${sep},]} ${cinfo}${_sublist.Arg[${_count},|]}\ax
+					/varset _sep TRUE
+				/next _count
+				VOUT /port item slide [${_sublistout}]
+				/return FALSE
+			}
+					
+			/if (${_sublocation.Equal[Stonebrunt]}) {
+				/while (!${FindItem[Zueria Slide: Stonebrunt].ID}) {
+					/convertitem Zueria Slide:
+					/delay 1s					
+				}
+				/varset _tmpItem Zueria Slide: Stonebrunt
 			
-			| Zueria Slide: Stonebrunt
-			| Zueria Slide: Great Divide
-			| Zueria Slide: North Ro
-			| Zueria Slide: Nektulos
-			| Zueria Slide: Dreadlands
-			| Zueria Slide: Skyfire
+			} else /if (${_sublocation.Equal[GreatDivide]}) {
+				/while (!${FindItem[Zueria Slide: Great Divide].ID}) {
+					/convertitem Zueria Slide:
+					/delay 1s					
+				}
+				/varset _tmpItem Zueria Slide: Great Divide
 			
-			/varset _tmpItem 
+			} else /if (${_sublocation.Equal[Ro]}) {
+				/while (!${FindItem[Zueria Slide: North Ro].ID}) {
+					/convertitem Zueria Slide:
+					/delay 1s					
+				}
+				/varset _tmpItem Zueria Slide: North Ro
+			
+			} else /if (${_sublocation.Equal[Nektulos]}) {
+				/while (!${FindItem[Zueria Slide: Nektulos].ID}) {
+					/convertitem Zueria Slide:
+					/delay 1s					
+				}
+				/varset _tmpItem Zueria Slide: Nektulos
+			
+			} else /if (${_sublocation.Equal[Dreadlands]}) {
+				/while (!${FindItem[Zueria Slide: Dreadlands].ID}) {
+					/convertitem Zueria Slide:
+					/delay 1s					
+				}
+				/varset _tmpItem Zueria Slide: Dreadlands
+			
+			} else /if (${_sublocation.Equal[Skyfire]}) {
+				/while (!${FindItem[Zueria Slide: Skyfire].ID}) {
+					/convertitem Zueria Slide:
+					/delay 1s					
+				}
+				/varset _tmpItem Zueria Slide: Skyfire
+			
+			}
 
 		| arx key
 		} else /if (${_location.Equal[arx]}) {
@@ -3688,6 +3759,7 @@ sub Bind_port_list(string _class, string _location, string _sublocation)
 			/if (${_myDiety.Equal[Tunaree]}) /varset _tmpItem Faithstone of Nature
 			/if (${_myDiety.Equal[Veeshan]}) /varset _tmpItem Faithstone of the Dedicated
 
+		| gyrospear instant click item
 		} else /if (${_location.Equal[gyrospire]}) {
 			/varset _tmpItem Gyrospire Relocation Device
 				

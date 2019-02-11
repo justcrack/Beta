@@ -513,7 +513,6 @@ sub check_heal_pet_CLR()
 
 	/declare _count int local 0
 	/varset hurtIndex ${Group.Member[${Me}].Index}
-	| /varset hurtPctHP 100
   
 	/call check_health_pet
 
