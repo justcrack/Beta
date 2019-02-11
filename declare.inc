@@ -2005,11 +2005,9 @@ sub Bind_crew(int _crew)
 	| bail if now crey type listed
 	/if (!${Bool[${_crew}]}) /return
 	
-
-
 	/declare _count int local 0
 	/sqlite ${dbCore} dummy SELECT lstCrew${_crew} FROM environment WHERE currentBuild="${currentBuild}"
-	/declare _clist string local ${sqlite.Result[dummy 1 lstCrew${_crew}]}
+	/declare _clist string local ${sqlite.Result[dummy, 1, lstCrew${_crew}]}
 	
 	| disband raid if exists
 	/if (${Raid.Members}) {
@@ -2049,19 +2047,22 @@ sub Bind_crew(int _crew)
 	| set Group Main Assist
 	/if (${Bool[${setCrew${_crew}Assist}]} && !${Group.Member[${setCrew${_crew}Assist}].Offline}) {
 		/delay 5
-		/if (${Group.Member[${setCrew${_crew}Assist}].Index}) /grouproles set ${setCrew${_crew}Assist} 2
+		| /if (${Group.Member[${setCrew${_crew}Assist}].Index}) /grouproles set ${setCrew${_crew}Assist} 2
+		/grouproles set ${setCrew${_crew}Assist} 2
 	}
 
 	| set Group Master Looter
 	/if (${Bool[${setCrew${_crew}Looter}]} && !${Group.Member[${setCrew${_crew}Looter}].Offline}) {
 		/delay 5
-		/if (${Group.Member[${setCrew${_crew}Looter}].Index}) /grouproles set ${setCrew${_crew}Looter} 5
+		| /if (${Group.Member[${setCrew${_crew}Looter}].Index}) /grouproles set ${setCrew${_crew}Looter} 5
+		/grouproles set ${setCrew${_crew}Looter} 5
 	}
 
 	| set Group leader ... last to make sure all roles are set
 	/if (${Bool[${setCrew${_crew}Leader}]} && !${Group.Member[${setCrew${_crew}Leader}].Offline}) {
 		/delay 5
-		/if (${Group.Member[${Group.Leader}].Index} != ${Group.Member[${setCrew${_crew}Leader}].Index}) /makeleader ${setCrew${_crew}Leader}
+		| /if (${Group.Member[${Group.Leader}].Index} != ${Group.Member[${setCrew${_crew}Leader}].Index}) /makeleader ${setCrew${_crew}Leader}
+		/makeleader ${setCrew${_crew}Leader}
 	}
 	
 	VOUT Leader:${cinfo}${setCrew${_crew}Leader}\ax ${sep} Assist:${cinfo}${setCrew${_crew}Assist}\ax ${sep} Looter:${cinfo}${setCrew${_crew}Looter}\ax

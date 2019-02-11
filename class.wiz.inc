@@ -22,10 +22,9 @@ sub core_WIZ()
 	
 	/while (${prep_combat[]}) {
 		CHECKINPUTS
-		/if (${exit_class_loop[]}) /return FALSE
-
-		/if (${swHealSelf}) /call patch_heal_${Me.Class.ShortName}
+		/if (${swHealSelf}) /call check_heal_self_${Me.Class.ShortName}
 		/if (${swHealCure}) /call cast_cure
+		/if (${exit_class_loop[]}) /return FALSE
 	
 		/if (${isValidTarget}) {
 			/call set_combat ${combat.Upper}
@@ -146,11 +145,11 @@ sub check_harvest()
 
 |***
  *	DES: emergency healing
- *	USE: /call patch_heal_${Me.Class.ShortName}
+ *	USE: /call check_heal_self_${Me.Class.ShortName}
  *  NOTE: 
  ***|
-sub patch_heal_WIZ()
-	DEBUG patch_heal_WIZ()
+sub check_heal_self_WIZ()
+	DEBUG check_heal_self_WIZ()
 	AMIDEAD
 	CHECKEXIT
 	/if (${Me.PctHPs} > ${${Me.Class.ShortName}Point}*.${tmpHealOverride}) /return
@@ -168,7 +167,7 @@ sub check_rune_WIZ()
 	DEBUG check_rune_WIZ()
 	AMIDEAD
 	CHECKEXIT
-	UPDATEHUD "BUFF: Runes"
+	UPDATEHUD "BUFF Runes"
 	/call timer_update timer_check_runes ${tCheck_Runes}
 	/if (${validate_cast[FALSE, spell, "${runeMagiWard}", ${Me.ID}]} && ${FindItemCount[Peridot]} > 1) /call core_cast2 "${runeMagiWard}" ${buffGem} 0 FALSE TRUE
 	/if (${validate_cast[FALSE, spell, "${runeShieldofFate}", ${Me.ID}]}) /call core_cast2 "${runeShieldofFate}" ${buffGem} 0 FALSE TRUE
@@ -244,7 +243,7 @@ sub burn_WIZ()
 |***
  *	DES: Control for getting Twincast either spell or Proc
  *	USE: /call force_twincast_wiz
- *  NOTE: Twincast lets get it.
+ *  NOTE:
  ***|
 sub force_twincast_WIZ()
 	DEBUG force_twincast_WIZ()
@@ -254,8 +253,8 @@ sub force_twincast_WIZ()
 	CHECKINPUTS
 	/if (${is_target_dead[${Target2Kill}]}) /return
 	/if (!${timer_force_twincast}) /call timer_update timer_force_twincast ${tForce_Twincast}
-	/if (!${cast_condition[NukeTwincastCondition]}) /return
-	/if (!${Me.Buff[Improved Twincast].ID} && !${Me.Buff[Twincast].ID} && ${check_ready[spell, "${TwincastSpell}"]}) {
+	| /if (!${cast_condition[NukeTwincastCondition]}) /return
+	/if (!${Me.Buff[Improved Twincast].ID} && !${Me.Buff[Twincast].ID} && ${Me.SpellReady[${Spell[${TwincastSpell}].RankName}]}) {
 		/if (${validate_cast[FALSE, spell, "${TwincastSpell}", ${Me.ID}]}) /call core_cast2 "${TwincastSpell}" 0 0 FALSE
 		/return
 	} else /if (!${Me.Buff[Improved Twincast].ID} && !${Me.Buff[${TwincastSpell}].ID} && !${Me.Buff[Twincast].ID}) {
@@ -351,7 +350,6 @@ sub Bind_setWIZ(string _type, string _verbage)
 	| spire control
 	} else /if (${_type.Equal[spiregroup]} || ${_type.Equal[spireraid]}) {
 		/call set_character_spire FALSE ${_type} ${_verbage}
-
 
 	| healpoint
 	} else /if (${_type.Equal[healpoint]}) {

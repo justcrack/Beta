@@ -19,10 +19,7 @@ Welcome to a new Core..
 - WIKI (in progress) -- https://github.com/exspes007/Beta/wiki
 
 Please read everyhing below. Then.. Read it again. If, after the second go through, you have questions, feel free to ask.
-
-
 Plugins Required: MQ2Cast, MQ2Exchange, MQ2MoveUtils, MQ2Debuffs, MQ2DanNet, MQ2SQLite, MQ2Nav
-  
   
 - file structure
   -- i've added 2 folders. 
@@ -31,9 +28,17 @@ Plugins Required: MQ2Cast, MQ2Exchange, MQ2MoveUtils, MQ2Debuffs, MQ2DanNet, MQ2
 
 
 
-BETA 211.01
+BETA 0211.02
+- class.shm.inc
+ -- more changes to pet heal
+- class.wiz.inc
+  -- adapted to use /cc heal switch
+
+
+
+BETA 0211.01
 HUDUPDATE
-- WIKI -- started the wiki for the beta changes. could use some imput..
+- WIKI -- started the wiki for the beta changes. could use some input..
   -- https://github.com/exspes007/Beta/wiki
 - removed the deathcounter 
 - souple small updates to the pregen.ini file
