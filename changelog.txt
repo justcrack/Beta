@@ -27,6 +27,17 @@ Plugins Required: MQ2Cast, MQ2Exchange, MQ2MoveUtils, MQ2Debuffs, MQ2DanNet, MQ2
     -- script: files use to aid database or character generation. these files are fair game, i will be overwriting them if i need
 
 
+BETA 0213.01
+HUDUPDATE
+- yes, i'm moving things around on the hud.. /deal
+- ItemNow1/2
+  -- clicke items you want the effecs to be on you 24/7
+  -- if you run in manual mode and want this to still work, DB::swManualAADiscNow::TRUE will force it to work in manual or maintenance.
+- slowing the macro down
+  i'm testing a ghetto hack that will slow line execution down while the toon is moving or invis
+  if you notice a serious lack of response, let me know.
+  oh and the #Turbo 120 is commented out for this build unvomment if you want it back on in core.mac
+
 
 BETA 0211.02
 - class.shm.inc

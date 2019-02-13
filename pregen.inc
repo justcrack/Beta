@@ -161,7 +161,7 @@ sub pregen_environment()
   /call setDeclare lstTypesHeal																				string		outer "|Self|Group|XTarget|Pet|Cure|Override"
 	
 	| combat .. /cc []
-	/call setDeclare lstTypesCC																					string		outer "|agro|alliance|bandolier|circle|combatdistance|engage|faderest|force|melee|meleedisc|range|nuke|dot|heal|forceassist|nukedelay|offtank|pull|rest|saferadius|smartengage|stopnuke|zradius"
+	/call setDeclare lstTypesCC																					string		outer "|agro|alliance|bandolier|circle|combatdistance|engage|faderest|force|geo|melee|meleedisc|range|nuke|dot|heal|forceassist|nukedelay|offtank|pull|rest|saferadius|smartengage|stopnuke|zradius"
 
 	| mq echos .. /echos []
 	/call setDeclare lstTypesEchos 																			string		outer "|Alt|BC|Disc|Item|Melee|Pulse|Spell|Verbose|SQL"
@@ -455,6 +455,7 @@ sub pregen_character()
 	/call sql_control FALSE character swCombatDoT												bool			outer FALSE
 	/call sql_control FALSE character swCombatHeal											bool			outer FALSE
 
+
 	| rez	control
 	/call setDeclare swValidRezFound 																		bool	 		outer FALSE
 	/call setDeclare setRezWindowPct 																		int 			outer 0
@@ -677,6 +678,12 @@ sub pregen_character()
 	/call sql_control FALSE ${Me.Class.ShortName} DiscNow1							string		outer FALSE
 	/call sql_control FALSE ${Me.Class.ShortName} DiscNow2							string		outer FALSE
  
+	| items that you want to always keep going
+	/call sql_control FALSE ${Me.Class.ShortName} ItemNow1							string		outer FALSE
+	/call sql_control FALSE ${Me.Class.ShortName} ItemNow2							string		outer FALSE
+
+
+
 	| General class combat skills
 	/call sql_control FALSE ${Me.Class.ShortName} kick									bool			outer FALSE
 	/call sql_control FALSE ${Me.Class.ShortName} bash									bool			outer FALSE
@@ -3027,8 +3034,7 @@ sub hud_control(string _verbage)
 		HUDPATH "Core" "botD2" "19,176,9,25,25,25,${If[${swCombatDoT},,_]}"
 		HUDPATH "Core" "botH1" "19,185,14,0,255,0,${If[${swCombatHeal},H,]}"
 		HUDPATH "Core" "botH2" "19,185,9,25,25,25,${If[${swCombatHeal},,_]}"
-		
-		
+
 		
 		HUDPATH "Core" "agro1" "19,209,14,0,255,0,${If[${swAgro},A,]}"
 		HUDPATH "Core" "agro2" "19,209,9,25,25,25,${If[${swAgro},,_]}"
@@ -3039,8 +3045,8 @@ sub hud_control(string _verbage)
 		HUDPATH "Core" "ot1" "19,227,14,0,255,0,${If[${swOffTank},O,]}"	
 		HUDPATH "Core" "ot2" "19,227,9,25,25,25,${If[${swOffTank},,_]}"		
 		
-		
-		
+		HUDPATH "Core" "agro4" "19,237,14,255,255,255,${setMobAgro}"
+	
 		
 		
 
@@ -3090,17 +3096,15 @@ sub hud_control(string _verbage)
 		| rez
 		HUDPATH "Core" "rez1" "19,140,62,0,255,0,${If[${swRezTake},Rez,]}"
 		HUDPATH "Core" "rez2" "19,140,62,255,0,0,${If[${swRezTake},,Rez]}"
-		| HUDPATH "Core" "rezcount1" "19,163,62,255,255,255,${DeathCount}"
-
-		HUDPATH "Core" "rezG1" "19,191,62,0,255,0,${If[${swRezGive},G,]}"
-		HUDPATH "Core" "rezG2" "19,191,57,25,25,25,${If[${swRezGive},,_]}"
-		HUDPATH "Core" "rezC1" "19,200,62,0,255,0,${If[${swRezCombat} && ${swRezGive},C,]}"
-		HUDPATH "Core" "rezC2" "19,200,57,25,25,25,${If[(${swRezCombat} && !${swRezGive}) || !${swRezCombat},_,]}"
-		HUDPATH "Core" "rezE1" "19,209,62,0,255,0,${If[${swRezEveryone} && ${swRezGive},E,]}"
-		HUDPATH "Core" "rezE2" "19,209,57,25,25,25,${If[(${swRezEveryone} && !${swRezGive}) || !${swRezEveryone},_,]}"
-		HUDPATH "Core" "rezT1" "19,218,62,0,255,0,${If[${swRezToken} && ${swRezGive},T,]}"
-		HUDPATH "Core" "rezT2" "19,218,57,25,25,25,${If[(${swRezToken} && !${swRezGive}) || !${swRezToken},_,]}"
-		HUDPATH "Core" "rezRange" "19,227,62,255,255,255,${If[${swRezGive},${setMaxRezRange},]}"
+		HUDPATH "Core" "rezG1" "19,163,62,0,255,0,${If[${swRezGive},G,]}"
+		HUDPATH "Core" "rezG2" "19,163,57,25,25,25,${If[${swRezGive},,_]}"
+		HUDPATH "Core" "rezC1" "19,172,62,0,255,0,${If[${swRezCombat} && ${swRezGive},C,]}"
+		HUDPATH "Core" "rezC2" "19,172,57,25,25,25,${If[(${swRezCombat} && !${swRezGive}) || !${swRezCombat},_,]}"
+		HUDPATH "Core" "rezE1" "19,181,62,0,255,0,${If[${swRezEveryone} && ${swRezGive},E,]}"
+		HUDPATH "Core" "rezE2" "19,181,57,25,25,25,${If[(${swRezEveryone} && !${swRezGive}) || !${swRezEveryone},_,]}"
+		HUDPATH "Core" "rezT1" "19,190,62,0,255,0,${If[${swRezToken} && ${swRezGive},T,]}"
+		HUDPATH "Core" "rezT2" "19,190,57,25,25,25,${If[(${swRezToken} && !${swRezGive}) || !${swRezToken},_,]}"
+		HUDPATH "Core" "rezRange" "19,201,62,255,255,255,${If[${swRezGive},${setMaxRezRange},]}"
 
 		| HUD WARNING/OVERIDE notices
 		HUDPATH "Core" "hudwarning1" "19,110,2,240,0,0,${If[${Bool[${hudWarning}]},${hudWarning},]}"
@@ -3109,101 +3113,101 @@ sub hud_control(string _verbage)
 		HUDPATH "Core" "hudbroadcast0" "19,280,2,255,51,153,${setHUDBroadcast}"
 
 		| agro/puler/offtank status
-		HUDPATH "Core" "agro0" "3,313,13,100,149,237,[       ][       ][    ]"
 	
-		HUDPATH "Core" "agro4" "19,318,14,255,255,255,${setMobAgro}"
-		HUDPATH "Core" "zrad" "19,345,14,255,255,255,${setzradius}"
-		HUDPATH "Core" "cr1" "19,370,14,255,255,255,${setCombatRadius}"
 
 		| ass..isting and stuff
-		HUDPATH "Core" "setMA11" "3,280,26,100,149,237,MA1"
-		HUDPATH "Core" "setMA12" "19,305,26,0,255,0,${If[${Bool[${setMA1}]},${If[${Bool[${Spawn[${setMA1}]}]},${setMA1},]},]}"
-		HUDPATH "Core" "setMA13" "19,305,26,255,0,0,${If[${Bool[${setMA1}]},${If[!${Bool[${Spawn[${setMA1}]}]},${If[${Bool[${setMA1}]},${setMA1},]},]},]}"
-		HUDPATH "Core" "setMA14" "19,305,21,25,25,25,${If[${Bool[${setMA1}]},,____]}"
-		HUDPATH "Core" "setMA21" "3,280,38,100,149,237,MA2"
-		HUDPATH "Core" "setMA22" "19,305,38,0,255,0,${If[${Bool[${setMA2}]},${If[${Bool[${Spawn[${setMA2}]}]},${setMA2},]},]}"
-		HUDPATH "Core" "setMA23" "19,305,38,255,0,0,${If[${Bool[${setMA2}]},${If[!${Bool[${Spawn[${setMA2}]}]},${If[${Bool[${setMA2}]},${setMA2},]},]},]}"
-		HUDPATH "Core" "setMA24" "19,305,33,25,25,25,${If[${Bool[${setMA2}]},,____]}"
+		HUDPATH "Core" "setMA11" "3,280,60,100,149,237,MA1"
+		HUDPATH "Core" "setMA12" "19,305,60,0,255,0,${If[${Bool[${setMA1}]},${If[${Bool[${Spawn[${setMA1}]}]},${setMA1},]},]}"
+		HUDPATH "Core" "setMA13" "19,305,60,255,0,0,${If[${Bool[${setMA1}]},${If[!${Bool[${Spawn[${setMA1}]}]},${If[${Bool[${setMA1}]},${setMA1},]},]},]}"
+		HUDPATH "Core" "setMA14" "19,305,55,25,25,25,${If[${Bool[${setMA1}]},,____]}"
+	
+		HUDPATH "Core" "setMA21" "3,280,72,100,149,237,MA2"
+		HUDPATH "Core" "setMA22" "19,305,72,0,255,0,${If[${Bool[${setMA2}]},${If[${Bool[${Spawn[${setMA2}]}]},${setMA2},]},]}"
+		HUDPATH "Core" "setMA23" "19,305,72,255,0,0,${If[${Bool[${setMA2}]},${If[!${Bool[${Spawn[${setMA2}]}]},${If[${Bool[${setMA2}]},${setMA2},]},]},]}"
+		HUDPATH "Core" "setMA24" "19,305,67,25,25,25,${If[${Bool[${setMA2}]},,____]}"
 
-		HUDPATH "Core" "ass0" "3,280,50,100,149,237,Assist"
-		HUDPATH "Core" "ass1" "19,315,50,0,255,0,${If[${useSmartAssistR},Raid,]}"
-		HUDPATH "Core" "ass2" "19,315,50,0,255,0,${If[${swAssist1},Raid1,]}"
-		HUDPATH "Core" "ass3" "19,315,50,0,255,0,${If[${swAssist2},Raid2,]}"
-		HUDPATH "Core" "ass4" "19,315,50,0,255,0,${If[${swAssist3},Raid3,]}"
-		HUDPATH "Core" "ass5" "19,315,50,0,255,0,${If[${swAssistG},Group,]}"
-		HUDPATH "Core" "ass6" "19,315,50,0,255,0,${If[${swAssistF},Force,]}"
-		HUDPATH "Core" "ass7" "19,315,45,25,25,25,${If[!${swAssist1} && !${swAssist2} && !${swAssist3} && !${swAssistG} && !${swAssistF},____,]}"
 
-		| buff switches
-		HUDPATH "Core" "buff1" "3,280,62,100,149,237,Buff"
+		HUDPATH "Core" "ass0" "3,280,84,100,149,237,Assist"
+		HUDPATH "Core" "ass1" "19,315,84,0,255,0,${If[${useSmartAssistR},Raid,]}"
+		HUDPATH "Core" "ass2" "19,315,84,0,255,0,${If[${swAssist1},Raid1,]}"
+		HUDPATH "Core" "ass3" "19,315,84,0,255,0,${If[${swAssist2},Raid2,]}"
+		HUDPATH "Core" "ass4" "19,315,84,0,255,0,${If[${swAssist3},Raid3,]}"
+		HUDPATH "Core" "ass5" "19,315,84,0,255,0,${If[${swAssistG},Group,]}"
+		HUDPATH "Core" "ass6" "19,315,84,0,255,0,${If[${swAssistF},Force,]}"
+		HUDPATH "Core" "ass7" "19,315,79,25,25,25,${If[!${swAssist1} && !${swAssist2} && !${swAssist3} && !${swAssistG} && !${swAssistF},____,]}"
 
-		HUDPATH "Core" "buff3" "19,308,62,0,255,0,${If[${swBuffSelf},S,]}"
-		HUDPATH "Core" "buff4" "19,308,57,25,25,25,${If[${swBuffSelf},,_]} "
-		HUDPATH "Core" "buff5" "19,319,62,0,255,0,${If[${swBuffItem},I,]}"
-		HUDPATH "Core" "buff6" "19,317,57,25,25,25,${If[${swBuffItem},,_]} "
-		HUDPATH "Core" "buff7" "19,326,62,0,255,0,${If[${swBuffCombat},C,]}"
-		HUDPATH "Core" "buff8" "19,326,57,25,25,25,${If[${swBuffCombat},,_]} "
-		HUDPATH "Core" "buff9" "19,335,62,0,255,0,${If[${swBuffBC},B,]}"
-		HUDPATH "Core" "buff10" "19,335,57,25,25,25,${If[${swBuffBC},,_]}"
-		HUDPATH "Core" "buff11" "19,344,62,0,255,0,${If[${swBuffRaid},R,]}"
-		HUDPATH "Core" "buff12" "19,344,57,25,25,25,${If[${swBuffRaid},,_]}"
-		HUDPATH "Core" "buff13" "19,353,62,0,255,0,${If[${swBuffTell},T,]}"
-		HUDPATH "Core" "buff14" "19,353,57,25,25,25,${If[${swBuffTell},,_]}"
-		HUDPATH "Core" "buff15" "19,362,62,0,255,0,${If[${swBuffPet},P,]}"
-		HUDPATH "Core" "buff16" "19,362,57,25,25,25,${If[${swBuffPet},,_]}"
-		HUDPATH "Core" "buff17" "19,371,62,0,255,0,${If[${swBuffMerc},M,]}"
-		HUDPATH "Core" "buff18" "19,371,57,25,25,25,${If[${swBuffMerc},,_]}"
-		HUDPATH "Core" "buff19" "19,380,62,0,255,0,${If[${swBuffOther},O,]}"
-		HUDPATH "Core" "buff20" "19,380,57,25,25,25,${If[${swBuffOther},,_]}"
-		HUDPATH "Core" "buff21" "19,389,62,0,255,0,${If[${swBuffMGB},X,]}"
-		HUDPATH "Core" "buff22" "19,389,57,25,25,25,${If[${swBuffMGB},,_]}"
 
 		| lazy ass controls
 		HUDPATH "Core" "rest0" "19,140,74,100,149,237,Rest"
-		HUDPATH "Core" "rest3" "19,165,74,255,255,255,${If[${setRestPct},${setRestPct},]}"
-		HUDPATH "Core" "rest4" "19,165,74,25,25,25,${If[${setRestPct},,##]}"
+		HUDPATH "Core" "rest3" "19,166,74,255,255,255,${If[${setRestPct},${setRestPct},]}"
+		HUDPATH "Core" "rest4" "19,166,74,25,25,25,${If[${setRestPct},,##]}"
 
 		| rest options
-		HUDPATH "Core" "rest6" "19,184,74,0,255,0,${If[${swRestFull},F,]}"
-		HUDPATH "Core" "rest7" "19,184,69,25,25,25,${If[${swRestFull},,_]}"
-		HUDPATH "Core" "rest8" "19,193,74,0,255,0,${If[${swRestModRod},M,]}"
-		HUDPATH "Core" "rest9" "19,193,69,25,25,25,${If[${swRestModRod},,_]}"
-		HUDPATH "Core" "rest10" "19,202,74,0,255,0,${If[${swRestBuff},B,]}"
-		HUDPATH "Core" "rest11" "19,202,69,25,25,25,${If[${swRestBuff},,_]}"
+		HUDPATH "Core" "rest6" "19,182,74,0,255,0,${If[${swRestFull},F,]}"
+		HUDPATH "Core" "rest7" "19,182,69,25,25,25,${If[${swRestFull},,_]}"
+		HUDPATH "Core" "rest8" "19,191,74,0,255,0,${If[${swRestModRod},M,]}"
+		HUDPATH "Core" "rest9" "19,191,69,25,25,25,${If[${swRestModRod},,_]}"
+		HUDPATH "Core" "rest10" "19,200,74,0,255,0,${If[${swRestBuff},B,]}"
+		HUDPATH "Core" "rest11" "19,200,69,25,25,25,${If[${swRestBuff},,_]}"
+
+
+
+		| buff switches
+		HUDPATH "Core" "buff1" "3,280,14,100,149,237,Buff"
+		HUDPATH "Core" "buff3" "19,308,14,0,255,0,${If[${swBuffSelf},S,]}"
+		HUDPATH "Core" "buff4" "19,308,9,25,25,25,${If[${swBuffSelf},,_]} "
+		HUDPATH "Core" "buff5" "19,319,14,0,255,0,${If[${swBuffItem},I,]}"
+		HUDPATH "Core" "buff6" "19,317,9,25,25,25,${If[${swBuffItem},,_]} "
+		HUDPATH "Core" "buff7" "19,326,14,0,255,0,${If[${swBuffCombat},C,]}"
+		HUDPATH "Core" "buff8" "19,326,9,25,25,25,${If[${swBuffCombat},,_]} "
+		HUDPATH "Core" "buff9" "19,335,14,0,255,0,${If[${swBuffBC},B,]}"
+		HUDPATH "Core" "buff10" "19,335,9,25,25,25,${If[${swBuffBC},,_]}"
+		HUDPATH "Core" "buff11" "19,344,14,0,255,0,${If[${swBuffRaid},R,]}"
+		HUDPATH "Core" "buff12" "19,344,9,25,25,25,${If[${swBuffRaid},,_]}"
+		HUDPATH "Core" "buff13" "19,353,14,0,255,0,${If[${swBuffTell},T,]}"
+		HUDPATH "Core" "buff14" "19,353,9,25,25,25,${If[${swBuffTell},,_]}"
+		HUDPATH "Core" "buff15" "19,362,14,0,255,0,${If[${swBuffPet},P,]}"
+		HUDPATH "Core" "buff16" "19,362,9,25,25,25,${If[${swBuffPet},,_]}"
+		HUDPATH "Core" "buff17" "19,371,14,0,255,0,${If[${swBuffMerc},M,]}"
+		HUDPATH "Core" "buff18" "19,371,9,25,25,25,${If[${swBuffMerc},,_]}"
+		HUDPATH "Core" "buff19" "19,380,14,0,255,0,${If[${swBuffOther},O,]}"
+		HUDPATH "Core" "buff20" "19,380,9,25,25,25,${If[${swBuffOther},,_]}"
+		HUDPATH "Core" "buff21" "19,389,14,0,255,0,${If[${swBuffMGB},X,]}"
+		HUDPATH "Core" "buff22" "19,389,9,25,25,25,${If[${swBuffMGB},,_]}"
 
 		| deBuff switches
-		HUDPATH "Core" "debuff1" "3,280,74,100,149,237,deBuff"
-		HUDPATH "Core" "debuff3" "19,321,74,0,255,0,${If[${swdeBuffMezz},Z,]}"
-		HUDPATH "Core" "debuff4" "19,321,69,25,25,25,${If[${swdeBuffMezz},,_]}"	
-		HUDPATH "Core" "debuff5" "19,330,74,0,255,0,${If[${swdeBuffMalo},M,]}"
-		HUDPATH "Core" "debuff6" "19,330,69,25,25,25,${If[${swdeBuffMalo},,_]}"	
-		HUDPATH "Core" "debuff7" "19,339,74,0,255,0,${If[${swdeBuffTash},T,]}"
-		HUDPATH "Core" "debuff8" "19,339,69,25,25,25,${If[${swdeBuffTash},,_]}"	
-		HUDPATH "Core" "debuff9" "19,348,74,0,255,0,${If[${swdeBuffCripple},C,]}"
-		HUDPATH "Core" "debuff10" "19,348,69,25,25,25,${If[${swdeBuffCripple},,_]}"	
-		HUDPATH "Core" "debuff11" "19,357,74,0,255,0,${If[${swdeBuffSlow},S,]}"
-		HUDPATH "Core" "debuff12" "19,357,69,25,25,25,${If[${swdeBuffSlow},,_]}"		
-		HUDPATH "Core" "debuff13" "19,366,74,0,255,0,${If[${swdeBuffEradicate},E,]}"
-		HUDPATH "Core" "debuff14" "19,366,69,25,25,25,${If[${swdeBuffEradicate},,_]}"		
-		HUDPATH "Core" "debuff15" "19,375,74,0,255,0,${If[${swdeBuffSnare},R,]}"		
-		HUDPATH "Core" "debuff16" "19,375,69,25,25,25,${If[${swdeBuffSnare},,_]}"		
+		HUDPATH "Core" "debuff1" "3,280,26,100,149,237,deBuff"
+		HUDPATH "Core" "debuff3" "19,321,26,0,255,0,${If[${swdeBuffMezz},Z,]}"
+		HUDPATH "Core" "debuff4" "19,321,21,25,25,25,${If[${swdeBuffMezz},,_]}"	
+		HUDPATH "Core" "debuff5" "19,330,26,0,255,0,${If[${swdeBuffMalo},M,]}"
+		HUDPATH "Core" "debuff6" "19,330,21,25,25,25,${If[${swdeBuffMalo},,_]}"	
+		HUDPATH "Core" "debuff7" "19,339,26,0,255,0,${If[${swdeBuffTash},T,]}"
+		HUDPATH "Core" "debuff8" "19,339,21,25,25,25,${If[${swdeBuffTash},,_]}"	
+		HUDPATH "Core" "debuff9" "19,348,26,0,255,0,${If[${swdeBuffCripple},C,]}"
+		HUDPATH "Core" "debuff10" "19,348,21,25,25,25,${If[${swdeBuffCripple},,_]}"	
+		HUDPATH "Core" "debuff11" "19,357,26,0,255,0,${If[${swdeBuffSlow},S,]}"
+		HUDPATH "Core" "debuff12" "19,357,21,25,25,25,${If[${swdeBuffSlow},,_]}"		
+		HUDPATH "Core" "debuff13" "19,366,26,0,255,0,${If[${swdeBuffEradicate},E,]}"
+		HUDPATH "Core" "debuff14" "19,366,21,25,25,25,${If[${swdeBuffEradicate},,_]}"		
+		HUDPATH "Core" "debuff15" "19,375,26,0,255,0,${If[${swdeBuffSnare},R,]}"		
+		HUDPATH "Core" "debuff16" "19,375,21,25,25,25,${If[${swdeBuffSnare},,_]}"		
 		
 		| heal switches
-		HUDPATH "Core" "heal3" "19,305,86,255,255,255,${If[${setHealOverride},${setHealOverride},]}"
-		HUDPATH "Core" "heal4" "19,305,86,25,25,25,${If[${setHealOverride},,##]}"
-		HUDPATH "Core" "heal5" "19,321,86,0,255,0,${If[${swHealSelf},S,]}"
-		HUDPATH "Core" "heal6" "19,321,81,25,25,25,${If[${swHealSelf},,_]}"
-		HUDPATH "Core" "heal7" "19,330,86,0,255,0,${If[${swHealGroup},G,]}"
-		HUDPATH "Core" "heal8" "19,330,81,25,25,25,${If[${swHealGroup},,_]}"
-		HUDPATH "Core" "heal9" "19,339,86,0,255,0,${If[${swHealXTarget},X,]}"
-		HUDPATH "Core" "heal10" "19,339,81,25,25,25,${If[${swHealXTarget},,_]}"
-		HUDPATH "Core" "heal11" "19,348,86,0,255,0,${If[${swHealPet},P,]}"
-		HUDPATH "Core" "heal12" "19,348,81,25,25,25,${If[${swHealPet},,_]}"
-		HUDPATH "Core" "heal13" "19,357,86,0,255,0,${If[${swHealCure},C,]}"
-		HUDPATH "Core" "heal14" "19,357,81,25,25,25,${If[${swHealCure},,_]}"
-		HUDPATH "Core" "heal15" "19,280,86,100,149,237,${If[!${Select[${Me.Class.ShortName},CLR,SHM,PAL,DRU]},Heal,]}"
-		HUDPATH "Core" "heal16" "19,280,86,255,0,0,${If[${Select[${Me.Class.ShortName},CLR,SHM,PAL,DRU]} && ${switchHealAggressive},AGG,]}"
-		HUDPATH "Core" "heal17" "19,280,86,100,149,237,${If[${Select[${Me.Class.ShortName},CLR,SHM,PAL,DRU]} && !${switchHealAggressive},Heal,]}"
+		HUDPATH "Core" "heal3" "19,305,38,255,255,255,${If[${setHealOverride},${setHealOverride},]}"
+		HUDPATH "Core" "heal4" "19,305,38,25,25,25,${If[${setHealOverride},,##]}"
+		HUDPATH "Core" "heal5" "19,321,38,0,255,0,${If[${swHealSelf},S,]}"
+		HUDPATH "Core" "heal6" "19,321,33,25,25,25,${If[${swHealSelf},,_]}"
+		HUDPATH "Core" "heal7" "19,330,38,0,255,0,${If[${swHealGroup},G,]}"
+		HUDPATH "Core" "heal8" "19,330,33,25,25,25,${If[${swHealGroup},,_]}"
+		HUDPATH "Core" "heal9" "19,339,38,0,255,0,${If[${swHealXTarget},X,]}"
+		HUDPATH "Core" "heal10" "19,339,33,25,25,25,${If[${swHealXTarget},,_]}"
+		HUDPATH "Core" "heal11" "19,348,38,0,255,0,${If[${swHealPet},P,]}"
+		HUDPATH "Core" "heal12" "19,348,33,25,25,25,${If[${swHealPet},,_]}"
+		HUDPATH "Core" "heal13" "19,357,38,0,255,0,${If[${swHealCure},C,]}"
+		HUDPATH "Core" "heal14" "19,357,33,25,25,25,${If[${swHealCure},,_]}"
+		HUDPATH "Core" "heal15" "19,280,38,100,149,237,${If[!${Select[${Me.Class.ShortName},CLR,SHM,PAL,DRU]},Heal,]}"
+		HUDPATH "Core" "heal16" "19,280,38,255,0,0,${If[${Select[${Me.Class.ShortName},CLR,SHM,PAL,DRU]} && ${switchHealAggressive},AGG,]}"
+		HUDPATH "Core" "heal17" "19,280,38,100,149,237,${If[${Select[${Me.Class.ShortName},CLR,SHM,PAL,DRU]} && !${switchHealAggressive},Heal,]}"
 
 		| notice at bottom	
 		HUDPATH "Core" "notice1" "19,5,132,255,255,255,${hudNotice}"

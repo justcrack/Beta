@@ -856,10 +856,10 @@ sub Bind_setCLR(string _type, string _verbage, bool _silent)
 	| set XT refresh list Time
 	} else /if (${_type.Equal[xttime]}) {
 		/if (!${validate_expansion[TRUE, |16]}) /return
-		/if (${Bool[${_verbage}]} && ${Range.Between[1,10:${Int[${_verbage}]}]}) {
+		/if (${Bool[${_verbage}]} && ${Range.Between[1,60:${Int[${_verbage}]}]}) {
 			/call sql_update FALSE timer tXHeal ${_verbage}
 		} else {
-			VOUT /${_bind} xttime [${cinfo}${tXHeal}m\ax] allowable range ${sep} ${cinfo}1 - 10 min\ax
+			VOUT /${_bind} xttime [${cinfo}${tXHeal}m\ax] allowable range ${sep} ${cinfo}1 - 60 min\ax
 			/return
 		}	
 		

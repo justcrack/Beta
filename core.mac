@@ -60,7 +60,7 @@
 ***|
 
 | #warning
-#turbo 120
+| #turbo 120
 #define DEBUG "/varset currentdebugsub"
 #define SDEBUG "/echo \ar[\ax\aw${Time.Second}\ax : \aw${Macro.CurLine}\ax\ar]\ax(\a-t${Macro.RunTime}\ax)"
 #define OUT "/echo \at-\ax"
@@ -120,7 +120,7 @@
  ***|
 sub main(string _custom)
 	| Current Build
-	/call setDeclare currentBuild 			string outer 0211.02
+	/call setDeclare currentBuild 			string outer 0213.01
 	
 	| force SQL echos on for the start
 	/call setDeclare swEchosSQL 				bool outer FALSE
@@ -140,6 +140,12 @@ sub main(string _custom)
 	  UPDATEHUD FALSE
 		/if (!${timer_validate_zone}) /call validate_zone FALSE FALSE
 		/delay 1
+
+		/if (${swManualAADiscNow}) {
+			/if (${Bool[${AANow1}]} || ${Bool[${AANow2}]}) /call check_AA_now
+			/if (${Bool[${DiscNow1}]} || ${Bool[${DiscNow2}]}) /call check_disc_now
+			/if (${Bool[${ItemNow1}]} || ${Bool[${ItemNow2}]}) /call check_item_now
+		}
 	}
 	
 	| normal Core operations loop
@@ -162,7 +168,9 @@ sub main(string _custom)
 			| check constant AA buffs
 			/if (${Bool[${AANow1}]} || ${Bool[${AANow2}]}) /call check_AA_now
 			| check constant Disc buffs
-			/if (${Bool[${DiscNow1}]} || ${Bool[${DiscNow2}]}) /call check_Disc_now
+			/if (${Bool[${DiscNow1}]} || ${Bool[${DiscNow2}]}) /call check_disc_now
+			| check constant Item buffs
+			/if (${Bool[${ItemNow1}]} || ${Bool[${ItemNow2}]}) /call check_item_now
 		}
 
 		| non class specific automated thingies.
@@ -258,6 +266,12 @@ sub main(string _custom)
 
 		| time to take this bitch to church!
 		/call core_${Me.Class.ShortName}
+
+		| hack way to get the code to slow the fuck down....
+		/while (${Me.Moving} || ${Me.Invis}) {
+			CHECKINPUTS
+			/delay 2
+		}
 
 	}
 	

@@ -514,6 +514,11 @@ sub check_buffs_item()
 		VOUT Item ${sep} ${citem}${setIllusionItem}\ax
  		/call MQ2Cast "${setIllusionItem}" item 30s
  	}  	
+ 	
+ 	| check Items
+	/if (${Bool[${ItemNow1}]} || ${Bool[${ItemNow2}]}) {
+		/call check_item_now
+	}
 
 	/if (!${Bool[${timer_Check_Familiar}]}) /call sort_familiar
  	
@@ -638,6 +643,8 @@ sub check_buffs_self()
 	/if (${Bool[${DiscNow1}]} || ${Bool[${DiscNow2}]}) {
 		/call check_Disc_now
 	}
+	
+
 
 	| wizard mancy line spells
 	/if (${validate_class[FALSE, |WIZ]}) {
@@ -4300,6 +4307,28 @@ sub check_AA_now()
 /return
 
 
+|***
+ *	DES: Make sure the Item Effect is up all the time
+ *	USE: /call check_item_now
+ *  NOTE:
+ ***|
+sub check_item_now()
+	AMIDEAD
+	CHECKEXIT
+	CHECKINPUTS
+
+	/if (${Bool[${ItemNow1}]}) {
+		/if (${validate_cast[FALSE, item, "${ItemNow1}", ${Me.ID}]}) /call core_cast2 "${ItemNow1}" item 0 FALSE
+	}
+
+	/if (${Bool[${ItemNow2}]}) {
+		/if (${validate_cast[FALSE, alt, "${ItemNow2}", ${Me.ID}]}) /call core_cast2 "${ItemNow2}" alt 0 FALSE
+	}
+/return
+
+
+
+
 
 |***
  *	DES: Make sure the Disc is up all the time
@@ -7830,6 +7859,29 @@ sub check_ready(string _type, string _tocheck)
 	}
 
 /return FALSE
+
+
+
+
+|***
+ *  DES: 
+ *  USE: 
+ *  NOTE: 
+ ***|
+sub check_geomantra()
+
+
+	/call sql_control FALSE character swGeomantra												bool			outer FALSE
+
+
+
+${Me.Buff[Geomantra].ID}
+
+
+${Me.ItemReady[${setGeomantra}]}
+
+
+/return
 
 
 
