@@ -120,7 +120,7 @@
  ***|
 sub main(string _custom)
 	| Current Build
-	/call setDeclare currentBuild 			string outer 0213.01
+	/call setDeclare currentBuild 			string outer 0214.01
 	
 	| force SQL echos on for the start
 	/call setDeclare swEchosSQL 				bool outer FALSE
@@ -268,9 +268,9 @@ sub main(string _custom)
 		/call core_${Me.Class.ShortName}
 
 		| hack way to get the code to slow the fuck down....
-		/while (${Me.Moving} || ${Me.Invis}) {
+		/while (${coreAuto} && (${Me.Moving} || ${Me.Invis})) {
 			CHECKINPUTS
-			/delay 2
+		 	/delay 2
 		}
 
 	}

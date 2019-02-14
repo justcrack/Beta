@@ -2007,7 +2007,7 @@ sub Bind_crew(int _crew)
 	
 	/declare _count int local 0
 	/sqlite ${dbCore} dummy SELECT lstCrew${_crew} FROM environment WHERE currentBuild="${currentBuild}"
-	/declare _clist string local ${sqlite.Result[dummy, 1, lstCrew${_crew}]}
+	/declare _clist string local ${sqlite.Result[dummy 1 lstCrew${_crew}]}
 	
 	| disband raid if exists
 	/if (${Raid.Members}) {
@@ -3649,11 +3649,11 @@ sub Bind_port_list(string _class, string _location, string _sublocation)
 				}
 				/varset _tmpItem Wishing Lamp: Palace of Embers
 			} else /if (${_sublocation.Equal[Stone]}) {
-				/while (!${FindItem[Wishing Lamp: The Stone of Demesne].ID}) {
+				/while (!${FindItem[Wishing Lamp: The Stone Demesne].ID}) {
 					/convertitem Wishing Lamp:
 					/delay 1s					
 				}
-				/varset _tmpItem Wishing Lamp: The Stone of Demesne				
+				/varset _tmpItem Wishing Lamp: The Stone Demesne				
 			}
 
 		| signet of the crystal circle

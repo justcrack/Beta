@@ -4327,6 +4327,9 @@ sub check_item_now()
 /return
 
 
+${Item[Crestra's Elaborate Earring].Spell}
+
+Crestra's Elaborate Earring
 
 
 

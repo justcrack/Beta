@@ -27,6 +27,11 @@ Plugins Required: MQ2Cast, MQ2Exchange, MQ2MoveUtils, MQ2Debuffs, MQ2DanNet, MQ2
     -- script: files use to aid database or character generation. these files are fair game, i will be overwriting them if i need
 
 
+BETA
+- fixed a typo in the port lamp for Mearatas
+- adjusted the forced slow to be in manual mode only
+
+
 BETA 0213.01
 HUDUPDATE
 - yes, i'm moving things around on the hud.. /deal
@@ -44,7 +49,6 @@ BETA 0211.02
  -- more changes to pet heal
 - class.wiz.inc
   -- adapted to use /cc heal switch
-
 
 
 BETA 0211.01
