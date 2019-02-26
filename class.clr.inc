@@ -156,8 +156,27 @@ sub check_heal_group_CLR()
 	/varset hurtCount 0
 
 	| Do group members need healing? 
-  /call check_health_group
+  | /call check_health_group
+  
+	/for _count 0 to ${Group}
+		/if (${Group.Member[${_count}].PctHPs} > ${${Group.Member[${_count}].Class.ShortName}Point}*.${tmpHealOverride}) /continue
+		/if (${Group.Member[${_count}].PctHPs} > ${hurtPctHP}) /continue
+		/if (${Group.Member[${_count}].Distance} > ${setMobAgro}) /continue
+		/if (!${Group.Member[${_count}].Present} || ${Group.Member[${_count}].Dead}) /continue
+		/if (${Group.Member[${_count}].DisplayName.Equal[${RampageTank}]}) /continue
+		/if (${lstNoHeal.Find[${Group.Member[${_count}].DisplayName}]}) /continue
+
+		| we found a slacker
+		/varset hurtPctHP ${Group.Member[${_count}].PctHPs}
+		/varset hurtIndex ${_count}
+		/varset hurtCLS ${Group.Member[${_count}].Class.ShortName}
+		/varcalc hurtCount ${hurtCount}+1
+		/if (${useGroupHeal}) {
+			/if (${hurtCount} >= ${useGroupHeal}) /break
+		}
 	
+	/next _count  
+  	
 	| Group Regen Heal 
  	/if (${useGroupHoT} && !${hurtCount} && !${SafeZone}) {
 	 	/if (${SpawnCount[npc radius ${setMobAgro} playerstate 4 targetable]} >= 1) {
@@ -221,27 +240,11 @@ sub check_heal_group_CLR()
 	  }
 	}
   
-  |*** Forced Group Heals ONLY
-	/if (${switchForceGroupHeal}) {
-		/if (${Group.Member[${hurtIndex}].PctHPs} <= ${${hurtCLS}Point}*.${tmpHealOverride}) {
-			/if (${check_ready[spell, "${healWholeGroup}"]}) {
-				/if (${validate_cast[FALSE, spell, "${healWholeGroup}", ${Me.ID}]}) /call core_cast2 "${healWholeGroup}" 0 0 FALSE
-			} else /if (${check_ready[spell, "${healWholeGroup2}"]}) {
-				/if (${validate_cast[FALSE, spell, "${healWholeGroup2}", ${Me.ID}]}) /call core_cast2 "${healWholeGroup2}" 0 0 check_health_group
-			} else /if (${check_ready[spell, "${healWholeGroup3}"]}) {
-				/if (${validate_cast[FALSE, spell, "${healWholeGroup3}", ${Me.ID}]}) /call core_cast2 "${healWholeGroup3}" 0 0 check_health_group
-			}
-		}
-		| if forced group healing. restart heal cycle at this point.
-		CHECKFADE
-		/return
-	}
-	***|
     
   | Group Heal
   /if (${useGroupHeal}) {
 	  /if (${hurtCount} >= ${useGroupHeal}) {
-	    /if (${validate_cast[FALSE, spell, "${healWholeGroup}", ${Me.ID}]}) /call core_cast2 "${healWholeGroup}" 0 0 FALSE
+	    /if (${validate_cast[FALSE, spell, "${healWholeGroup}", ${Me.ID}]}) /call core_cast2 "${healWholeGroup}" 0 0 check_health_group
 	  } 
 	}
 	
@@ -279,7 +282,7 @@ sub check_heal_group_CLR()
   /if (${Group.Member[${hurtIndex}].PctHPs} <= ${${hurtCLS}Point}*.${tmpHealOverride}) {
 		/for _count 1 to 3
 			/if (${Me.SpellReady[${Spell[${healRemedy${_count}}].RankName}]}) {
-				/if (${validate_cast[FALSE, spell, "${healRemedy${_count}}", ${Group.Member[${hurtIndex}].ID}]}) /call core_cast2 "${healRemedy${_count}}" 0 ${Group.Member[${hurtIndex}].ID} FALSE
+				/if (${validate_cast[FALSE, spell, "${healRemedy${_count}}", ${Group.Member[${hurtIndex}].ID}]}) /call core_cast2 "${healRemedy${_count}}" 0 ${Group.Member[${hurtIndex}].ID} check_health_group
 				/break
 			}
 		/next _count 
@@ -290,7 +293,7 @@ sub check_heal_group_CLR()
   /if (${Group.Member[${hurtIndex}].PctHPs} <= ${${hurtCLS}Point}*.${tmpHealOverride}) {
 		/for _count 1 to 4
 			/if (${Me.SpellReady[${Spell[${healIntervention${_count}}].RankName}]}) {
-				/if (${validate_cast[FALSE, spell, "${healIntervention${_count}}", ${Group.Member[${hurtIndex}].ID}]}) /call core_cast2 "${healIntervention${_count}}" 0 ${Group.Member[${hurtIndex}].ID} FALSE
+				/if (${validate_cast[FALSE, spell, "${healIntervention${_count}}", ${Group.Member[${hurtIndex}].ID}]}) /call core_cast2 "${healIntervention${_count}}" 0 ${Group.Member[${hurtIndex}].ID} check_health_group
 				/break
 			}
 		/next _count
@@ -300,7 +303,7 @@ sub check_heal_group_CLR()
   /if (${Group.Member[${hurtIndex}].PctHPs} <= ${${hurtCLS}Point}*.${tmpHealOverride}) {
 		/for _count 1 to 3
 			/if (${Me.SpellReady[${Spell[${healRenewal${_count}}].RankName}]}) {
-				/if (${validate_cast[FALSE, spell, "${healRenewal${_count}}", ${Group.Member[${hurtIndex}].ID}]}) /call core_cast2 "${healRenewal${_count}}" 0 ${Group.Member[${hurtIndex}].ID} FALSE
+				/if (${validate_cast[FALSE, spell, "${healRenewal${_count}}", ${Group.Member[${hurtIndex}].ID}]}) /call core_cast2 "${healRenewal${_count}}" 0 ${Group.Member[${hurtIndex}].ID} check_health_group
 				/break
 			}
 		/next _count 
@@ -314,7 +317,7 @@ sub check_heal_group_CLR()
 			/dquery ${Group.Member[${hurtIndex}].DisplayName} -q "Spell[${healHoT}].Stacks" -o _stacks
 			/dquery ${Group.Member[${hurtIndex}].DisplayName} -q "Me.Song[${healHoT}].Duration" -o _has
 			/if (${_stacks} && !${_has}) {
-				/if (${validate_cast[FALSE, spell, "${healHoT}", ${Group.Member[${hurtIndex}].ID}]}) /call core_cast2 "${healHoT}" 0 ${Group.Member[${hurtIndex}].ID} FALSE
+				/if (${validate_cast[FALSE, spell, "${healHoT}", ${Group.Member[${hurtIndex}].ID}]}) /call core_cast2 "${healHoT}" 0 ${Group.Member[${hurtIndex}].ID} check_health_group
 			}
 		}
 	}
@@ -437,7 +440,28 @@ sub check_heal_XTarget_CLR()
 	/varset hurtCount 0
 
 	| does anyone need healing?
-	/call check_health_xtarget
+	| /call check_health_xtarget
+ 
+ 
+	/for _count 1 to 13
+  	/if (!${Me.XTarget[${_count}].ID}) /continue
+  	/if (${Me.XTarget[${_count}].Dead}) /continue
+  	/if (${Me.XTarget[${_count}].PctHPs} > ${hurtPctHP}) /continue
+  	/if (${Me.XTarget[${_count}].Distance} > ${setMobAgro}) /continue
+		/if (${Me.XTarget[${_count}].DisplayName.Equal[${RampageTank}]}) /continue
+		/if (${lstNoHeal.Find[${Me.XTarget[${_count}].DisplayName}]}) /continue
+  	/if (!${Me.XTarget[${_count}].Type.Equal[PC]} && !${ProtectNPCList.Find[${Me.XTarget[${_count}].DisplayName}]}) /continue
+		/if (${Me.XTarget[${_count}].PctHPs} > ${${Me.XTarget[${_count}].Class.ShortName}Point}*.${tmpHealOverride}) /continue
+
+		/varset hurtIndex ${_count}
+		/varset hurtPctHP ${Me.XTarget[${_count}].PctHPs}
+		/varset hurtCLS ${Me.XTarget[${_count}].Class.ShortName}
+		/varset hurtCount 1
+
+  /next _count
+
+
+
   	
 	/if (!${hurtCount}) {
 		UPDATEHUD FALSE
@@ -466,7 +490,7 @@ sub check_heal_XTarget_CLR()
   /if (${Me.XTarget[${hurtIndex}].PctHPs} <= ${${hurtCLS}Point}*.${tmpHealOverride}) {
 		/for _count 1 to 3
 			/if (${Me.SpellReady[${Spell[${healRemedy${_count}}].RankName}]}) {
-				/if (${validate_cast[FALSE, spell, "${healRemedy${_count}}", ${Me.XTarget[${hurtIndex}].ID}]}) /call core_cast2 "${healRemedy${_count}}" 0 ${Me.XTarget[${hurtIndex}].ID} FALSE
+				/if (${validate_cast[FALSE, spell, "${healRemedy${_count}}", ${Me.XTarget[${hurtIndex}].ID}]}) /call core_cast2 "${healRemedy${_count}}" 0 ${Me.XTarget[${hurtIndex}].ID} check_health_group
 				/break
 			}
 		/next _count
@@ -477,7 +501,7 @@ sub check_heal_XTarget_CLR()
   /if (${Me.XTarget[${hurtIndex}].PctHPs} <= ${${hurtCLS}Point}*.${tmpHealOverride}) {
 		/for _count 1 to 4
 			/if (${Me.SpellReady[${Spell[${healIntervention${_count}}].RankName}]}) {
-				/if (${validate_cast[FALSE, spell, "${healIntervention${_count}}", ${Me.XTarget[${hurtIndex}].ID}]}) /call core_cast2 "${healIntervention${_count}}" 0 ${Me.XTarget[${hurtIndex}].ID} FALSE
+				/if (${validate_cast[FALSE, spell, "${healIntervention${_count}}", ${Me.XTarget[${hurtIndex}].ID}]}) /call core_cast2 "${healIntervention${_count}}" 0 ${Me.XTarget[${hurtIndex}].ID} check_health_group
 				/break
 			}
 		/next _count
@@ -487,7 +511,7 @@ sub check_heal_XTarget_CLR()
   /if (${Me.XTarget[${hurtIndex}].PctHPs} <= ${${hurtCLS}Point}*.${tmpHealOverride}) {
 		/for _count 1 to 3
 			/if (${Me.SpellReady[${Spell[${healRenewal${_count}}].RankName}]}) {
-				/if (${validate_cast[FALSE, spell, "${healRenewal${_count}}", ${Me.XTarget[${hurtIndex}].ID}]}) /call core_cast2 "${healRenewal${_count}}" 0 ${Me.XTarget[${hurtIndex}].ID} FALSE
+				/if (${validate_cast[FALSE, spell, "${healRenewal${_count}}", ${Me.XTarget[${hurtIndex}].ID}]}) /call core_cast2 "${healRenewal${_count}}" 0 ${Me.XTarget[${hurtIndex}].ID} check_health_group
 				/break
 			}
 		/next _count
@@ -573,7 +597,7 @@ sub check_heal_pet_CLR()
 |***
  *	DES: Use cleric divine arbitration AA or Epic shield click.
  *	USE: auto.
- *  NOTE: Setting [Heal] -> setDivinetoGroupHeal to TRUE in the clerics INI will force a group heal after the health arbitration.
+ *  NOTE: DB::CLR::setDivinetoGroupHeal=TRUE will force a group heal after the health arbitration.
  ***|
 sub cast_divine_arbitration()
 	DEBUG cast_divine_arbitration()
@@ -592,12 +616,9 @@ sub cast_divine_arbitration()
   } else /if (${Me.AltAbilityReady[Divine Arbitration]}) {
     /if (${validate_cast[FALSE, alt, "Divine Arbitration", ${Me.ID}]}) /call core_cast2 "Divine Arbitration" alt 0 FALSE
   }
-  
-  | heal speed boost
-  /if (!${Raid.Members} && ${validate_cast[FALSE, alt, "Celestial Rapidity", ${Me.ID}]}) /call core_cast2 "Celestial Rapidity" alt 0 FALSE
-	
+  	
 	/if (${setDivinetoGroupHeal} && ${useGroupHeal}) {
-		/if (${validate_cast[FALSE, spell, "${healWholeGroup}", ${Me.ID}]}) /call core_cast2 "${healWholeGroup}" 0  FALSE
+		/if (${validate_cast[FALSE, spell, "${healWholeGroup}", ${Me.ID}]}) /call core_cast2 "${healWholeGroup}" 0 0 FALSE
 	}
 /return
 
@@ -674,6 +695,7 @@ sub Bind_issuance()
 sub check_heal_ward()
 	DEBUG check_heal_ward()
 	/if (${coreAuto}) /call timer_update timer_heal_ward ${tHealWard}
+	/if (!${Me.SpellReady[${Spell[${healWard}].RankName}]}) /return
 
 	AMIDEAD
 	SIMPLEEXIT
@@ -772,7 +794,7 @@ sub burn_CLR()
 
   | AA 3rd Spire (7min 30 sec reuse)
 	/if (!${Me.Buff[Third Spire of Divinity].ID}) { 
-    /if (${validate_cast[FALSE, alt, "${CLRspire3}", ${Me.ID}]}) /call core_cast2 "${CLRspire3}" alt 0 FALSE
+    /if (${validate_cast[FALSE, alt, "${${Me.Class.ShortName}spire.Arg[${spireGroup},|]}", ${Me.ID}]}) /call core_cast2 "${${Me.Class.ShortName}spire.Arg[${spireGroup},|]}" alt 0 FALSE
   }	
   
 	| direct damage boost if using aggressive healing

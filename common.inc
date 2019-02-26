@@ -260,7 +260,7 @@ sub cast_shrink_pet()
 
 	/if (${check_engaged[]}) /return
 	/if (${Me.Pet.ID} && ${Bool[${setPetShrink}]} && ${Me.Pet.Height} > 1.40) {
-		/if (${Me.Book[${setPetShrink}]}) {
+		/if (${Me.Book[${Spell[${setPetShrink}].RankName}]}) {
 			/if (${validate_cast[FALSE, spell, "${setPetShrink}", ${Me.Pet.ID}]}) /call core_cast2 "${setPetShrink}" ${buffGem} ${Me.Pet.ID} FALSE
 		} else /if (${Me.ItemReady[${setPetShrink}]}) {
 			/if (${validate_cast[FALSE, item, "${setPetShrink}", ${Me.Pet.ID}]}) /call core_cast2 "${setPetShrink}" item ${Me.Pet.ID} FALSE
@@ -308,6 +308,7 @@ sub check_pet()
  *  NOTE: MAG,ENG,BST,NEC
  ***|
 sub cast_summon_weapons()
+	CHECKTIE
 	AMIDEAD
 	CHECKINPUTS
 
@@ -387,6 +388,7 @@ sub cast_summon_weapons()
  *  NOTE: 
  ***|
 sub auto_adjust_EXP()
+	CHECKTIE
 	AMIDEAD
 	CHECKEXIT
 	CHECKINPUTS
@@ -416,6 +418,7 @@ sub auto_adjust_EXP()
  ***|
 sub check_aura()
 	CHECKCOMBATCAST
+	CHECKTIE
 	AMIDEAD
 	CHECKEXIT
 	CHECKINPUTS
@@ -497,6 +500,7 @@ sub check_aura()
  *  NOTE: 
  ***|
 sub check_buffs_item()
+	CHECKTIE
 	AMIDEAD
 	CHECKEXIT
 	UPDATEHUD "BUFF Item"
@@ -702,7 +706,7 @@ sub check_buffs_pet()
 		UPDATEHUD "BUFF Pet"
 		/if (${Me.Pet.Buff[${PetBuff${_count}chk}]}) /continue
 		
-		/if (${Me.Book[${PetBuff${_count}}]}) {
+		/if (${Me.Book[${Spell[${PetBuff${_count}}].RankName}]}) {
 			/if (${validate_cast[FALSE, spell, "${PetBuff${_count}}", ${Me.Pet.ID}]}) /call core_cast2 "${PetBuff${_count}}" ${buffGem} ${Me.Pet.ID} FALSE
 		} else /if (${Me.AltAbilityReady[${PetBuff${_count}}]}) {	
 			/if (${validate_cast[FALSE, alt, "${PetBuff${_count}}", ${Me.Pet.ID}]}) /call core_cast2 "${PetBuff${_count}}" alt 0 FALSE
@@ -714,8 +718,10 @@ sub check_buffs_pet()
 	
 	| chekck for pet illusion
 	/if (${Bool[${setPetIllusion}]} && !${Bool[${Me.Pet.Buff[${setPetIllusionBuff}]}]} && ${Me.Pet.Distance} < 100 && ${Spell[${setPetIllusionBuff}].NewStacks}) /call MQ2Cast "${setPetIllusion}" item -targetid|${Me.Pet.ID}
+
 	| shrink the little bastards..
-	/if (${Bool[${Me.Pet.ID}]}) /call cast_shrink_pet
+	/if (${Me.Pet.ID}) /call cast_shrink_pet
+
 	| pet epic click
 	/if (${Me.ItemReady[${setPetEpicClick}]} && !${Me.Pet.Buff[Elemental Conjunction]} && !${Me.Pet.Buff[${setPetEpicBuff}]} && !${Me.Pet.Buff[Blessing of Unity]} && ${Spell[${setPetEpicBuff}].NewStacks}) {
 		/if (${validate_cast[FALSE, item, "${setPetEpicClick}", ${Me.ID}]}) /call core_cast2 "${setPetEpicClick}" item 0 FALSE
@@ -981,6 +987,17 @@ sub check_buffs_BC()
 
 	UPDATEHUD FALSE
 /return
+
+
+
+${Spell[Strength of the WildStalker].IsStackBlocked}
+
+
+Strength of the WildStalker
+
+.StacksTarget
+
+/echo ${Spell[Strength of the WildStalker].StacksTarget}
 
 
 
@@ -1312,6 +1329,17 @@ sub click_item()
  ***|
 sub click_item_swarm(int _tmpID)
 	/declare _count int local 0
+	
+	| check for a DS on target
+	/if (${swNoSwarmonDS}) {
+		/if (${Target.ID} != ${_tmpID})
+			/squelch /target ID ${_tmpID}
+		}
+		/if (${Target.DSed.ID}) /return FALSE		
+	}
+	
+	
+	
 	/for _count 1 to 4
 		/if (${Spawn[${Target.ID}].PctHPs} < 5*.${tmpHealOverride}) /break
 		/if (${is_target_dead[${_tmpID}]}) /break
@@ -1353,7 +1381,8 @@ sub sort_cursor(bool _ignoreTimer)
 	| corect the INI entry if not set for the new form
 	/if (!${Ini[${INILoot},${Cursor.Name.Left[1]},${Cursor.Name}].Length}) {
 		/ini "${INILoot}" "${Cursor.Name.Left[1]}" "${Cursor.Name}" "|Keep"
-	| its int he ini, but its an old entry format so fix it
+
+	| its in the ini, but its an old entry format so fix it
 	} else /if (!${Ini[${INILoot},"${Cursor.Name.Left[1]}","${Cursor.Name}"].Count[|]}) {
 		VOUT Fixing Loot: ${Cursor.Name}
 		/ini "${INILoot}" "${Cursor.Name.Left[1]}" "${Cursor.Name}" |${Ini[${INILoot},"${Cursor.Name.Left[1]}","${Cursor.Name}"]}
@@ -1374,7 +1403,7 @@ sub sort_cursor(bool _ignoreTimer)
 		/if (${Cursor.ID}) VOUT Cursor ${sep} ${oleave} ${sep} ${cinfo}${Cursor.Name}\ax
 		/if (${Cursor.ID} && ${_cursorChoice.Equal[Leave]}) /nomodkey /drop
 	} else /if (${Select[${_cursorChoice},Ignore]}) {
-		/break
+		/return
 	}
 
 	/if (${swAutoCursor}) {
@@ -1430,7 +1459,6 @@ sub set_xtarget()
 	/if (!${Raid.Members} && ${Bool[${ProtectOutsideGroup}]}) {
 		/for _x 1 to ${ProtectOutsideGroup.Count[|]}
 			/varset _name ${Spawn[pc ${ProtectOutsideGroup.Arg[${_x},|]}].DisplayName}
-			/if (${_name.Equal[=${setToonControl}]}) /continue
 			/if (${Spawn[pc ${_name}].Distance} > ${setMobAgro}) /continue
 			/if (${Group.Member[${_name}].ID}) /continue
 			/if (${_b} > 13 || !${Bool[${Spawn[pc ${_name}]}]}) /continue
@@ -1449,7 +1477,6 @@ sub set_xtarget()
 			/for _x 1 to ${ProtectInsideRaid.Count[|]}
 			/varset _name ${Spawn[pc ${ProtectInsideRaid.Arg[${_x},|]}].DisplayName}
 
-				/if (${Spawn[pc ${_name}].Name.Equal[${setToonControl}]}) /continue
 				/if (${Spawn[pc ${_name}].Distance} > ${setMobAgro}) /continue
 				/if (${Bool[${Group.Member[${_name}]}]}) /continue
 				/if (${_b} > 13 || !${Bool[${Spawn[pc ${_name}]}]}) {
@@ -2957,28 +2984,6 @@ sub sort_familiar()
 
 
 |***
- *	DES: Adjusts the XTarget for visual purposes to heal setToonControl. *NO EFFECT ON HEALING
- *	USE: /call protect_always_xt & /control [toon name]
- *  NOTE: 
-
-sub protect_always_xt()
-	/if (!${validate_expansion[FALSE, |16]}) /return
-	CHECKINPUTS
-	/if (${Bool[${setToonControl}]} && ${Bool[${setToonControlXTslot}]} && ${setToonControlProtect} && ${Bool[${Spawn[pc ${setToonControl}].ID}]} && !${Bool[${Spawn[${setToonControl}].Dead}]}) {
-		/if (${Group.Member[${setToonControl}].ID}) {
-			/xtarget set ${setToonControlXTslot} Autohater
-		} else /if (!${Group.Member[${setToonControl}].ID}) {
-			/xtarget set ${setToonControlXTslot} ${setToonControl}
-		}
-	} else /if ((!${Bool[${setToonControl}]} || !${Bool[${Spawn[pc ${setToonControl}].ID}]}) && ${Bool[${setToonControlXTslot}]}) {
-		/xtarget set ${setToonControlXTslot} Autohater
-	}
-
-/return
- ***|
-
-
-|***
 *	DES: check and claim Free Station Cash
 *	USE: manual
 * NOTE:  Credit: v1.0 - Initial release on Macroquest VIP forums - Dewey2461 on 7-7-2014 [butchered by me]
@@ -3102,7 +3107,6 @@ sub check_exit()
  ***|
 sub update_HUD_notices(string _mode)
 	/if (${Me.Zoning}) /return FALSE
-	CHECKINPUTS
 	
 	/declare _count int local 0
 	/declare _index int local 0
@@ -3118,14 +3122,12 @@ sub update_HUD_notices(string _mode)
 		/varset tmpMode FALSE
 	}
 
-	/if (!${timer_check_status}) /call broadcast_status
+	| /if (!${timer_check_status}) /call broadcast_status
 
 	|**  HUD warning notices.. the red stuff up top **|
 	
 	| rez warning
-	/if (${swAmIDead} || ${swNeedRez}) {
-		/varset _tmphudWarning ${_tmphudWarning} NEED REZ
-	}	
+	/if (${swAmIDead} || ${swNeedRez}) /varset _tmphudWarning ${_tmphudWarning} NEED REZ
 			
 	| check for Invis
 	/for _count 1 to ${lstIV.Size}
@@ -3159,64 +3161,32 @@ sub update_HUD_notices(string _mode)
 		/varset hudWarningLength ${_tmphudWarning.Length}
 		/varset hudWarning ${_tmphudWarning}
 	} 		
-		
 	
 	|**  HUD bottom notices.. safe zone, modes, stuff like that  **|
-  CHECKINPUTS
 	
 	/if (${Select[${Me.Class.ShortName},BRD,WIZ]}) {
 		/varset _tmphudNotice ${_tmphudNotice} ${lineCurrent}
-	}	
-
-	/if (${AdvPath.Playing}) {
-		/varset _tmphudNotice ${_tmphudNotice} AdvPath
 	}
-	
-	/if (${SafeZone}) {
-		/varset _tmphudNotice ${_tmphudNotice} SafeZone
-	}	
-	/if (${Stick.Active}) {
-		/varset _tmphudNotice ${_tmphudNotice} Stick
-	}
+	/if (${AdvPath.Playing}) /varset _tmphudNotice ${_tmphudNotice} AdvPath
+	/if (${SafeZone}) /varset _tmphudNotice ${_tmphudNotice} SafeZone
+	/if (${Stick.Active}) /varset _tmphudNotice ${_tmphudNotice} Stick
 	/if (${Select[${Me.Class.ShortName},MAG]}) {
-		/if (${Bool[${useRain}]}) {
-			/varset _tmphudNotice ${_tmphudNotice} AE
-		}	
+		/if (${Bool[${useRain}]}) /varset _tmphudNotice ${_tmphudNotice} AE
 	}
 	/if (${Select[${Me.Class.ShortName},CLR,PAL,SHM,DRU]}) {
-		/if (${Bool[${RampageTank}]}) {
-			/varset _tmphudNotice ${_tmphudNotice} RT[${RampageTank}]
-		}	
+		/if (${Bool[${RampageTank}]}) /varset _tmphudNotice ${_tmphudNotice} RT[${RampageTank}]
 	}
 
 	| Mode Notice
-	/if (${swModeHunt}) {
-		/varset _tmphudNotice ${_tmphudNotice} Hunt[${setModeAgro}]
-	}		
-	/if (${swModePetfarm}) {
-		/varset _tmphudNotice ${_tmphudNotice} PetFarm
-	}		
-	/if (${swModeScorch}) {
-		/varset _tmphudNotice ${_tmphudNotice} Scorch[${setModeAgro}]
-	}		
-	/if (${swModeHarvest}) {
-		/varset _tmphudNotice ${_tmphudNotice} Harvest[${setModeAgro}]
-	}	
-	/if (${swModeDrag}) {
-		/varset _tmphudNotice ${_tmphudNotice} Drag
-	}
-	/if (${swModeForage}) {
-		/varset _tmphudNotice ${_tmphudNotice} Forage
-	}
-	/if (${swModeFish}) {
-		/varset _tmphudNotice ${_tmphudNotice} Fish
-	}
-	/if (${swModeSkill}) {
-		/varset _tmphudNotice ${_tmphudNotice} Skill Trainer
-	}		
-	/if (${swModeLush} || ${Me.Drunk}) {
-		/varset _tmphudNotice ${_tmphudNotice} Drunk[${Me.Drunk}]
-	}		
+	/if (${swModeHunt}) /varset _tmphudNotice ${_tmphudNotice} Hunt[${setModeAgro}]
+	/if (${swModePetfarm}) /varset _tmphudNotice ${_tmphudNotice} PetFarm
+	/if (${swModeScorch}) /varset _tmphudNotice ${_tmphudNotice} Scorch[${setModeAgro}]
+	/if (${swModeHarvest}) /varset _tmphudNotice ${_tmphudNotice} Harvest[${setModeAgro}]
+	/if (${swModeDrag}) /varset _tmphudNotice ${_tmphudNotice} Drag
+	/if (${swModeForage}) /varset _tmphudNotice ${_tmphudNotice} Forage
+	/if (${swModeFish}) /varset _tmphudNotice ${_tmphudNotice} Fish
+	/if (${swModeSkill}) /varset _tmphudNotice ${_tmphudNotice} Skill Trainer
+	/if (${swModeLush} || ${Me.Drunk}) /varset _tmphudNotice ${_tmphudNotice} Drunk[${Me.Drunk}]
 
 	| spit out the verbage
 	/if (${_tmphudNotice.Length} != ${hudNoticeLength}) {
@@ -3226,28 +3196,13 @@ sub update_HUD_notices(string _mode)
 		
 	| target debuffs notices
 	/varset _sep FALSE
-
-	/if (${Bool[${Spawn[${Target.ID}].Master}]}) {
-		/varset _tmptarNotice ${_tmptarNotice} Pet
-	}	
-	/if (${Bool[${Target.Maloed}]}) {
-		/varset _tmptarNotice ${_tmptarNotice} Malo
-	}	
-	/if (${Bool[${Target.Tashed}]}) {
-		/varset _tmptarNotice ${_tmptarNotice} Tash
-	}	
-	/if (${Bool[${Target.Snared}]}) {
-		/varset _tmptarNotice ${_tmptarNotice} Snare
-	}	
-	/if (${Bool[${Target.Buff[Mental Contortion]}]}) {
-		/varset _tmptarNotice ${_tmptarNotice} MC
-	}	
-	/if (${Bool[${Target.Slowed}]}) {
-		/varset _tmptarNotice ${_tmptarNotice} Slow
-	}	
-	/if (${Bool[${Target.DSed}]}) {
-		/varset _tmptarNotice ${_tmptarNotice} DS
-	}	
+	/if (${Bool[${Target.Maloed}]}) /varset _tmptarNotice ${_tmptarNotice} Malo
+	/if (${Bool[${Target.Tashed}]}) /varset _tmptarNotice ${_tmptarNotice} Tash
+	/if (${Bool[${Target.Snared}]}) /varset _tmptarNotice ${_tmptarNotice} Snare
+	/if (${Bool[${Target.Slowed}]}) /varset _tmptarNotice ${_tmptarNotice} Slow
+	/if (${Bool[${Target.DSed}]}) /varset _tmptarNotice ${_tmptarNotice} DS
+	/if (${Target.Buff[${setBufftoWatch}].ID}) /varset _tmptarNotice ${_tmptarNotice} ${setBufftoWatch}
+	
 	
 	| target things and stuff
 	/if (${_tmptarNotice.Length} != ${hudTargetLength}) {
@@ -3255,7 +3210,7 @@ sub update_HUD_notices(string _mode)
 		/varset hudTarNotice ${_tmptarNotice}
 	} 
 
-/return
+/return TRUE
 
 
 
@@ -3268,11 +3223,11 @@ sub cast_temp_pet(int _tmpID, string _tmpSpell)
 	AMIDEAD
 	CHECKEXIT
 	CHECKINPUTS
-	/if (${is_target_dead[${_tmpID}]}) /return
+	/if (${is_target_dead[${_tmpID}]}) /return FALSE
 	
 	/if (${validate_cast[FALSE, spell, "${_tmpSpell}", ${_tmpID}]}) /call core_cast2 "${_tmpSpell}" 0 ${_tmpID} FALSE
 
-/return
+/return TRUE
 
 
 
@@ -3291,7 +3246,7 @@ sub cast_yaulp()
 	
 	| use spell Yaulp
 	/if (${Bool[${spellYaulp}]} && ${Me.Gem[${spellYaulp}]}) {
-		/if (${${Spell[${spellYaulp}].NewStacks}) {
+		/if (${Spell[${spellYaulp}].NewStacks}) {
 			/if (${validate_cast[FALSE, spell, "${spellYaulp}", ${Me.ID}]}) /call core_cast2 "${spellYaulp}" 0 0 FALSE
 		}
 	
@@ -3379,13 +3334,13 @@ sub fix_gem_id(string _spellGem)
  *  NOTE: 
  ***|
 sub mem_spell(bool _echo, string _spellname, string _spellgem, bool _wait)
- 	/if (${Me.Gem[${_spellname}]}) /return TRUE
+ 	/if (${Me.Gem[${Spell[${_spellname}].RankName}]}) /return TRUE
 	AMIDEAD
 	CHECKINPUTS
 
 	| do we even have the spell?
-	/if (!${Me.Book[${_spellname}]}) {
-		/if (!${Me.Book[${_spellname}]} && !${timer_mem_spell_timer}) {
+	/if (!${Me.Book[${Spell[${_spellname}].RankName}]}) {
+		/if (!${Me.Book[${Spell[${_spellname}].RankName}]} && !${timer_mem_spell_timer}) {
 			/call timer_update timer_mem_spell_timer 60s
 			VOUT ${onotice} ${sep} Bad Spell Name.
 		}
@@ -4041,14 +3996,14 @@ sub do_loot()
 			| pass the item off if there is a person listed and in group
 			/if (${Bool[${_advlPerson}]} && ${Group.Member[${_advlPerson}].ID}) {
 					/delay 1s !${AdvLoot.LootInProgress}
-					/advloot shared ${_scount} giveto ${_advlPerson}
+					/if (!${AdvLoot.LootInProgress}) /advloot shared ${_scount} giveto ${_advlPerson}
 					/delay 1
 			
 			| ditch the item if we need too
 			} else /if (${Select[${_advlChoice},Leave,Announce]} || ${FindItem[${_advlItem}].Lore} || ${FindItemBank[${_advlItem}].Lore}) {
 				/if (${Select[${_advlChoice},Announce]}) ECHOCHANNEL Loot: Leaving ${_advlItem}
 				/delay 1s !${AdvLoot.LootInProgress}
-				/advloot shared ${_scount} leave
+				/if (!${AdvLoot.LootInProgress}) /advloot shared ${_scount} leave
 				/delay 1
 				/continue
 
@@ -4056,7 +4011,7 @@ sub do_loot()
 			} else /if (${AdvLoot.SList[${_scount}].ID}) {
 				/if (${Select[${_advlChoice},Keep,Destroy,Sell]}) {
 					/delay 1s !${AdvLoot.LootInProgress}
-					/advloot shared ${_scount} giveto ${Me.Name}
+					/if (!${AdvLoot.LootInProgress}) /advloot shared ${_scount} giveto ${Me.Name}
 					/delay 1
 				}
 			}
@@ -4073,7 +4028,7 @@ sub do_loot()
 				/if (${Select[${_advlChoice},Announce]}) {
 					ECHOCHANNEL Loot: Leaving ${_advlItem}
 					/delay 1s !${AdvLoot.LootInProgress}
-					/advloot personal ${_pcount} leave
+					/if (!${AdvLoot.LootInProgress}) /advloot personal ${_pcount} leave
 				} else /if (${AdvLoot.PList[${_pcount}].NoDrop} || ${FindItem[${_advlItem}].Lore} || ${FindItemBank[${_advlItem}].Lore}) {
 					VOUT Cursor ${sep} ${cinfo}${_advlItem}\ax = ${oleave} loot file [no drop].
 					/ini "${INILoot}" "${_advlItem.Left[1]}" "${_advlItem}" |Leave
@@ -4372,6 +4327,7 @@ sub get_target(bool _debug)
 	/if (!${swPull} || !${coreAuto}) /return
 	AMIDEAD
 	CHECKINPUTS
+	CHECKTIE
 	/declare _tmpID int local
 	/declare _tmpAgroRange int local ${Math.Calc[${setMobAgro}/10]}
 	/declare _tmpCombatRange int local 31
@@ -5281,7 +5237,6 @@ sub click_item_burn()
  *	DES: cast whatever spire you set for burns
  *	USE: /call cast_AA_spire
  *  NOTE: 
- ***|
 sub cast_AA_spire()
 	AMIDEAD
 	CHECKEXIT
@@ -5297,7 +5252,31 @@ sub cast_AA_spire()
 	}
 
 /return
-	
+ ***|
+
+
+
+|***
+ *	DES: cast whatever spire you set for burns
+ *	USE: /call cast_AA_spire
+ *  NOTE: 
+ ***|
+sub cast_AA_spire()
+	AMIDEAD
+	CHECKEXIT
+	CHECKINPUTS
+	/if (${Raid.Members}) {
+		/if (!${Me.Buff[${${Me.Class.ShortName}spire.Arg[${spireRaid},|]}].ID} && ${Spell[${${Me.Class.ShortName}spire.Arg[${spireRaid},|]}].NewStacks}) {
+			/if (${validate_cast[FALSE, alt, "${${Me.Class.ShortName}spire.Arg[${spireRaid},|]}", ${Me.ID}]}) /call core_cast2 "${${Me.Class.ShortName}spire.Arg[${spireRaid},|]}" alt 0 FALSE
+		}
+	} else /if (!${Raid.Members} && ${Group}) {
+		/if (!${Me.Buff[${${Me.Class.ShortName}spire.Arg[${spireGroup},|]}].ID} && ${Spell[${${Me.Class.ShortName}spire.Arg[${spireGroup},|]}].NewStacks}) {
+			/if (${validate_cast[FALSE, alt, "${${Me.Class.ShortName}spire.Arg[${spireGroup},|]}", ${Me.ID}]}) /call core_cast2 "${${Me.Class.ShortName}spire.Arg[${spireGroup},|]}" alt 0 FALSE
+		}
+	}
+
+/return
+
 
 
 |***
@@ -6895,7 +6874,7 @@ sub get_resident(string _class, int _distance)
 sub check_inputs()
 	| set a non-use variable to force bind checks. better this then an echo
 	/varset bindTrigger ${If[${bindTrigger},FALSE,TRUE]}
-	
+		
 	| check the event queue
 	/doevents
 	

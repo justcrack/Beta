@@ -588,23 +588,6 @@ sub cast_alliance_PAL(int _tmpID)
 
 
 |***
- *	DES: make the pally spto it shit and splash at its feet
- *	USE: /dex PALNAME /splash | /splash
- *  NOTE: 
- ***|
-#bind pal_splash /splash
-sub Bind_pal_splash()
-	/if (!${validate_class[TRUE, |PAL]}) /return FALSE
-
-	| splash
-	VOUT Splashing these dumb asses ${sep}
-	/if (${validate_cast[FALSE, spell, "${splashCure}", ${Me.ID}]}) /cast "${splashCure}" loc ${Me.X} ${Me.Y} ${Me.Z}
-	
-/return TRUE
-
-
-
-|***
  *	DES: Class controls
  *	USE: /pal [] [##]
  *  NOTE:

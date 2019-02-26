@@ -250,7 +250,7 @@ sub pulse()
 	
 	/for _count 1 to ${_list.Size}
 		/for _index 1 to ${_list[${_count}].Count[|]}
-			/if (${is_target_dead[${Target2Kill}]}) {
+			/if (${is_target_dead[${Target2Kill}]} || !${coreAuto}) {
 				/call clear_combat
 				/return
 			}

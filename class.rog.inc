@@ -261,7 +261,7 @@ sub burn_ROG()
   /if (${validate_cast[FALSE, disc, "${DiscEradicator}", ${Me.ID}]} && !${Me.ActiveDisc.ID}) /call core_cast2 "${DiscEradicator}" disc 0 FALSE
   /if (${validate_cast[FALSE, disc, "${DiscRazor}", ${Me.ID}]} && !${Me.ActiveDisc.ID}) /call core_cast2 "${DiscRazor}" disc 0 FALSE
 
-  /if (${validate_cast[FALSE, disc, "${DiscAspBleeder}", ${Me.ID}]}) && !${Me.ActiveDisc.ID}) /call core_cast2 "${DiscAspBleeder}" disc 0 FALSE
+  /if (${validate_cast[FALSE, disc, "${DiscAspBleeder}", ${Me.ID}]} && !${Me.ActiveDisc.ID}) /call core_cast2 "${DiscAspBleeder}" disc 0 FALSE
 
 	/call click_burn_circle
 	/call click_item_burn

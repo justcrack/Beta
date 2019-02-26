@@ -103,7 +103,7 @@ sub disc_BER()
 	/if (${Me.CombatAbilityReady[${DiscDicho}]} && ${Me.CurrentEndurance} > ${Spell[${DiscDicho}].EnduranceCost}*2) /disc 49307
 	
 	/if (${AEMelee}) {
-		/if (${validate_cast[FALSE, disc, "Vicious Cyclone", ${Me.ID}]}) /call core_cast2 "Vicious Cyclone" disc 0 FALSE
+		/if (${validate_cast[FALSE, disc, "${DiscAESpiral}", ${Me.ID}]}) /call core_cast2 "${DiscAESpiral}" disc 0 FALSE
 	}
 
 	/if (${Me.PctHPs} > 90 && !${Me.Song[${OpenWoundEffect}].ID}) {

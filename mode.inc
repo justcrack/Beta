@@ -409,6 +409,7 @@ sub mode_petfarm()
 	}
 	
 	:gettarget
+	CHECKTIE
 	/doevents
 	/squelch /target ID ${Target2Kill}
 	/if (!${ExcludeList.Find[${Spawn[id ${Target2Kill}].DisplayName}]}) {
@@ -429,6 +430,7 @@ sub mode_petfarm()
 	:loopwaittilldead
 	/delay 1s
 	/doevents
+	CHECKTIE
 	/if (${Spawn[${Target2Kill}].Type.Equal[CORPSE]} || !${Spawn[${_tmpID}].ID}) /goto :loopfindmob
 	/if (${Spawn[${Target2Kill}].Distance} > ${setMobAgro}) {
 		/goto :loopfindmob

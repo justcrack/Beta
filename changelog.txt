@@ -12,7 +12,7 @@ MQ2DanNet: https://drive.google.com/open?id=1nHtokSxlprmaoWhW4prvwsQLXmJ5j1r6
 
 
 - character pre-generation completed:
-  -- PAL, CLR, BER, RNG, SHD, WAR, WIZ, ENC, BST, ROG
+  -- PAL, CLR, BER, RNG, SHD, WAR, WIZ, ENC, BST, ROG, NEC, SHM
 
 
 Welcome to a new Core..
@@ -27,7 +27,47 @@ Plugins Required: MQ2Cast, MQ2Exchange, MQ2MoveUtils, MQ2Debuffs, MQ2DanNet, MQ2
     -- script: files use to aid database or character generation. these files are fair game, i will be overwriting them if i need
 
 
-BETA
+BETA 0226.01
+- sort_cursor()
+  -- found an error what was causing a CTD. hopefully it is fixed now
+- buff to watch for
+  -- DB:setBufftoWatch::BUFF EFFECT
+  -- lets you set a buff effect to look. if it exists on the target, it will show up in the HUD
+- /tie
+  -- put in a few more checks
+- cast_yaulp()
+  -- corrected a stacking error for the spell. AA/item were fine
+- PREGEN
+ 	-- necromancer added
+  -- shaman added
+- removed the loop to slow down the mac. was causing too many issues with tie
+- pet buffs (spells) should be working again. the other types were fine
+- /splash
+  -- added cleric to the command. DB::healSplash
+  -- if spell is not memed, will mem the spell in the buff slot and release the command due to spell recast. will need to execute it again once spell is ready
+- events.inc
+  -- adjusted the shared speak command to use nav
+- /echos has been deleted all the commands are under /environment
+- /grab
+  -- updated the loop a bit to sort inventory crap better
+- found/removed some old tooncontrol settings
+- spires: cast_AA_spire()
+  -- rewrite of how they are accessed/casted; now an array vs single variables
+- class.shm.inc
+  -- corrected an Ancient spell typo
+- class.ber.inc
+  -- DiscAESpiral=|107|Vicious Cycle|102|Vicious Cyclone|97|Vicious Spiral|1|FALSE has been added in to the pregen file
+- class.clr.inc
+  -- considerable number of changes for bitchy paladins that dont know how to tank and expect the cleric to make up all their slack
+  -- added in a ready check for assurance wards
+  -- some group check adjustments to speed up figuring out whos hurt
+- class.rog.inc
+  -- fixed an error in DiscAspBleeder
+
+
+
+
+BETA 0214.01
 - fixed a typo in the port lamp for Mearatas
 - adjusted the forced slow to be in manual mode only
 
@@ -41,7 +81,7 @@ HUDUPDATE
 - slowing the macro down
   i'm testing a ghetto hack that will slow line execution down while the toon is moving or invis
   if you notice a serious lack of response, let me know.
-  oh and the #Turbo 120 is commented out for this build unvomment if you want it back on in core.mac
+  oh and the #Turbo 120 is commented out for this build. uncomment if you want it back on in core.mac
 
 
 BETA 0211.02

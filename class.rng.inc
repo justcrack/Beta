@@ -237,7 +237,7 @@ sub burn_RNG()
 	/call cast_AA_spire
 	
 	| proc
-	/if (${validate_cast[FALSE, alt, "Imbued Ferocity", ${Me.ID}]} && !${Bool[${Me.Buff[${RNGspire1}]}]}) {
+	/if (${validate_cast[FALSE, alt, "Imbued Ferocity", ${Me.ID}]} && !${Bool[${${Me.Class.ShortName}spire.Arg[1,|]}]}) {
 		/call core_cast2 "Imbued Ferocity" alt 0 FALSE
 	}
 

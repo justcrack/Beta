@@ -112,7 +112,6 @@ sub check_mana_BST()
 	/if (${switchConsumeSpirit}) {
 		/if (${Me.PctMana} < ${ConsumeSpiritPct}*.${tmpHealOverride}) {
 		 	/if (${validate_cast[FALSE, alt, "Consumption of Spirit", ${Me.ID}]}) /call core_cast2 "Consumption of Spirit" alt ${Me.ID} FALSE
-		 	/return
 		}
 	}
 	
@@ -124,7 +123,6 @@ sub check_mana_BST()
 		/if (${Me.PctMana} < ${selfParagonPct}*.${tmpHealOverride}) {
 			/if (!${Me.Song[Focused Paragon].ID} && !${Me.Song[Paragon of Spirits].ID}) {
 				/if (${validate_cast[FALSE, alt, "Focused Paragon of Spirits", ${Me.ID}]}) /call core_cast2 "Focused Paragon of Spirits" alt ${Me.ID} FALSE
-				/return
 			}
 		}
 	}

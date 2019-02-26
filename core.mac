@@ -120,7 +120,7 @@
  ***|
 sub main(string _custom)
 	| Current Build
-	/call setDeclare currentBuild 			string outer 0214.01
+	/call setDeclare currentBuild 			string outer 0226.01
 	
 	| force SQL echos on for the start
 	/call setDeclare swEchosSQL 				bool outer FALSE
@@ -148,28 +148,24 @@ sub main(string _custom)
 		}
 	}
 	
+	
 	| normal Core operations loop
 	/while (!${swMaintenance}) {
 	  CHECKINPUTS
 	  UPDATEHUD FALSE
 	  AMIDEAD
-  	
+		CHECKREZ	
+		CLEARCURSOR
+	    	
 		| make sure we're in the right zone
 		/if (!${timer_validate_zone}) /call validate_zone FALSE FALSE
 	
 		| sort /heal override ##
 		/if (${tmpHealOverride} != ${setHealOverride}) /varset tmpHealOverride ${If[${setHealOverride},${Float[${setHealOverride}].Centi},99.99]}
-	
-		CHECKREZ	
-		CLEARCURSOR
-	  CHECKINPUTS
 		
 		/if (${coreAuto} || ${swManualAADiscNow}) {
-			| check constant AA buffs
 			/if (${Bool[${AANow1}]} || ${Bool[${AANow2}]}) /call check_AA_now
-			| check constant Disc buffs
 			/if (${Bool[${DiscNow1}]} || ${Bool[${DiscNow2}]}) /call check_disc_now
-			| check constant Item buffs
 			/if (${Bool[${ItemNow1}]} || ${Bool[${ItemNow2}]}) /call check_item_now
 		}
 
@@ -182,9 +178,9 @@ sub main(string _custom)
 				/if (${Window[ConfirmationDialogBox].Open}) /varset markerDead TRUE
 			}
 			
-			/call check1offBuffs
-			AMIDEAD
-		  CHECKINPUTS
+			| /call check1offBuffs
+			| AMIDEAD
+		  | CHECKINPUTS
 		
 			| check to see if someone needs a doctor?
 			/if (${swHealCure}) {
@@ -233,8 +229,8 @@ sub main(string _custom)
 		| guns need ammo
 		/if (${swCombatRange}) /call check_ammo
 		
-		CHECKTIE
-	  CHECKINPUTS
+		| CHECKTIE
+	  | CHECKINPUTS
 
 		| looter stuffs
 		/if (${swADVLoot}) {
@@ -268,10 +264,10 @@ sub main(string _custom)
 		/call core_${Me.Class.ShortName}
 
 		| hack way to get the code to slow the fuck down....
-		/while (${coreAuto} && (${Me.Moving} || ${Me.Invis})) {
-			CHECKINPUTS
-		 	/delay 2
-		}
+		| /while (!${coreAuto} && ${Me.Moving}) {
+		| 	CHECKINPUTS
+		| 	/delay 2
+		| }
 
 	}
 	

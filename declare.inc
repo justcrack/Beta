@@ -1136,6 +1136,12 @@ sub Bind_petControl(string _type, string _verbage, bool _silent)
 			VOUT /${_bind.Lower} bag(${cnum}${setPetBagSlot}\ax] valid range range ${cinfo}1 - 10\ax
 			/return
 		}
+		
+	| swarm pets on a DS mob	
+	} else /if (${_type.Equal[dsswarm]}) {
+		/call set_switch ${_table} swNoSwarmonDS ${_verbage}
+				
+		
 
 	}
 	
@@ -1143,6 +1149,7 @@ sub Bind_petControl(string _type, string _verbage, bool _silent)
 	/if (${swMQClear}) /mqclear
 	/for _count 1 to ${lstTypes${_bind}.Count[|]}
 		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${lstTypes${_bind}.Arg[${_count},|].Lower}\ax		
+		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[dsswarm]}) /varset _listout ${_listout}:${If[${swNoSwarmonDS},${oon},${ooff}]}
 		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[pet]}) /varset _listout ${_listout}:${If[${swPet},${cnum}${setPetEngagePct}\ax,${cbad}${setPetEngagePct}\ax]}
 		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[swarm]}) /varset _listout ${_listout}:${If[${swSwarm},${cnum}${setSwarmEngagePct}\ax,${cbad}${setSwarmEngagePct}\ax]}
 		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[type]}) /varset _listout ${_listout}:${If[${Bool[${setPetType}]},${cnum}${setPetType}\ax,${ooff}]}
@@ -1874,9 +1881,9 @@ sub Bind_setMovementControls(string _type, string _verbage, bool _silent)
 	} else /if (${_type.Equal[goto]}) {
 		/if (!${Target.ID} && !${Bool[${_verbage}]}) /return
 		/if (${Bool[${_verbage}]}) {
-			/nav spawn ID ${_verbage}
+			/squelch /nav spawn ID ${_verbage}
 		} else /if (${Target.ID}) {
-			/nav spawn ${Target.DisplayName}
+			/squelch /nav spawn ${Target.DisplayName}
 		}
 		/return		
 
@@ -2071,39 +2078,6 @@ sub Bind_crew(int _crew)
 
 
 |***
- *	DES: mq echo controls
- *	USE: /echos []
- *  NOTE:
- ***|
-#bind echos /echos
-sub Bind_echos(string _type, string _verbage, bool _silent)
-	/declare _count int local 0
-	/declare _bind string local Echos
-	/declare _table string local environment
-	/declare _listout string local
-	/declare _sep bool local
-	/varset _type ${list_isoloate[${lstTypes${_bind}}, ${_type}]}
-
-	| see if its something we can change?
-	/for _count 1 to ${lstTypes${_bind}.Count[|]}
-		/if (${_type.Equal[${lstTypes${_bind}.Arg[${_count},|].Lower}]}) {
-			/call set_switch ${_table} sw${_bind}${_type} ${_verbage}
-			/squelch /dgaexecute /varset sw${_bind}${_type} ${sw${_bind}${_type}}
-		}
-	/next _count
-	
-	| spit out the results
-	/if (${_silent}) /return
-	/for _count 1 to ${lstTypes${_bind}.Count[|]}
-		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${If[${sw${_bind}${lstTypes${_bind}.Arg[${_count},|]}},${cgood},${cinfo}]}${lstTypes${_bind}.Arg[${_count},|].Lower}\ax
-		/varset _sep TRUE
-	/next _count
-	VOUT /${_bind.Lower} [${_listout}]
-/return
-
-
-
-|***
  *	DES: random insult
  *	USE: /oof
  *  NOTE: not documented. why should i share everything!?!
@@ -2111,8 +2085,6 @@ sub Bind_echos(string _type, string _verbage, bool _silent)
 #bind oof /oof
 sub Bind_oof()
  	/declare _pronoun 			string 	local FALSE
- 	/declare _bitch					string 	local 
-	/declare _rnd						int 		local ${Math.Rand[${sqlite.Rows[bitch]}]}
  	
  	/if (${Select[${Me.Gender},male]}) {
  		/varset _pronoun his
@@ -2123,7 +2095,7 @@ sub Bind_oof()
  	}
  	
  	/em looks around for the biggest fucking rock to hit ${_pronoun} head against.
-	/say ${sqlite.Result[bitch ${_rnd} name]}
+	/say ${bitch${Math.Rand[${bitchcount}]}}
 /return
 
 
@@ -2158,11 +2130,8 @@ sub Bind_grab(string _name)
 	/if (${Ground[${_name}].Distance3D} > 20) {
 		VOUT ${cinfo}${_name}\ax is ${Ground[${_name}].Distance3D}. Needs to be within 20.
 		/return
-	} else /if (${Ground[${_name}].Distance3D} <= 20 ) {
+	} else /if (${Ground[${_name}].Distance3D} <= 20) {
 		/invoke ${Ground[${_name}].Grab}
-		| /delay 1s ${Cursor.ID}
-		| /delay 1s ${Cursor.ID}
-		| /if (${Cursor.ID}) VOUT /grab ${sep} ${cinfo}${Cursor.Name}\ax
 	}
 /return
 
@@ -2489,21 +2458,27 @@ sub Bind_checkvar()
 #bind imincharge /imincharge
 sub Bind_imincharge()
 
-
-
 	/declare _count int local 0
 	/declare _toonName string local FALSE
 	
+	| cycle all the toons you are boxing
 	/for _count 1 to ${DanNet.PeerCount}
 		/varset _toonName ${DanNet.Peers.Arg[${_count},|].Left[1].Upper}${DanNet.Peers.Arg[${_count},|].Right[-1]}
+		
+		| if i'm issuing the command. turn off tie and move along
 		/if (${_toonName.Equal[${Me.DisplayName}]}) {
 			/call sql_update FALSE movement setTieToon FALSE
 			/continue
 		}
+		
+		| if the toon is not in this zone, move along
 		/if (!${Spawn[pc ${_toonName}].ID}) /continue
+		
+		| update the toons DB setting
 		/sqlite ${dbCore} onoff UPDATE character SET movement="${Me.DisplayName}" WHERE chrID="${MacroQuest.Server}_${Spawn[pc ${_toonName}].Class.ShortName}_${_toonName}"
+		
+		| reset the variable in memory
 		/dexecute ${_toonName} /varset setTieToon ${Me.DisplayName}
-		/dexecute ${_toonName} VOUT /tc name ${cinfo}${Me.DisplayName}\ax
 	/next _count
 
 
@@ -2513,7 +2488,7 @@ sub Bind_imincharge()
 	
 
 	| set everyone elses /tie defaults
-	/dgexecute /tc name ${Me.DisplayName}
+	| /dgexecute /tc name ${Me.DisplayName}
 	OUT ${obroadcasted} ${sep} I'm the damn boss!
 /return
 	
@@ -2866,13 +2841,6 @@ sub Bind_sql_edit(string _variable, string _value, string _add_delete)
 			| repopulate the variable
 			/varset ${_variable} ${sqlite.Result[dummy 1 ${_variable}]}
 
-			| SDEBUG New Value ${${_variable}}
-
-			| fix the _value rank if needed
-			| /if (${_table.NotEqual[environment]}) {
-			| 	/varset ${_variable} ${rank_add[FALSE, "${_value}"]}
-			| }
-
 			| results!
 			VSQL /edit ${sep} ${cinfo}${_table}\ax::${cinfo}${_variable}\ax::${If[${sqlite.Status[dummy].Equal[Success]},${cgood}${_value}\ax,${cbad}${${_variable}}\ax]}\ax
 			/call sql_clear FALSE dummy
@@ -2903,7 +2871,7 @@ sub Bind_core_info(string _type, string _verbage)
 	/declare _listout string local
 	/declare _sep bool local
 	/declare _count int local 0
-	/declare _lstCMDS string local |admin|buff|burn|campfire|cc|core|cursor|debuff|echos|hc|heal|lc|mode|movement|onoff|override|pc|rez|setassist|tc|ts
+	/declare _lstCMDS string local |admin|buff|burn|campfire|cc|core|cursor|debuff|hc|heal|lc|mode|movement|onoff|override|pc|rez|setassist|tc|ts
 	
 	| default commands
 	/if (!${Bool[${_type}]}) {
@@ -3204,6 +3172,22 @@ sub Bind_admin(string _type, string _verbage, string _verbage2, bool _silent)
 		/mqclear
 		/call echo_notice
 		/return
+
+	| xtarget control
+	} else /if (${_type.Equal[xt]}) {
+		/if (${_verbage.Equal[build]}) {
+			/declare _tempxtsort ${swHealXTarget}
+			
+			/if (!${_tempxtsort}) /varset swHealXTarget TRUE
+			/call set_xtarget
+			/if (!${_tempxtsort}) {
+				/varset swHealXTarget FALSE
+				/varset timer_set_xtarget 0
+			}
+		}
+		
+		/return
+
 
 	| reset core
 	} else /if (${_type.Equal[reset]}) {
@@ -3852,3 +3836,36 @@ sub Bind_port_list(string _class, string _location, string _sublocation)
 	}
 
 /return
+
+
+|***
+ *	DES: make the toon stop its shit and splash at its feet
+ *	USE: /dex NAME /splash | /splash
+ *  NOTE: 
+ ***|
+#bind ae_splash /splash
+sub Bind_ae_splash()
+	/if (!${validate_class[TRUE, |PAL|CLR]}) /return FALSE
+
+	| splash
+	VOUT Splashing these dumb asses ${sep}
+	
+	| paladin
+	/if (${Me.Class.ShortName.Equal[PAL]}) {
+		/if (!${Me.Gem[${Spell[${splashCure}].RankName}]}) {
+			/call mem_spell TRUE "${splashCure}" ${buffGem} FALSE
+			/return
+		}
+		/if (${validate_cast[FALSE, spell, "${splashCure}", ${Me.ID}]}) /cast "${splashCure}" loc ${Me.X} ${Me.Y} ${Me.Z}
+	}
+	
+	| cleric
+	/if (${Me.Class.ShortName.Equal[CLR]}) {
+		/if (!${Me.Gem[${Spell[${healSplash}].RankName}]}) {
+			/call mem_spell TRUE "${healSplash}" ${buffGem} FALSE
+			/return
+		}
+		/if (${validate_cast[FALSE, spell, "${healSplash}", ${Me.ID}]}) /cast "${healSplash}" loc ${Me.X} ${Me.Y} ${Me.Z}
+	}
+	
+/return TRUE

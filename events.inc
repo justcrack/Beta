@@ -3,30 +3,32 @@
  *	Core Event (responses) Routines/Functions
  *
  *	Most of this is commented on purpose. Verant/Soe/DB are all well known for using the same emotes in more then one expansion.
- *   /if (!${swEventsInc}) /return
+ *   
  ***|
 
 
 
-
-sub events_speakline()
+|***
+ *	DES: 
+ *	USE: many events require movement to a mob to echo a response.
+ *  NOTE: 
+ ***|
+sub events_speakline(string _target, string _verbage)
 	/if (!${swEventsInc}) /return
 	
-	/if (${Spawn[${Param0}].Distance} > 50) /echo I need to Move Closer To ${Param0}
-	:speakloop
-	
-		/if (${Me.Combat}) /attack off
-		/if (${Stick.Status.Equal[ON]}) /stick off
-		/if (${Spawn[${Param0}].Distance} > 50) {
-	 		/delay 1s ${Spawn[${Param0}].Distance} > 50
-	 		/goto :speakloop
-	
-		} else {
-	 		/target ${Param0}
-	 		/delay 1s ${Target.DisplayName.Equal[${Param0}]}
-		 	/say ${Param1}
-		}
+	/if (${Spawn[${_target}].Distance} > 50) /echo I need to Move Closer To ${_target}
 
+	/call clear_combat
+	/stick off
+
+	/target ${_target}
+	/delay 1s ${Target.DisplayName.Equal[${_target}]}
+
+	/navto "${_target}"
+	/delay 10s !${Navigation.Active}
+	/delay 1s
+	
+	/say ${_verbage}
 
 /return
 
