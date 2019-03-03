@@ -27,6 +27,43 @@ Plugins Required: MQ2Cast, MQ2Exchange, MQ2MoveUtils, MQ2Debuffs, MQ2DanNet, MQ2
     -- script: files use to aid database or character generation. these files are fair game, i will be overwriting them if i need
 
 
+
+BETA 0303.01
+- burns
+  -- fixed an issue where burns would not turn of when conditions should be false (should not be burning)
+- /mode drink
+  -- corrected the partial name match
+- aliances
+  -- turned the /cc alliance switch back on
+  -- keep in mind most classes do NOT have alliances written in yet
+  -- DB::setAlliance::off|group|raid - environment you want to use alliance
+  -- DB::setAllianceTrigger::spell you need to cast to trigger the alliance once it is cast
+  -- DB::{CLS}Alliance::class specific aliance spells/discs..
+  -- NOTE: these are ounly built for a couple classes. each is specific and requires its own attention
+- pregen.ini
+  -- included hiatus in the DiskRest line. dunno why anyone would use it tho
+- some adjustments to maintenance mode to stop the variable build in densely populated zones like pok or lobby
+- new heal point
+  -- PanicPoint % to use designated panic heals
+  -- this was defaulted to 20. the DB is defaulted to 40. adjust as you like
+  -- not every class uses this clerics, pallys, rangers, shaman, druids, mostly the heal classes
+- class.shm.inc
+  -- added in swarm aa pet to burn
+  -- ancestral guard to panic heals self and group
+  -- /shm aid will if aa is up MGB Ancestral Aid. if MGB is down. will just cast the AA
+  -- updates to healing routines
+- class.rng.inc
+  -- adjustment to ranger spice
+  -- updates to healing routines (self only)
+- class.clr.inc 
+  -- updates to healing routines
+- class.pal.inc
+  -- updates to healing routines
+- class.dru.inc
+  -- updates to healing routines
+
+
+
 BETA 0226.01
 - sort_cursor()
   -- found an error what was causing a CTD. hopefully it is fixed now
@@ -63,8 +100,6 @@ BETA 0226.01
   -- some group check adjustments to speed up figuring out whos hurt
 - class.rog.inc
   -- fixed an error in DiscAspBleeder
-
-
 
 
 BETA 0214.01

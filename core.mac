@@ -120,7 +120,7 @@
  ***|
 sub main(string _custom)
 	| Current Build
-	/call setDeclare currentBuild 			string outer 0226.01
+	/call setDeclare currentBuild 			string outer 0303.01
 	
 	| force SQL echos on for the start
 	/call setDeclare swEchosSQL 				bool outer FALSE
@@ -153,9 +153,6 @@ sub main(string _custom)
 	/while (!${swMaintenance}) {
 	  CHECKINPUTS
 	  UPDATEHUD FALSE
-	  AMIDEAD
-		CHECKREZ	
-		CLEARCURSOR
 	    	
 		| make sure we're in the right zone
 		/if (!${timer_validate_zone}) /call validate_zone FALSE FALSE
@@ -178,10 +175,6 @@ sub main(string _custom)
 				/if (${Window[ConfirmationDialogBox].Open}) /varset markerDead TRUE
 			}
 			
-			| /call check1offBuffs
-			| AMIDEAD
-		  | CHECKINPUTS
-		
 			| check to see if someone needs a doctor?
 			/if (${swHealCure}) {
 				/call cast_cure
@@ -229,8 +222,7 @@ sub main(string _custom)
 		| guns need ammo
 		/if (${swCombatRange}) /call check_ammo
 		
-		| CHECKTIE
-	  | CHECKINPUTS
+		CHECKTIE
 
 		| looter stuffs
 		/if (${swADVLoot}) {
@@ -259,15 +251,10 @@ sub main(string _custom)
 		CHECKINPUTS
 		CHECKREZ
 		CHECKTIE
+		CLEARCURSOR
 
 		| time to take this bitch to church!
 		/call core_${Me.Class.ShortName}
-
-		| hack way to get the code to slow the fuck down....
-		| /while (!${coreAuto} && ${Me.Moving}) {
-		| 	CHECKINPUTS
-		| 	/delay 2
-		| }
 
 	}
 	

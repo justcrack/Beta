@@ -87,7 +87,6 @@ Character variables
 The following variables impact your specific character
 
 swMaintenance									[switch] Locks the toon into a maintenance mode. core and / commands will work. nothing else will be watched/looped for
-DeathCount										[switch] how many times you have died
 coreAuto											[switch] places core in automatic mode or manual self drive (not recomended for Millenials)		 
 lstNoCastWith	                [list] list of buffs on you or target you dont want to cast while having
 lstNoMeleeWith	              [list] list of buffs on you or target you dont want to meele while having
@@ -262,6 +261,8 @@ conjuration                   [set] conjuration spell for mode trainspell
 divination                    [set] divination spell for mode trainspell
 evocation                     [set] evocation spell for mode trainspell
  
+/edit setFam1Buff "Familiar: Emperor Ganak"
+
                  
 ;pet
 setPetEngagePct								[set] ##% health to send pet into combat
@@ -396,7 +397,7 @@ BERPoint                      [set] ##% health heal point
 PALPoint                      [set] ##% health heal point
 GoMpoint                      [set] ##% health heal point
 XHealClass                    [set] ##% health heal point
-
+PanicPoint										[set] ##% health panic heal point
 
 ;heals                            			
 setHealOverride								[set] ##% to adjust/override the max heal

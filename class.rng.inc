@@ -18,7 +18,7 @@ sub core_RNG()
 
 	/while (${prep_combat[]}) {
 		CHECKINPUTS
-		/if (${swHealSelf}) /call patch_heal_${Me.Class.ShortName}
+		/if (${swHealSelf}) /call check_heal_self_${Me.Class.ShortName}
 		/if (${swHealCure}) /call cast_cure
 		/if (${exit_class_loop[]}) /return FALSE
 
@@ -117,8 +117,6 @@ sub cast_AA_auspice()
 	/if (${Me.AltAbilityReady[Mass Group Buff]} && ${Me.AltAbilityReady[${RNGauspice}]} && !${Bool[${Me.Song[${RNGauspice}]}]}) {
 		/if (${validate_cast[FALSE, alt, "Mass Group Buff", ${Me.ID}]}) /call core_cast2 "Mass Group Buff" alt 0 FALSE
 		/if (${validate_cast[FALSE, alt, "${RNGauspice}", ${Me.ID}]}) /call core_cast2 "${RNGauspice}" alt 0 FALSE
-		/if (${Bool[${ClassChannel}]}) /${ClassChannel} ${AuspiceTXT}
-	 	/if (${Bool[${Raid.Members}]}) /rs ${AuspiceTXT}
 	} else /if (${Bool[${Me.Song[${RNGauspice}]}]}) {
 		VOUT ${cbad}QUIT\ax trying to cast ${csp}Auspice of the Hunter\ax while its running.	
 	}		
@@ -128,28 +126,28 @@ sub cast_AA_auspice()
 
 |***
  *	DES: emergency healing
- *	USE: /call patch_heal_${Me.Class.ShortName}
+ *	USE: /call check_heal_self_${Me.Class.ShortName}
  *  NOTE: 
  ***|
-sub patch_heal_RNG()
-	DEBUG patch_heal_RNG()
+sub check_heal_self_RNG()
+	DEBUG check_heal_self_RNG()
 	/if (${Me.PctHPs} > ${${Me.Class.ShortName}Point}*.${tmpHealOverride}) /return
 	AMIDEAD
 	CHECKEXIT
 	
 	| heal 1
-	/if (${Me.PctHPs} <= ${${Me.Class.ShortName}Point}*.${tmpHealOverride}) {
-		/if (${validate_cast[FALSE, spell, "${heal1}", ${Me.ID}]}) /call core_cast2 "${heal1}" 0 ${Me.ID}
+	/if (${Me.PctHPs} <= ${RNGPoint}*.${tmpHealOverride}) {
+		/if (${validate_cast[FALSE, spell, "${heal1}", ${Me.ID}]}) /call core_cast2 "${heal1}" 0 ${Me.ID} FALSE
 	}
 	
 	| Reflexive Healing Disc
-	/if (${Me.PctHPs} <= ${${Me.Class.ShortName}Point}*.${tmpHealOverride} || ${SpawnCount[npc ${If[${swOverrideLOS},,los]} radius ${Spell[${DiscHeal}].MyRange} playerstate 4 targetable]} >= 3) {
-		/if (${validate_cast[FALSE, disc, "${DiscHeal}", ${Me.ID}]} && !${Bool[${Me.Song[Bladespur Reflection]}]}) /call core_cast2 "${DiscHeal}" disc ${Target.ID} FALSE
+	/if (${Me.PctHPs} <= ${RNGPoint}*.${tmpHealOverride} || ${SpawnCount[npc ${If[${swOverrideLOS},,los]} radius ${Spell[${DiscHeal}].MyRange} playerstate 4 targetable]} >= 3) {
+		/if (${validate_cast[FALSE, disc, "${DiscHeal}", ${Me.ID}]} && !${Bool[${Me.Song[Bladespur Reflection]}]}) /call core_cast2 "${DiscHeal}" disc ${Me.ID} FALSE
 	}
 	
 	| heal 2
-	/if (${Me.PctHPs} <= ${${Me.Class.ShortName}Point}*.${tmpHealOverride}) {
-		/if (${validate_cast[FALSE, spell, "${heal2}", ${Me.ID}]}) /call core_cast2 "${heal2}" 0 ${Me.ID}
+	/if (${Me.PctHPs} <= ${RNGPoint}*.${tmpHealOverride}) {
+		/if (${validate_cast[FALSE, spell, "${heal2}", ${Me.ID}]}) /call core_cast2 "${heal2}" 0 ${Me.ID} FALSE
 	}
 	
 	/call click_item_heal

@@ -181,7 +181,7 @@ sub check_heal_group_DRU()
  	/call check_no_cast_buff
 
 	| Panic heal
-	/if (${Group.Member[${hurtIndex}].PctHPs} < 20*.${tmpHealOverride}) {
+	/if (${Group.Member[${hurtIndex}].PctHPs} < ${PanicPoint}*.${tmpHealOverride}) {
 		/if (${Me.Casting.ID}) /stopcast
 		/if (${validate_cast[FALSE, spell, "${healPanic}", ${Group.Member[${hurtIndex}].ID}]}) /call core_cast2 "${healPanic}" 0 ${Group.Member[${hurtIndex}].ID} FALSE
 	}
@@ -252,7 +252,7 @@ sub check_heal_self_DRU()
 
 	| panic heal
 	/if (${Me.SpellReady[${Spell[${healPanic}].RankName}]}) {
-		/if (${Me.PctHPs} < 20*.${tmpHealOverride}) {
+		/if (${Me.PctHPs} < ${PanicPoint}*.${tmpHealOverride}) {
 			/if (${Me.Casting.ID}) /stopcast
 			/if (${validate_cast[FALSE, spell, "${healPanic}", ${Me.ID}]}) /call core_cast2 "${healPanic}" 0 ${Me.ID} check_health_group
 		}
@@ -314,7 +314,7 @@ sub check_heal_XTarget_DRU()
 
 	| panic heal
 	/if (${Me.SpellReady[${Spell[${healPanic}].RankName}]}) {
-		/if (${Me.XTarget[${hurtIndex}].PctHPs} < 20*.${tmpHealOverride}) {
+		/if (${Me.XTarget[${hurtIndex}].PctHPs} < ${PanicPoint}*.${tmpHealOverride}) {
 			/if (${Me.Casting.ID}) /stopcast
 			/if (${validate_cast[FALSE, spell, "${healPanic}", ${Me.XTarget[${hurtIndex}].ID}]}) /call core_cast2 "${healPanic}" 0 ${Me.XTarget[${hurtIndex}].ID} FALSE
 		}

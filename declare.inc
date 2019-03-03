@@ -59,6 +59,7 @@ sub Bind_broadcast_off()
 		/sqlite ${dbCore} onoff UPDATE character SET coreAuto="FALSE" WHERE chrID="${MacroQuest.Server}_${Spawn[pc ${_toonName}].Class.ShortName}_${_toonName}"
 		/dexecute ${_toonName} /varset coreAuto FALSE
 		/dexecute ${_toonName} VOUT /core auto ${odisabled}
+		/dexecute ${_toonName} /squelch /target clear
 	/next _count
 /return
 
@@ -1725,10 +1726,10 @@ sub Bind_setCombatControl(string _type, string _verbage, bool _silent)
 	| alliance on or off... yada yada		
 	} else /if (${_type.Equal[alliance]}) {
 		/declare _alliancetype string local |off|group|raid
-		/if (${_alliancetype.Find[${_verbage}]}) { 
+		/if (${_alliancetype.Find[${_verbage}]}) {
 			/if (${_verbage.Equal[off]}) {
 				/call sql_update FALSE character setAlliance FALSE
-			} else /if (${_alliancetype.Equal[group]} || ${_alliancetype.Equal[raid]}) {
+			} else /if (${_verbage.Equal[group]} || ${_verbage.Equal[raid]}) {
 				/call sql_update FALSE character setAlliance ${_verbage.Lower}
 			}
 		}

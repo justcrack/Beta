@@ -160,33 +160,33 @@ sub check_heal_self_PAL()
 
 	| Panic Heal 1
 	/if (${Me.Gem[${healPanic1}]}) {
-	  /if (${Me.PctHPs} <= ${PALPoint}*.45*.${tmpHealOverride}) {
+	  /if (${Me.PctHPs} <= ${PALPoint}*.${tmpHealOverride}) {
 			/if (${validate_cast[FALSE, spell, "${healPanic1}", ${Me.ID}]}) /call core_cast2 "${healPanic1}" 0 0 FALSE
 		}
 	}
 
 	| dpsheal
-	/if (${Me.PctHPs} < ${PALPoint}*.40*.${tmpHealOverride}) {
+	/if (${Me.PctHPs} < ${PALPoint}*.${tmpHealOverride}) {
 		/if (${validate_cast[FALSE, disc, "${DiscReflexive}", ${Target2Kill}]}) /call core_cast2 "${DiscReflexive}" disc ${Target2Kill} FALSE
 	}
 
 	| Panic Heal 2
 	/if (${Me.Gem[${healPanic2}]}) {
-	  /if (${Me.PctHPs} <= ${PALPoint}*.20*.${tmpHealOverride}) {
+	  /if (${Me.PctHPs} <= ${PALPoint}*.${tmpHealOverride}) {
 			/if (${validate_cast[FALSE, spell, "${healPanic2}", ${Me.ID}]}) /call core_cast2 "${healPanic2}" 0 0 FALSE
 		}
 	}
 	
 	| aa LoH
 	/if (${useLoH}) {
-	  /if (${Me.PctHPs} <= ${useLoHPct}.${tmpHealOverride}) {
+	  /if (${Me.PctHPs} <= ${useLoHPct}*.${tmpHealOverride}) {
 			/if (${validate_cast[FALSE, alt, "Lay on Hands", ${Me.ID}]}) /call core_cast2 "Lay on Hands" alt ${Me.ID} FALSE
 		}
 	}
 
 	| touch heal
 	/if (${Me.Gem[${healTouch}]}) {
-		/if (${Me.PctHPs} < ${PALPoint}*.20*.${setHealOverride}) {
+		/if (${Me.PctHPs} < ${PALPoint}*.${tmpHealOverride}) {
 			/if (${validate_cast[FALSE, spell, "${healTouch}", ${Me.ID}]}) /call core_cast2 "${healTouch}" 0 ${Me.ID}
 		} 	
 	}

@@ -2688,7 +2688,7 @@ sub set_combat(str _mode)
  ***|
 sub cast_nuke_GoM(int _tmpID)
 	| clerics have their own GOM routine in group heals
-	/if (${Select[${Me.Class.ShortName},CLR]}) /return
+	| /if (${Select[${Me.Class.ShortName},CLR]}) /return
 
 	CHECKEXIT
 	CHECKINPUTS
@@ -3278,15 +3278,21 @@ sub cast_stamina_recovery()
  		/return
  	}
  	/if (${SafeZone} && !${swOverrideSafeZone} || !${Me.CombatAbilityReady[${Spell[${DiscRest}].RankName}]} || ${swAmIDead}) /return
-	/if (${Me.PctEndurance} > 33) /return
 	AMIDEAD
 	CHECKINPUTS
 	
 	/declare _endurancePoint int local 0
 
-	/if (${Me.CombatAbility[Breather Rk. III]}) /varset _endurancePoint 29
-	/if (${Me.CombatAbility[Breather Rk. II]}) /varset _endurancePoint 25
-	/if (${Me.CombatAbility[Breather]}) /varset _endurancePoint 21
+	/if (${DiscRest.Equal[Respite]} || ${DiscRest.Equal[Reprive]} || ${DiscRest.Equal[Rest]} || ${DiscRest.Equal[breather]}) {
+		/if (${Me.PctEndurance} > 33) /return
+		/if (${Me.CombatAbility[${DiscRest} Rk. III]}) /varset _endurancePoint 29
+		/if (${Me.CombatAbility[${DiscRest} Rk. II]}) /varset _endurancePoint 25
+		/if (${Me.CombatAbility[${DiscRest}]}) /varset _endurancePoint 21
+	} else /if (${DiscRest.Equal[Hiatus]}) {
+		/if (${Me.CombatAbility[${DiscRest} Rk. III]} && (${Me.CurrentEndurance} < 102500 && ${Me.PctEndurance} < 65)) /varset _endurancePoint 65
+		/if (${Me.CombatAbility[${DiscRest} Rk. II]} && (${Me.CurrentEndurance} < 97500 && ${Me.PctEndurance} < 63)) /varset _endurancePoint 63
+		/if (${Me.CombatAbility[${DiscRest}]} && (${Me.CurrentEndurance} < 92500 && ${Me.PctEndurance} < 60)) /varset _endurancePoint 60
+	}
 	
 	| Force Fade to get rest dfor stamina while in combat
 	/if (${swForceFadeRest} && ${Bool[${${Me.Class.ShortName}AAFade}]}) {
@@ -3309,7 +3315,7 @@ sub cast_stamina_recovery()
 
 /return
 
-
+${Me.CurrentEndurance}
 
 |***
  *	DES: corrects the Gem## to simply a #
@@ -4248,9 +4254,8 @@ sub vendor_sell_item(string _itemtoSell)
  *  NOTE: This is hardcoded for only 2 skills. suck it up.
  ***|
 sub check_AA_now()
+	SIMPLEEXIT
 	AMIDEAD
-	CHECKEXIT
-	CHECKINPUTS
 
 	/if (${Bool[${AANow1}]}) {
 		/if (${validate_cast[FALSE, alt, "${AANow1}", ${Me.ID}]}) /call core_cast2 "${AANow1}" alt 0 FALSE
@@ -4268,9 +4273,8 @@ sub check_AA_now()
  *  NOTE:
  ***|
 sub check_item_now()
+	SIMPLEEXIT
 	AMIDEAD
-	CHECKEXIT
-	CHECKINPUTS
 
 	/if (${Bool[${ItemNow1}]}) {
 		/if (${validate_cast[FALSE, item, "${ItemNow1}", ${Me.ID}]}) /call core_cast2 "${ItemNow1}" item 0 FALSE
@@ -4294,9 +4298,8 @@ Crestra's Elaborate Earring
  *  NOTE: This is hardcoded for only 2 skills.
  ***|
 sub check_disc_now()
+	SIMPLEEXIT
 	AMIDEAD
-	CHECKEXIT
-	CHECKINPUTS
 
 	| nowDisc1
 	/if (${Bool[${DiscNow1}]} && ${Me.CombatAbilityReady[${DiscNow1}]} && ${Spell[${DiscNow1}].NewStacks}) {
@@ -4357,6 +4360,7 @@ sub get_target(bool _debug)
 				| these things are our friends. dont kill them
 				/if (${Select[${Spawn[id ${_tmpID}].Type},AURA,BANNER,CAMPFIRE,CORPSE,CHEST,ITEM,TRIGGER,TRAP,TIMER,MOUNT,Mercenary]}) /continue
 				/if (${ExcludeList.Find[${Spawn[id ${_tmpID}].DisplayName}]}) /continue
+				/if (${_tmpID} == ${Me.Pet.ID}) /continue
 				
 				| CYA for shit MQ will pick up in the environment that does not have a name
 				/if (${Spawn[id ${_tmpID}].DisplayName.Length} < 1) /continue
@@ -4833,19 +4837,36 @@ sub exit_class_loop()
  *  NOTE: we work off establised assist target for non healers only.
  ***|
 sub is_burn_time()
+
+	| dont do shit in safe zone..
+	/if (${SafeZone} && !${swOverrideSafeZone}) {
+		/varset swBurnControl FALSE
+		/return FALSE
+	}
+
+
 	/if (${coreAuto}) {
-		/if (${SafeZone} && !${swOverrideSafeZone}) /return FALSE
-		/if (!${SpawnCount[npc radius ${setMobAgro} playerstate 4]}) /return FALSE
+
 	}
 	
 	| no raid burning if turned off
-	/if (!${swBurnRaid} && ${Raid.Members}) /return FALSE
+	/if (!${swBurnRaid} && ${Raid.Members}) {
+		/varset swBurnControl FALSE
+		/return FALSE
+	}
 	
 	| if always set to burn, always burn while in combat
 	/if (${swBurnForce} && ${Me.Combat}) /return TRUE
 	
 	| remainder requires automated modes
 	/if (!${coreAuto}) /return FALSE
+
+	| no mobs around
+	/if (!${SpawnCount[npc radius ${setMobAgro} playerstate 4]}) {
+		/varset swBurnControl FALSE
+		/return FALSE
+	}
+
 	
 	| if the current target is a namer
 	/if (${swBurnAuto} && ${Target2Kill} && ${Spawn[${Target2Kill}].PctHPs} <= ${setBurnPct} && (${NameList.Find[${Target.DisplayName}]} && !${swOverrideName})) /return TRUE
@@ -6264,13 +6285,11 @@ sub watch_for_death()
 	CHECKINPUTS
 
 	| check for current flags. watch for rez box if I have them
-	/if (${swAmIDead}) {
-		/return TRUE
-	} else /if (${swNeedRez}) {
-		/return TRUE
+	/if (${swAmIDead}) /return TRUE
+	/if (${swNeedRez}) /return TRUE
 
 	| check death states
-	} else /if (${Me.State.Equal[HOVER]} || ${Me.Hovering} || ${Me.Dead}) {
+	/if (${Me.State.Equal[HOVER]} || ${Me.Hovering} || ${Me.Dead}) {
 		/if (${Me.Casting.ID}) /stopcast
 		/varset swAmIDead TRUE
 	
@@ -6283,16 +6302,15 @@ sub watch_for_death()
 	/if (${swAmIDead}) {
 		/doevents flush
 		/delay 2s
-		| update death count
-		| /call sql_update FALSE character DeathCount "${Int[${Math.Calc[${DeathCount}+1]}]}"
-
 
 		| stop all the things(s)
+		/varset swHomeSet FALSE
 		/call set_stop NOECHO
 		/call clear_combat
 		/if (${Me.Casting.ID}) /stopcast
 		/varset Target2Kill 0
 		/if (${coreAuto}) ECHOCHANNEL Need a rez!
+		| /return TRUE
 	}
 
 /return ${swAmIDead}
@@ -6616,7 +6634,7 @@ sub validate_assist(string _echo, string _assist, string _name)
 	| set assist to setMA2
 	} else /if (${_assist.Equal[MA2]}) {
 		/if (${Bool[${_name}]}) {
-			/call sql_update  FALSE writeclass setMA2 ${_name.Left[1].Upper}${_name.Right[-1].Lower}
+			/call sql_update FALSE writeclass setMA2 ${_name.Left[1].Upper}${_name.Right[-1].Lower}
 		} else /if (!${Bool[${_name}]})  {
 			/call sql_update FALSE character setMA2 FALSE
 		} 				
@@ -6653,7 +6671,7 @@ sub trigger_alliance(int _tmpID)
 		
 	| alliance time
 	/if (!${Target.BuffDuration[${${Me.Class.ShortName}Alliance}].TotalSeconds}) {
-		/if (${validate_cast[FALSE, spell, "${Spell[${${Me.Class.ShortName}Alliance}].RankName}", ${_tmpID}]}) /call core_cast3 "${Spell[${${Me.Class.ShortName}Alliance}].RankName}" 0 ${_tmpID} FALSE
+		/if (${validate_cast[FALSE, spell, "${Spell[${${Me.Class.ShortName}Alliance}].RankName}", ${_tmpID}]}) /call core_cast2 "${Spell[${${Me.Class.ShortName}Alliance}].RankName}" 0 ${_tmpID} FALSE
 		/return
 	}
 
@@ -6791,6 +6809,7 @@ sub validate_target(bool _error, int _tmpID)
 	/if (${Target.ID} && ${Bool[${Target.Mezzed.Duration}]} && !${swPull}) /return FALSE
 	/if ((!${Spawn[${_tmpID}].LineOfSight} && !${swOverrideLOS}) || ${Spawn[${_tmpID}].Distance} > ${setMobAgro}) /return FALSE
 	/if (${Spawn[${_tmpID}].Type.Equal[PC]}) /return FALSE
+	/if (${Spawn[${_tmpID}].Master.Type.Equal[PC]}) /return FALSE
 	/if (${Target.Type.Equal[PC]}) /varset isValidTarget FALSE
 	/if (${_tmpID} == ${Me.ID} || ${_tmpID} == ${Me.Pet.ID}) /return FALSE
 
@@ -7585,7 +7604,7 @@ sub set_character_xthealclass(bool _debug, string _verbage)
  *	USE: /call set_character_healpoint [debug] [%## heal at]
  *  NOTE:
  ***|
-sub set_character_healpoint(bool _debug, int _verbage)
+sub set_character_healpoint(bool _debug, int _verbage, bool _silent)
 	/declare _sep bool local
 	/declare _listout string local
 	/declare _count int local 0
@@ -7609,12 +7628,15 @@ sub set_character_healpoint(bool _debug, int _verbage)
 			VOUT /${Me.Class.ShortName.Lower} healpoint [${cinfo}##\ax] [${cinfo}TARGET\ax]
 		}
 		
+		/if (${_silent}) /return
 		/if (${swMQClear}) /mqclear
 		/for _count 1 to ${lstClassAll.Count[|]}
 			/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${lstClassAll.Arg[${_count},|].Lower}\ax:${cnum}${${lstClassAll.Arg[${_count},|].Upper}Point}\ax
 			/varset _sep TRUE
 		/next _count
-		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}pet\ax:${cnum}${PetPoint}\ax
+		/varset _listout ${_listout} ${If[${_sep},${sep},]} pet:${cnum}${PetPoint}\ax
+		/varset _listout ${_listout} ${If[${_sep},${sep},]} gom:${cnum}${GoMpoint}\ax
+		/varset _listout ${_listout} ${If[${_sep},${sep},]} panic:${cnum}${PanicPoint}\ax
 		VOUT /${Me.Class.ShortName.Lower} healpoint [${_listout}]
 	}		
 		

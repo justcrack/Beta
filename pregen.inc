@@ -771,7 +771,6 @@ sub pregen_character()
 	}                                                             			
 
 	| auras
-	/for _count 1 to 2
 	/call sql_control FALSE buff Aura1Spell 														string 		outer FALSE
 	/call sql_control FALSE buff Aura1Buff 															string 		outer FALSE
 	/call sql_control FALSE buff Aura2Spell 														string 		outer FALSE
@@ -798,6 +797,7 @@ sub pregen_character()
 		/call sql_control FALSE ${Me.Class.ShortName} BERPoint 						int 			outer 70
 		/call sql_control FALSE ${Me.Class.ShortName} PALPoint 						int 			outer 90
 		/call sql_control FALSE ${Me.Class.ShortName} GoMpoint 						int 			outer 80	
+		/call sql_control FALSE ${Me.Class.ShortName} PanicPoint 					int 			outer 40	
 		/call sql_control FALSE ${Me.Class.ShortName} XHealClass					string		outer "${lstClassAll}"
 		/call timer_set FALSE tXHeal																			string		outer 3m 		timer_set_xtarget
 		| /call sql_control FALSE ${Me.Class.ShortName} setToonControlXTslot			int				outer 13
@@ -2030,9 +2030,6 @@ sub pregen_RNG()
 	/call sql_control FALSE RNG unityType																string		outer "Azia"
 	
 	/call setDeclare RNGspire																						string		outer "|Fundament: First Spire of the Pathfinders|Fundament: Second Spire of the Pathfinders|Fundament: Third Spire of the Pathfinders"
-	| /call setDeclare RNGspire1																					string		outer "Fundament: First Spire of the Pathfinders"
-	| /call setDeclare RNGspire2																					string		outer "Fundament: Second Spire of the Pathfinders"
-	| /call setDeclare RNGspire3																					string		outer "Fundament: Third Spire of the Pathfinders"
 	/call setDeclare RNGauspice																					string		outer "Auspice of the Hunter"
 	/call setDeclare RNGcheetah																					string		outer "Scarlet Cheetah's Fang"
 	/call setDeclare RNGgroupguardian																		string		outer "Group Guardian of the Forest"
@@ -2047,7 +2044,7 @@ sub pregen_RNG()
 	/call sql_control FALSE RNG switchAAFade														bool			outer FALSE
 	/call sql_control FALSE RNG useAAFadePct														int				outer 50
 		
-	/call sql_control FALSE RNG AuspiceTXT															string		outer "AUSPICE Lit"
+
 	/call sql_control FALSE RNG spellCripple 														string 		outer FALSE
 
 	/call sql_control FALSE RNG AADefensive1 														string		outer "Outrider's Evasion"
@@ -2198,9 +2195,6 @@ sub pregen_SHD()
 	/call sql_control FALSE SHD unityType																string		outer "Azia"
 
 	/call setDeclare SHDspire																						string		outer "|Fundament: First Spire of the Reavers|Fundament: Second Spire of the Reavers|Fundament: Third Spire of the Reavers"
-	| /call setDeclare SHDspire1																					string		outer "Fundament: First Spire of the Reavers"
-	| /call setDeclare SHDspire2																					string		outer "Fundament: Second Spire of the Reavers"
-	| /call setDeclare SHDspire3																					string		outer "Fundament: Third Spire of the Reavers"
 	/call setDeclare SHDsynergyAA																				string		outer "Knight's Synergy"
 	/call setDeclare SHDEpic1																						string		outer "Innoruuk's Curse"
 	/call setDeclare SHDEpic15																					string		outer "Innoruuk's Voice"
@@ -2302,11 +2296,9 @@ sub pregen_SHD()
 sub pregen_SHM()
 	/declare _count int local 0
 
-	/call setDeclare SHMspire`																					string		outer "|Fundament: First Spire of Ancestors|Fundament: Second Spire of Ancestors|Fundament: Third Spire of Ancestors"
-	| /call setDeclare SHMspire1																					string		outer "Fundament: First Spire of Ancestors"
-	| /call setDeclare SHMspire2																					string		outer "Fundament: Second Spire of Ancestors"
-	| /call setDeclare SHMspire3																					string		outer "Fundament: Third Spire of Ancestors"
+	/call setDeclare SHMspire																						string		outer "|Fundament: First Spire of Ancestors|Fundament: Second Spire of Ancestors|Fundament: Third Spire of Ancestors"
 	/call setDeclare SHMsynergyAA																				string		outer "Luminary's Synergy"
+	/call setDeclare SHMAid																							string		outer "Ancestral Aid"
 	/call setDeclare SHMEpic1																						string		outer "Spear of Fate"
 	/call setDeclare SHMEpic15																					string		outer "Crafted Talisman of Fates"
 	/call setDeclare SHMEpic2																						string		outer "Blessed Spiritstaff of the Heyokah"
@@ -2327,7 +2319,7 @@ sub pregen_SHM()
 	/call sql_control FALSE SHM spellTalisman	 													string		outer PREGENDATA
 	/call sql_control FALSE SHM switchTalisman			 										bool			outer TRUE
                                           		
-	/call sql_control FALSE SHM AidTXT 																	string 		outer "ANCESTRAL AID Done (Str/Agi/Dex +300, HoT Heal +1840)"
+	| /call sql_control FALSE SHM AidTXT 																	string 		outer "ANCESTRAL AID Done (Str/Agi/Dex +300, HoT Heal +1840)"
 	/call sql_control FALSE SHM spellMalo 															string 		outer PREGENDATA
 	/call sql_control FALSE SHM spellCripple 														string 		outer PREGENDATA
 	/call sql_control FALSE SHM spellSlow																string 		outer PREGENDATA
@@ -2398,9 +2390,6 @@ sub pregen_SHM()
 	}
 	/call sql_control FALSE SHM spellGrowthToon							string  outer |FALSE
 
-
-
-
 /return
 
 
@@ -2413,9 +2402,6 @@ sub pregen_SHM()
 sub pregen_WAR()
 
 	/call setDeclare WARspire																						string		outer "|Fundament: First Spire of the Warlord|Fundament: Second Spire of the Warlord|Fundament: Third Spire of the Warlord"
-	| /call setDeclare WARspire1																					string		outer "Fundament: First Spire of the Warlord"
-	| /call setDeclare WARspire2																					string		outer "Fundament: Second Spire of the Warlord"
-	| /call setDeclare WARspire3																					string		outer "Fundament: Third Spire of the Warlord"
 	/call setDeclare WARsynergyAA																				string		outer "Myrmidon's Synergy"
 	/call setDeclare WAREpic1																						string		outer "Jagged Blade of War"
 	/call setDeclare WAREpic15																					string		outer "Champion's Sword of Eternal Power"

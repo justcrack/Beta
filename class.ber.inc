@@ -281,7 +281,7 @@ sub cast_alliance_BER(int _tmpID)
 	| check alliance group/raid
 	/if (!${Bool[${setAlliance}]}) /return FALSE
 	/if (${setAlliance.Equal[raid]} && !${Raid.Members}) /return FALSE  
-	/if (${setAlliance.Equal[group]} && (!${Bool[${Group.Members}]} || ${Raid.Members})) /return FALSE  
+	/if (${setAlliance.Equal[group]} && !${Group}) /return FALSE  
 
 	| enough berserker's to make it worth casting?
 	/if (${SpawnCount[berserker radius ${setMobAgro} setzradius ${setzradius}]} < 3) /return FALSE
@@ -290,7 +290,7 @@ sub cast_alliance_BER(int _tmpID)
 	/if (${Target.Buff[${${Me.Class.ShortName}Alliance}].ID}) /return FALSE
 
 	| spell ready?
-	/if (!${Me.CombatAbilityReady[${${Me.Class.ShortName}Alliance}]}) /return FALSE
+	/if (!${Me.CombatAbilityReady[${Spell[${${Me.Class.ShortName}Alliance}].RankName}]}) /return FALSE
 
 	| no target
 	/if (${is_target_dead[${_tmpID}]}) /return

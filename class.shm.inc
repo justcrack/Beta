@@ -150,7 +150,13 @@ sub check_heal_group_SHM()
   /if (${hurtCount} >= 3 && ${Me.AltAbilityReady[Call of the Ancients]}) {
     /if (${validate_cast[FALSE, alt, "Call of the Ancients", ${Me.ID}]}) /call core_cast2 "Call of the Ancients" alt ${Me.ID} FALSE
   } 
-
+  
+	| Panic Ancestral Guard
+	/if (${Me.PctHPs} < ${PanicPoint}*.${tmpHealOverride}) {
+		/if (${Me.Casting.ID}) /stopcast
+		/if (${validate_cast[FALSE, alt, "Ancestral Guard", ${Me.ID}]}) /call core_cast2 "Ancestral Guard" alt 0 FALSE
+	}
+  
 	| aggressive switch sort 	
   /if (${switchHealAggressive}) {
  		/if (${Me.SpellReady[${Spell[${healReckless1}].RankName}]} || ${Me.SpellReady[${Spell[${healReckless2}].RankName}]} || ${Me.SpellReady[${Spell[${healReckless3}].RankName}]}) /goto :aggressivesort
@@ -402,6 +408,12 @@ sub burn_SHM()
 	| epic 2.0
 	/if (${validate_cast[FALSE, epicitem, "2", ${Me.ID}]}) /call core_cast2 "${${Me.Class.ShortName}Epic2}" item 0 FALSE
 
+	| swarm aa pet
+	/if (${swSwarm}) {
+		/if (${validate_cast[FALSE, alt, "Spirit Call", ${Target2Kill}]}) /call core_cast2 "Spirit Call" alt ${Target2Kill} FALSE
+	}
+
+
 	/call cast_AA_spire
 
 	/call use_glyph
@@ -507,6 +519,21 @@ sub check_heal_self_SHM()
 	/if (${Me.PctHPs} > ${SHMPoint}*.${tmpHealOverride}) /return
 	/declare _count int local 0
 	
+	| Panic Ancestral Guard
+	/if (${Me.PctHPs} < ${PanicPoint}*.${tmpHealOverride}) {
+		/if (${Me.Casting.ID}) /stopcast
+		/if (${validate_cast[FALSE, alt, "Ancestral Guard", ${Me.ID}]}) /call core_cast2 "Ancestral Guard" alt 0 FALSE
+	}	
+
+	| single heal over time
+	/if (${Bool[${healHoT}]}) {
+		/if (${Me.PctHPs} <= ${SHMPoint}*.${tmpHealOverride}) {
+			/if (${Spell[${healHoT}].Stacks} && !${Me.Song[${healHoT}].Duration}) {
+				/if (${validate_cast[FALSE, spell, "${healHoT}", ${Me.ID}]}) /call core_cast2 "${healHoT}" 0 ${Me.ID} check_health_group
+			}
+		}
+	}	
+	
 	| aggressive switch sort 	
   /if (${switchHealAggressive}) {
  		/if (${Me.SpellReady[${Spell[${healReckless1}].RankName}]} || ${Me.SpellReady[${Spell[${healReckless2}].RankName}]} || ${Me.SpellReady[${Spell[${healReckless3}].RankName}]}) /goto :aggressivesort
@@ -517,7 +544,7 @@ sub check_heal_self_SHM()
 		/if (${Me.SpellReady[${Spell[${healIntervention1}].RankName}]}) {
 			/if (${validate_cast[FALSE, spell, "${healIntervention1}", ${Me.ID}]}) /call core_cast2 "${healIntervention1}" 0 ${Me.ID} FALSE
 		} else /if (${Me.SpellReady[${Spell[${healMain}].RankName}]}) {
-			/if (${validate_cast[FALSE, spell, "${healMain}", ${Me.ID}]}) /call core_cast2 "${healMain}" 0 ${Me.ID} FALSE
+			/if (${validate_cast[FALSE, spell, "${healMain}", ${Me.ID}]}) /call core_cast2 "${healMain}" 0 ${Me.ID} check_health_group
 		} 
 	} 
   
@@ -525,7 +552,7 @@ sub check_heal_self_SHM()
 	:aggressivesort
   /if (${Me.PctHPs} <= ${SHMPoint}) {
 		/for _count 1 to 3
-			/if (${validate_cast[FALSE, spell, "${healReckless${_count}}", ${Me.ID}]}) /call core_cast2 "${healReckless${_count}}" 0 ${Me.ID} FALSE
+			/if (${validate_cast[FALSE, spell, "${healReckless${_count}}", ${Me.ID}]}) /call core_cast2 "${healReckless${_count}}" 0 ${Me.ID} check_health_group
 			/break
 		/next _count 
 	}
@@ -578,6 +605,26 @@ sub check_heal_self_SHM()
 
 
 |***
+ *	DES: MGB shaman AA Ancestral Aid if both AAs are ready
+ *	USE: 
+ *  NOTE:
+ ***|
+sub cast_AA_aid()
+	DEBUG cast_AA_aid()
+	AMIDEAD
+	CHECKEXIT
+	CHECKINPUTS
+	/if (${Me.AltAbilityReady[Mass Group Buff]} && ${Me.AltAbilityReady[${SHMAid}]} && !${Bool[${Me.Song[${SHMAid}]}]}) {
+		/if (${validate_cast[FALSE, alt, "Mass Group Buff", ${Me.ID}]}) /call core_cast2 "Mass Group Buff" alt 0 FALSE
+		/if (${validate_cast[FALSE, alt, "${SHMAid}", ${Me.ID}]}) /call core_cast2 "${SHMAid}" alt 0 FALSE
+	} else /if (${Bool[${Me.Song[${SHMAid}]}]}) {
+		VOUT ${cbad}QUIT\ax trying to cast ${csp}Ancestral Aid\ax while its running.	
+	}		
+/return TRUE
+
+
+
+|***
  *	DES: Class controls
  *	USE: /shm []
  *  NOTE:
@@ -590,7 +637,7 @@ sub Bind_setSHM(string _type, string _verbage)
 	/declare _listout string local
 	/declare _count int local 0
 	/declare _bind string local ${Me.Class.ShortName.Lower}
-  /declare _lstClass string	local |aggressive|cannihps|cannimanna|epic|fade|groupheal|grouphot|grow|healpoint|rampage|rod|spiregroup|spireraid|surge|talisman|xttime
+  /declare _lstClass string	local |aid|aggressive|cannihps|cannimanna|epic|fade|groupheal|grouphot|grow|healpoint|rampage|rod|spiregroup|spireraid|surge|talisman|xttime
 
 	| enable/disable talisman line of spells
 	/if (${_type.Find[talisman]}) {
@@ -649,6 +696,13 @@ sub Bind_setSHM(string _type, string _verbage)
 			/return
 		}	
 
+	| mgb aid
+	} else /if (${Bool[${_type.Find[aid]}]}) {
+		/stopcast
+		/delay 2s !${Me.Casting.ID}
+		/call cast_AA_aid
+		/return
+		
 	| enable/disable lead with aggerssive heals
 	} else /if (${_type.Equal[aggressive]}) {
 		/call set_switch ${Me.Class.ShortName} switchHealAggressive ${_verbage}

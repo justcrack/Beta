@@ -217,17 +217,17 @@ sub check_heal_group_CLR()
 	CHECKFADE
 
 	| Panic AA single target heal
-  /if (${Group.Member[${hurtIndex}].PctHPs} <= 45*.${tmpHealOverride}) {
+  /if (${Group.Member[${hurtIndex}].PctHPs} <= ${PanicPoint}*.${tmpHealOverride}) {
 		/if (${validate_cast[FALSE, alt, "Burst of Life", ${Group.Member[${hurtIndex}].ID}]}) /call core_cast2 "Burst of Life" alt ${Group.Member[${hurtIndex}].ID} FALSE
   }
 	
 	| panic group heal. AA Beacon of life (3 min use)
-  /if ((${hurtCount} >= ${Math.Calc[${Group.Members}/2]}) && ${Group.Members} && !${SafeZone}) {
+  /if ((${hurtCount} >= ${Math.Calc[${Group.Members}/2]}) && ${Group.Members} > 2 && !${SafeZone}) {
 	  /if (${validate_cast[FALSE, alt, "Beacon of Life", ${Me.ID}]}) /call core_cast2 "Beacon of Life" alt 0 FALSE
 	}		  	
   
-	| Panic heal
-	/if (${Group.Member[${hurtIndex}].PctHPs} < 20*.${tmpHealOverride} && ${Me.SpellReady[${Spell[${healPanic}].RankName}]}) {
+	| AA Rune
+	/if (${Group.Member[${hurtIndex}].PctHPs} < ${PanicPoint}*.${tmpHealOverride} && ${Me.SpellReady[${Spell[${healPanic}].RankName}]}) {
 		/if (${validate_cast[FALSE, spell, "${healPanic}", ${Group.Member[${hurtIndex}].ID}]} && ${Me.Casting.ID}) /stopcast
 		/call core_cast2 "${healPanic}" 0 ${Group.Member[${hurtIndex}].ID} FALSE
 		/if (!${Raid.Members} && ${validate_cast[FALSE, alt, "Divine Guardian", ${Group.Member[${hurtIndex}].ID}]}) /call core_cast2 "Divine Guardian" alt ${Group.Member[${hurtIndex}].ID} FALSE
@@ -239,7 +239,6 @@ sub check_heal_group_CLR()
 	    /call cast_divine_arbitration
 	  }
 	}
-  
     
   | Group Heal
   /if (${useGroupHeal}) {
@@ -366,9 +365,13 @@ sub check_heal_self_CLR()
 		}
 	}
 	
-	| Panic heal
-	/if (${Me.PctHPs} < 20*.${tmpHealOverride}) {
-		/if (${Me.Casting.ID}) /stopcast
+	| Panic AA single target heal and rune
+  /if (${Me.PctHPs} <= ${PanicPoint}*.${tmpHealOverride}) {
+  	
+  	| aa heal
+		/if (${validate_cast[FALSE, alt, "Burst of Life", ${Me.ID}]}) /call core_cast2 "Burst of Life" alt ${Me.ID} FALSE
+
+		| Panic Rune
 		/if (${validate_cast[FALSE, alt, "Divine Guardian", ${Me.ID}]}) /call core_cast2 "Divine Guardian" alt ${Me.ID} FALSE
 	}
 	
@@ -476,7 +479,7 @@ sub check_heal_XTarget_CLR()
 	}
 
 	| panic heal
-	/if (${Me.XTarget[${hurtIndex}].PctHPs} < 20*.${tmpHealOverride} && ${Me.SpellReady[${Spell[${healPanic}].RankName}]}) {
+	/if (${Me.XTarget[${hurtIndex}].PctHPs} < ${PanicPoint}*.${tmpHealOverride} && ${Me.SpellReady[${Spell[${healPanic}].RankName}]}) {
 		/if (${Me.Casting.ID}) /stopcast
 		/if (${validate_cast[FALSE, spell, "${healPanic}", ${Me.XTarget[${hurtIndex}].ID}]}) /call core_cast2 "${healPanic}" 0 ${Me.XTarget[${hurtIndex}].ID} FALSE
 	}
@@ -583,7 +586,7 @@ sub check_heal_pet_CLR()
 	}
 		
 	| Panic heal
-	/if (${Group.Member[${hurtIndex}].Pet.PctHPs} < .20*${PetPoint} && ${Me.SpellReady[${Spell[${healPanic}].RankName}]}) {
+	/if (${Group.Member[${hurtIndex}].Pet.PctHPs} < .${PanicPoint}*${PetPoint} && ${Me.SpellReady[${Spell[${healPanic}].RankName}]}) {
 		/if (${Me.Casting.ID}) /stopcast
 		/if (${validate_cast[FALSE, spell, "${healPanic}", ${Group.Member[${hurtIndex}].Pet.ID}]}) /call core_cast2 "${healPanic}" 0 ${Group.Member[${hurtIndex}].Pet.ID} FALSE
 		/return
@@ -774,10 +777,15 @@ sub burn_CLR()
 			/if (${validate_cast[FALSE, alt, "Divine Retribution", ${Me.ID}]}) /call core_cast2 "Divine Retribution" alt 0 FALSE
 		}
 
-	| alternate heal boosts
+	| heal boosts
 		| heal power bost: 35% (15 min reuse)
 		/if (!${Me.Buff[Healing Frenzy].ID}) {
 			/if (${validate_cast[FALSE, alt, "Flurry of Life", ${Me.ID}]}) /call core_cast2 "Flurry of Life" alt 0 FALSE
+		}
+
+		| - ~50% to cast times
+		/if (!${Me.Buff[Celestial Rapidity].ID}) {
+			/if (${validate_cast[FALSE, alt, "Celestial Rapidity", ${Me.ID}]}) /call core_cast2 "Celestial Rapidity" alt 0 FALSE
 		}
 
 		| 100% exceptional heal (15 min reuse)
