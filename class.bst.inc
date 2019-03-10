@@ -135,9 +135,9 @@ sub check_mana_BST()
 		/declare _count int local 0
 		/declare _hurtCount int local 0
 		/for _count 0 to ${Group}
-			/if (${Group.Member[${_count}].Type.NotEqual[CORPSE]} && ${Group.Member[${_count}].ID}) /continue
+			| /if (${Group.Member[${_count}].Type.NotEqual[CORPSE]} && ${Group.Member[${_count}].ID}) /continue
 			/if (${Group.Member[${_count}].Distance} < 100) /continue
-			/if (${Group.Member[${_count}].DisplayName.Equal[${Me.DisplayName}]}) /continue
+			/if (${Group.Member[${_count}].Class.ShortName.Equal[BRD}]}) /continue
 
 			| Manna				
 			/if (${lstClassCast.Find[${Group.Member[${_count}].Class.ShortName}]}) {
@@ -158,7 +158,7 @@ sub check_mana_BST()
 		/if (${_hurtCount} > 1) {
 			ECHOCHANNEL Paragon of Spirits
 			/if (${validate_cast[FALSE, alt, "Paragon of Spirit", ${Me.ID}]}) /call core_cast2 "Paragon of Spirit" alt 0 FALSE
-		}	
+		}
 	}
 	
 /return

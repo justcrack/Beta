@@ -230,7 +230,7 @@ sub force_twincast_MAG()
 	CHECKEXIT
 	CHECKINPUTS
 	/if (!${timer_force_twincast}) /call timer_update timer_force_twincast ${tForce_Twincast}
-	/if (!${Me.Buff[Improved Twincast].ID} && !${Me.Buff[Twincast].ID} && ${check_ready[spell, ${TwincastSpell}]}) {
+	/if (!${Me.Buff[Improved Twincast].ID} && !${Me.Buff[Twincast].ID}) {
 		/if (${validate_cast[FALSE, spell, "${TwincastSpell}", ${Me.ID}]}) /call core_cast2 "${TwincastSpell}" 0 0 FALSE
 		/return
 	} else /if (!${Me.Buff[Improved Twincast].ID} && !${Me.Buff[${TwincastSpell}].ID} && !${Me.Buff[Twincast].ID}) {
@@ -268,15 +268,15 @@ sub check_gather()
 	}
 	
 	| stop here to save time is nothing else is available
-	/if (!${check_ready[spell, ${GatherSpell}]} && !${Me.AltAbilityReady[Forceful Rejuvenation]}) /return
+	/if (!${Me.SpellReady[${Spell[${GatherSpell}].RankName}]} && !${Me.AltAbilityReady[Forceful Rejuvenation]}) /return
 		
 	| force rejuv if we can proc gather spell again
-	/if (!${check_ready[spell, ${GatherSpell}]}) {
+	/if (!${Me.SpellReady[${Spell[${GatherSpell}].RankName}]}) {
 		/if (${validate_cast[FALSE, alt, "Forceful Rejuvenation", ${Me.ID}]}) /call core_cast2 "Forceful Rejuvenation" alt 0 FALSE
 		/delay 1s
 	}
 
-	/if (${check_ready[spell, ${GatherSpell}]}) {
+	/if (${Me.SpellReady[${Spell[${GatherSpell}].RankName}]}) {
 		/if (${validate_cast[FALSE, spell, "${GatherSpell}", ${Me.ID}]}) /call core_cast2 "${GatherSpell}" 0 0 FALSE
 	}
 

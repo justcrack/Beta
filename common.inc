@@ -14,8 +14,6 @@
  *  NOTE: 
  ***|
 sub echos(string _type, string _verbage, string _tmpVariable, int _tmpID, string _verbage2)
-	AMIDEAD
-	CHECKINPUTS
 
 	| on/off switch echos
 	/if (${_type.Equal[switch]}) {
@@ -3289,6 +3287,7 @@ sub cast_stamina_recovery()
 		/if (${Me.CombatAbility[${DiscRest} Rk. II]}) /varset _endurancePoint 25
 		/if (${Me.CombatAbility[${DiscRest}]}) /varset _endurancePoint 21
 	} else /if (${DiscRest.Equal[Hiatus]}) {
+		/if (${Me.PctEndurance} > 65) /return
 		/if (${Me.CombatAbility[${DiscRest} Rk. III]} && (${Me.CurrentEndurance} < 102500 && ${Me.PctEndurance} < 65)) /varset _endurancePoint 65
 		/if (${Me.CombatAbility[${DiscRest} Rk. II]} && (${Me.CurrentEndurance} < 97500 && ${Me.PctEndurance} < 63)) /varset _endurancePoint 63
 		/if (${Me.CombatAbility[${DiscRest}]} && (${Me.CurrentEndurance} < 92500 && ${Me.PctEndurance} < 60)) /varset _endurancePoint 60
@@ -3300,7 +3299,7 @@ sub cast_stamina_recovery()
 			/call clear_combat
 			/call set_stop NOECHO
 			/if (${validate_cast[FALSE, alt, "${${Me.Class.ShortName}AAFade}", ${Me.ID}]}) /call core_cast2 "${${Me.Class.ShortName}AAFade}" alt 0 FALSE
-			/delay 3
+			/delay 10
 			/if (${validate_cast[FALSE, disc, "${DiscRest}", ${Me.ID}]}) /call core_cast2 "${DiscRest}" disc 0 FALSE
 			/return
 		}
@@ -5663,7 +5662,7 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub)
 
 	| item
 	} else /if (${Select[${_type},item,epicitem]}) {
-		/if (${Me.BardSongPlaying}) /call pulse_stop
+		/if (${Select[${Me.Class.ShortName}.BRD]}) /stopcast
 		/if (${_tmpID} == 0) {
 			VITEM Item ${sep} ${citem}${_spell}\ax
 			/call MQ2Cast "${_spell}" item
@@ -5676,7 +5675,7 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub)
 	} else /if (${Select[${_type},disc,activedisc]}) {
 		/varset _spell ${Spell[${_spell}].RankName}
 		/if (${Me.BardSongPlaying}) /call pulse_stop
-		/varset _spell ${Spell[${_spell}].RankName}
+
 		/if (${_tmpID} == 0) VDISC Disc ${sep} ${csp}${_spell}\ax
 		/if (${_tmpID} != 0 && ${Target.ID}) VDISC Disc ${sep} ${csp}${_spell}\ax ${sep} [${ctar}${Spawn[ID ${_tmpID}].DisplayName}\ax]
 		VBC Disc "${_spell}" ${_tmpID} 0 

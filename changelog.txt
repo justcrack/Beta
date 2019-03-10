@@ -28,6 +28,24 @@ Plugins Required: MQ2Cast, MQ2Exchange, MQ2MoveUtils, MQ2Debuffs, MQ2DanNet, MQ2
 
 
 
+BETA 0309.01
+- bug hunting 
+  -- removed thte vast majority of check_ready()
+- /imincharge
+  -- added in a clear target
+- cast_stamina_recovery()  rest discs...
+  -- adjustment to the timing for force fade to get the disk off. like rogues excape then breather while in combat
+- class.war.inc
+  -- more skills added. i'm not a warrior, dont ask me...
+- class.clr.inc
+  -- removed a double $ for issuance  
+  -- /clr splash
+     -- will center on the cleric
+     -- must be in a group or raid
+- class.bst.inc
+  -- some adjustments to group paragon out of raids
+
+
 BETA 0303.01
 - burns
   -- fixed an issue where burns would not turn of when conditions should be false (should not be burning)

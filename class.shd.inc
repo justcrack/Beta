@@ -155,7 +155,7 @@ sub get_agro_SHD()
 		/if (${mobAECount} > 1) {
 			/if (${Me.AltAbilityReady[Explosion of Hatred]}) {
 				/if (${validate_cast[FALSE, alt, "Explosion of Hatred", ${Me.ID}]}) /call core_cast2 "Explosion of Hatred" alt 0 FALSE
-			} else /if (${check_ready[spell, ${AEHate1}]}) {
+			} else /if (${Me.SpellReady[${Spell[${AEHate1}].RankName}]}) {
 				/if (${validate_cast[FALSE, spell, "${AEHate1}", ${Me.ID}]}) /call core_cast2 "${AEHate1}" 0 0 FALSE
 			}
 		} 
@@ -163,7 +163,7 @@ sub get_agro_SHD()
 		/if (${mobAECount} > 3) {
 			/if (${Me.AltAbilityReady[Explosion of Spite]}) {
 				/if (${validate_cast[FALSE, alt, "Explosion of Spite", ${Me.ID}]}) /call core_cast2 "Explosion of Spite" alt 0 FALSE
-			} else /if (${check_ready[spell, ${AEHate2}]}) {
+			} else /if (${Me.SpellReady[${Spell[${AEHate2}].RankName}]}) {
 				/if (${validate_cast[FALSE, spell, "${AEHate2}", ${Me.ID}]}) /call core_cast2 "${AEHate2}" 0 0 FALSE
 			}
 		}	
@@ -218,7 +218,7 @@ sub check_skin()
 	/if (${useShieldFlash}) /call cast_AA_shield_flash
 	CHECKINPUTS
 	/if (${is_target_dead[${Target2Kill}]}) /return	
-	/if (!${Bool[${Me.Buff[${Skin}]}]} && ${check_ready[spell, ${Skin}]}) {
+	/if (!${Bool[${Me.Buff[${Skin}]}]} && ${Me.SpellReady[${Spell[${Skin}].RankName}]}) {
 		/if (${validate_cast[FALSE, spell, "${Skin}", ${Me.ID}]}) /call core_cast2 "${Skin}" 0 0 FALSE
 		/call timer_update timer_check_Skin ${tcheck_Skin}
 	}

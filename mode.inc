@@ -414,9 +414,10 @@ sub mode_petfarm()
 	/squelch /target ID ${Target2Kill}
 	/if (!${ExcludeList.Find[${Spawn[id ${Target2Kill}].DisplayName}]}) {
 		/if (!${Pet.Target.ID}) {
-			/delay 5
+			| /delay 5
 			/call echos petfarm 0 ${Target2Kill} 0 0
 			/pet attack
+			/delay 2s
 		}
 	}
 	/varcalc _resetCount ${_resetCount}+1

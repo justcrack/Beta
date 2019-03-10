@@ -93,11 +93,12 @@ sub click_DPS_CLR()
  ***|
 sub disc_CLR()
 	DEBUG disc_CLR()
+	CHECKTIE
 	AMIDEAD
 	CHECKEXIT
 	CHECKINPUTS
 	/if (${is_target_dead[${Target2Kill}]}) /return
-	CHECKTIE
+
 
 	| pet AA hammer	
 	/if (${swBurnForce} || (${swBurnAuto} && ${NameList.Find[${Target.DisplayName}]})) {
@@ -120,6 +121,7 @@ sub disc_CLR()
 sub cast_sum_weapon()
 	DEBUG cast_sum_weapon()
 	/if (${Me.Primary}) /return
+	CHECKTIE
 	AMIDEAD
 	CHECKEXIT
 	CHECKINPUTS
@@ -142,6 +144,7 @@ sub cast_sum_weapon()
  ***|
 sub check_heal_group_CLR()
 	DEBUG check_heal_group_CLR()
+	CHECKTIE
 	AMIDEAD
 	CHECKEXIT
 	CHECKREZ
@@ -251,6 +254,11 @@ sub check_heal_group_CLR()
 	/if (${switchIssuance} && !${SafeZone}) {
 		/if (${SpawnCount[npc radius ${setMobAgro} playerstate 4]} >= ${issuanceMobCount}) /call Bind_issuance
 	}
+	
+	| splash heal
+	/if (${swSplash} && (${Group} > 1 || ${Raid})) {
+		if (${validate_cast[FALSE, spell, "${splashHeal}", ${Me.ID}]}) /cast "${Spell[${splashHeal}].RankName}" loc ${Me.X} ${Me.Y} ${Me.Z}
+	}
 
 	| check for personal debuffs
 	/if (${swHealCure}) {
@@ -338,9 +346,9 @@ sub check_heal_group_CLR()
  ***|
 sub check_heal_self_CLR()
 	DEBUG check_heal_self_CLR()
+	CHECKTIE
 	AMIDEAD
 	CHECKEXIT
-	CHECKTIE
 	
 	UPDATEHUD "HEAL Self"
 	/if (${Me.PctHPs} > ${CLRPoint}*.${tmpHealOverride}) /return
@@ -429,6 +437,7 @@ sub check_heal_self_CLR()
 sub check_heal_XTarget_CLR()
 	DEBUG check_heal_XTarget_CLR()
 	/if (!${validate_expansion[FALSE, |16]}) /return
+	CHECKTIE
 	CHECKREZ
 	AMIDEAD
 	SIMPLEEXIT
@@ -532,6 +541,7 @@ sub check_heal_XTarget_CLR()
  ***|
 sub check_heal_pet_CLR()
 	DEBUG check_pet_heal_CLR()
+	CHECKTIE
 	AMIDEAD
 	SIMPLEEXIT
 	CHECKINPUTS
@@ -658,16 +668,15 @@ Sub cast_AA_celest_regen()
 #bind issuance /issuance
 sub Bind_issuance()
 	/if (!${Select[${Me.Class.ShortName},CLR]}) /return FALSE
+	AMIDEAD
+	SIMPLEEXIT
 	
 	DEBUG Bind_issuance()
-	/if (!$${Me.SpellReady[${Spell[${healIssuance}].RankName}]}) {
+	/if (!${Me.SpellReady[${Spell[${healIssuance}].RankName}]}) {
 		/delay 2.5s ${Me.SpellReady[${Spell[${healIssuance}].RankName}]}
 	}
 
-	AMIDEAD
-	SIMPLEEXIT
-	CHECKINPUTS
-	
+
 	:castIssuance
 	/if (!${Spawn[${Target2Kill}].CanSplashLand}) /return 
 
@@ -697,14 +706,14 @@ sub Bind_issuance()
  ***|
 sub check_heal_ward()
 	DEBUG check_heal_ward()
-	/if (${coreAuto}) /call timer_update timer_heal_ward ${tHealWard}
-	/if (!${Me.SpellReady[${Spell[${healWard}].RankName}]}) /return
-
 	AMIDEAD
 	SIMPLEEXIT
 	CHECKINPUTS
 	CHECKTIE
-	
+
+	/if (${coreAuto}) /call timer_update timer_heal_ward ${tHealWard}
+	/if (!${Me.SpellReady[${Spell[${healWard}].RankName}]}) /return
+
 	/declare _wardToon string local
 	/declare _count int local
 	/declare _DNqout string local
@@ -755,7 +764,10 @@ sub check_heal_ward()
  ***| 
 sub burn_CLR()
 	DEBUG burn_CLR()
+	CHECKTIE
+	AMIDEAD
 	SIMPLEEXIT
+	CHECKINPUTS
 	
 	| Group AA Celestial Regeneration
  	/if (${useGroupHoT}) {
@@ -840,15 +852,11 @@ sub Bind_setCLR(string _type, string _verbage, bool _silent)
 	/declare _listout string local
 	/declare _count int local 0
 	/declare _bind string local ${Me.Class.ShortName.Lower}
-  /declare _lstClass string local |aggressive|arbitrate|ch|divinerez|fade|groupheal|grouphot|healpoint|issuance|rampage|retort|rod|spiregroup|spireraid|vp|xtclass|xttime|yaulp
+  /declare _lstClass string local |aggressive|arbitrate|ch|divinerez|fade|groupheal|grouphot|healpoint|issuance|rampage|retort|rod|spiregroup|spireraid|splash|vp|xtclass|xttime|yaulp
 
 	| enable/disable lead with aggerssive heals
 	/if (${_type.Equal[aggressive]}) {
 		/call set_switch ${Me.Class.ShortName} switchHealAggressive ${_verbage}
-
-	| force group heals
-	| } else /if (${_type.Equal[forcegroupheal]}) {
-	|  	/call set_switch ${Me.Class.ShortName} switchForceGroupHeal ${_verbage}  
 
 	| use Modulation Rods
 	} else /if (${_type.Equal[rod]}) {
@@ -882,6 +890,10 @@ sub Bind_setCLR(string _type, string _verbage, bool _silent)
 	| spire control
 	} else /if (${_type.Equal[spiregroup]} || ${_type.Equal[spireraid]}) {
 		/call set_character_spire FALSE ${_type} ${_verbage}
+		
+	| use splashes
+	} else /if (${_type.Equal[splash]}) {
+		/call set_switch ${Me.Class.ShortName} swSplash ${_verbage} 	 		
 	
 	| set XT refresh list Time
 	} else /if (${_type.Equal[xttime]}) {
@@ -972,7 +984,6 @@ sub Bind_setCLR(string _type, string _verbage, bool _silent)
 		/if (${_lstClass.Arg[${_count},|].Equal[ch]}) /varset _listout ${_listout}:${If[${switchCompleteHeal},${cnum}${CompleteHealpct}\ax,${ooff}]}
 		/if (${_lstClass.Arg[${_count},|].Equal[divinerez]}) /varset _listout ${_listout}:${If[${DivineRezCleric},${oon},${ooff}]}
 		/if (${_lstClass.Arg[${_count},|].Equal[fade]}) /varset _listout ${_listout}:${If[${switchAAFade},${cnum}${useAAFadePct}\ax,${ooff}]}
-		| /if (${_lstClass.Arg[${_count},|].Equal[forcegroupheal]}) /varset _listout ${_listout}:${If[${switchForceGroupHeal},${oon},${ooff}]}
 		/if (${_lstClass.Arg[${_count},|].Equal[groupheal]}) /varset _listout ${_listout}:${If[${useGroupHeal},${cnum}${useGroupHeal}\ax,${ooff}]}
 		/if (${_lstClass.Arg[${_count},|].Equal[grouphot]}) /varset _listout ${_listout}:${If[${useGroupHoT},${oon},${ooff}]}
 		/if (${_lstClass.Arg[${_count},|].Equal[healpoint]}) /varset _listout ${_listout}:${cnum}->\ax
@@ -982,6 +993,7 @@ sub Bind_setCLR(string _type, string _verbage, bool _silent)
 		/if (${_lstClass.Arg[${_count},|].Equal[rod]}) /varset _listout ${_listout}:${If[${swModRod},${oon},${ooff}]}
 		/if (${_lstClass.Arg[${_count},|].Equal[spiregroup]}) /varset _listout ${_listout}:${If[${spireGroup},${cnum}${spireGroup}\ax,${ooff}]}
 		/if (${_lstClass.Arg[${_count},|].Equal[spireraid]}) /varset _listout ${_listout}:${If[${spireRaid},${cnum}${spireRaid}\ax,${ooff}]}
+		/if (${_lstClass.Arg[${_count},|].Equal[splash]}) /varset _listout ${_listout}:${If[${swSplash},${cnum}${oon}\ax,${ooff}]}
 		/if (${_lstClass.Arg[${_count},|].Equal[vp]}) /varset _listout ${_listout}:${If[${switchVP},${cnum}${useVPPct}\ax,${ooff}]}
 		/if (${_lstClass.Arg[${_count},|].Equal[xtclass]}) /varset _listout ${_listout}:${cnum}->\ax
 		/if (${_lstClass.Arg[${_count},|].Equal[xttime]}) /varset _listout ${_listout}:${cnum}${tXHeal}\ax

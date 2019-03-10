@@ -382,13 +382,10 @@ sub Event_NullSlot
 sub Event_Zone(string _line)
 
 	| force a delay while zoning
-	:stillfuckingzoningOMGwillthiseverend
 	/if (${swDelayZoning} && ${Me.Zoning}) {
-		/delay 45s !${Me.Zoning}
-	}
-
-	/if (${Me.Zoning}) {
-		/goto :stillfuckingzoningOMGwillthiseverend
+		:stillfuckingzoningOMGwillthiseverend
+		/delay 20s !${Me.Zoning}
+		/if (${swDelayZoning} && ${Me.Zoning}) /goto :stillfuckingzoningOMGwillthiseverend
 	} else /if (!${Me.Zoning}) {
 		/call validate_zone FALSE TRUE
 	}
@@ -2479,6 +2476,7 @@ sub Bind_imincharge()
 		/sqlite ${dbCore} onoff UPDATE character SET movement="${Me.DisplayName}" WHERE chrID="${MacroQuest.Server}_${Spawn[pc ${_toonName}].Class.ShortName}_${_toonName}"
 		
 		| reset the variable in memory
+		/dexecute ${_toonName} /squelch /target clear
 		/dexecute ${_toonName} /varset setTieToon ${Me.DisplayName}
 	/next _count
 
@@ -3188,7 +3186,11 @@ sub Bind_admin(string _type, string _verbage, string _verbage2, bool _silent)
 		}
 		
 		/return
-
+		
+		
+	| place in maintenance mode
+	} else /if (${_type.Equal[maintenance]}) {
+		/call set_switch character swMaintenance ${_verbage}
 
 	| reset core
 	} else /if (${_type.Equal[reset]}) {
@@ -3857,7 +3859,7 @@ sub Bind_ae_splash()
 			/call mem_spell TRUE "${splashCure}" ${buffGem} FALSE
 			/return
 		}
-		/if (${validate_cast[FALSE, spell, "${splashCure}", ${Me.ID}]}) /cast "${splashCure}" loc ${Me.X} ${Me.Y} ${Me.Z}
+		/if (${validate_cast[FALSE, spell, "${splashCure}", ${Me.ID}]}) /cast "${Spell[${splashCure}].RankName}" loc ${Me.X} ${Me.Y} ${Me.Z}
 	}
 	
 	| cleric
@@ -3866,7 +3868,7 @@ sub Bind_ae_splash()
 			/call mem_spell TRUE "${healSplash}" ${buffGem} FALSE
 			/return
 		}
-		/if (${validate_cast[FALSE, spell, "${healSplash}", ${Me.ID}]}) /cast "${healSplash}" loc ${Me.X} ${Me.Y} ${Me.Z}
+		/if (${validate_cast[FALSE, spell, "${healSplash}", ${Me.ID}]}) /cast "${Spell[${healSplash}].RankName}" loc ${Me.X} ${Me.Y} ${Me.Z}
 	}
 	
 /return TRUE

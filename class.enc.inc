@@ -276,7 +276,7 @@ sub mez_adds()
 
 				/if (${swdeBuffTash}) /call cast_tash ${_tmpID}
 				
-				/if (${check_ready[spell, "${spellpbaeMez}"]}) {
+				/if (${Me.SpellReady[${Spell[${spellpbaeMez}].RankName}]}) {
 					/if (${Me.Casting.Name.NotEqual[${spellpbaeMez}]}) /call interrupt
 					/if (${validate_cast[FALSE, spell, "${spellpbaeMez}", ${Me.ID}]}) /call core_cast2 "${spellpbaeMez}" 0 0 FALSE
 				}

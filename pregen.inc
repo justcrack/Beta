@@ -1344,6 +1344,7 @@ sub pregen_CLR()
   /call sql_control FALSE CLR healHoT 																string 		outer FALSE
                                                                 			
 	| target AE splash heals                                      			
+  /call sql_control FALSE CLR swSplash 																bool	 	 	outer FALSE
   /call sql_control FALSE CLR healSplash 															string 	 	outer PREGENDATA
 	
 	| interventions
@@ -2362,7 +2363,7 @@ sub pregen_SHM()
   /call sql_control FALSE SHM healReckless3														string 		outer FALSE
   /call sql_control FALSE SHM healWholeGroup													string 		outer PREGENDATA
   /call sql_control FALSE SHM healWholeGroupHoT												string 		outer PREGENDATA
-                                          		
+	/call sql_control FALSE SHM healHoT																	string		outer PREGENDATA                                          		
 	/call sql_control FALSE SHM ProtectOutsideGroup											string		outer "|FALSE"
 	/call sql_control FALSE SHM ProtectInsideRaid												string		outer "|FALSE"
 	/call sql_control FALSE SHM ProtectNPCList													string		outer "|FALSE"
@@ -2427,6 +2428,12 @@ sub pregen_WAR()
 	/call sql_control FALSE WAR DiscNoTime				 											string		outer PREGENDATA
 	/call sql_control FALSE WAR DiscAttention								 						string		outer PREGENDATA
 	/call sql_control FALSE WAR DiscPhantom									 						string		outer PREGENDATA
+	/call sql_control FALSE WAR DiscShieldBash 													string		outer PREGENDATA
+	/call sql_control FALSE WAR DiscExpanse 														string		outer PREGENDATA
+	/call sql_control FALSE WAR DiscPrecision 													string		outer PREGENDATA
+	/call sql_control FALSE WAR DiscWarriors 														string		outer PREGENDATA
+	/call sql_control FALSE WAR DiscRoar 																string		outer PREGENDATA
+	/call sql_control FALSE WAR DiscShocking 														string		outer PREGENDATA
 	/call sql_control FALSE WAR AAGutPunch 															string		outer "Gut Punch"
 	/call sql_control FALSE WAR AAWarStomp 															string		outer "War Stomp"
 	/call sql_control FALSE WAR AABraceforImpact 												string		outer "Brace for Impact"
