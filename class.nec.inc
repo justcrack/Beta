@@ -35,7 +35,7 @@ sub core_NEC()
 			/if (${swSwarm} || ${swPet}) /call send_pet
 			/if (${swSwarm}) /call cast_temp_pet ${Target2Kill} "${tempPet}"
 			/if (!${timer_check_blood}) /call cast_blood ${Target2Kill}
-			/if (${setAlliance}) /call trigger_alliance ${Target2Kill}
+			/if (${swAlliance}) /call trigger_alliance ${Target2Kill}
 			/call check_deBuffs ${Target2Kill}
 			/if (${swCombatNuke}) /call cast_nuke
 			/if (${swCombatDoT}) /call cast_DOT

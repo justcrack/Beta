@@ -34,7 +34,7 @@ sub core_BST()
 			/if (${swSwarm}) /call cast_nuke_servant
 			/if (${swCombatMelee}) /call use_skill_melee ${Target2Kill}
 			/call disc_${Me.Class.ShortName}
-			/if (${setAlliance}) /call trigger_alliance ${Target2Kill}
+			/if (${swAlliance}) /call trigger_alliance ${Target2Kill}
 			/call check_deBuffs ${Target2Kill}
 			/if (${swCombatDoT}) /call cast_DOT
 			/if (${swCombatNuke}) /call cast_nuke
@@ -137,7 +137,7 @@ sub check_mana_BST()
 		/for _count 0 to ${Group}
 			| /if (${Group.Member[${_count}].Type.NotEqual[CORPSE]} && ${Group.Member[${_count}].ID}) /continue
 			/if (${Group.Member[${_count}].Distance} < 100) /continue
-			/if (${Group.Member[${_count}].Class.ShortName.Equal[BRD}]}) /continue
+			/if (${Group.Member[${_count}].Class.ShortName.Equal[BRD]}) /continue
 
 			| Manna				
 			/if (${lstClassCast.Find[${Group.Member[${_count}].Class.ShortName}]}) {

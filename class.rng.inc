@@ -31,7 +31,7 @@ sub core_RNG()
 			/call check_deBuffs ${Target2Kill}
 			/if (${swCombatDoT}) /call cast_DOT
 			/if (${swCombatNuke}) /call cast_nuke
-			/if (${setAlliance}) /call trigger_alliance ${Target2Kill}
+			/if (${swAlliance}) /call trigger_alliance ${Target2Kill}
 			/if (${switchNukeSummer} && ${swCombatNuke}) /call cast_nuke_summer ${Target2Kill}
 			/call click_BP
 			/call click_item

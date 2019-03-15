@@ -31,7 +31,7 @@ sub core_MNK()
 			/if (${swSwarm} || ${swPet}) /call send_pet
 			/if (${swCombatMelee}) /call use_skill_melee ${Target2Kill}
 			/call disc_${Me.Class.ShortName}
-			/if (${setAlliance}) /call trigger_alliance ${Target2Kill}
+			/if (${swAlliance}) /call trigger_alliance ${Target2Kill}
 			/call check_deBuffs ${Target2Kill}
 			/call click_BP
 			/call click_item

@@ -55,7 +55,7 @@ sub core_PAL()
 			/call check_deBuffs ${Target2Kill}
 			/if (${swCombatDoT}) /call cast_DOT
 			/if (${swCombatNuke}) /call cast_nuke
-			/if (${Bool[${setAlliance}]}) /call cast_alliance_${Me.Class.ShortName} ${Target2Kill}
+			/if (${swAlliance}) /call cast_alliance_${Me.Class.ShortName} ${Target2Kill}
 			/call click_BP
 			/call click_item
 			/if (${swSwarm}) /call click_item_swarm ${Target2Kill}

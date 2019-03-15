@@ -37,7 +37,7 @@ sub core_ROG()
 			/if (${swSwarm} || ${swPet}) /call send_pet
 			/if (${swCombatMelee}) /call use_skill_melee ${Target2Kill}
 			/call disc_${Me.Class.ShortName}
-			/if (${setAlliance}) /call cast_alliance_${Me.Class.ShortName} ${Target2Kill}
+			/if (${swAlliance}) /call trigger_alliance ${Target2Kill}
 			/call check_deBuffs ${Target2Kill}
 			/call click_BP
 			/call click_item
@@ -266,36 +266,6 @@ sub burn_ROG()
 	/call click_burn_circle
 	/call click_item_burn
 /return
-
-
-
-|***
- *	DES: Alliance (Holly Alliance|spell)
- *	USE: 
- *  NOTE: 6 casts to fulm.
- ***|
-sub cast_alliance_ROG(int _tmpID)
-	DEBUG cast_alliance_${Me.Class.ShortName()
-
-  | check alliance group/raid
-  /if (!${Bool[${setAlliance}]}) /return FALSE
-	/if (${setAlliance.Equal[raid]} && !${Raid.Members}) /return FALSE  
-	/if (${setAlliance.Equal[group]} && (!${Bool[${Group.Members]} || ${Raid.Members})) /return FALSE  
- 
- 	| have the alliance on it already?
-	/if (${Target.Buff[${${Me.Class.ShortName}Alliance}].ID}) /return FALSE
-	| spell ready?
-	/if (!${check_ready[disc, "${${Me.Class.ShortName}Alliance}"]}) /return FALSE
-	| no target
-	/if (${is_target_dead[${_tmpID}]}) /return
-
-	AMIDEAD
-	CHECKEXIT
-  CHECKINPUTS
-
-	/if (${validate_cast[FALSE, spell, "${${Me.Class.ShortName}Alliance}", ${_tmpID}]}) /call core_cast2 "${${Me.Class.ShortName}Alliance}" alt ${_tmpID} FALSE
-
-/return TRUE
 
 
 

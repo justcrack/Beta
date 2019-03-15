@@ -48,7 +48,7 @@ sub core_DRU()
 			/call check_deBuffs ${Target2Kill}
 			/if (${swCombatDoT}) /call cast_DOT
 			/if (${swCombatNuke}) /call cast_nuke
-			/if (${setAlliance}) /call trigger_alliance ${Target2Kill}
+			/if (${swAlliance}) /call trigger_alliance ${Target2Kill}
 			/if (${swSwarm} || ${swPet}) /call send_pet
 			/call click_BP
 			/call click_item

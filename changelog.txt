@@ -27,6 +27,22 @@ Plugins Required: MQ2Cast, MQ2Exchange, MQ2MoveUtils, MQ2Debuffs, MQ2DanNet, MQ2
     -- script: files use to aid database or character generation. these files are fair game, i will be overwriting them if i need
 
 
+BETA 0314.01
+- alliances
+  -- after dicking around with these for a few hours, i decided to simplify them
+  -- alliance is now just an on off switch.. no more group raid, motherinlaw visiting.. just a simple on and off
+  -- i aslo dgaf if enough classes are in range to make it fulminate. thats your issue to deal with, not mine
+  -- clr, dru, shm will casts on the assist for their environment. riads are cast on the raid assit. groups on the gorup assist
+  -- all other classes will cast on their assists target
+- class.shm.inc
+  -- added in /shm xtclass command so they can adjust xtarget heal classes. i swear it was there before. dunno what happened to it
+- class.bst.inc
+  -- removed a sneaky } in a place it didnt belong
+- class.ber.inc
+  -- had a typo in the pregen for slap in the face
+- class.shm.inc
+  -- added in burns AAs: Dampen Resistance, Fleeting Spirit, Spiritual Blessing
+
 
 BETA 0309.01
 - bug hunting 

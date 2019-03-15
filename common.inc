@@ -6665,17 +6665,46 @@ sub validate_assist(string _echo, string _assist, string _name)
  *  NOTE:
  ***|
 sub trigger_alliance(int _tmpID)
-	| we need raid peoples
-	/if (!${Raid.Members}) /return
+	AMIDEAD
+	CHECKINPUTS
 		
-	| alliance time
-	/if (!${Target.BuffDuration[${${Me.Class.ShortName}Alliance}].TotalSeconds}) {
-		/if (${validate_cast[FALSE, spell, "${Spell[${${Me.Class.ShortName}Alliance}].RankName}", ${_tmpID}]}) /call core_cast2 "${Spell[${${Me.Class.ShortName}Alliance}].RankName}" 0 ${_tmpID} FALSE
-		/return
+	| correct healer targets to the assists ID, not the mobs..	
+	/if (${Select[${Me.Class.ShortName},CLR,SHM,DRU]}) {
+		/if (${Raid.Members}) {
+			/varset _tmpID ${Spawn[pc ${Raid.MainAssist}].ID}
+		} else /if (!${Raid.Members} && ${Group}) {
+			/varset _tmpID ${Spawn[pc ${Group.MainAssist}].ID}			
+		} else /if (${Bool[${setMA1}]} && ${Bool[${Spawn[pc ${setMA1}].ID}]} && !${Bool[${Spawn[pc ${setMA1}].Dead}]) {
+			/varset _tmpID ${Spawn[pc ${setMA1}].ID}
+		} else /if (${Bool[${setMA2}]} && ${Bool[${Spawn[pc ${setMA2}].ID}]} && !${Bool[${Spawn[pc ${setMA2}].Dead}]) {
+			/varset _tmpID ${Spawn[pc ${setMA2}].ID}
+		}
 	}
 
-	| my alliance. were done here
-	/if (${Spawn[${Target.Buff[${${Me.Class.ShortName}Alliance}].Caster}].ID} == ${Me.ID}) /return
+	| is the spawn still alive?
+	/if (${is_target_dead[${_tmpID}]}) /return FALSE
+	
+	| adjust our current target
+	/target ID ${_tmpID}
+	/delay 5 ${Target.ID} == ${_tmpID}
+	
+	| are we there yet?
+	/delay 5 ${Target.BuffsPopulated}
+	
+	| have the alliance on it already?
+	/if (${Target.BuffsPopulated}) {
+		/if (${Target.Buff[${${Me.Class.ShortName}Alliance}].ID}) /return FALSE	
+		/if (${Bool[${Target.Buff[${${Me.Class.ShortName}Alliance}]}]}) /return FALSE	
+		/if ((${Spawn[${Target.Buff[${${Me.Class.ShortName}Alliance}].Caster}].ID} == ${Me.ID})) /return FALSE
+	} else /if (!${Target.BuffsPopulated}) {
+		/return FALSE	
+	}
+	
+	| alliance time
+	/if (!${Target.BuffDuration[${${Me.Class.ShortName}Alliance}].TotalSeconds}) {
+		/if (${validate_cast[FALSE, FIND, "${Spell[${${Me.Class.ShortName}Alliance}].RankName}", ${_tmpID}]}) /call core_cast2 "${Spell[${${Me.Class.ShortName}Alliance}].RankName}" FIND ${_tmpID} FALSE
+		/return
+	}
 
 	| if theres no forced casted trigger, gtfo
 	/if (!${Bool[${${Me.Class.ShortName}AllianceTrigger}]}) /return
@@ -6685,7 +6714,7 @@ sub trigger_alliance(int _tmpID)
 	| is one of the trigger spells ready?
 	/for _count 1 to ${setAllianceTrigger.Count[|]}
 		/if (${Me.SpellReady[${Spell[${setAllianceTrigger.Arg[${_count},|]}].RankName}]}) {
-			/if (${validate_cast[FALSE, spell, "${Spell[${setAllianceTrigger.Arg[${_count},|]}].RankName}", ${_tmpID}]}) /call core_cast2 "${Spell[${setAllianceTrigger.Arg[${_count},|]}].RankName}" 0 ${_tmpID} FALSE
+			/if (${validate_cast[FALSE, FIND, "${Spell[${setAllianceTrigger.Arg[${_count},|]}].RankName}", ${_tmpID}]}) /call core_cast2 "${Spell[${setAllianceTrigger.Arg[${_count},|]}].RankName}" FIND ${_tmpID} FALSE
 			/continue
 		}
 	/next _count

@@ -50,7 +50,7 @@ sub core_SHM()
 			/call check_deBuffs ${Target2Kill}
 			/if (${swCombatDoT}) /call cast_DOT
 			/if (${swCombatNuke}) /call cast_nuke
-			/if (${setAlliance}) /call trigger_alliance ${Target2Kill}
+			/if (${swAlliance}) /call trigger_alliance ${Target2Kill}
 			/if (${swSwarm} || ${swPet}) /call send_pet
 			/call click_BP
 			/call click_item
@@ -413,6 +413,14 @@ sub burn_SHM()
 		/if (${validate_cast[FALSE, alt, "Spirit Call", ${Target2Kill}]}) /call core_cast2 "Spirit Call" alt ${Target2Kill} FALSE
 	}
 
+	| Lower spell resists
+	/if (${validate_cast[FALSE, alt, "Dampen Resistance", ${Target2Kill}]}) /call core_cast2 "Dampen Resistance" alt ${Target2Kill} FALSE
+
+	| Twincast next 6 DOTs/HOTs
+	/if (${validate_cast[FALSE, alt, "Fleeting Spirit", ${Target2Kill}]}) /call core_cast2 "Fleeting Spirit" alt ${Target2Kill} FALSE
+
+	| Increase spell cost by 14% for 100% exceptional heals on instant heals for 18 seconds
+	/if (${validate_cast[FALSE, alt, "Spiritual Blessing", ${Target2Kill}]}) /call core_cast2 "Spiritual Blessing" alt ${Target2Kill} FALSE
 
 	/call cast_AA_spire
 
@@ -637,7 +645,7 @@ sub Bind_setSHM(string _type, string _verbage)
 	/declare _listout string local
 	/declare _count int local 0
 	/declare _bind string local ${Me.Class.ShortName.Lower}
-  /declare _lstClass string	local |aid|aggressive|cannihps|cannimanna|epic|fade|groupheal|grouphot|grow|healpoint|rampage|rod|spiregroup|spireraid|surge|talisman|xttime
+  /declare _lstClass string	local |aid|aggressive|cannihps|cannimanna|epic|fade|groupheal|grouphot|grow|healpoint|rampage|rod|spiregroup|spireraid|surge|talisman|xtclass|xttime
 
 	| enable/disable talisman line of spells
 	/if (${_type.Find[talisman]}) {
@@ -655,6 +663,11 @@ sub Bind_setSHM(string _type, string _verbage)
 	} else /if (${_type.Equal[fade]}) {
 		/call set_character_fade FALSE ${_verbage}
 
+	| set the XTarget class to heal
+	} else /if (${_type.Equal[xtclass]}) {
+		/call set_character_xthealclass FALSE ${_verbage}
+		/return	
+		
 	| use Modulation Rods
 	} else /if (${_type.Equal[rod]}) {
 		/call set_switch ${Me.Class.ShortName} swModRod ${_verbage} 	

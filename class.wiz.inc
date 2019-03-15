@@ -31,7 +31,7 @@ sub core_WIZ()
 			/if (${swBurnControl}) /call burn_${Me.Class.ShortName}
 			/if (${swSwarm} || ${swPet}) /call send_pet
 			/if (${swSwarm} && !${Me.Pet.ID}) /call cast_temp_pet ${Target2Kill} "${tempPet}"
-			/if (${setAlliance}) /call trigger_alliance ${Target2Kill}
+			/if (${swAlliance}) /call trigger_alliance ${Target2Kill}
 			/call check_deBuffs ${Target2Kill}
 			/if (${swCombatNuke}) {
 				/if (${switchForceTwincast}) /call force_twincast_${Me.Class.ShortName}

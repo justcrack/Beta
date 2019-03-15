@@ -43,6 +43,7 @@ sub core_CLR()
 		/if (${swHealCure}) /call cast_cure
 		/if (${doYaulp}) /call cast_yaulp
 		CHECKFADE
+		/if (${swAlliance}) /call trigger_alliance
 		/if (!${timer_heal_ward}) /call check_heal_ward
 		/if (${swRetort}) /call check_buffs_tmp_list "${spellRetort}" "${spellRetortToon}"
 
@@ -58,7 +59,6 @@ sub core_CLR()
 			/call check_deBuffs ${Target2Kill}
 			/if (${swCombatDoT}) /call cast_DOT
 			/if (${swCombatNuke}) /call cast_nuke
-			/if (${setAlliance}) /call cast_alliance_${Me.Class.ShortName}
 			/call click_BP
 			/call click_item
 			/if (${swSwarm} && !${Me.Pet.ID}) /call cast_temp_pet ${Target2Kill} "${tempPet}"
@@ -825,16 +825,6 @@ sub burn_CLR()
 	/call use_glyph
 	/call click_burn_circle
 	/call click_item_burn
-/return
-
-
-
-|***
- *	DES: WORK IN PROGRESS
- *	USE:
- *	NOTE:
- ***| 
-sub cast_alliance_CLR()
 /return
 
 

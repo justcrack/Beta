@@ -75,7 +75,7 @@ sub core_ENC()
 				/call check_for_adds
 				/if (${addList.Count[|]}) /return
 			}
-			/if (${setAlliance}) /call trigger_alliance ${Target2Kill}
+			/if (${swAlliance}) /call trigger_alliance ${Target2Kill}
 			/call click_BP
 			/call click_item
 			/if (${swSwarm}) /call click_item_swarm ${Target2Kill}

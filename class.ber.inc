@@ -29,7 +29,7 @@ sub core_BER()
 			/if (${swSwarm} || ${swPet}) /call send_pet
 			/if (${swCombatMelee}) /call use_skill_melee ${Target2Kill}
 			/call disc_${Me.Class.ShortName}
-			/if (${Bool[${setAlliance}]}) /call cast_alliance_${Me.Class.ShortName} ${Target2Kill}
+			/if (${swAlliance}) /call trigger_alliance ${Target2Kill}
 			/call check_deBuffs ${Target2Kill}
 			/call click_BP
 			/call click_item
@@ -262,43 +262,6 @@ sub burn_BER()
 	/call click_burn_circle
 	/call click_item_burn	
 /return
-
-
-
-|***
- *  DES: Alliance (Demolisher's Alliance|spell)
- *  USE: 
- *  NOTE: 6 casts to fulm.
- ***|
-sub cast_alliance_BER(int _tmpID)
-	DEBUG cast_alliance_${Me.Class.ShortName()
-		
-	| force trigger while alliance is on target
-	/while (${Target.Buff[${${Me.Class.ShortName}Alliance}].ID}) {
-		/if (${validate_cast[FALSE, disc, "${setAllianceTrigger}", ${_tmpID}]}) /call core_cast2 "${setAllianceTrigger}" disc ${_tmpID} FALSE
-	}
-
-	| check alliance group/raid
-	/if (!${Bool[${setAlliance}]}) /return FALSE
-	/if (${setAlliance.Equal[raid]} && !${Raid.Members}) /return FALSE  
-	/if (${setAlliance.Equal[group]} && !${Group}) /return FALSE  
-
-	| enough berserker's to make it worth casting?
-	/if (${SpawnCount[berserker radius ${setMobAgro} setzradius ${setzradius}]} < 3) /return FALSE
-
-	| have the alliance on it already?
-	/if (${Target.Buff[${${Me.Class.ShortName}Alliance}].ID}) /return FALSE
-
-	| spell ready?
-	/if (!${Me.CombatAbilityReady[${Spell[${${Me.Class.ShortName}Alliance}].RankName}]}) /return FALSE
-
-	| no target
-	/if (${is_target_dead[${_tmpID}]}) /return
-	AMIDEAD
-	CHECKEXIT
-	CHECKINPUTS
-	/if (${validate_cast[FALSE, disc, "${${Me.Class.ShortName}Alliance}", ${_tmpID}]} && ${NameList.Find[${Spawn[${Target2Kill}].DisplayName}]}) /call core_cast2 "${${Me.Class.ShortName}Alliance}" disc ${_tmpID} FALSE
-/return TRUE
 
 
 

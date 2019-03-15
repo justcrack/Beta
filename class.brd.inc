@@ -62,7 +62,7 @@ sub core_BRD()
 			/if (${swCombatDoT}) /call cast_DOT
 			/if (${swCombatNuke}) /call cast_nuke
 			/call pulse
-			/if (${setAlliance}) /call trigger_alliance ${Target2Kill}
+			/if (${swAlliance}) /call trigger_alliance ${Target2Kill}
 			/if (${swdeBuffMezz}) {
 				/call check_for_adds
 				/if (${addList.Count[|]}) /return

@@ -1722,6 +1722,9 @@ sub Bind_setCombatControl(string _type, string _verbage, bool _silent)
 		
 	| alliance on or off... yada yada		
 	} else /if (${_type.Equal[alliance]}) {
+		/call set_switch character swAlliance ${_verbage}
+		
+		|**
 		/declare _alliancetype string local |off|group|raid
 		/if (${_alliancetype.Find[${_verbage}]}) {
 			/if (${_verbage.Equal[off]}) {
@@ -1737,7 +1740,7 @@ sub Bind_setCombatControl(string _type, string _verbage, bool _silent)
 		/next _count
 		VOUT /${_bind.Lower} alliance [${_listout}]	
 		/return
-
+		**|
 
 	| enable combat: melee, range, nuke, dot, heal
 	} else /if (${Select[${_type},melee,range,nuke,dot,heal]}) {
@@ -1826,7 +1829,7 @@ sub Bind_setCombatControl(string _type, string _verbage, bool _silent)
 		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[saferadius]}) /varset _listout ${_listout}:${cnum}${setCombatRadius}\ax
 		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[stopnuke]}) /varset _listout ${_listout}:${cnum}${setStopNukePct}\ax
 		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[circle]}) /varset _listout ${_listout}:${cnum}${useCircle}\ax
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[alliance]}) /varset _listout ${_listout}:${If[${Bool[${setAlliance}]},${cnum}${setAlliance}\ax,${ooff}]}
+		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[alliance]}) /varset _listout ${_listout}:${If[${swAlliance},${oon}\ax,${ooff}]}
 		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[pull]}) /varset _listout ${_listout}:${If[${swPull},${oon},${ooff}]}
 		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[rest]}) /varset _listout ${_listout}:${If[${setRestPct},${cnum}${setRestPct}\ax,${ooff}]}
 		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[setMA1]}) /varset _listout ${_listout}:${If[${Bool[${setMA1}]},${cnum}${setMA1}\ax,${ooff}]}
