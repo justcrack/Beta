@@ -76,6 +76,7 @@ sub pregen_environment()
 	/call setDeclare swNeedRez																					bool			outer FALSE
 	/call setDeclare swAmIDead																					bool			outer FALSE
 	
+	/call sql_control FALSE environment swLog														bool	 		outer FALSE
 	/call sql_control FALSE environment setMobLvlMin										int				outer 1
 	/call sql_control FALSE environment setMobLvlMax										int				outer 150
 	/call sql_control FALSE environment swBitch													bool			outer TRUE
@@ -207,6 +208,9 @@ sub pregen_environment()
 
 	| guild Hall port clickies .. /port guild []
   /call setDeclare lstTypesPortGuildHall															string		outer "|lobby|TBL|qeynos|highhold|TBM|EoK|RoS|neriak1|neriak2|neriak3|neriakf|PoM|surefall|halas"
+
+	| guild Hall port clickies .. /port aa []
+  /call setDeclare lstTypesPortAA																		string		outer "|origin"
 
 
 	| admin stuff .. /admin []
@@ -870,6 +874,7 @@ sub pregen_timers()
 	/call timer_set FALSE tOther_buff																		string		outer 5m	 	timer_check_buffs_other
 	/call timer_set FALSE tTell_Buff																		string		outer	10s 	timer_check_buffs_tell
 	/call timer_set FALSE tMGB_Buff																			string		outer	5m 		timer_check_buffs_mgb                                   										
+	/call timer_set FALSE tBlocked_Buff																	string		outer	10m		timer_check_buffs_blocked                                   										
 	/call timer_set FALSE tCheck_Aura																		string		outer 3m 		timer_check_aura
 	/call timer_set FALSE tCheck_Ammo																		string		outer	5s 		timer_Check_Ammo
 	/call timer_set FALSE tHunt_delay																		string		outer	30s 	timer_wait_for_mob_to_kill

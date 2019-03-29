@@ -27,6 +27,31 @@ Plugins Required: MQ2Cast, MQ2Exchange, MQ2MoveUtils, MQ2Debuffs, MQ2DanNet, MQ2
     -- script: files use to aid database or character generation. these files are fair game, i will be overwriting them if i need
 
 
+
+BETA 0329.01
+- removed a lot of old commented code
+- DB:swLog
+  -- will start writing things to the logfile.
+  -- /macroquest/logs/tc folder. if you turn logging on and this does not exist, you will get erors
+  -- i will add more output as needed
+- /navto
+  -- adjustment for changes made to MQ2Nav
+- small adjustment ot rez loops
+- /mode scorch
+  -- corrected an old function call name
+- /mode hunt
+  -- adjusted the LOS for non melee
+- class.sk.inc
+  -- adjustment to single target hate. will be a little less restrictive.  
+- XTarget heal generation
+  -- rewrote the CLS portion of xtarget population to comply with the list editor for the sql commands. hopefully will be a little more reliable
+- blocked buffs
+  - i have the structure build for getting the list of blocked buffs. so getting closer.
+- class.mag.inc
+  -- disabled the clickie rod summoning for now, its being an ass. will get it sorted.  
+
+
+
 BETA 0314.01
 - alliances
   -- after dicking around with these for a few hours, i decided to simplify them
@@ -36,12 +61,11 @@ BETA 0314.01
   -- all other classes will cast on their assists target
 - class.shm.inc
   -- added in /shm xtclass command so they can adjust xtarget heal classes. i swear it was there before. dunno what happened to it
+  -- added in burns AAs: Dampen Resistance, Fleeting Spirit, Spiritual Blessing
 - class.bst.inc
   -- removed a sneaky } in a place it didnt belong
 - class.ber.inc
   -- had a typo in the pregen for slap in the face
-- class.shm.inc
-  -- added in burns AAs: Dampen Resistance, Fleeting Spirit, Spiritual Blessing
 
 
 BETA 0309.01

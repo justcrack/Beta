@@ -175,7 +175,7 @@ sub Event_broadcast_command(string line, string _sender, string _cmd)
 sub Event_camping(string line)
 	/call clear_combat
 	VOUT Current Build ${cinfo}${currentBuild}\ax ${sep} ${cbad}STOPPED\ax for camp.
-	/endm
+	/endmacro
 	/squelch /makecamp off
 	/squelch /moveto pause
 	/squelch /stick off
@@ -221,43 +221,6 @@ sub Event_raidinvite(string line, string _sender)
 	/raidinvite ${_sender}
 /return
 
-
-
-|***
-*	DES: Song Sets for Bards. 
-*	USE: /song [melee|caster|tank|mix]
-
-#event Song "[MQ2] - Song: #1#"
-sub Event_Song(string line, string _group)
-	/if (${Select[${Me.Class.ShortName},BRD]}) {
-		/call mem_song_set ${_group}
-	}
-/return 
-***|
-
-
-|***
- *	DES: dumps all your augments to a INI file
- *	USE: 
- *  NOTE: 
-	
-#event echoaugment "[MQ2] - Echo Augment file!"
-sub Event_echoaugment()
-	/call echo_augments
-/return
-
- ***| 
-
-|***
- *	DES: 
- *	USE: 
- *  NOTE: this is being done away with.. slowly..
-
-#event checkOneOff "[MQ2] - Force OneOff Check!"
-sub Event_checkOneOff()
-	/call check1offBuffs
-/return
- ***| 	
 
 
 |***
@@ -1880,9 +1843,12 @@ sub Bind_setMovementControls(string _type, string _verbage, bool _silent)
 		
 	| navigate to the Target or NAME		
 	} else /if (${_type.Equal[goto]}) {
-		/if (!${Target.ID} && !${Bool[${_verbage}]}) /return
+		/if (!${Target.ID} && !${Bool[${_verbage}]}) {
+			OUT ${onotice} ${sep} need name or target.
+			/return
+		}
 		/if (${Bool[${_verbage}]}) {
-			/squelch /nav spawn ID ${_verbage}
+			/squelch /nav spawn ${_verbage}
 		} else /if (${Target.ID}) {
 			/squelch /nav spawn ${Target.DisplayName}
 		}
@@ -3449,7 +3415,7 @@ sub Bind_port_list(string _class, string _location, string _sublocation)
 	/declare _country 				int 		local 0
 	/declare _count 					int 		local 0
 	/declare _state 					int 		local 0
-	/declare _portclass 			string 	local |druid|wizard|item|guild
+	/declare _portclass 			string 	local |druid|wizard|item|guild|aa
 	| /declare _porttype	 			string 	local |tl|group
 	/declare _continent 			string 	local |alaris|antonica|discord|faydwer|kunark|luclin|odus|serpentsspine|taelosia|planes|other
 	/declare _tell						bool		local FALSE
@@ -3458,7 +3424,11 @@ sub Bind_port_list(string _class, string _location, string _sublocation)
 	/declare _tmpLocation string local FALSE
 
 
-	/if (${_class.Equal[guild]}) {
+	/if (${_class.Equal[aa]}) {
+		
+		
+		
+	} else /if (${_class.Equal[guild]}) {
 		
 		| The Burning Lands fire disc thingie		
 		/if (${_location.Equal[TBL]}) {

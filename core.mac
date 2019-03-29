@@ -13,7 +13,6 @@
 	Plugins Required: MQ2Cast, MQ2Exchange, MQ2MoveUtils, MQ2Debuffs, MQ2DanNet, MQ2SQLite, MQ2Nav
 		
 	Files:
-	- blurb.inc									Expansion specific raid announcements. A lazy way to send raid instructions to all in RS
 	- class.???.inc							One include for each class [WIZ|NEC|MAG|ENC|WAR|PAL|SHD|BST|BER|BRD|RNG|ROG|CLR|DRU|SHM|MNK]
 	- common.inc								All common use functions.
 	- core.mac									You are looking at it
@@ -120,7 +119,7 @@
  ***|
 sub main(string _custom)
 	| Current Build
-	/call setDeclare currentBuild 			string outer 0314.01
+	/call setDeclare currentBuild 			string outer 0329.01
 	
 	| force SQL echos on for the start
 	/call setDeclare swEchosSQL 				bool outer FALSE
@@ -133,6 +132,9 @@ sub main(string _custom)
 
 	| shopping time
 	/call initialize_core ${_custom}
+	
+	/if (${swLog}) /mqlog ${currentBuild} .. Clean Start
+
 	
 	| maintenance mode loop lock
 	/while (${swMaintenance}) {
@@ -259,8 +261,23 @@ sub main(string _custom)
 	}
 	
 	| this is MQ2 reserved for end of macro
-	| :OnExit	
-	
+	:OnExit	
+		/if (!${MacroQuest.LastCommand.Find[/end]}) {
+			/if (${swLog}) {
+				 /mqlog ${currentBuild} .. ERROR SOMEWHERE
+				 /mqlog .. LastCMD: ${MacroQuest.LastCommand}
+				 /mqlog .. ErrorMsg: ${MacroQuest.Error}
+				 /mqlog .. DataError: ${MacroQuest.MQ2DataError}
+				 /mqlog .. SyntaxError: ${MacroQuest.SyntaxError}
+				 /mqlog .. RunningTime: ${MacroQuest.Running}
+			}
+		} else {
+			VOUT Current Build ${cinfo}${currentBuild}\ax ${sep} ${cbad}Ended\ax
+			/if (${swLog}) {
+				/mqlog ${currentBuild} .. Clean Exit
+			}
+		}
+		/endmacro	
 /return
 
 
@@ -330,6 +347,10 @@ sub initialize_core(string _custom)
 	
 	| set base core environment
 	/call base_preperation
+	
+	| set initial blocked spells
+	/call check_buffs_blocked
+	
 	
   /if (${swOverrideLOS}) VOUT ${ocaution} ${sep} Ignoring Line of Sight\ax
 	OUT ${cgood}Ready\ax

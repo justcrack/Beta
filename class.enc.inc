@@ -257,7 +257,8 @@ sub mez_adds()
 	/declare _tmpID string local
 
 	:loopmezzadds
-	/if (${addList.Count[|]} && ${Me.CurrentMana} >= ${Spell[${spellMez}].Mana}) {
+	| /if (${addList.Count[|]} && ${Me.CurrentMana} >= ${Spell[${spellMez}].Mana}) {
+	/if (${addList.Count[|]}) {
 		| /if (${addList.Count[|]} > 1) /varset addList ${addList.Right[-${Math.Calc[${addList.Find[|]}-1]}]}
 		| /varset _tmpID ${addList.Arg[1,|].Left[-1]}
 		/varset _tmpID ${addList.Arg[1,|]}
@@ -275,14 +276,15 @@ sub mez_adds()
 				VOUT ${sepO} ${cinfo}${SpawnCount[npc radius 30 setzradius 15]}\ax ${sepC} ${If[${SpawnCount[npc los radius 30 setzradius 15 targetable]} == 1,Target,Targets]} in point blank range.
 
 				/if (${swdeBuffTash}) /call cast_tash ${_tmpID}
+				/delay 2.25s ${Me.SpellReady[${Spell[${spellpbaeMez}].RankName}]}
 				
 				/if (${Me.SpellReady[${Spell[${spellpbaeMez}].RankName}]}) {
-					/if (${Me.Casting.Name.NotEqual[${spellpbaeMez}]}) /call interrupt
-					/if (${validate_cast[FALSE, spell, "${spellpbaeMez}", ${Me.ID}]}) /call core_cast2 "${spellpbaeMez}" 0 0 FALSE
+					/if (${Me.Casting.Name.NotEqual[${Spell[${spellpbaeMez}].RankName}]}) /call interrupt
+					/if (${validate_cast[FALSE, spell, "${spellpbaeMez}", ${Me.ID}]}) /call core_cast2 "${spellpbaeMez}" 0 0 check_for_adds
 				}
-				/if (${check_ready[spell, "${spellStun}"]}) {
-					/if (${Me.Casting.Name.NotEqual[${spellStun}]}) /call interrupt
-					/if (${validate_cast[FALSE, spell, "${spellStun}", ${Me.ID}]}) /call core_cast2 "${spellStun}" 0 0 FALSE
+				/if (${Me.SpellReady[${Spell[${spellStun}].RankName}]}) {
+					/if (${Me.Casting.Name.NotEqual[${Spell[${spellStun}].RankName}]}) /call interrupt
+					/if (${validate_cast[FALSE, spell, "${spellStun}", ${Me.ID}]}) /call core_cast2 "${spellStun}" 0 0 check_for_adds
 				}
 			}
 			
@@ -292,7 +294,7 @@ sub mez_adds()
 					/if (${Me.AltAbilityReady[Beam of Slumber]}) {
 						/if (${Me.Casting.ID}) /call interrupt
 						/face ID ${_tmpID} ${If[${swFaceFast},fast,]}
-						/if (${validate_cast[FALSE, alt, "Beam of Slumber", ${Me.ID}]}) /call core_cast2 "Beam of Slumber" alt 0				
+						/if (${validate_cast[FALSE, alt, "Beam of Slumber", ${Me.ID}]}) /call core_cast2 "Beam of Slumber" alt 0 FALSE
 					} 
 				}
 			}
@@ -305,6 +307,95 @@ sub mez_adds()
 		/goto :loopmezzadds
 	}
 /return
+
+
+
+
+
+|***
+
+sub mez_adds()
+	DEBUGCLASS ${cbug}mez_adds()\ax
+	AMIDEAD
+	CHECKINPUTS
+	/declare _tmpID string local
+
+	:loopmezzadds
+	/if (${addList.Count[|]} && ${Me.CurrentMana} >= ${Spell[${spellMez}].Mana}) {
+		| /if (${addList.Count[|]} > 1) /varset addList ${addList.Right[-${Math.Calc[${addList.Find[|]}-1]}]}
+		| /varset _tmpID ${addList.Arg[1,|].Left[-1]}
+		/varset _tmpID ${addList.Arg[1,|]}
+		/if (${_tmpID} == ${Target2Kill}) {
+			/call list_delete addList ${_tmpID}
+			/goto :loopmezzadds
+		}
+		/if (!${Spawn[${_tmpID}].Type.Equal[NPC]}) {
+			/call clear_timer ${_tmpID}
+		} else {
+			/squelch /target id ${_tmpID}
+			/delay 5 ${Target.ID} == ${_tmpID}
+			/delay 2.25s ${Me.SpellReady[${spellMez}]}
+			/if (${SpawnCount[npc los radius 30 zradius 15 targetable]} > 1 ) {
+				VOUT ${sepO} ${cinfo}${SpawnCount[npc radius 30 zradius 15]}\ax ${sepC} ${If[${SpawnCount[npc los radius 30 zradius 15 targetable]} == 1,Target,Targets]} in point blank range.
+
+				/if (${switchdeBuffTash}) {
+					/if (${validate_cast[FALSE, alt, "Bite of Tashani", ${Me.ID}]}) /call core_cast2 "Bite of Tashani" alt 0 check_for_adds
+				}
+				
+				/if (${Me.Gem[${spellpbaeMez}]} && ${Me.SpellReady[${spellpbaeMez}]}) {
+					/if (${Me.Casting.Name.NotEqual[${spellpbaeMez}]}) /call interrupt
+					/if (${validate_cast[FALSE, spell, "${spellpbaeMez}", ${Me.ID}]}) /call core_cast2 "${spellpbaeMez}" 0 0 check_for_adds
+				}
+				/if (${Me.Gem[${spellStun}]} && ${Me.SpellReady[${spellStun}]}) {
+					/if (${Me.Casting.Name.NotEqual[${spellStun}]}) /call interrupt
+					/if (${validate_cast[FALSE, spell, "${spellStun}", ${Me.ID}]}) /call core_cast2 "${spellStun}" 0 0 check_for_adds
+				}
+			}
+			/if (${Spawn[${_tmpID}].NearestSpawn[3,npc radius 30].ID} && ${Spawn[${_tmpID}].Distance3D} <= 200 && ${Spawn[${_tmpID}].Distance3D} >= ${MobAgro}*.5) {
+				/if (${Me.AltAbilityReady[Beam of Slumber]}) {
+					/if (${Me.Casting.ID}) /call interrupt
+					/face ID ${_tmpID} ${If[${SetFaceFast},fast,]}
+					/if (${validate_cast[FALSE, alt, "Beam of Slumber", ${Me.ID}]}) /call core_cast2 "Beam of Slumber" alt 0				
+				} 
+			}
+			/if (!${timer_mez_${_tmpID}}) /call cast_mez ${_tmpID}
+		}
+		/call list_delete addList ${_tmpID}
+		| VOUT ${sepO} ${cinfo}${addList.Count[|]}\ax ${sepC} ${If[${addList.Count[|]} == 1,Target,Targets]} left to mez.
+		/if (!${addList.Count[|]} && ${switchBuffSelf} && !${timer_check_runes}) /call check_rune_${Me.Class.ShortName}
+		/goto :loopmezzadds
+	}
+/return
+
+
+***|
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

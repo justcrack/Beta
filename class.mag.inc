@@ -347,7 +347,7 @@ sub Bind_setMAG(string _type, string _verbage)
 
 	| get rods.. cause things and stuff
 	} else /if (${_type.Equal[rods]}) {
-
+|***
 		| self mod rod
 		/if (${Bool[${SelfRodName}]}) {
 			/if (!${FindItem[${SelfRodName}].ID}) {
@@ -361,23 +361,26 @@ sub Bind_setMAG(string _type, string _verbage)
 			/if (${validate_cast[FALSE, spell, "${ModRodSpell}", ${Me.ID}]}) /call core_cast2 "${ModRodSpell}" alt 0 FALSE
 			/call sort_cursor TRUE
 		}
+
 		| paradox rod	
-		/if (${Bool[${ParadoxRodName}]} && !${Bool[${FindItem[${ParadoxRodName}]}]} && !${Cursor.Name.Equal[${ParadoxRodName}]} && ${Me.CurrentMana} >= ${Spell[${ParadoxSpell}].Mana}) {
-			/if (${validate_cast[FALSE, spell, "${ParadoxSpell}", ${Me.ID}]}) /call core_cast2 "${ParadoxSpell}" ${buffGem} ${Me.ID} FALSE
-			/call sort_cursor TRUE
-		}
+		 /if (${Bool[${ParadoxRodName}]} && !${Bool[${FindItem[${ParadoxRodName}]}]} && !${Cursor.Name.Equal[${ParadoxRodName}]} && ${Me.CurrentMana} >= ${Spell[${ParadoxSpell}].Mana}) {
+		 	/if (${validate_cast[FALSE, spell, "${ParadoxSpell}", ${Me.ID}]}) /call core_cast2 "${ParadoxSpell}" ${buffGem} ${Me.ID} FALSE
+		 	/call sort_cursor TRUE
+		 }
+		
 		| elemental orb
 		/if (${Bool[${OrbName}]} && !${Bool[${FindItem[${OrbName}]}]} && !${Cursor.Name.Equal[${OrbName}]} && ${Me.CurrentMana} >= ${Spell[${OrbSpell}].Mana}) {
 			/if (${validate_cast[FALSE, spell, "${OrbSpell}", ${Me.ID}]}) /call core_cast2 "${OrbSpell}" ${buffGem} 0 FALSE
 			/call sort_cursor TRUE
 		}
+		
 		| elemental rod
 		/if (${Bool[${ElementRodName}]} && !${Bool[${FindItem[${ElementRodName}]}]} && !${Cursor.Name.Equal[${ElementRodName}]} && ${Me.CurrentMana} >= ${Spell[${ElementRodSpell}].Mana}) {
 			/if (${validate_cast[FALSE, spell, "${ElementRodSpell}", ${Me.ID}]}) /call core_cast2 "${ElementRodSpell}" ${buffGem} 0 FALSE
 			/call sort_cursor TRUE
 		}
 		/return
-
+***|
 	| spire control
 	} else /if (${_type.Equal[spiregroup]} || ${_type.Equal[spireraid]}) {
 		/call set_character_spire FALSE ${_type} ${_verbage}

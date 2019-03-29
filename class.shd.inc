@@ -139,13 +139,11 @@ sub get_agro_SHD()
 	}
 
 	| single hate
-	/if ((!${Target.Buff[${Hate1}].ID} && !${Target.Buff[${Hate2}].ID}) || ${Me.TargetOfTarget.Name.NotEqual[${Me.DisplayName}]}) {
-		/if (${Me.PctAggro} < 90 || ${Me.TargetOfTarget.Name.NotEqual[${Me.DisplayName}]}) {
-			/if (${validate_cast[FALSE, spell, "${Hate1}", ${Target2Kill}]}) /call core_cast2 "${Hate1}" 0 ${Target2Kill} FALSE
-		}
-		/if (${Me.PctAggro} < 80 || ${Me.TargetOfTarget.Name.NotEqual[${Me.DisplayName}]}) {
-			/if (${validate_cast[FALSE, spell, "${Hate2}", ${Target2Kill}]}) /call core_cast2 "${Hate2}" 0 ${Target2Kill} FALSE
-		}
+	/if (${Me.PctAggro} < 90 || ${Me.TargetOfTarget.Name.NotEqual[${Me.DisplayName}]}) {
+		/if (${validate_cast[FALSE, spell, "${Hate1}", ${Target2Kill}]}) /call core_cast2 "${Hate1}" 0 ${Target2Kill} FALSE
+	}
+	/if (${Me.PctAggro} < 80 || ${Me.TargetOfTarget.Name.NotEqual[${Me.DisplayName}]}) {
+		/if (${validate_cast[FALSE, spell, "${Hate2}", ${Target2Kill}]}) /call core_cast2 "${Hate2}" 0 ${Target2Kill} FALSE
 	}
 
 	| AE Hate

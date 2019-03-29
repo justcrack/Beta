@@ -130,27 +130,27 @@ sub do_mode()
  ***|
 sub mode_get_mob()
 	:movetomob
-	/doevents
+	CHECKINPUTS
 	AMIDEAD
 
 	CLEARCURSOR TRUE
-	/doevents
-	
+
 	/if (!${Spawn[${Target2Kill}].ID} || ${Spawn[${Target2Kill}].Dead} || ${Target.Dead}) {
 		/call set_stop NOECHO
 		/call clear_combat
 		/return
 	}
 
-	/call check_watch_spawn
+	| /call check_watch_spawn
 
 	| get us to the mob
-	/if (${Spawn[${Target2Kill}].Distance} > ${setCombatDistance} && ${Spawn[${Target2Kill}].LineOfSight} && ${Spawn[${Target2Kill}].Distance} > ${setMobAgro} ) {
+	| /if (${Spawn[${Target2Kill}].Distance} > ${setCombatDistance} && ${Spawn[${Target2Kill}].LineOfSight} && ${Spawn[${Target2Kill}].Distance} > ${setMobAgro}) {
+	/if (${Spawn[${Target2Kill}].Distance} > ${setCombatDistance} && ${Spawn[${Target2Kill}].Distance} > ${setMobAgro}) {
 		/squelch /face ID ${Target2Kill} nolook ${If[${swFaceFast},fast,]}
 		
 		| use nav for movement
 		/if (${setTieMode.Equal[nav]} && ${Bool[${Plugin[MQ2Nav]}]} && !${Navigation.Active}) {
-			| /echo nav to ${Target2Kill}
+			/echo nav to ${Target2Kill}
 			/if (${Navigation.Active}) /squelch /nav stop
 			/squelch /nav id ${Target2Kill}
 
@@ -313,7 +313,7 @@ sub mode_hunt()
 		/if (${Spawn[npc ${HuntMobList.Arg[${_count},|]} radius ${setModeAgro} targetable].ID}) {
 			/varset Target2Kill ${NearestSpawn[npc ${HuntMobList.Arg[${_count},|]}].ID}
 			/call echos hunt 0 0 ${Target2Kill} 0
-			/call writeINI watchSpawn Common "${Spawn[${Target2Kill}].DisplayName}"
+			| /call writeINI watchSpawn Common "${Spawn[${Target2Kill}].DisplayName}"
 			/goto :haveatarget
 		}
 	/next _count	
@@ -469,7 +469,7 @@ sub mode_scorched_earth()
 	/if (!${swModeScorch}) /return
 	/if (${SafeZone} && !${swOverrideSafeZone}) {
 		/call echos failboat 0 0 0 0
-		/call mode_clear_all
+		/call switch_clear_mode
 		/return
 	}
 	/call check_watch_spawn

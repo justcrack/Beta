@@ -904,8 +904,12 @@ sub check_buffs_BC()
 					/if (!${Bool[${Spell[${Spell[${Buff${_count}}].Base2[${_i}]}].Duration}]}) /continue
 					/if (!${_found}) /continue
 					
-					/declare _qBuffName${_count}${_i}${_toonName} string local
-					/declare _qBuffNewStacks${_count}${_i}${_toonName} string local
+					| /declare _qBuffName${_count}${_i}${_toonName} string local
+					| /declare _qBuffNewStacks${_count}${_i}${_toonName} string local
+
+					/if (!${Defined[_qBuffName${_count}${_i}${_toonName}]}) /declare _qBuffName${_count}${_i}${_toonName} string local
+					/if (!${Defined[_qBuffNewStacks${_count}${_i}${_toonName}]}) /declare _qBuffNewStacks${_count}${_i}${_toonName} string local
+
 
 					| parsing issues: set the name of the secondary spell before passing the request to the other toon. should not need to do this.
 					/varset _base2 ${Spell[${Spell[${Buff${_count}}].Base2[${_i}]}].Name}
@@ -1078,13 +1082,15 @@ sub timer_update(string _my_timer, string _my_duration)
  *  NOTE: 
  ***|
 sub do_rest()
-	CHECKINPUTS
-	/if (!${coreAuto} || ${swAmIDead}) /return
-	/if (${swTieLock} && ${swSetTie}) /return
+	| the dead dont need to rest
+	/if (!${coreAuto} || ${swAmIDead}) /return FALSE
+	
+	| dont rest while in tie
+	/if (${swTieLock} && ${swSetTie}) /return FALSE
 	
 	| clerics and pallys wait 'till yaulp gone
 	/if (${Bool[${Me.Buff[Lesser Yaulp]}]} || ${Bool[${Me.Buff[Yaulp]}]}) /return
-	
+	CHECKINPUTS
 
 	/if (${swHomeSet} && !${Bool[${combat}]} && !${SpawnCount[npc radius ${setCombatDistance}*2 playerstate 4 targetable]} && ((${Me.Y} != ${MakeCamp.AnchorY}) && (${Me.X} != ${MakeCamp.AnchorX}))) {
 		/if (${swPull}) /squelch /makecamp unpause
@@ -1487,19 +1493,31 @@ sub set_xtarget()
 			/next _x
 		}
 
-		| set raid protected classes radius
+		
+		| set raid protected classes
 		/for _count 1 to ${XHealClass.Count[|]}
-			/declare _${lstClassAll.Arg[${_count},|]} int local ${SpawnCount[pc ${lstClassAll.Arg[${_count},|]} raid radius ${setMobAgro}]}
-			/if (${_${lstClassAll.Arg[${_count},|]}} && ${XHealClass.Find[${lstClassAll.Arg[${_count},|]}]}) {
-				/for _x 1 to ${_${lstClassAll.Arg[${_count},|]}}
-					/if (${_b} > 13) /break
-					/if (${Bool[${Group.Member[${NearestSpawn[${_x}, pc ${lstClassAll.Arg[${_count},|]} raid]}]}]} || ${Bool[${Me.XTarget[${NearestSpawn[${_x}, pc ${lstClassAll.Arg[${_count},|]} raid].Name}]}]} || ${ProtectInsideRaid.Find[${NearestSpawn[${_x}, pc ${lstClassAll.Arg[${_count},|]} raid].Name}]}) /continue 
-					/varcalc _b ${_b}+1
-					/xtarget set ${_b} ${NearestSpawn[${_x}, pc ${lstClassAll.Arg[${_count},|]} raid radius ${XTHealRadius}]}
-				/next _x
-			}		
-		/next _count	
+			/for _x 1 to ${SpawnCount[pc ${XHealClass.Arg[${_count},|]} raid radius ${setMobAgro}]}
+				
+				| no class?
+				/if (!${SpawnCount[pc ${XHealClass.Arg[${_count},|]} raid radius ${setMobAgro}]}) /continue
 
+				/if (${_b} > 13) /break
+				
+				| are they a group member?
+				/if (${Group.Member[${NearestSpawn[${_x}, pc ${XHealClass.Arg[${_count},|]} raid]}].ID}) /continue
+				
+				| on the xtarget
+				/if (${Bool[${Me.XTarget[${NearestSpawn[${_x}, pc ${XHealClass.Arg[${_count},|]} raid].Name}]}]}) /continue
+
+				| me?
+				/if (${NearestSpawn[${_x}, pc ${XHealClass.Arg[${_count},|]} raid radius ${XTHealRadius}].DisplayName.Equal[${Me.DisplayName}]}) /continue
+
+				/varcalc _b ${_b}+1
+				/xtarget set ${_b} ${NearestSpawn[${_x}, pc ${XHealClass.Arg[${_count},|]} raid radius ${XTHealRadius}]}
+			/next _x
+			
+		/next _count	
+		
 	}
 	
 /return
@@ -3495,7 +3513,7 @@ sub check_for_corpse()
 			} else /if (${swRezToken} && ${lstRezToken.Find[${Spawn[${_tmpID}].Class.ShortName}]}) {
 				/call cast_rez ${_tmpID} ${_rezEmergency}
 			}
-			/return
+			| /return
 		}
 		/next _count
 	} 
@@ -3510,7 +3528,7 @@ sub check_for_corpse()
 			} else {
 				/call cast_rez ${_tmpID} ${_rez${Me.Class.ShortName}}
 			}
-			/return
+			| /return
 		}
 		/next _count
 	}		
@@ -3526,7 +3544,7 @@ sub check_for_corpse()
 				} else {
 					/call cast_rez ${_tmpID} ${_rez${Me.Class.ShortName}}
 				}
-				/return
+				| /return
 			}
 			/next _count
 		} 
@@ -3541,7 +3559,7 @@ sub check_for_corpse()
 				} else {
 					/call cast_rez ${_tmpID} ${_rez${Me.Class.ShortName}}
 				}
-				/return
+				| /return
 			}
 			/next _count
 		} 
@@ -3557,7 +3575,7 @@ sub check_for_corpse()
 			} else {
 				/call cast_rez ${_tmpID} ${_rez${Me.Class.ShortName}}
 			}
-			/return
+			| /return
 		}
 		/next _count
 	}
@@ -3574,7 +3592,7 @@ sub check_for_corpse()
 				} else {
 					/call cast_rez ${_tmpID} ${_rez${Me.Class.ShortName}}
 				}
-				/return
+				| /return
 			}
 			/next _count
 		}	
@@ -3743,7 +3761,6 @@ sub list_update(string _listName, string _tmpID)
 		| NPC corpse
 		/if (${Spawn[npccorpse ${_tmpID}].ID}) /varset _remove TRUE
 		/if (${Spawn[${_tmpID}].Type.Equal[Corpse]}) /varset _remove TRUE
-
 		
 		/if (${_remove}) {
 			/call list_delete ${_listName} ${_tmpID}
@@ -3760,30 +3777,29 @@ sub list_update(string _listName, string _tmpID)
  *  NOTE: 
  ***|
 sub check_for_adds()
-	/declare _tmpID				string	local
-	/declare _numMobs			int			local 1
+	/declare _tmpID string local
+	/declare _numMobs int local 1
 
 	:loopnextmob
 	/if (${NearestSpawn[${_numMobs},npc radius ${setMobAgro} targetable los].ID}) {
 		/varset _tmpID ${NearestSpawn[${_numMobs},npc radius ${setMobAgro} targetable ${If[${swOverrideLOS},,los]} playerstate 4].ID}
-			/if (${swdeBuffEradicate} && !${Defined[timer_eradicate_${_tmpID}]}) /call timer_update timer_eradicate_${_tmpID} 1
-			| /if (${swdeBuffTash} && !${Defined[timer_tash_${_tmpID}]}) /call timer_update timer_tash_${_tmpID} 1
-			/if (!${Defined[timer_tash_${_tmpID}]}) /call timer_update timer_tash_${_tmpID} 1
-			/if (${swdeBuffSlow} && !${Defined[timer_slow_${_tmpID}]}) /call timer_update timer_slow_${_tmpID} 1
-			/if (${swdeBuffCripple} && !${Defined[timer_cripple_${_tmpID}]}) /call timer_update timer_cripple_${_tmpID} 1
-			/if (${swdeBuffMezz} && !${Defined[timer_mez_${_tmpID}]}) /call timer_update timer_mez_${_tmpID} 1
+		/if (${swdeBuffEradicate} && !${Defined[timer_eradicate_${_tmpID}]}) /call timer_update timer_eradicate_${_tmpID} 1
+		/if (${swdeBuffTash} && !${Defined[timer_tash_${_tmpID}]}) /call timer_update timer_tash_${_tmpID} 1
+		/if (${swdeBuffSlow} && !${Defined[timer_slow_${_tmpID}]}) /call timer_update timer_slow_${_tmpID} 1
+		/if (${swdeBuffCripple} && !${Defined[timer_cripple_${_tmpID}]}) /call timer_update timer_cripple_${_tmpID} 1
+		/if (${swdeBuffMezz} && !${Defined[timer_mez_${_tmpID}]}) /call timer_update timer_mez_${_tmpID} 1
 		/if (${Spawn[id ${_tmpID}].Type.Equal[NPC]} && ${Spawn[id ${_tmpID}].Distance}<=${setMobAgro} && ${Spawn[id ${_tmpID}].LineOfSight} && !${ExcludeList.Find[${Spawn[id ${_tmpID}].DisplayName}]} && ${Spawn[id ${_tmpID}].Type.NotEqual[Untargetable]}) {
 			/if (!${timer_mez_${_tmpID}}) {
 				/if (${_tmpID} != ${Me.XTarget[1].ID}) /call list_add addList ${_tmpID}
 				/call list_add mobList ${_tmpID}
 				/if (${Macro.Return.Equal[1]}) {
 					| VOUT ${owarning} ADD ${sep} [${ctar}${Spawn[${_tmpID}].DisplayName}\ax] ${sep} [${ctar}${_tmpID}\ax]
-					/if (${Me.Casting.Name.NotEqual[${spellMez}]} && ${Me.Casting.ID}) {
+					/if (${Me.Casting.Name.NotEqual[${Spell[${spellMez}].RankName}]} && ${Me.Casting.ID}) {
 						/call Interrupt
 						/stopcast
 					}
 					/if (${NoMezzList.Find[${Spawn[${_tmpID}].DisplayName}]}) {
-						VOUT ${owarning} IMMUNE TO\ax ${csp}${spellMez}\ax ${sep} [${ctar}${_tmpID}\ax]
+						VOUT ${owarning} IMMUNE TO\ax ${csp}${Spell[${spellMez}].RankName}\ax ${sep} [${ctar}${_tmpID}\ax]
 						/call timer_update timer_mez_${_tmpID} 1.5m
 					}          	
 				}
@@ -4349,16 +4365,19 @@ sub get_target(bool _debug)
 	/while (${_tmpAgroRange} <= ${setMobAgro} && !${Target2Kill}) {
 
 		| search local ${setMobAgro} range in steps of 10 for mob acquisition
+| /echo count:${SpawnCount[npc ${If[${swOverrideLOS},,los]} range ${setMobLvlMin} ${setMobLvlMax} radius ${_tmpAgroRange} zradius ${setzradius} targetable]}
 		/if (${SpawnCount[npc ${If[${swOverrideLOS},,los]} range ${setMobLvlMin} ${setMobLvlMax} radius ${_tmpAgroRange} zradius ${setzradius} targetable]}) {
 			/for _count 1 to ${SpawnCount[npc ${If[npc ${If[${swOverrideLOS},,los]} range ${setMobLvlMin} ${setMobLvlMax} radius ${_tmpAgroRange} zradius ${setzradius} targetable]}
 				/if (!${swPull} || !${coreAuto}) /return
 				AMIDEAD
 				
 				/varset _tmpID ${NearestSpawn[${_count}, npc ${If[${swOverrideLOS},,los]} range ${setMobLvlMin} ${setMobLvlMax} radius ${_tmpAgroRange} zradius ${setzradius}].ID}
+				| /echo _count:${_count} _tmpID:{_tmpID}
 				
 				| these things are our friends. dont kill them
 				/if (${Select[${Spawn[id ${_tmpID}].Type},AURA,BANNER,CAMPFIRE,CORPSE,CHEST,ITEM,TRIGGER,TRAP,TIMER,MOUNT,Mercenary]}) /continue
 				/if (${ExcludeList.Find[${Spawn[id ${_tmpID}].DisplayName}]}) /continue
+				/echo /if (${ExcludeList.Find[${Spawn[id ${_tmpID}].DisplayName}]}) /continue
 				/if (${_tmpID} == ${Me.Pet.ID}) /continue
 				
 				| CYA for shit MQ will pick up in the environment that does not have a name
@@ -4980,7 +4999,7 @@ sub check_buff_routines(bool _force)
 			/if (!${timer_check_runes}) /call check_rune_${Me.Class.ShortName}
  			/if (${swBuffItem}) /call check_crystals
 		} else /if (${Select[${Me.Class.ShortName},MAG]}) {
-			/call Bind_setMAG rods
+			| /call Bind_setMAG rods
 		} else /if (${Select[${Me.Class.ShortName},MNK]}) {
 		} else /if (${Select[${Me.Class.ShortName},NEC]}) {
 		} else /if (${Select[${Me.Class.ShortName},PAL]}) {
@@ -7601,11 +7620,13 @@ sub set_character_xthealclass(bool _debug, string _verbage)
 		
 		| if its there, delete
 		/if (${XHealClass.Find[${_verbage}]}) {
-			/call sql_update ${_debug} ${Me.Class.ShortName} XHealClass ${${list_delete[XHealClass, ${_verbage.Upper}]}}
+			| /call sql_update ${_debug} ${Me.Class.ShortName} XHealClass ${${list_delete[XHealClass, ${_verbage.Upper}]}}
+			/call Bind_sql_edit XHealClass "${_verbage.Upper}" delete
 
 		| if its not there, add	
 		}	else /if (!${XHealClass.Find[${_verbage}]}) {
-			/call sql_update ${_debug} ${Me.Class.ShortName} XHealClass ${${list_add[XHealClass, ${_verbage.Upper}]}}
+			| /call sql_update ${_debug} ${Me.Class.ShortName} XHealClass ${${list_add[XHealClass, ${_verbage.Upper}]}}
+			/call Bind_sql_edit XHealClass "${_verbage.Upper}" add 
 		}			
 		
 		| update xtargets window and timer
@@ -8023,12 +8044,27 @@ sub merc_control()
  ***|
 sub check_buffs_blocked()
 
+	/declare _count int local 0
+	/declare _tmpList string local
+	
+
+	/for _count 0 to 39
+		
+		/varset _tmpList ${_tmpList}|${Window[BlockedBuffWnd].Child[BW_BLOCKEDBUFF${_count}_Button].Tooltip}
+			
+	/next _count
+
+	
+	/call sql_update FALSE character lstBlockedSpells "${_tmpList}"
 
 
-
+	| /echo check_buffs_blocked():${_tmpList}
 
 
 /return
+
+
+
 
 
 
@@ -8043,12 +8079,9 @@ lstBlockedSpells
 
 
 
-
-
-
-
 | adapt this for blocked buffs on local side to mapped DB character entry. 
-| dont forget to credit Maskoi
+| dont forget to credit Maskoi.. yah right...
+
 
 
         | Open Blocked Buffs window temporarily to read blocked buffs
@@ -8101,4 +8134,11 @@ ${Window[BlockedBuffWnd].Child[BW_BLOCKEDBUFF3_Button].Child[Spell: Group Pact o
 
 Spell: Group Pact of the Wolf Form
 
-${Window[BlockedBuffWnd].Child[BW_BLOCKEDBUFF3_Button].Child[Spell: Group Pact of the Wolf Form].Name}
+
+
+
+0-39
+
+${Window[BlockedBuffWnd].Child[BW_BLOCKEDBUFF3_Button].Tooltip}
+
+${Window[BlockedBuffWnd].Child[BW_BLOCKEDBUFF3_Button]}
