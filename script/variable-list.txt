@@ -117,7 +117,6 @@ swGiveRaidInvite							[switch] hand out raid invites when request from a tell
 
 
 [burn]
-swBurnControl									[switch] 
 swBurnForce										[switch] firce burning 24/7
 swBurnAuto										[switch] burn on named mob as target
 setBurnPct										[set] % of mobs healt to start burns at
@@ -159,7 +158,7 @@ setMinRezPct	                [set] minimum rez % willing to use (90 is default)
 setMaxRezRange		 		        [set] area to res dead people in
 swRezGive											[switch] cast rezes (needed for using tokens too)
 swRezCombat										[switch] rez during combat
-swRezEveryone									[switch] rex everyone (RTFM)
+swRezEveryone									[switch] rez everyone (RTFM)
 
 
 ;spire control               
@@ -245,7 +244,7 @@ Aura2Buff	                    [set] aura buff in aura window to watch for
               
 ;cursor                             			
 swAutoCursor									[switch] force auto using of loot file anytime somthing corsses your cursor
-echoChannel										[set] 
+echoChannel										[set] private channel (you create it) that core will echo some things too
 relayTells	                  [set] name of toon to relay all tells too. this is annoying as fuck
 ClassChannel	                [set] channel core will echo a lot of things too if set
 
@@ -320,14 +319,9 @@ useCircle	                    [set] [power|life|mana] which of the three you wan
 CircleofPower	                [set] name of CoP item
 CircleofLife	                [set] name of CoL item
 CircleofMana	                [set] name of CoM item
-clickItemSwarm1	              [set] click swarm item to use during normal combat
-clickItemSwarm2	              [set] click swarm item to use during normal combat
-clickItemSwarm3	              [set] click swarm item to use during normal combat
-clickItemSwarm4               [set] click swarm item to use during normal combat
-clickOddItem1	                [set] 
-clickOddItem2	                [set] 
-clickOddItem3			            [set] 
-clickOddItem4			            [set] 
+clickItemSwarm#	              [set] (1-4) click swarm item to use during normal combat
+clickOddItem#	                [set] (1-4) things you want to click, not important things, out of combat
+clickItemBuff#                [set] (1-6) click items for buffs. like geomantra?!?!
 
 
 ;alwasy up AAs 

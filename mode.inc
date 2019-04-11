@@ -810,7 +810,7 @@ sub mode_get_drunk()
 	/while (${Me.Skill[Alcohol Tolerance]} < ${Skill[Alcohol Tolerance].SkillCap}) {
 		/if (!${Me.ItemReady[=${modeDrinkofChoice}]}) /break
 		| /if (${Me.Drunk} < 200) /useitem ${modeDrinkofChoice}
-		/if (${Me.Drunk} < 200) /call core_cast "${modeDrinkofChoice}" item 0 FALSE
+		/if (${Me.Drunk} < 200) /call core_cast2 "${modeDrinkofChoice}" item 0 FALSE
 		/delay 2
 		/delay 2s ${Me.Drunk} < 200
 	}

@@ -214,7 +214,7 @@ sub pregen_environment()
 
 
 	| admin stuff .. /admin []
-  /call setDeclare lstTypesAdmin																			string		outer "|maintenance|get|list|migrate|notice|reset|table|whitewash|xt|zonereset"
+  /call setDeclare lstTypesAdmin																			string		outer "|blockedbuffs|maintenance|get|list|migrate|notice|reset|safelist|table|whitewash|xt|zonereset"
 
  	| clickie item on off -- /onoff []
   /call setDeclare lstTypesOnOff																			string		outer "|horn|shrink"
@@ -422,6 +422,7 @@ sub pregen_character()
 	/call sql_control FALSE character swGiveRaidInvite									bool 			outer FALSE
 	/call sql_control FALSE character lstBlockedSpells									string		outer FALSE
 	/call sql_control FALSE character setBufftoWatch										string		outer FALSE
+	/call setDeclare tmpLstBLockedSpells																string 		outer	FALSE
 
 	| burns
 	/call sql_control FALSE character swBurnControl											bool			outer FALSE

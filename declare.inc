@@ -707,11 +707,12 @@ sub Bind_heal(string _type, string _verbage, bool _silent)
 
 	| heal xtarget correction(s)
 	/if (${_type.Equal[xtarget]}) {
-		/if (!${swHealXTarget}) /call clear_xtarget
+		| /if (!${swHealXTarget}) /call clear_xtarget
 		/if (!${validate_expansion[TRUE, |16]}) {
 			/call set_switch ${_table} swHealXTarget FALSE
 			/return
 		}
+		/call Bind_admin XT build
 	}
 
 	| heal override
@@ -1535,6 +1536,7 @@ sub Bind_setCombatControl(string _type, string _verbage, bool _silent)
 					/varset isValidTarget TRUE
 					/varset combat COMBAT
 					/varset Target2Kill ${Target.ID}
+					/attack on
 					OUT /${_bind.Lower} force combat ${sep} [${ctar}${Target.DisplayName}\ax]
 
 				| force assist for other peer toons
@@ -3160,6 +3162,25 @@ sub Bind_admin(string _type, string _verbage, string _verbage2, bool _silent)
 	| place in maintenance mode
 	} else /if (${_type.Equal[maintenance]}) {
 		/call set_switch character swMaintenance ${_verbage}
+
+	} else /if (${_type.Equal[blockedbuffs]}) {
+	
+		OUT Updating ${sep} \awcharacter\ax::\awlstBlockedSpells\ax
+		/call check_buffs_blocked
+		| /admin get lstBlockedSpells
+		/return
+
+
+	} else /if (${_type.Equal[safelist]}) {
+		/if (!${Target.ID} || ${Target.ID} == ${Me.ID}) OUT ${onotice} ${sep} requires a target.
+
+		/if (${_verbage.Equal[add]}) {
+			/call Bind_sql_edit lstSafeNames "${Target.DisplayName}" add
+		} else /if (${_verbage.Equal[remove]}) {
+			/call Bind_sql_edit lstSafeNames "${Target.DisplayName}" delete
+		}
+		/return
+
 
 	| reset core
 	} else /if (${_type.Equal[reset]}) {

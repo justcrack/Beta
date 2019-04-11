@@ -119,7 +119,7 @@
  ***|
 sub main(string _custom)
 	| Current Build
-	/call setDeclare currentBuild 			string outer 0329.01
+	/call setDeclare currentBuild 			string outer 0411.01
 	
 	| force SQL echos on for the start
 	/call setDeclare swEchosSQL 				bool outer FALSE
@@ -215,6 +215,9 @@ sub main(string _custom)
 		/if (${swAAFireworks}) {
 			/if (!${timer_Waste_Fireworks}) /call cast_AA_fireworks
 		}
+		
+		| update blocked buffs
+		/if (!${timer_check_buffs_blocked}) /call check_buffs_blocked
 
 		| watch for spawn
 		/if (${Bool[${watchSpawn}]}) {

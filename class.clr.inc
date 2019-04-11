@@ -99,6 +99,7 @@ sub disc_CLR()
 	CHECKINPUTS
 	/if (${is_target_dead[${Target2Kill}]}) /return
 
+	/if (${doYaulp}) /call cast_yaulp
 
 	| pet AA hammer	
 	/if (${swBurnForce} || (${swBurnAuto} && ${NameList.Find[${Target.DisplayName}]})) {

@@ -414,7 +414,7 @@ sub auto_adjust_EXP()
  *	USE: /call check_aura
  *  NOTE: 
  ***|
-sub check_aura()
+03/29/2019 11:48:24 PM03/29/2019 11:48:25 PM03/29/2019 11:48:25 PM03/29/2019 11:48:25 PMsub check_aura()
 	CHECKCOMBATCAST
 	CHECKTIE
 	AMIDEAD
@@ -796,6 +796,89 @@ sub check_no_do_a_thing_buff(string _type)
 	
 	/next _count	
 /return FALSE
+
+
+
+|***
+ *	DES: Check for running auras, If they are duped, remove the second one
+ *	USE: /call check_aura
+ *  NOTE: 
+ ***|
+sub check_aura()
+	CHECKCOMBATCAST
+	CHECKTIE
+	AMIDEAD
+	CHECKEXIT
+	CHECKINPUTS
+
+	/call timer_update timer_check_aura ${tCheck_Aura}
+	UPDATEHUD "BUFF Aura"
+	
+	| Aura: berzerker, monk, warrior
+	/if (${validate_class[FALSE, |BER|MNK|WAR]}) {
+		/if (${Bool[${Aura1Buff}]} && !${Bool[${Me.Aura[1].Name.Equal[${Aura1Buff}]}]}) {
+			VOUT Disc ${sep} ${csp}${Aura1Spell}\ax
+			/disc ${Aura1Spell}
+			/delay 8s
+		}
+		/return
+	}
+	
+	| Aura: Bard
+	/if (${validate_class[FALSE, |BRD]}) {
+		/if (${Bool[${Aura1Buff}]} && !${Bool[${Me.Aura[1].Name.Equal[${Aura1Buff}]}]}) {
+			/call fix_gem_id "${buffGem}"
+			/if (!${Defined[_gem]}) /declare _gem int local ${Macro.Return}
+			/call mem_spell FALSE "${Aura1Buff}" "${_gem}" TRUE
+			VOUT Pulse ${sep} ${csp}${Me.Gem[${_gem}].Name}\ax
+			/melody ${_gem}
+			/delay ${Spell[${Me.Gem[${_gem}].Name}].CastTime.Seconds}s !${Me.Casting.ID}
+			/delay 2 
+
+			:stoppulse
+			/if ((${Bool[${Me.Aura[1].Name.Equal[${Aura1Buff}]}]} || ${Me.Song[${Me.Gem[${_gem}].ID}]}) && (${Me.Casting.ID} == ${Me.Gem[${_gem}].ID})) {
+				/delay 2
+				/melody ${_gem}	
+				/goto :stoppulse
+			}	
+		}
+		/return
+	}
+
+	/declare _count int local 0
+	/declare _aura int local 0
+	/declare _found bool FALSE
+
+	/for _aura 1 to 2
+		CHECKCOMBATCAST
+		/if (${Bool[${Aura${_aura}Spell}]}) {
+			/for _count 1 to 2	
+				CHECKCOMBATCAST
+				/if (${Bool[${Aura${_aura}Buff}]}) {
+					
+					/if (${Me.Aura[${_count}].Name.Equal[${Aura${_aura}Buff}]}) {
+						/varset _found TRUE
+						/continue
+					}
+					/if (${Me.Aura[${_count}].Name.Equal[${Spell[${Aura${_aura}Spell}].RankName}]}) {
+						/varset _found TRUE
+						/continue
+					}
+
+				}
+			/next _count
+			
+			/if (!${_found}) {
+				/if (${validate_cast[FALSE, spell, "${Aura${_aura}Spell}", ${Me.ID}]}) /call core_cast2 "${Aura${_aura}Spell}" ${buffGem} ${Me.ID} FALSE
+			} else /if (${_found}) {
+				/varset _found FALSE
+			}
+		
+		}
+	/next _aura
+	
+	UPDATEHUD FALSE
+/return
 
 
 
@@ -1496,10 +1579,12 @@ sub set_xtarget()
 		
 		| set raid protected classes
 		/for _count 1 to ${XHealClass.Count[|]}
+
+			| no class?
+			/if (!${SpawnCount[pc ${XHealClass.Arg[${_count},|]} raid radius ${setMobAgro}]}) /continue
+
 			/for _x 1 to ${SpawnCount[pc ${XHealClass.Arg[${_count},|]} raid radius ${setMobAgro}]}
 				
-				| no class?
-				/if (!${SpawnCount[pc ${XHealClass.Arg[${_count},|]} raid radius ${setMobAgro}]}) /continue
 
 				/if (${_b} > 13) /break
 				
@@ -2639,6 +2724,111 @@ sub cast_nuke_servant()
  *  NOTE: 
  ***|
 sub set_combat(str _mode)
+
+	|  SDEBUG set_combat(\at${_mode}\ax)
+	AMIDEAD
+	CHECKINPUTS
+	/if (${is_target_dead[${Target2Kill}]}) /return	
+	
+	| out of range?
+	/if (${Target.Distance} > ${setMobAgro}) /return
+	
+	UPDATEHUD "${_mode}"
+	/if (${Me.State.NotEqual[STAND]}) /stand
+	/if (${coreAuto} && ${Me.State.Equal[FEIGN]}) /squelch /stand
+	/if (!${coreAuto} && ${Me.Invis}) /makemevisible
+
+		
+	| combat	
+	/if (${Bool[${_mode}]}) {
+		
+		| face the mob if meele
+		/if (${coreAuto}) {
+			/if (${swCombatMelee} || ${swCombatRange}) {
+				/if (!${Range.Between[0,${setFaceArc}:${Math.Abs[${Math.Calc[${Target.HeadingTo.Degrees}-${Me.Heading.Degrees}]}]}]}) /squelch /face ID ${Target2Kill} nolook ${If[${swFaceFast},fast,]}
+			}
+		}
+
+		| stop melee on DS ??
+		/if (${coreAuto} && ${Bool[${Target.DSed}]} && ${stoponDS} && !${swAgro}) {
+			/call set_stop NOECHO
+			/call clear_combat
+			/return
+		} 
+			
+			
+		| not within ${combatradius} and far enought to range?
+		/if (${Target.Distance} > 31) {
+			| SDEBUG  Target.Distance:${Target.Distance}
+
+			| range mobs if enabled
+			/if (${swCombatRange}) {
+				
+				| SDEBUG range
+			
+				| no need to move were are at a good distance
+				/if (${Stick.Active}) /squelch /stick off		
+			
+				/if (${RangeList.Find[${Target.DisplayName}]}) {
+					/if (${Me.AutoFire}) /squelch /autofire
+				} else {
+					/if (${Spawn[${Target2Kill}].LineOfSight} && !${Me.AutoFire}) /squelch /autofire
+				}
+
+			| cannot range, so melee if in agro range?
+			} else /if (!${swCombatRange} && ${swCombatMelee}) {
+				/if (${NoMeleeList.Find[${Target.DisplayName}]}) {
+					/squelch /attack off
+					/return
+				} else {
+					/if (${Me.AutoFire}) /squelch /autofire
+					/squelch /attack on
+					/if (${coreAuto}) /call stick_to_target ${Target2Kill}
+				}
+
+			}
+			
+			
+
+
+		| mob too close for range
+		} else /if (${Target.Distance} <= 31) {
+			| SDEBUG melee
+	
+			| adjust range if melee is diabled to keep close to target. give them some range to.. range again
+			/if (${Target.Distance} < 31 && ${swCombatRange} && !${swCombatMelee}) {
+				/if (${coreAuto} && !${Stick.Active} && ${Me.TargetOfTarget.Name.NotEqual[${Me.DisplayName}]}) /stick moveback 38
+				
+			| can we get to the melee already?
+			} else /if (${swCombatMelee}) {
+				/if (${NoMeleeList.Find[${Target.DisplayName}]}) {
+					/squelch /attack off
+					/return FALSE
+				} else {
+					/if (${Me.AutoFire}) /squelch /autofire
+					/squelch /attack on
+					/if (${coreAuto}) /call stick_to_target ${Target2Kill}
+				}
+			}
+			
+			
+			
+			
+	}
+	
+	
+
+/return
+
+
+
+
+
+
+
+| this is in here for reference for the rewrite.  please ignore...
+sub set_combat_OLD(str _mode)
+	DEBUG set_combat(${_mode})
 	AMIDEAD
 	CHECKINPUTS
 	/if (${is_target_dead[${Target2Kill}]}) /return	
@@ -2649,23 +2839,37 @@ sub set_combat(str _mode)
 		
 	| combat	
 	/if (${Bool[${_mode}]}) {
-		| /if ((${swCombatMelee} || ${swCombatRange}) && ${coreAuto} && !${Range.Between[0,${setFaceArc}:${Math.Abs[${Math.Calc[${Target.HeadingTo.Degrees}-${Me.Heading.Degrees}]}]}]}) /squelch /face ID ${Target2Kill} nolook ${If[${swFaceFast},fast,]}
+		| /if ((${switchCombatMelee} || ${switchCombatRange}) && ${coreAuto} && !${Range.Between[0,${SetFaceArc}:${Math.Abs[${Math.Calc[${Target.HeadingTo.Degrees}-${Me.Heading.Degrees}]}]}]}) /squelch /face ID ${Target2Kill} nolook ${If[${SetFaceFast},fast,]}
 		
 		/if (${coreAuto}) {
-			/if (${swCombatMelee} || ${swCombatRange}) {
-				/if (!${Range.Between[0,${setFaceArc}:${Math.Abs[${Math.Calc[${Target.HeadingTo.Degrees}-${Me.Heading.Degrees}]}]}]}) /squelch /face ID ${Target2Kill} nolook ${If[${swFaceFast},fast,]}
+			/if (${switchCombatMelee} || ${switchCombatRange}) {
+				/if (!${Range.Between[0,${SetFaceArc}:${Math.Abs[${Math.Calc[${Target.HeadingTo.Degrees}-${Me.Heading.Degrees}]}]}]}) /squelch /face ID ${Target2Kill} nolook ${If[${SetFaceFast},fast,]}
 			}
 		}
 
 
 		| stop melee on DS ??
-		/if (${coreAuto} && ${Bool[${Target.DSed}]} && ${stoponDS} && !${swAgro}) {
+		/if (${coreAuto} && ${Bool[${Target.DSed}]} && ${stoponDS} && !${switchAgro}) {
 			/call set_stop NOECHO
 			/call clear_combat
 		} else {
 			
+			|**
+			/if (${Target.Distance} > 31 && ${switchCombatRange} && !${SetStickBehind}) {
+				/if ((${Spawn[${Target2Kill}].LineOfSight} && !${switchOverrideLos}) && !${Me.AutoFire}) /squelch /autofire on
+				/if (${coreAuto} && ${switchCombatMelee} && !${RangeList.Find[${Target.DisplayName}]}) /call stick_to_target ${Target2Kill}
+			} else /if ((${Target.Distance} <= 31 && ${switchCombatMelee}) || (${SetStickBehind} && ${Target.Distance} <= ${MobAgro} && ${switchCombatMelee})) {
+				/if (${NoMeleeList.Find[${Target.DisplayName}]}) {
+					/squelch /attack off
+				} else {
+					/squelch /attack on
+					/if (${coreAuto} && ${switchCombatMelee}) /call stick_to_target ${Target2Kill}
+				}
+			}
+			**|
+
 			| range all the things
-			/if (${Target.Distance} > 31 && ${swCombatRange} && !${swStickBehind}) {
+			/if (${Target.Distance} > 31 && ${switchCombatRange} && !${SetStickBehind}) {
 				
 				| no need to move were are at a good distance
 				/if (${Stick.Active}) /squelch /stick off		
@@ -2677,11 +2881,11 @@ sub set_combat(str _mode)
 				}
 				
 			| adjust range id melee is diabled to keep close to target.
-			} else /if (${Target.Distance} < 31 && ${swCombatRange} && !${swStickBehind} && !${swCombatMelee}) {
+			} else /if (${Target.Distance} < 31 && ${switchCombatRange} && !${SetStickBehind} && !${switchCombatMelee}) {
 				/if (${coreAuto} && !${Stick.Active} && ${Me.TargetOfTarget.Name.NotEqual[${Me.DisplayName}]}) /stick moveback 38
 				
 			| melee shit?
-			} else /if ((${Target.Distance} <= 31 && ${swCombatMelee}) || (${swStickBehind} && ${Target.Distance} <= ${setMobAgro} && ${swCombatMelee})) {
+			} else /if ((${Target.Distance} <= 31 && ${switchCombatMelee}) || (${SetStickBehind} && ${Target.Distance} <= ${MobAgro} && ${switchCombatMelee})) {
 				/if (${NoMeleeList.Find[${Target.DisplayName}]}) {
 					/squelch /attack off
 				} else {
@@ -2692,8 +2896,39 @@ sub set_combat(str _mode)
 			}
 		}
 	}
-
 /return
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4365,7 +4600,7 @@ sub get_target(bool _debug)
 	/while (${_tmpAgroRange} <= ${setMobAgro} && !${Target2Kill}) {
 
 		| search local ${setMobAgro} range in steps of 10 for mob acquisition
-| /echo count:${SpawnCount[npc ${If[${swOverrideLOS},,los]} range ${setMobLvlMin} ${setMobLvlMax} radius ${_tmpAgroRange} zradius ${setzradius} targetable]}
+		| /echo count:${SpawnCount[npc ${If[${swOverrideLOS},,los]} range ${setMobLvlMin} ${setMobLvlMax} radius ${_tmpAgroRange} zradius ${setzradius} targetable]}
 		/if (${SpawnCount[npc ${If[${swOverrideLOS},,los]} range ${setMobLvlMin} ${setMobLvlMax} radius ${_tmpAgroRange} zradius ${setzradius} targetable]}) {
 			/for _count 1 to ${SpawnCount[npc ${If[npc ${If[${swOverrideLOS},,los]} range ${setMobLvlMin} ${setMobLvlMax} radius ${_tmpAgroRange} zradius ${setzradius} targetable]}
 				/if (!${swPull} || !${coreAuto}) /return
@@ -4377,7 +4612,7 @@ sub get_target(bool _debug)
 				| these things are our friends. dont kill them
 				/if (${Select[${Spawn[id ${_tmpID}].Type},AURA,BANNER,CAMPFIRE,CORPSE,CHEST,ITEM,TRIGGER,TRAP,TIMER,MOUNT,Mercenary]}) /continue
 				/if (${ExcludeList.Find[${Spawn[id ${_tmpID}].DisplayName}]}) /continue
-				/echo /if (${ExcludeList.Find[${Spawn[id ${_tmpID}].DisplayName}]}) /continue
+				| /echo /if (${ExcludeList.Find[${Spawn[id ${_tmpID}].DisplayName}]}) /continue
 				/if (${_tmpID} == ${Me.Pet.ID}) /continue
 				
 				| CYA for shit MQ will pick up in the environment that does not have a name
@@ -7709,14 +7944,14 @@ sub sql_getcolums(bool _debug, string _table)
 	/if (${sqlTables[1].Find[${_table}]}) {
 		/for _count 2 to ${sqlite.Rows[colnamequery]}
 			/sqlite ${dbCore} dummy SELECT ${sqlite.Result[colnamequery ${_count} name]} FROM ${_table.Lower} WHERE chrID="${chrID}"
-			/echo ${sqlite.Result[colnamequery ${_count} name]} ${sep} ${cnum}${sqlite.Result[dummy 1 ${sqlite.Result[colnamequery ${_count} name]}]}\ax
+			| /echo ${sqlite.Result[colnamequery ${_count} name]} ${sep} ${cnum}${sqlite.Result[dummy 1 ${sqlite.Result[colnamequery ${_count} name]}]}\ax
 		/next _count
 
 	| cycle table by build
 	} else /if (${sqlTables[2].Find[${_table}]}) {	
 		/for _count 2 to ${sqlite.Rows[colnamequery]}
 			/sqlite ${dbCore} dummy SELECT ${sqlite.Result[colnamequery ${_count} name]} FROM ${_table.Lower} WHERE currentBuild="${currentBuild}"
-			/echo ${sqlite.Result[colnamequery ${_count} name]} ${sep} ${cnum}${sqlite.Result[dummy 1 ${sqlite.Result[colnamequery ${_count} name]}]}\ax
+			| /echo ${sqlite.Result[colnamequery ${_count} name]} ${sep} ${cnum}${sqlite.Result[dummy 1 ${sqlite.Result[colnamequery ${_count} name]}]}\ax
 		/next _count
 	}
 
@@ -8021,124 +8256,43 @@ sub merc_control()
 
 
 
-
-
-/if (${Window[MMGW_ManageWnd].Child[MMGW_SuspendButton].Enabled} && ${Mercenary.State.Equal[DEAD]}) /notify MMGW_ManageWnd MMGW_SuspendButton LeftMouseUp
-
-
-
-
-
-
-
-
-
-
-
-
-
 |***
- *	DES: 
- *	USE: 
+ *	DES: generates a list of blocked buffs to be used as a reference for other bc buffers
+ *	USE: whenever i suppose
  *  NOTE: 
  ***|
 sub check_buffs_blocked()
-
 	/declare _count int local 0
 	/declare _tmpList string local
-	
 
+	| cycle the blocked buff list and add them to a string
+	| /windowstate BlockedBuffWnd open
 	/for _count 0 to 39
-		
+		| SDEBUG ${_count}::${Window[BlockedBuffWnd].Child[BW_BLOCKEDBUFF${_count}_Button].Tooltip}
+
+		| skip empty ones
+		/if (${Window[BlockedBuffWnd].Child[BW_BLOCKEDBUFF${_count}_Button].Tooltip.Length} < 1) /continue
+
+		| + -> ++
 		/varset _tmpList ${_tmpList}|${Window[BlockedBuffWnd].Child[BW_BLOCKEDBUFF${_count}_Button].Tooltip}
-			
 	/next _count
 
-	
+	| write it so the buffers dont go apeshit
 	/call sql_update FALSE character lstBlockedSpells "${_tmpList}"
+	| /varset tmpLstBLockedSpells "${_tmpList}"
 
-
-	| /echo check_buffs_blocked():${_tmpList}
-
+	| set the timer again
+	/call timer_update timer_check_buffs_blocked ${tBlocked_Buff}
+	| /windowstate BlockedBuffWnd close
 
 /return
 
 
-
-
-
-
-
-
-
-lstPetBlockedSpells
-lstBlockedSpells
-
-
-
-
-
-
-| adapt this for blocked buffs on local side to mapped DB character entry. 
-| dont forget to credit Maskoi.. yah right...
-
-
-
-        | Open Blocked Buffs window temporarily to read blocked buffs
-        /if (!${Window[BlockedBuffWnd].Open} && !${BBWindowOpen}) {
-            /windowstate BlockedBuffWnd open
-            /varset BBWindowOpen 120m
-            /delay 10
-        } 
-        | Write all blocked buffs to Kissassist_Buffs.ini file
-        /for k 0 to 39
-            /varset Blockedbuff ${Window[BlockedBuffWnd].Child[BW_BLOCKEDBUFF${k}_Button].Child[BBuff${k}].Tooltip}
-            /if (${Blockedbuff.Length}) {
-                /varset Blockedbufflist ${Blockedbufflist}|${Blockedbuff}
-            }
-        /next k
-        /if (${Blockedbufflist.Length}) /ini "KissAssist_Buffs.ini" "${Me.ID}" Blockedbuffs "${Blockedbufflist}"
-        /if (${Window[BlockedBuffWnd].Open}) /windowstate BlockedBuffWnd close
-        /varset WriteBuffsTimer 30s
-
-
-
-        | Open Blocked Pet Buffs window temporarily to read blocked buffs
-        /if (!${Window[BlockedPetBuffWnd].Open} && !${BPBWindowOpen}) {
-            /windowstate BlockedPetBuffWnd open
-            /varset BPBWindowOpen 120m
-            /delay 10
-        }
-        | Write all blocked buffs to Kissassist_Buffs.ini file
-        /for k 0 to 39
-            /varset Blockedbuff ${Window[BlockedPetBuffWnd].Child[BW_BLOCKEDPETBUFF${k}_Button].Child[BPBuff${k}].Tooltip}
-            /if (${Blockedbuff.Length}) {
-                 /varset Blockedbufflist ${Blockedbufflist}|${Blockedbuff}
-            }
-        /next k
-        
-        
-        
-        /if (${Blockedbufflist.Length}) /ini "KissAssist_Buffs.ini" "${Me.Pet.ID}" Blockedbuffs "${Blockedbufflist}"
-        /if (${Window[BlockedPetBuffWnd].Open}) /windowstate BlockedPetBuffWnd close
-        /varset WriteBuffsPetTimer 30s
-
-
-
-
-
-
-${Window[BlockedBuffWnd].Child[BW_BLOCKEDBUFF3_Button].Child[Spell: Group Pact of the Wolf Form].Tooltip}
-
-
-
-Spell: Group Pact of the Wolf Form
-
-
-
-
-0-39
-
 ${Window[BlockedBuffWnd].Child[BW_BLOCKEDBUFF3_Button].Tooltip}
 
-${Window[BlockedBuffWnd].Child[BW_BLOCKEDBUFF3_Button]}
+
+
+
+
+
+

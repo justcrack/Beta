@@ -28,6 +28,17 @@ Plugins Required: MQ2Cast, MQ2Exchange, MQ2MoveUtils, MQ2Debuffs, MQ2DanNet, MQ2
 
 
 
+
+BETA 0411.01
+- mode_get_drunk() fixed a core_call typo
+- /admin
+  -- safelist [target] [add|delete]  adds or deletes the current target from your safelist.
+- rewrite of the engage logic for < 31 or > 31 melee targets (this will need testing .. a lot)
+- update the /heal xtarget should force the timer reset to build the list faster
+
+
+
+
 BETA 0329.01
 - removed a lot of old commented code
 - DB:swLog
