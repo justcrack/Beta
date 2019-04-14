@@ -414,7 +414,7 @@ sub auto_adjust_EXP()
  *	USE: /call check_aura
  *  NOTE: 
  ***|
-03/29/2019 11:48:24 PM03/29/2019 11:48:25 PM03/29/2019 11:48:25 PM03/29/2019 11:48:25 PMsub check_aura()
+sub check_aura()
 	CHECKCOMBATCAST
 	CHECKTIE
 	AMIDEAD
@@ -645,8 +645,6 @@ sub check_buffs_self()
 	/if (${Bool[${DiscNow1}]} || ${Bool[${DiscNow2}]}) {
 		/call check_Disc_now
 	}
-	
-
 
 	| wizard mancy line spells
 	/if (${validate_class[FALSE, |WIZ]}) {
@@ -4507,11 +4505,11 @@ sub check_AA_now()
 	SIMPLEEXIT
 	AMIDEAD
 
-	/if (${Bool[${AANow1}]}) {
+	/if (${Bool[${AANow1}]} && !${Me.Buff[${AANow1}].ID} && !${Me.Song[${AANow1}].ID}) {
 		/if (${validate_cast[FALSE, alt, "${AANow1}", ${Me.ID}]}) /call core_cast2 "${AANow1}" alt 0 FALSE
 	}
 
-	/if (${Bool[${AANow2}]}) {
+	/if (${Bool[${AANow2}]} && !${Me.Buff[${AANow2}].ID} && !${Me.Song[${AANow2}].ID}) {
 		/if (${validate_cast[FALSE, alt, "${AANow2}", ${Me.ID}]}) /call core_cast2 "${AANow2}" alt 0 FALSE
 	}
 /return
@@ -4534,11 +4532,6 @@ sub check_item_now()
 		/if (${validate_cast[FALSE, alt, "${ItemNow2}", ${Me.ID}]}) /call core_cast2 "${ItemNow2}" alt 0 FALSE
 	}
 /return
-
-
-${Item[Crestra's Elaborate Earring].Spell}
-
-Crestra's Elaborate Earring
 
 
 
@@ -5087,7 +5080,7 @@ sub exit_class_loop()
  |***
  *	DES: Check if we need to engage burn routines. /combat heal/dual are treated differently
  *	USE: auto
- *  NOTE: we work off establised assist target for non healers only.
+ *  NOTE: we work off established assist target for non healers only.
  ***|
 sub is_burn_time()
 
@@ -7101,21 +7094,6 @@ sub validate_target(bool _error, int _tmpID)
 
 
 
-
-
- /echo ${EverQuest.LastMouseOver.Name}
- 
- 
- 
-ItemDisplayWindow
-IDW_ConvertButton
-IDW_ConvertButtonLabel
-
-
- 
-
-
-
 |***
  *	DES: zephyr/TL requesting toon
  *	USE: this is built by the /port bind request
@@ -7325,7 +7303,7 @@ sub sql_schema(bool _debug)
 	/declare _count int local 0
 	/declare _tmpTable string local
 
-	/echo \at-\ax Validate Build \at..\ax \aw${currentBuild}\az
+	/echo \at-\ax Validate Build \at..\ax \aw${currentBuild}\ax
 
 	| cycle all the table arrays
 	/for _loopArray 1 to ${sqlTables.Size}
@@ -7400,7 +7378,6 @@ sub sql_control(bool _debug, string _table, string _field, strint _type, string 
 	/if (${_debug}) /echo \awsql_update\ax(table:\at${_table}\ax field:\at${_field}\ax type:\at${_type}\ax scope:\at${_scope}\ax value:\at${_value}\ax)
 	/declare _count int local 0 
 	/declare _tmpVar string local
-
 
 	| check field
 
@@ -7486,8 +7463,6 @@ sub sql_control(bool _debug, string _table, string _field, strint _type, string 
 
 
 
-
-
 |***
  *	DES: adds ranknames to spells 
  *	USE:/call rank_add [debug] [name] / ${rank_add[FALSE, "name"]}
@@ -7540,7 +7515,6 @@ sub rank_add(bool _debug, string _spell)
 sub sql_update(bool _debug, string _table, string _field, string _value)
 	/if (${_debug}) /echo \awsql_update\ax(table:\at${_table}\ax field:\at${_field}\ax value:\at${_value}\ax)
 
-
 	| and reattach query.
 	/if (${sqlTables[1].Find[${_table}]}) {	
 		/sqlite ${dbCore} dummy SELECT ${_field} FROM ${_table} WHERE chrID="${chrID}"
@@ -7575,7 +7549,7 @@ sub sql_update(bool _debug, string _table, string _field, string _value)
 	
 	/varset ${_field} ${sqlite.Result[dummy 1 ${_field}]}
 
-	/return
+/return
 
 
 	/if (${_debug}) /echo before rk adaptation ${_field}::\at${${_field}}\ax
@@ -7617,7 +7591,6 @@ sub set_switch(string _table, string _switch, string _verbage)
 	/if (${_verbage.Equal[NULL]} || (!${Bool[${_verbage}]} && ${_verbage.NotEqual[FALSE]}) || ${_verbage.Equal[TOGGLE]}) {
 		/call sql_update FALSE ${_table} ${_switch} ${If[${${_switch}},FALSE,TRUE]}
 		/return ${${_switch}}
-
 
 	| set switch TRUE
 	} else /if (${_verbage.Equal[on]} || ${_verbage.Equal[TRUE]}) {
@@ -7712,18 +7685,6 @@ sub sql_return(string _variable, string _query)
  *  NOTE: attention span of a fucking gnat...
  ***|
 sub sql_delete(string _table, string _variable)
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -7886,7 +7847,7 @@ sub set_character_xthealclass(bool _debug, string _verbage)
 |***
  *	DES: sets the healpoints for healing a class
  *	USE: /call set_character_healpoint [debug] [%## heal at]
- *  NOTE:
+ *  NOTE: these damn people gethurt too much
  ***|
 sub set_character_healpoint(bool _debug, int _verbage, bool _silent)
 	/declare _sep bool local
@@ -7930,7 +7891,7 @@ sub set_character_healpoint(bool _debug, int _verbage, bool _silent)
 
 |***
  *	DES: gets a list of a tables colum names
- *	USE: /call set_character_healpoint [debug] [%## heal at]
+ *	USE: 
  *  NOTE:
  ***|
 sub sql_getcolums(bool _debug, string _table)
@@ -7944,18 +7905,19 @@ sub sql_getcolums(bool _debug, string _table)
 	/if (${sqlTables[1].Find[${_table}]}) {
 		/for _count 2 to ${sqlite.Rows[colnamequery]}
 			/sqlite ${dbCore} dummy SELECT ${sqlite.Result[colnamequery ${_count} name]} FROM ${_table.Lower} WHERE chrID="${chrID}"
-			| /echo ${sqlite.Result[colnamequery ${_count} name]} ${sep} ${cnum}${sqlite.Result[dummy 1 ${sqlite.Result[colnamequery ${_count} name]}]}\ax
+			/echo ${sqlite.Result[colnamequery ${_count} name]} ${sep} ${cnum}${sqlite.Result[dummy 1 ${sqlite.Result[colnamequery ${_count} name]}]}\ax
 		/next _count
 
 	| cycle table by build
 	} else /if (${sqlTables[2].Find[${_table}]}) {	
 		/for _count 2 to ${sqlite.Rows[colnamequery]}
 			/sqlite ${dbCore} dummy SELECT ${sqlite.Result[colnamequery ${_count} name]} FROM ${_table.Lower} WHERE currentBuild="${currentBuild}"
-			| /echo ${sqlite.Result[colnamequery ${_count} name]} ${sep} ${cnum}${sqlite.Result[dummy 1 ${sqlite.Result[colnamequery ${_count} name]}]}\ax
+			/echo ${sqlite.Result[colnamequery ${_count} name]} ${sep} ${cnum}${sqlite.Result[dummy 1 ${sqlite.Result[colnamequery ${_count} name]}]}\ax
 		/next _count
 	}
 
 /return
+
 
 
 
@@ -8082,7 +8044,7 @@ sub check_health_pet()
  *	DES: creates/displays who has core set to manual mode in the HUD
  *	USE: /call broadcast_status
  *  NOTE: this only works for your group that share the same databas
- ***|
+
 sub broadcast_status()
 	/if (${Me.Zoning}) /return FALSE
 	/call timer_update timer_check_status ${tCheck_status}
@@ -8097,7 +8059,7 @@ sub broadcast_status()
 		/if (!${DanNet.Peers.Find[${Group.Member[${_count}].DisplayName}]}) /continue
 		| /if (!${Group.Member[${_count}].Index}) /continue
 		/varset _chrID ${MacroQuest.Server}_${Group.Member[${_count}].Class.ShortName}_${Group.Member[${_count}].DisplayName}
-		
+		04/13/2019 6:11:17 PM04/13/2019 6:11:17 PM04/13/2019 6:11:17 PM04/13/2019 6:11:17 PM04/13/2019 6:11:17 PM04/13/2019 6:11:17 PM04/13/2019 6:11:17 PM04/13/2019 6:11:17 PM04/13/2019 6:11:17 PM
 		/sqlite ${dbCore} queryBuild SELECT coreAuto FROM character WHERE chrID="${_chrID}"
 		/if (!${sqlite.Rows[queryBuild]}) /continue
 		/if (${sqlite.Status[queryBuild].NotEqual[Success]}) /continue
@@ -8108,7 +8070,9 @@ sub broadcast_status()
 	/next _count
 	/varset setHUDBroadcast ${_build}
 /return
-
+ ***|
+ 
+ 
 
 |***
  *	DES: just clears the xtarget list
@@ -8155,7 +8119,7 @@ sub check_ready(string _type, string _tocheck)
  *  DES: 
  *  USE: 
  *  NOTE: 
- ***|
+
 sub check_geomantra()
 
 
@@ -8170,7 +8134,7 @@ ${Me.ItemReady[${setGeomantra}]}
 
 
 /return
-
+ ***|
 
 
 

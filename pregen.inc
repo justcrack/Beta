@@ -341,7 +341,7 @@ sub pregen_environment()
 	/call sql_control FALSE environment setCrew1Assist									string		outer FALSE
 	/call sql_control FALSE environment setCrew1Looter									string		outer FALSE
 	/call sql_control FALSE environment lstCrew2												string		outer "|FALSE"
-	/call sql_control FALSE environment setCrew2Leader									string		outer FALSE
+	/call sql_control FALSE environment set04/12/2019 8:02:39 PM04/12/2019 8:02:39 PM2Leader									string		outer FALSE
 	/call sql_control FALSE environment setCrew2Assist									string		outer FALSE
 	/call sql_control FALSE environment setCrew2Looter									string		outer FALSE
                                                             					

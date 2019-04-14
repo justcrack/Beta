@@ -273,6 +273,8 @@ sub Bind_setNEC(string _type, string _verbage)
 	} else /if (${_type.Find[healpoint]}) {
 		/call set_character_healpoint FALSE ${_verbage}
 		/return
+		
+	}
 
 	/if (${swMQClear}) /mqclear
 	/for _count 1 to ${_lstClass.Count[|]}

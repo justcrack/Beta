@@ -707,7 +707,10 @@ sub Bind_heal(string _type, string _verbage, bool _silent)
 
 	| heal xtarget correction(s)
 	/if (${_type.Equal[xtarget]}) {
-		| /if (!${swHealXTarget}) /call clear_xtarget
+		/if (!${swHealXTarget}) {
+			/call clear_xtarget
+			/return FALSE
+		}
 		/if (!${validate_expansion[TRUE, |16]}) {
 			/call set_switch ${_table} swHealXTarget FALSE
 			/return
