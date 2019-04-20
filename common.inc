@@ -512,7 +512,7 @@ sub check_buffs_item()
 		/if (${validate_cast[FALSE, item, "${clickItemBuff${_count}}", ${Me.ID}]}) /call core_cast2 "${clickItemBuff${_count}}" item 0 FALSE
 	/next _count
 	
-  /if (${Me.ItemReady[${setIllusionItem}]} && !${Bool[${Me.Buff[${setIllusionBuff}]}]} && ${Spell[${setIllusionBuff}].NewStacks}) {
+  /if (${Me.ItemReady[${setIllusionItem}]} && !${Bool[${Me.Buff[${setIllusionBuff}]}]} && ${Spell[${setIllusionBuff}].Stacks}) {
 		VOUT Item ${sep} ${citem}${setIllusionItem}\ax
  		/call MQ2Cast "${setIllusionItem}" item 30s
  	}  	
@@ -611,7 +611,7 @@ sub check_buffs_self()
 				| do we have the triggered buff?
 				/if (!${Me.Buff[${Spell[${Spell[${Buff${_count}}].Base2[${_i}]}].Name}].Duration}) /varset _found FALSE
 				| does it stack
-				/if (!${Spell[${Spell[${Buff${_count}}].Base2[${_i}]}].NewStacks}) /varset _found TRUE
+				/if (!${Spell[${Spell[${Buff${_count}}].Base2[${_i}]}].Stacks}) /varset _found TRUE
 
 			/next _i
 
@@ -621,7 +621,7 @@ sub check_buffs_self()
 			/if (!${Bool[${Me.Buff[${Buff${_count}}].Duration}]}) /varset _found FALSE
 
 			| stacks?
-			/if (!${Spell[${Buff${_count}}].NewStacks}) /varset _found TRUE		
+			/if (!${Spell[${Buff${_count}}].Stacks}) /varset _found TRUE		
 			
 		}
 		
@@ -713,13 +713,13 @@ sub check_buffs_pet()
 	/next _count
 	
 	| chekck for pet illusion
-	/if (${Bool[${setPetIllusion}]} && !${Bool[${Me.Pet.Buff[${setPetIllusionBuff}]}]} && ${Me.Pet.Distance} < 100 && ${Spell[${setPetIllusionBuff}].NewStacks}) /call MQ2Cast "${setPetIllusion}" item -targetid|${Me.Pet.ID}
+	/if (${Bool[${setPetIllusion}]} && !${Bool[${Me.Pet.Buff[${setPetIllusionBuff}]}]} && ${Me.Pet.Distance} < 100 && ${Spell[${setPetIllusionBuff}].Stacks}) /call MQ2Cast "${setPetIllusion}" item -targetid|${Me.Pet.ID}
 
 	| shrink the little bastards..
 	/if (${Me.Pet.ID}) /call cast_shrink_pet
 
 	| pet epic click
-	/if (${Me.ItemReady[${setPetEpicClick}]} && !${Me.Pet.Buff[Elemental Conjunction]} && !${Me.Pet.Buff[${setPetEpicBuff}]} && !${Me.Pet.Buff[Blessing of Unity]} && ${Spell[${setPetEpicBuff}].NewStacks}) {
+	/if (${Me.ItemReady[${setPetEpicClick}]} && !${Me.Pet.Buff[Elemental Conjunction]} && !${Me.Pet.Buff[${setPetEpicBuff}]} && !${Me.Pet.Buff[Blessing of Unity]} && ${Spell[${setPetEpicBuff}].Stacks}) {
 		/if (${validate_cast[FALSE, item, "${setPetEpicClick}", ${Me.ID}]}) /call core_cast2 "${setPetEpicClick}" item 0 FALSE
 	}
 	
@@ -1002,7 +1002,7 @@ sub check_buffs_BC()
 					/if (!${Bool[${_qBuffName${_count}${_i}${_toonName}}]}) /varset _found FALSE
 
 					| does it stack
-					/dobserve ${_toonName} -q "Spell[${_base2}].NewStacks" -o _qBuffNewStacks${_count}${_i}${_toonName}
+					/dobserve ${_toonName} -q "Spell[${_base2}].Stacks" -o _qBuffNewStacks${_count}${_i}${_toonName}
 					| SDEBUG .NewStacks2 _qBuffNewStacks${_count}${_i}${_toonName}:\at${_qBuffNewStacks${_count}${_i}${_toonName}}\ax
 					/if (!${Bool[${_qBuffNewStacks${_count}${_i}${_toonName}}]}) /varset _found TRUE
 					***|
@@ -1014,7 +1014,7 @@ sub check_buffs_BC()
 					/if (!${Bool[${_DNqout}]}) 	/varset _found FALSE
 
 					| does it stack
-					/dquery ${_toonName} -q "Spell[${_base2}].NewStacks" -o _DNqout -t 1s 
+					/dquery ${_toonName} -q "Spell[${_base2}].Stacks" -o _DNqout -t 1s 
 					| SDEBUG .Base2.NewStacks \at${_DNqout}\ax
 					/if (!${Bool[${_DNqout}]}) /varset _found TRUE
 
@@ -1035,8 +1035,8 @@ sub check_buffs_BC()
 				/if (!${Bool[${_qBuffName${_count}${_toonName}}]}) /varset _found FALSE
 
 				| stacks				
-				/dobserve ${_toonName} -q "Spell[${Buff${_count}}].NewStacks" -o _qBuffStacks${_count}${_toonName}
-				| SDEBUG .NewStacks _qBuffStacks${_count}${_toonName}:\at${_qBuffStacks${_count}${_toonName}}\ax
+				/dobserve ${_toonName} -q "Spell[${Buff${_count}}].Stacks" -o _qBuffStacks${_count}${_toonName}
+				| SDEBUG .Stacks _qBuffStacks${_count}${_toonName}:\at${_qBuffStacks${_count}${_toonName}}\ax
 				/if (!${Bool[${_qBuffStacks${_count}${_toonName}}]}) /varset _found TRUE
 				**|
 
@@ -1048,8 +1048,8 @@ sub check_buffs_BC()
 				/if (!${Bool[${_DNqout}]}) /varset _found FALSE
 
 				| stacks				
-				/dquery ${_toonName} -q "Spell[${Buff${_count}}].NewStacks" -o _DNqout -t 1s
-				| SDEBUG .NewStacks \at${_DNqout}\ax
+				/dquery ${_toonName} -q "Spell[${Buff${_count}}].Stacks" -o _DNqout -t 1s
+				| SDEBUG .Stacks \at${_DNqout}\ax
 				/if (!${Bool[${_DNqout}]}) /varset _found TRUE
 				
 
@@ -2268,12 +2268,12 @@ sub click_BP()
 	
 	/if (${Me.ItemReady[${Breastplate1}]}) {
 		/if (!${cast_condition[Breastplate1Condition]}) /return
-		/if (!${Bool[${Me.Buff[${Breastplate2effect}]}]} && ${Spell[${Breastplate1effect}].NewStacks}) {
+		/if (!${Bool[${Me.Buff[${Breastplate2effect}]}]} && ${Spell[${Breastplate1effect}].Stacks}) {
 			/if (${validate_cast[FALSE, item, "${Breastplate1}", ${Me.ID}]}) /call core_cast2 "${Breastplate1}" item 0 FALSE
 		}
 	} else /if (${Me.ItemReady[${Breastplate2}]}) {
 		/if (!${cast_condition[Breastplate2Condition]}) /return
-		/if (!${Bool[${Me.Song[${Breastplate1effect}]}]} && ${Spell[${Breastplate2effect}].NewStacks}) {
+		/if (!${Bool[${Me.Song[${Breastplate1effect}]}]} && ${Spell[${Breastplate2effect}].Stacks}) {
 			/if (${validate_cast[FALSE, item, "${Breastplate2}", ${Me.ID}]}) /call core_cast2 "${Breastplate2}" item 0 FALSE
 		}
 	}
@@ -3495,18 +3495,18 @@ sub cast_yaulp()
 	
 	| use spell Yaulp
 	/if (${Bool[${spellYaulp}]} && ${Me.Gem[${spellYaulp}]}) {
-		/if (${Spell[${spellYaulp}].NewStacks}) {
+		/if (${Spell[${spellYaulp}].Stacks}) {
 			/if (${validate_cast[FALSE, spell, "${spellYaulp}", ${Me.ID}]}) /call core_cast2 "${spellYaulp}" 0 0 FALSE
 		}
 	
 	| use Donals Helm Yaulp (cleric only)
 	} else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.ItemReady[Darkened Donal's Helm of Mourning]}) {
-		/if (!${Spell[Yaulp XIV Rk. II].NewStacks}) /return
+		/if (!${Spell[Yaulp XIV Rk. II].Stacks}) /return
 		/if (${validate_cast[FALSE, item, "Darkened Donal's Helm of Mourning", ${Me.ID}]}) /call core_cast2 "Darkened Donal's Helm of Mourning" item 0 FALSE
 	
 	| use AA yaulp
 	} else /if (!${FindItem[Darkened Donal's Helm of Mourning].ID} && ${Me.AltAbilityReady[Yaulp (Lesser)]}) {
-		/if (!${Spell[Yaulp (Lesser)].NewStacks} || ${Bool[${Me.Buff[Lesser Yaulp]}]} || ${Bool[${Me.Buff[Yaulp]}]}) /return
+		/if (!${Spell[Yaulp (Lesser)].Stacks} || ${Bool[${Me.Buff[Lesser Yaulp]}]} || ${Bool[${Me.Buff[Yaulp]}]}) /return
 			/if (${validate_cast[FALSE, alt, "Yaulp (Lesser)", ${Me.ID}]}) /call core_cast2 "Yaulp (Lesser)" alt 0 FALSE
 
 	}
@@ -4545,14 +4545,14 @@ sub check_disc_now()
 	AMIDEAD
 
 	| nowDisc1
-	/if (${Bool[${DiscNow1}]} && ${Me.CombatAbilityReady[${DiscNow1}]} && ${Spell[${DiscNow1}].NewStacks}) {
+	/if (${Bool[${DiscNow1}]} && ${Me.CombatAbilityReady[${DiscNow1}]} && ${Spell[${DiscNow1}].Stacks}) {
 		/if (${Select[${Me.Class.ShortName},BRD]} && ${Me.Casting.ID}) /call pulse_stop
 		/if (!${Bool[${Me.Buff[${DiscNow1.Left[-7]}]}]} && !${Bool[${Me.Song[${DiscNow1.Left[-7]}]}]}) {
 			/if (${validate_cast[FALSE, disc, "${DiscNow1}", ${Me.ID}]}) /call core_cast2 "${DiscNow1}" disc 0 FALSE
 		}
 	}
 	| nowDisc2
-	/if (${Bool[${DiscNow2}]} && ${Me.CombatAbilityReady[${DiscNow2}]} && ${Spell[${DiscNow2}].NewStacks}) {
+	/if (${Bool[${DiscNow2}]} && ${Me.CombatAbilityReady[${DiscNow2}]} && ${Spell[${DiscNow2}].Stacks}) {
 		/if (${Select[${Me.Class.ShortName},BRD]} && ${Me.Casting.ID}) /call pulse_stop
 		/if (!${Bool[${Me.Buff[${DiscNow2.Left[-7]}]}]} && !${Bool[${Me.Song[${DiscNow2.Left[-7]}]}]}) {
 			/if (${validate_cast[FALSE, disc, "${DiscNow2}", ${Me.ID}]}) /call core_cast2 "${DiscNow2}" disc 0 FALSE
@@ -4643,11 +4643,11 @@ sub get_target(bool _debug)
 		
 	| lastly, kill all the evil pets. if the owner is dead.
 	/if (!${_priorityMob}) {
-		/if (${SpawnCount[pet ${If[${swOverrideLOS},,los]} range ${setMobLvlMin} ${setMobLvlMax} radius ${setMobAgro} setzradius ${setzradius} targetable]} && !${SpawnCount[npc ${If[${swOverrideLOS},,los]} range ${setMobLvlMin} ${setMobLvlMax} radius ${setCombatRadius} setzradius ${setzradius} targetable]}) {
-			/for _count 1 to ${SpawnCount[pet ${If[${swOverrideLOS},,los]} range ${setMobLvlMin} ${setMobLvlMax} radius ${setMobAgro} setzradius ${setzradius} targetable]}
+		/if (${SpawnCount[pet ${If[${swOverrideLOS},,los]} range ${setMobLvlMin} ${setMobLvlMax} radius ${setMobAgro} zradius ${setzradius} targetable]} && !${SpawnCount[npc ${If[${swOverrideLOS},,los]} range ${setMobLvlMin} ${setMobLvlMax} radius ${setCombatRadius} zradius ${setzradius} targetable]}) {
+			/for _count 1 to ${SpawnCount[pet ${If[${swOverrideLOS},,los]} range ${setMobLvlMin} ${setMobLvlMax} radius ${setMobAgro} zradius ${setzradius} targetable]}
 				/if (!${swPull} || !${coreAuto}) /return
 				AMIDEAD
-				/varset _tmpID ${NearestSpawn[${_count}, pet ${If[${swOverrideLOS},,los]} range ${setMobLvlMin} ${setMobLvlMax} radius ${setMobAgro} setzradius ${setzradius} targetable].ID}
+				/varset _tmpID ${NearestSpawn[${_count}, pet ${If[${swOverrideLOS},,los]} range ${setMobLvlMin} ${setMobLvlMax} radius ${setMobAgro} zradius ${setzradius} targetable].ID}
 				/if (${Spawn[id ${_tmpID}].Master.Type.Equal[Corpse]} || !${Spawn[id ${_tmpID}].Master.ID}) /varset Target2Kill ${_tmpID}
 			/next _count	
 		} 
@@ -5458,21 +5458,21 @@ sub click_burn_circle()
 	| circle of power
 	/if (${useCircle.Equal[Power]}) {
 		/if (${Bool[${Me.Song[Circle of Power]}]}) /return
-		/if (${Me.ItemReady[${CircleofPower}]} && ${Spell[${FindItem[${CircleofPower}].Spell}].NewStacks}) {
+		/if (${Me.ItemReady[${CircleofPower}]} && ${Spell[${FindItem[${CircleofPower}].Spell}].Stacks}) {
 			/if (${validate_cast[FALSE, item, "${CircleofPower}", ${Me.ID}]}) /call core_cast2 "${CircleofPower}" item 0 FALSE
 		}
 
 	| circle of life
 	} else /if (${useCircle.Equal[Life]}) {
 		/if (${Bool[${Me.Song[Circle of Life]}]}) /return
-		/if (${Me.ItemReady[${CircleofLife}]} && ${Spell[${FindItem[${CircleofLife}].Spell}].NewStacks}) {
+		/if (${Me.ItemReady[${CircleofLife}]} && ${Spell[${FindItem[${CircleofLife}].Spell}].Stacks}) {
 			/if (${validate_cast[FALSE, item, "${CircleofLife}", ${Me.ID}]}) /call core_cast2 "${CircleofLife}" item 0 FALSE
 		}		
 
 	| circle of Mana
 	} else /if (${useCircle.Equal[Mana]}) {
 		/if (${Bool[${Me.Song[Circle of Mana]}]}) /return
-		/if (${Me.ItemReady[${CircleofMana}]} && ${Spell[${FindItem[${CircleofMana}].Spell}].NewStacks}) {
+		/if (${Me.ItemReady[${CircleofMana}]} && ${Spell[${FindItem[${CircleofMana}].Spell}].Stacks}) {
 			/if (${validate_cast[FALSE, item, "${CircleofMana}", ${Me.ID}]}) /call core_cast2 "${CircleofMana}" item 0 FALSE
 		}
 	}
@@ -5509,11 +5509,11 @@ sub cast_AA_spire()
 	CHECKEXIT
 	CHECKINPUTS
 	/if (${Raid.Members} && ${Bool[${${Me.Class.ShortName}spire${spireRaid}}]}) {
-		/if (!${Bool[${Me.Buff[${${Me.Class.ShortName}spire${spireRaid}}]}]} && ${Spell[${${Me.Class.ShortName}spire${spireRaid}}].NewStacks}) {
+		/if (!${Bool[${Me.Buff[${${Me.Class.ShortName}spire${spireRaid}}]}]} && ${Spell[${${Me.Class.ShortName}spire${spireRaid}}].Stacks}) {
 			/if (${validate_cast[FALSE, alt, "${${Me.Class.ShortName}spire${spireRaid}}", ${Me.ID}]}) /call core_cast2 "${${Me.Class.ShortName}spire${spireRaid}}" alt 0 FALSE
 		}
 	} else /if (!${Raid.Members} && ${Bool[${${Me.Class.ShortName}spire${spireGroup}}]}) {
-		/if (!${Bool[${Me.Buff[${${Me.Class.ShortName}spire${spireGroup}}]}]} && ${Spell[${${Me.Class.ShortName}spire${spireGroup}}].NewStacks}) {
+		/if (!${Bool[${Me.Buff[${${Me.Class.ShortName}spire${spireGroup}}]}]} && ${Spell[${${Me.Class.ShortName}spire${spireGroup}}].Stacks}) {
 			/if (${validate_cast[FALSE, alt, "${${Me.Class.ShortName}spire${spireGroup}}", ${Me.ID}]}) /call core_cast2 "${${Me.Class.ShortName}spire${spireGroup}}" alt 0 FALSE
 		}
 	}
@@ -5533,11 +5533,11 @@ sub cast_AA_spire()
 	CHECKEXIT
 	CHECKINPUTS
 	/if (${Raid.Members}) {
-		/if (!${Me.Buff[${${Me.Class.ShortName}spire.Arg[${spireRaid},|]}].ID} && ${Spell[${${Me.Class.ShortName}spire.Arg[${spireRaid},|]}].NewStacks}) {
+		/if (!${Me.Buff[${${Me.Class.ShortName}spire.Arg[${spireRaid},|]}].ID} && ${Spell[${${Me.Class.ShortName}spire.Arg[${spireRaid},|]}].Stacks}) {
 			/if (${validate_cast[FALSE, alt, "${${Me.Class.ShortName}spire.Arg[${spireRaid},|]}", ${Me.ID}]}) /call core_cast2 "${${Me.Class.ShortName}spire.Arg[${spireRaid},|]}" alt 0 FALSE
 		}
 	} else /if (!${Raid.Members} && ${Group}) {
-		/if (!${Me.Buff[${${Me.Class.ShortName}spire.Arg[${spireGroup},|]}].ID} && ${Spell[${${Me.Class.ShortName}spire.Arg[${spireGroup},|]}].NewStacks}) {
+		/if (!${Me.Buff[${${Me.Class.ShortName}spire.Arg[${spireGroup},|]}].ID} && ${Spell[${${Me.Class.ShortName}spire.Arg[${spireGroup},|]}].Stacks}) {
 			/if (${validate_cast[FALSE, alt, "${${Me.Class.ShortName}spire.Arg[${spireGroup},|]}", ${Me.ID}]}) /call core_cast2 "${${Me.Class.ShortName}spire.Arg[${spireGroup},|]}" alt 0 FALSE
 		}
 	}
@@ -5746,7 +5746,7 @@ sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 		| check for stacking issues
 		/if (${_tmpID} == ${Me.ID}) {
 			/if (${Spell[${_spell}].SpellType.Equal[Beneficial]} && !${Spell[${_spell}].Category.Equal[Heals]}) {
-				/if (!${Spell[${_spell}].NewStacks}) /return FALSE
+				/if (!${Spell[${_spell}].Stacks}) /return FALSE
 				/if (${Me.Buff[${_spell}].ID}) /return FALSE
 				/if (${Me.Song[${_spell}].ID}) /return FALSE		
 			}
@@ -5761,7 +5761,7 @@ sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 		}		
 		| stacking
 		/if (${Spell[${_spell}].SpellType.Equal[Beneficial]} && (${_tmpID} == ${Me.ID})) {
-			/if (!${Spell[${_spell}].NewStacks}) /return FALSE
+			/if (!${Spell[${_spell}].Stacks}) /return FALSE
 			/if (${Me.Buff[${_spell}].ID}) /return FALSE
 			/if (${Me.Song[${_spell}].ID}) /return FALSE		
 		}
@@ -5780,7 +5780,7 @@ sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 					
 		| stacking
 		/if (${Spell[${_spell}].SpellType.Equal[Beneficial]} && (${_tmpID} == ${Me.ID})) {
-			/if (!${Spell[${_spell}].NewStacks}) /return FALSE
+			/if (!${Spell[${_spell}].Stacks}) /return FALSE
 		}
 
 	| check disc that requires running disc slot
@@ -5808,7 +5808,7 @@ sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 					
 		| stacking
 		/if (${Spell[${FindItem[=${_spell}].Spell}].SpellType.Equal[Beneficial]} && (${_tmpID} == ${Me.ID})) {
-			/if (!${Spell[${FindItem[=${_spell}].Spell}].NewStacks}) /return FALSE
+			/if (!${Spell[${FindItem[=${_spell}].Spell}].Stacks}) /return FALSE
 		}
 
 	| epic clicks
@@ -5822,7 +5822,7 @@ sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 		/if (${Me.Song[${FindItem[=${${Me.Class.ShortName}Epic${_spell}}].Spell}].ID}) /return FALSE
 		
 		/if (${Spell[${FindItem[=${${Me.Class.ShortName}Epic${_spell}}].Spell}].SpellType.Equal[Beneficial]} && (${Target.ID} == ${Me.ID})) {
-			/if (!${Spell[${FindItem[=${${Me.Class.ShortName}Epic${_spell}}].Spell}].NewStacks}) /return FALSE
+			/if (!${Spell[${FindItem[=${${Me.Class.ShortName}Epic${_spell}}].Spell}].Stacks}) /return FALSE
 		}
 
 	| check bard shit.. gotta be difficult..
@@ -7242,7 +7242,7 @@ sub check_buffs_tmp_list(string _spell, string _toonList)
 		/if (!${Spawn[${_toonList.Arg[${_count},|]}].ID}) /continue
 
 		| spell stacks ?
-		/dquery ${_toonList.Arg[${_count},|]} -q "Spell[${_spell}].NewStacks" -o _DNqout
+		/dquery ${_toonList.Arg[${_count},|]} -q "Spell[${_spell}].Stacks" -o _DNqout
 		/if (!${_DNqout}) /continue
 			
 		| has the rune?

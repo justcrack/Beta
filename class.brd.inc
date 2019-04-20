@@ -307,8 +307,8 @@ sub mez_adds_BRD()
 			/squelch /target id ${_tmpID}
 			/delay 5 ${Target.ID} == ${_tmpID}
 			/delay 4s ${check_ready[spell, "${spellpbaeMez}"]}
-			/if (${SpawnCount[npc los radius 30 setzradius 15 targetable]} > 3 ) {
-				VOUT ${sepO} ${cinfo}${SpawnCount[npc radius 30 setzradius 15]}\ax ${sepC} Targets in point blank range.
+			/if (${SpawnCount[npc los radius 30 zradius 15 targetable]} > 3 ) {
+				VOUT ${sepO} ${cinfo}${SpawnCount[npc radius 30 zradius 15]}\ax ${sepC} Targets in point blank range.
 				/if (${check_ready[spell, "${spellpbaeMez}"]}) {
 					/if (${Me.Casting.Name.NotEqual[${spellpbaeMez}]}) /call pulse_stop
 					/if (${validate_cast[FALSE, pulse, "${spellpbaeMez}", ${Me.ID}]}) /call core_cast2 "${spellMez}" pulse 0 FALSE

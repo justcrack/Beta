@@ -569,7 +569,7 @@ sub cast_alliance_PAL(int _tmpID)
 	/if (${setAlliance.Equal[raid]} && !${Raid.Members}) /return FALSE  
 	/if (${setAlliance.Equal[group]} && (!${Bool[${Group.Members]} || ${Raid.Members})) /return FALSE  
 	| enough paladins to make it worth casting?
-	/if (${SpawnCount[paladin radius ${setMobAgro} setzradius ${setzradius}]} < 3) /return FALSE
+	/if (${SpawnCount[paladin radius ${setMobAgro} zradius ${setzradius}]} < 3) /return FALSE
 	| have the alliance on it already?
 	/if (${Target.Buff[${${Me.Class.ShortName}Alliance}].ID}) /return FALSE
 	| spell ready?

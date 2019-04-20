@@ -1,4 +1,4 @@
-7886|***
+|***
  *	class.enc.inc
  *	Core Enchanter Include
  *
@@ -37,8 +37,8 @@ sub core_ENC()
 				
 		/if (${coreAuto} && ${swdeBuffMezz}) {
 			/call get_target_ENC
-			| /if (${isValidTarget} && ${Target.ID} && ${Target.LineOfSight} && ${Target.Distance} <= ${setMobAgro} && (${Target.PctHPs} <= ${setEngagePct} || ${Spawn[PC ID ${Me.TargetOfTarget.ID} Radius 60].ID})) /goto :loop
-			/if (${isValidTarget} && ${Target.LineOfSight} && ${Target.Distance} <= ${setMobAgro} && (${Target.PctHPs} <= ${setEngagePct} || ${Spawn[PC ID ${Me.TargetOfTarget.ID} Radius 60].ID})) /goto :loop
+			/if (${isValidTarget} && ${Target.ID} && ${Target.LineOfSight} && ${Target.Distance} <= ${setMobAgro} && (${Target.PctHPs} <= ${setEngagePct} || ${Spawn[PC ID ${Me.TargetOfTarget.ID} Radius 60].ID})) /goto :loop
+			| /if (${isValidTarget} && ${Target.LineOfSight} && ${Target.Distance} <= ${setMobAgro} && (${Target.PctHPs} <= ${setEngagePct} || ${Spawn[PC ID ${Me.TargetOfTarget.ID} Radius 60].ID})) /goto :loop
 			/if (${Bool[${mobList}]}) /call list_delete mobList ${Target2Kill}
 			/return
 			:loop
@@ -226,8 +226,6 @@ sub patch_heal_ENC()
 		/delay 5 ${Target.ID}==${_tmpID}
 		| /delay 1
 		/if (${Me.TargetOfTarget.ID} == ${Me.ID} && ${Target.ID} && ${Target.ID} != ${Me.ID} && (!${NoMezzList.Find[${Target.DisplayName}]} || ${timer_mez_${Target.ID}} > 0)) {
-			| /call is_attacking ${NearestSpawn[${_count},npc radius 15].ID}
-			| /if (${Bool[${Macro.Return}]}) {
 			/if (${is_attacking[${NearestSpawn[${_count},npc radius 15].ID}]}) {				
 				/if (${Me.PctHPs} <= 60*.${tmpHealOverride} && ${validate_cast[FALSE, alt, "Doppelganger", ${Me.ID}]}) /call core_cast2 "Doppelganger" alt ${Me.ID} FALSE
 				/if (${Me.PctHPs} <= 30*.${tmpHealOverride} && ${validate_cast[FALSE, alt, "Nightmare Stasis", ${Target2Kill}]} && ${Target.Level} < 76) /call core_cast2 "Nightmare Stasis" alt ${Target2Kill} FALSE
@@ -251,16 +249,12 @@ sub patch_heal_ENC()
  *  NOTE: 
  ***|
 sub mez_adds()
-	DEBUG mez_adds()
 	AMIDEAD
 	CHECKINPUTS
 	/declare _tmpID string local
 
 	:loopmezzadds
-	| /if (${addList.Count[|]} && ${Me.CurrentMana} >= ${Spell[${spellMez}].Mana}) {
 	/if (${addList.Count[|]}) {
-		| /if (${addList.Count[|]} > 1) /varset addList ${addList.Right[-${Math.Calc[${addList.Find[|]}-1]}]}
-		| /varset _tmpID ${addList.Arg[1,|].Left[-1]}
 		/varset _tmpID ${addList.Arg[1,|]}
 		/if (${_tmpID} == ${Target2Kill}) {
 			/call list_delete addList ${_tmpID}
@@ -272,8 +266,9 @@ sub mez_adds()
 		} else {
 			/squelch /target id ${_tmpID}
 			/delay 5 ${Target.ID} == ${_tmpID}
-			/if (${SpawnCount[npc los radius 30 setzradius 15 targetable]} > 1 ) {
-				VOUT ${sepO} ${cinfo}${SpawnCount[npc radius 30 setzradius 15]}\ax ${sepC} ${If[${SpawnCount[npc los radius 30 setzradius 15 targetable]} == 1,Target,Targets]} in point blank range.
+			/if (${SpawnCount[npc los radius 30 zradius 15 targetable]} > 1 ) {
+				
+				VOUT ${sepO} ${cinfo}${SpawnCount[npc radius 30]}\ax ${sepC} ${If[${SpawnCount[npc los radius 15 targetable]} == 1,Target,Targets]} in point blank range.
 
 				/if (${swdeBuffTash}) /call cast_tash ${_tmpID}
 				/delay 2.25s ${Me.SpellReady[${Spell[${spellpbaeMez}].RankName}]}
@@ -497,8 +492,8 @@ sub cast_tash(int _tmpID)
 |***
  *	DES: this will check each mob in area of the chanter. take note of its current animation and decide if it is attacking the enchanter.
  *	USE: 
- *  NOTE: 
- ***|
+ *  NOTE: this is not used in the code. reamnents from an old design left here.. because
+
 sub is_attacking(int _tmpID)
 	DEBUG is_attacking(${_tmpID})
 	/declare _ani int local
@@ -517,7 +512,7 @@ sub is_attacking(int _tmpID)
 	/if (${_ani} == 129) /return TRUE
 	/if (${_ani} == 144) /return TRUE
 /return FALSE
-
+ ***|
 
 
  |***
