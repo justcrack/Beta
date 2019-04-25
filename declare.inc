@@ -17,7 +17,7 @@
  ***|
 sub set_alias()
 
-	| /on and /off will remain binds. they need to overwrite the builtin EQ commands
+	| /on and /off will remain an alias. they need to overwrite the builtin EQ commands
 	| /if (!${Bool[${Alias[/on]}]}) 									/noparse /squelch /alias /on       		    	/dgexecute /broadcast_on
 	| /if (!${Bool[${Alias[/off]}]}) 									/noparse /squelch /alias /off						    /dgexecute /broadcast_off
 
@@ -2630,7 +2630,7 @@ sub Bind_gem_control(string _verbage, string _name)
 	/declare _bind string local gc
 	/declare _listout string local
 	/declare _sep bool local FALSE
-	/declare _controls string local |list|load|save
+	/declare _controls string local |delete|detail|list|load|save
 	/declare _tmpName string local
 
 	| do listings before we assign a default name
@@ -2707,6 +2707,37 @@ sub Bind_gem_control(string _verbage, string _name)
 			/varset _count ${Math.Calc[${_count}+1]}	
 		/next _count
 		
+		/return
+
+	| delete a spell set
+	} else /if (${_verbage.Equal[delete]}) {
+
+		/ini ${INIGemControl} ${_section} "${_name}" NULL
+		
+
+
+	| list the details of a saved gemset
+	} else /if (${_verbage.Equal[detail]}) {
+		/if (!${Bool[${_name}]}) {
+			VOUT Name of the gem set to list..?. ffs..
+			/return FALSE
+		}
+		/if (${swMQClear}) /mqclear
+		
+		/declare _index int local 0
+		/declare _gem int local 0
+		/declare _spell string local FALSE
+	
+		| cycle the "|" and list the data
+		VOUT Set ${sep} \aw${_name}\ax
+		/for _index 1 to ${Ini[${INIGemControl},${_section},${_name}].Count[|]}
+			/varset _gem ${Ini[${INIGemControl},${_section},${_name}].Arg[${_index},|]}
+			/varcalc _index ${_index}+1
+			/varset _spell ${Ini[${INIGemControl},${_section},${_name}].Arg[${_index},|]}
+			/delay 1
+			VOUT gem${cnum}${_gem}\ax\at::\ax\aw${_spell}\ax
+		/next _index	
+
 		/return
 				
 	}
@@ -3869,3 +3900,22 @@ sub Bind_ae_splash()
 	}
 	
 /return TRUE
+
+
+
+|***
+ *	DES: tells whatever cleric that is in listResidentClreic to intervention heal you
+ *	USE: /intpull (with a valid target)
+ *  NOTE: 
+ ***|
+#bind int_pull /intpull
+sub Bind_int_pull()
+	/if (!${Target.ID}) /return FALSE
+
+	/dex ${get_resident[cleric, 150]}	/intervention ${Me.ID}
+
+	
+	
+/return TRUE
+
+

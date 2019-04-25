@@ -113,6 +113,7 @@ sub pregen_environment()
 	/call sql_control FALSE environment lstResidentMage									string		outer "|FALSE"
 	/call sql_control FALSE environment lstResidentDruid								string		outer "|FALSE"
 	/call sql_control FALSE environment lstResidentWizard								string		outer "|FALSE"
+	/call sql_control FALSE environment lstResidentCleric								string		outer "|FALSE"
 
 	| broadcast switches
 	/call sql_control FALSE environment swBCZonereset										bool		 	outer TRUE
@@ -953,7 +954,7 @@ sub pregen_zone()
  *  NOTE: lets try and not leave ths shit in memory.. mkay?
  ***|
 sub generate_zone_short_names()
-	/declare lstZoneShortName[52] string outer
+	/declare lstZoneShortName[53] string outer
 	/varset lstZoneShortName[1] |qeynos|qeynos2|qrg|qeytoqrg|highkeep|freportn|freportw|freporte|runnyeye|qey2hh1|northkarana|southkarana|eastkarana|beholder|blackburrow
 	/varset lstZoneShortName[2] |paw|rivervale|kithicor|commons|ecommons|erudnint|erudnext|nektulos|cshome|lavastorm|nektropos|halas|everfrost|soldunga|soldungb|misty|nro
 	/varset lstZoneShortName[3] |sro|befallen|oasis|tox|hole|neriaka|neriakb|neriakc|neriakd|najena|qcat|innothule|feerrott|cazicthule|oggok|rathemtn|lakerathe|grobb|aviak
@@ -1006,6 +1007,7 @@ sub generate_zone_short_names()
 	/varset lstZoneShortName[50] |chardoktwo|frontiermtnsb|korshaext|korshaint|lceanium|scorchedwoods|drogab
 	/varset lstZoneShortName[51] |charasisb|gorowyn|charasistwo|skyfiretwo|overtheretwo|veeshantwo
 	/varset lstZoneShortName[52] |aalishai|stratos|trialsofsmoke|mearatas|esianti|empyr|chamberoftears
+	/varset lstZoneShortName[53] |gnomemtn
 /return
 
 

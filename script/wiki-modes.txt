@@ -1,0 +1,73 @@
+Modes are set aside from normal game play. They change the way Core functions to adapt to specific situations. Modes will work in automatic or manual. 
+  
+  
+[Collect](https://github.com/exspes007/Beta/wiki/control::modes#collect) .. 
+[Drag](https://github.com/exspes007/Beta/wiki/control::modes#Drag) .. 
+[Fish](https://github.com/exspes007/Beta/wiki/control::modes#Fish) .. 
+[Forage](https://github.com/exspes007/Beta/wiki/control::modes#Forage) .. 
+[Harvest](https://github.com/exspes007/Beta/wiki/control::modes#Harvest) .. 
+[Hunter](https://github.com/exspes007/Beta/wiki/control::modes#Hunter) .. 
+[Open](https://github.com/exspes007/Beta/wiki/control::modes#opener-of-things) .. 
+[PetFarm](https://github.com/exspes007/Beta/wiki/control::modes#Pet-Farm) .. 
+[Skill Trainer](https://github.com/exspes007/Beta/wiki/control::modes#Skill-Trainer) .. 
+[Scorch](https://github.com/exspes007/Beta/wiki/control::modes#Scorched-Earth) .. 
+[Summon](https://github.com/exspes007/Beta/wiki/control::modes#Summon-Corpses) .. 
+[Tradeskill](https://github.com/exspes007/Beta/wiki/control::modes#Tradeskill)  
+  
+  
+Notes:  
+* all killing modes adhere to the `/lc exclude` command  
+* all modes are non persistent. restart Core and these will be turned off. This can be changed with `/environment modepersistant` switch.   
+
+**`/mode`**  
+`/mode agro` - [1,99999] Radius for killing Mode agro of valid targets  
+`/mode harvestcount` - [1,99999] how much of something you want to get  
+
+
+
+## Collect
+`/mode collect` - All this will do is use nav to run around your range and collect shineys. Invis and agro issues are your problem.  
+
+## Drag
+`/mode drag` - drags corpses. easily drag an entire wiped raid. will do nothing but drag corpses. will drag them until you tell it to stop dragging. simple as that. on a side note, it's useful for irritating clerics trying to rez.  
+
+## Fish
+`/mode fish` - fishes; seriously.. what did you want?. uses [Fisherman's Companion](http://everquest.allakhazam.com/db/item.html?item=16653) if you have one. adheres to the core.loot.ini list.
+
+## Forage
+`/mode forage` - forages things. adheres to core.loot.ini list.
+
+## Harvest
+`/mode harvest` - this zone list line can be used for ground spawns that you want to pick up. `/mode agro [##]` is needed to control how large of an area you will run around in to pick things up.  
+
+NOTE: there is no automated form to enter the items you want to pick up. you will need to see how they are labeled on the map and enter those names. for example mushroom farming in North Kaladim would look like `HarvestList=|*Blue Mushroom|*Red Mushroom`  
+
+## Hunter
+`/mode hunt` - hunt is designed to watch and kill only specific list of mobs. `/lc huntmob` is executed in order. the mode will kill all mobs listed first, then the second mob then the third and so on. if you are killing, say a mob second on the list and a mob first on the list spawns, the mode will readjust to the first mob.  
+
+## Opener of things
+`\mode open` - all this does is open a ground object. DB::modeOpenItem controls the item to be opened. will just sit there and open it. good for slayer chest ach, about useless otherwise  
+
+## Pet Farm
+`/mode petfarm` - for use with static pet classes [MAG|NEC|BST|ENC|SHM|DRU(wtf)|SHD]. this will sit your toon in a spot and use the pet to assault everything it can reach. the owner will keep the pets and themselves buffed when `/core auto` is enabled.
+
+Notes on pet class ranges: Mage[200], Beastlord[250], Enchanter[200] Necromancer[200], Druid[200], Shaman[200], Shadowknight[200]. setting `/agro` over those numbers and the pets will be unable to engage their mobs.
+
+_Warning: this mode disables Line of Sight checking._
+
+## Skill Trainer  
+/mode skill` - use to train basic melee skills. works bestwhen dueling a pet class in a modern guild hall.  
+
+## Scorched Earth
+`/mode scorch` - for when you must absolutely kill every moving thing in a zone. scorched earth is just like it sounds. once engaged, the toon will move to the nearest mob, kill it and move to the next nearest mob. it will not stop doing this until you issue the command again to disable the mode. 
+
+_Warning: this mode disables Line of Sight checking._  
+**Caution:** this is in no way a path friendly mode. it will adjust, like `/mode hunt`, to move around objects as best it can. but it is best to keep an eye on it once in a while. if you are not using the MQ2Nav plugin, you will have collision and pathing issues. 
+
+## Summon Corpses
+`\mode summon` - If you are in the Guild Lobby, this mode will go fetch your corpse(s).  
+
+## Tradeskill  
+`/mode tradeskill` - This one is a little picky. You must have the tradeskill window open with the item you want to combined selected. Make sure to deselect the Make All checkbox. Everything you make will be  applied to the core.loot.ini file and deal with it how you have set.
+
+

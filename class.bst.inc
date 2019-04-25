@@ -79,7 +79,7 @@ sub disc_BST()
 	}
 
 	/if (${Me.Pet.ID}) {
-		/if (!${Me.Song[${GrowlSpell}].ID} && !${Me.PetBuff[Savage Rage]} && !${Me.Song[${DiscSavage}].ID}) {
+		/if (!${Me.Song[Growl of the].ID} && !${Me.Song[${GrowlSpell}].ID} && !${Me.PetBuff[Savage Rage]} && !${Me.Song[${DiscSavage}].ID}) {
 			/if (${validate_cast[FALSE, spell, "${GrowlSpell}", ${Me.ID}]}) /call core_cast2 "${GrowlSpell}" 0 0 FALSE
 		}
 	}

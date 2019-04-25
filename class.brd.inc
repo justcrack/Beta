@@ -159,7 +159,6 @@ sub click_DPS_BRD()
 		/call clear_combat
 		/return
 	}
-	/if (${swCombatMelee}) /call stick_to_target
 	/call click_horn_of_unity 	
 /return TRUE
 

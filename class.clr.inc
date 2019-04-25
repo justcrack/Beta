@@ -830,6 +830,37 @@ sub burn_CLR()
 
 
 
+
+
+
+
+|***
+ *	DES: forces an intervention spell on that target
+ *	USE: /intervention [TargetID]
+ *  NOTE: 
+ ***|
+#bind clr_intervention /intervention
+sub Bind_clr_intervention(int _tmpID)
+	/if (!${Bool[${_tmpID}]}) /return FALSE
+
+	/declare _count int local 0
+
+	/for _count 1 to 4
+		/if (${Me.SpellReady[${Spell[${healIntervention${_count}}].RankName}]}) {
+			/if (${validate_cast[FALSE, spell, "${healIntervention${_count}}", ${_tmpID}]}) /call core_cast2 "${healIntervention${_count}}" 0 ${_tmpID} FALSE
+			/break
+		}
+	/next _count
+	
+/return TRUE
+
+
+
+
+
+
+
+
 |***
  *	DES: Class controls
  *	USE: /clr []

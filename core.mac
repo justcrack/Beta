@@ -2,6 +2,7 @@
 	core.mac
 	Core Macro
 	exspes007
+	paypal.me/exspes
 	
 	"Someone once told me it takes a lot of skill and preperation to be effectively lazy."
 	-- unknown
@@ -119,7 +120,7 @@
  ***|
 sub main(string _custom)
 	| Current Build
-	/call setDeclare currentBuild 			string outer 0414.01
+	/call setDeclare currentBuild 			string outer 0425.01
 	
 	| force SQL echos on for the start
 	/call setDeclare swEchosSQL 				bool outer FALSE
@@ -444,9 +445,9 @@ sub base_preperation()
 	/call validate_debuff FALSE snare
 	
 	| make sure buttons are current
-	/if (!${Macro.IsTLO[MyButtons]}) {
-		/squelch /mybuttons reload
-	}	
+	| /if (!${Macro.IsTLO[MyButtons]}) {
+	| 	/squelch /mybuttons reload
+	| }	
 		
 	| check game cash?
 	/if (${swEQCash}) /call check_free_ingame_cash		

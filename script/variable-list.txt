@@ -6,6 +6,7 @@
  * [switch]		TRUE or FALSE
  * [list]		  |item|item2|items3|name|just a list of stuff|and mmore stuff
  * [set]			single variable. can be a number or a name or a word or a spell or a disc....get the idea
+ * (1-6)      means replace the # and you can have up to 6 of this.. whatever it is..
  *
  *
  ***|
@@ -31,7 +32,7 @@ swRestBuff										[switch] check/watch buffs while in rest mode
 swADVL												[switch] enable/disabe using advloot. if disables, core will not process any loot
 swGlyphOutsideRaid						[switch] use glyphs outside raids (normal group content)
 swMQClear											[switch] clears MQ window when using a / command
-swSafelistGuild								[switch] consider your guild as p[art of the safe list
+swSafelistGuild								[switch] consider your guild as part of the safe list
 swEQCash											[switch] check DB cash on mac start
 swModePersistent							[switch] enable modes to persist through zoning
 swCombatTie										[switch] enable/disable tie while in active combat
@@ -297,24 +298,11 @@ PetBuff#chk                   [set] (1-10) buff name to watch for on pet
 
 
 ;items
-clickItem1										[set] click item to use on a target during combat
-clickItem2	                  [set] click item to use on a target during combat
-clickItem3	                  [set] click item to use on a target during combat
-clickItem4	                  [set] click item to use on a target during combat
-clickItem5	                  [set] click item to use on a target during combat
-clickItem6	                  [set] click item to use on a target during combat
-clickItemBurn1	              [set] click item to use on a target during a burn
-clickItemBurn2	              [set] click item to use on a target during a burn
-clickItemBurn3	              [set] click item to use on a target during a burn
-clickItemBurn4	              [set] click item to use on a target during a burn
-clickItemBurn5	              [set] click item to use on a target during a burn
-clickItemBurn6	              [set] click item to use on a target during a burn
-Breastplate1	                [set] breastplate clickie to use with stacking swapping
-Breastplate1Condition	        [set] 
-Breastplate1effect	          [set] BP efect to watch for
-Breastplate2	                [set] breastplate clickie to use with stacking swapping
-Breastplate2Condition	        [set] 
-Breastplate2effect	          [set] BP efect to watch for
+clickItem#										[set] (1-6) click item to use on a target during combat
+clickItemBurn#	              [set] (1-6) click item to use on a target during a burn
+Breastplate#	                [set] (1-2)breastplate clickie to use with stacking swapping
+Breastplate#Condition	        [set] (1-2)
+Breastplate#effect	          [set] (1-2) BP efect to watch for
 useCircle	                    [set] [power|life|mana] which of the three you want to use
 CircleofPower	                [set] name of CoP item
 CircleofLife	                [set] name of CoL item
@@ -485,7 +473,7 @@ Nuke#										 	    [set] (1-8) nuke to cast
 Nuke#Condition						    [set] (1-8) nuke# condition
 DoT#											    [set] (1-8) dot to cast
 DoT#chk										    [set] (1-8) dot on target to watch for
-DoT#Condition							    [set] (1-8) dott# condition
+DoT#Condition							    [set] (1-8) dot# condition
 
 
 
@@ -521,32 +509,32 @@ Nuke#										 	    [set] (1-8) nuke to cast
 Nuke#Condition						    [set] (1-8) nuke# condition
 DoT#											    [set] (1-8) dot to cast
 DoT#chk										    [set] (1-8) dot on target to watch for
-DoT#Condition							    [set] (1-8) dott# condition
+DoT#Condition							    [set] (1-8) dot# condition
 
 
 ;CLR
 CLRAlliance										[set] alliance spell
-RampageTank										[set]
+RampageTank										[set] name of rampage tank. cleric wil NOT heal this person. fuck them..
 switchAAFade									[switch] use aa fade
 useAAFadePct									[set] hp% to use aa fade
-switchLockMA									[switch] 
+switchLockMA									[switch] ** UNDER CONSTRUCTION **
 swModRod											[switch] use modulation rods
-switchVP											[switch] 
-useVPPct											[switch] 
-spellCripple									[set]
-BreastplateHeal								[set]
+switchVP											[switch] use veturika's preseverance
+useVPPct											[switch] ##% manna to use veturika's preseverance at
+spellCripple									[set] cripple spell to use
+BreastplateHeal								[set] 
 BreastplateHealCondition			[set]
-DivineRezCleric								[switch]
-RandRezDelay									[set]
-ProtectOutsideGroup						[list]
-ProtectInsideRaid							[list] 
-ProtectNPCList                [list] 
-useGroupHeal                  [set] 
-useGroupHoT                   [set] 
+DivineRezCleric								[switch] use divine rez on other clerics (including yourself)
+RandRezDelay									[set] ** currently disabled **
+ProtectOutsideGroup           [list] list of XTarget people you want to heal outside your group
+ProtectInsideRaid             [list] list of XTarget specific people you want to protect inside a riad
+ProtectNPCList                [list] list of XTarget NPCs you want to heal
+useGroupHeal                  [set]  name of group heal you want to be using
+useGroupHoT                   [set] name of group Heal over Time you want to be using
+healPanic                     [set] name of panic heal (the ones that heal more the more you are hurt kind of spell)
 setDivinetoGroupHeal          [set] 
 useCelestialRegen             [set] 
 CRTXT                         [set] 
-XTHealRadius                  [set] 
 switchForceGroupHeal					[switch] 
 RampageTank                   [set] 
 switchHealAggressive					[switch] 
@@ -556,34 +544,26 @@ healWholeGroup                [set]
 healWholeGroup2               [set] 
 healWholeGroup3               [set] 
 healWholeGroupHoT             [set] 
-healRemedy1                   [set] 
-healRemedy2                   [set] 
-healRemedy3                   [set] 
-healHoT                       [set] 
+healRemedy#                   [set] (1-3) name of remedy spell you want to use
+healIntervention#             [set] (1-4) name of intervention spell
+healRenewal#                  [set] (1-3) name of renewal spell
+healHoT                       [set] name of single Heal over Time
 healSplash                    [set] 
-healIntervention1             [set] 
-healIntervention2             [set] 
-healIntervention3             [set] 
-healIntervention4             [set] 
-healRenewal1                  [set] 
-healRenewal2                  [set] 
-healRenewal3                  [set] 
-healPanic                     [set] 
-healWard                      [set] 
-healWardToon                  [set] 
-switchIssuance								[switch] 
-issuanceMobCount              [set] 
-healIssuance                  [set] 
-doYaulp                       [switch]
-spellYaulp                    [set] 
-sumWeaponSpell                [set] 
-sumWeaponItem                 [set] 
-tempPet                       [set] 
+healWard                      [set] name of heal ward spell
+healWardToon                  [set] name of the toon you want to use heal ward on
+switchIssuance								[switch] use issuance shhield?
+issuanceMobCount              [set] # of mobs in agro range when to use issuance
+healIssuance                  [set] name of issuance spell
+doYaulp                       [switch] to yaulp or not
+spellYaulp                    [set] Name of the Yaulp spell you want to keep up. IF set to FALSE and the switch is on, it will default to the AA
+sumWeaponSpell                [set] name of cleric hammer spell
+sumWeaponItem                 [set] name of the actual cleric hammer
+tempPet                       [set] name of the temp hammer pet to use
 Nuke#										 	    [set] (1-8) nuke to cast
 Nuke#Condition						    [set] (1-8) nuke# condition
 DoT#											    [set] (1-8) dot to cast
 DoT#chk										    [set] (1-8) dot on target to watch for
-DoT#Condition							    [set] (1-8) dott# condition
+DoT#Condition							    [set] (1-8) dot# condition
 
 
 ;DRU
@@ -596,14 +576,13 @@ debuffRo                      [set]
 WoodTXT                       [set] 
 spellCripple                  [set] 
 AAWolfSpirit                  [set] 
-XTHealRadius                  [set] 
 RandRezDelay                  [set] 
-ProtectOutsideGroup           [list] 
-ProtectInsideRaid             [list] 
-ProtectNPCList                [list] 
-useGroupHeal                  [set]  
-useGroupHoT                   [set] 
-healPanic                     [set] 
+ProtectOutsideGroup           [list] list of XTarget people you want to heal outside your group
+ProtectInsideRaid             [list] list of XTarget specific people you want to protect inside a riad
+ProtectNPCList                [list] list of XTarget NPCs you want to heal
+useGroupHeal                  [set]  name of group heal you want to be using
+useGroupHoT                   [set] name of group Heal over Time you want to be using
+healPanic                     [set] name of panic heal (the ones that heal more the more you are hurt kind of spell)
 healRejuvilation              [set] 
 healAdrenaline                [set] 
 healSanavida                  [set] 
@@ -615,7 +594,7 @@ Nuke#										 	    [set] (1-8) nuke to cast
 Nuke#Condition						    [set] (1-8) nuke# condition
 DoT#											    [set] (1-8) dot to cast
 DoT#chk										    [set] (1-8) dot on target to watch for
-DoT#Condition							    [set] (1-8) dott# condition
+DoT#Condition							    [set] (1-8) dot# condition
 
 
 ;ENC
@@ -656,7 +635,7 @@ Nuke#										 	    [set] (1-8) nuke to cast
 Nuke#Condition						    [set] (1-8) nuke# condition
 DoT#											    [set] (1-8) dot to cast
 DoT#chk										    [set] (1-8) dot on target to watch for
-DoT#Condition							    [set] (1-8) dott# condition
+DoT#Condition							    [set] (1-8) dot# condition
 
 
 ;MAG
@@ -753,7 +732,7 @@ Nuke#										 	    [set] (1-8) nuke to cast
 Nuke#Condition						    [set] (1-8) nuke# condition
 DoT#											    [set] (1-8) dot to cast
 DoT#chk										    [set] (1-8) dot on target to watch for
-DoT#Condition							    [set] (1-8) dott# condition
+DoT#Condition							    [set] (1-8) dot# condition
 
 
 ;PAL
@@ -767,7 +746,6 @@ healPanic1                    [set]
 healPanic2                    [set] 
 healTouch                     [set] 
 useGroupHeal									[switch]
-XTHealRadius                  [set] 
 RampageTank                   [set] 
 RandRezDelay                  [set] 
 defCount                      [set] 
@@ -801,7 +779,7 @@ Nuke#										 	    [set] (1-8) nuke to cast
 Nuke#Condition						    [set] (1-8) nuke# condition
 DoT#											    [set] (1-8) dot to cast
 DoT#chk										    [set] (1-8) dot on target to watch for
-DoT#Condition							    [set] (1-8) dott# condition
+DoT#Condition							    [set] (1-8) dot# condition
 spellCripple                  [set] 
 ChallengeSpell                [set] 
 ValiantDefense                [set] 
@@ -841,7 +819,7 @@ Nuke#										 	    [set] (1-8) nuke to cast
 Nuke#Condition						    [set] (1-8) nuke# condition
 DoT#											    [set] (1-8) dot to cast
 DoT#chk										    [set] (1-8) dot on target to watch for
-DoT#Condition							    [set] (1-8) dott# condition
+DoT#Condition							    [set] (1-8) dot# condition
 DoTSwarmDS                    [set] 
 DoTSwarmDSdeBuff              [set] 
 heal1                         [set] fast heal
@@ -911,29 +889,26 @@ CrimsonBlade                  [set]
 DiscRest                      [set] 
 DiscFakeHate                  [set] 
 DiscRancor                    [set] 
-DefensiveDisc1                [set] 
-DefensiveDisc2                [set] 
-DefensiveDisc3                [set] 
-defCount                      [set] 
-AEMelee                       [set] 
-ChallengeSpell                [set] 
+DefensiveDisc#                [set] (1-3) defensive discs
+defCount                      [set] # mobs in agro to start using defensives
+AEMelee                       [set] use ae mele skills (inc agro)
+ChallengeSpell                [set] name of challenge spell for agro
 spellCripple                  [set] 
 swModRod											[switch] use modulation rods
 Harmonious                    [set] harmonious spell
 switchHarmonious							[switch] use harmonious spell
 Hate1                         [set] single target hate spell
 Hate2                         [set] single target hate spell
-AEHate1                       [set] ae hate spell
-AEHate2                       [set] ae hate spell
+AEHate#                       [set] (1-2) ae hate spell
 Stance                        [set] stance spell
 switchStance									[switch] use stance spell
-Skin                          [set] 
-switchSkin										[switch]
+Skin                          [set] name of skin spell
+switchSkin										[switch] use skin spell
 Nuke#										 	    [set] (1-8) nuke to cast
 Nuke#Condition						    [set] (1-8) nuke# condition
 DoT#											    [set] (1-8) dot to cast
 DoT#chk										    [set] (1-8) dot on target to watch for
-DoT#Condition							    [set] (1-8) dott# condition
+DoT#Condition							    [set] (1-8) dot# condition
 
 
 ;SHM
@@ -947,13 +922,12 @@ spellMalo                     [set]
 spellCripple                  [set] 
 spellSlow                     [set] 
 spellAESlow                   [set] 
-TC1                           [set] 
-TC2                           [set] 
+TC#                           [set] (1-2)
 Nuke#										 	    [set] (1-8) nuke to cast
 Nuke#Condition						    [set] (1-8) nuke# condition
 DoT#											    [set] (1-8) dot to cast
 DoT#chk										    [set] (1-8) dot on target to watch for
-DoT#Condition							    [set] (1-8) dott# condition
+DoT#Condition							    [set] (1-8) dot# condition
 CanniPctHPs                   [set] 
 CanniPctManna                 [set] 
 spellCannibalization          [set] 
@@ -965,15 +939,12 @@ RandRezDelay                  [set]
 healSurge                     [set] 
 healMain                      [set] 
 healIntervention1             [set] 
-healReckless1                 [set] 
-healReckless2                 [set] 
-healReckless3                 [set] 
+healReckless#                 [set] (1-3) name of reckless heal to use
 healWholeGroup                [set] 
 healWholeGroupHoT             [set] 
 ProtectOutsideGroup           [list] 
 ProtectInsideRaid             [list] 
 ProtectNPCList                [list] 
-XTHealRadius                  [set] 
 RampageTank                   [set] 
 swModRod											[switch] use modulation rods
 switchGrowth									[switch]

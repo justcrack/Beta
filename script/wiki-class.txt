@@ -1,0 +1,203 @@
+
+
+[Bard](https://github.com/exspes007/Beta/wiki/control::classes#bard) .. 
+[Berzerker](https://github.com/exspes007/Beta/wiki/control::classes#Berzerker) .. 
+[Beastlord](https://github.com/exspes007/Beta/wiki/control::classes#Beastlord) .. 
+[Cleric](https://github.com/exspes007/Beta/wiki/control::classes#Cleric) .. 
+[Druid](https://github.com/exspes007/Beta/wiki/control::classes#Druid) .. 
+[Enchanter](https://github.com/exspes007/Beta/wiki/control::classes#Enchanter) .. 
+[Magician](https://github.com/exspes007/Beta/wiki/control::classes#Magician) .. 
+[Monk](https://github.com/exspes007/Beta/wiki/control::classes#Monk) .. 
+[Necromancer](https://github.com/exspes007/Beta/wiki/control::classes#Necromancer) .. 
+[Paladin](https://github.com/exspes007/Beta/wiki/control::classes#Paladin) .. 
+[Rogue](https://github.com/exspes007/Beta/wiki/control::classes#Rogue) .. 
+[Ranger](https://github.com/exspes007/Beta/wiki/control::classes#Ranger) .. 
+[Shadowknight](https://github.com/exspes007/Beta/wiki/control::classes#Shadowknight) .. 
+[Shaman](https://github.com/exspes007/Beta/wiki/control::classes#Shaman) .. 
+[Warrior](https://github.com/exspes007/Beta/wiki/control::classes#Warrior) .. 
+[Wizard](https://github.com/exspes007/Beta/wiki/control::classes#Wizard)
+    
+  
+**ALL Classes**  
+`fade` - (on/off) use class AA Fade   
+`fade` - [1,99]% to use AA fade when on   
+`spiregroup` - [0,3] set spire to use while grouped and burning. 0=disable  
+`spireraid` - [0,3] set spire to use while in a raid and burning. 0=disable  
+
+
+## Bard
+**`/brd`**  
+`healpoint` - [1,99]% you want to start firing off self heal skills/spells  
+`intimidkick` - (on/off) use intimidate skill through kicks  
+`line` - [caster|melee|mix|other|tank] set the line of current group support  
+`restsong` -  
+`rod` - (on/off) use modulation shards  
+
+
+## Berzerker
+**`/ber`**  
+`ae` - (on/off) use of AE skills (including agro AAs)  
+`healpoint` - [1,99]% you want to start firing off self heal skills/spells  
+
+
+## Beastlord
+**`/bst`**  
+`ae` - (on/off) use of AE skills (including agro AAs)  
+`consume` -  
+`healpoint` - [1,99]% you want to start firing off self heal skills/spells  
+`paragon` -  
+`rod` - (on/off) use modulation shards  
+
+
+
+## Cleric
+**`/clr`**  
+`aggressive` - (on/off) on=cleric leads with introvention. off=lead with remedy/renewals  
+`arbitrate` -  
+`ch` - (on/off) use spell Complete Heal  
+`ch` - [1,99]% HP to use Compleet Heal. NOTE: requires group role Main Tank to be set  
+`forcegroupheal` - (on/off) forces cleric to use group heals only  
+`groupheal` - (on/off) use group Heals  
+`grouphot` - (on/off) use group Heal Over Time  
+`healpoint` - [1,99]% sets the start healpoint for the class of the targeted PC or Pet (mercs are treated as their class)   
+`issuance` -  
+`rampage` - [TARGET] will mark your target as the rampage tank and will NOT heal them  
+`regen` - forces a MGB celestial regen  
+`retort` -  
+`rod` - (on/off) use modulation shards  
+`splash` -  
+`vp` - (on/off) use of Veturika's Perseverance  
+`vp` - [1,99]% set Veturika's Perseverance use at %  
+`xttime` - [1,5] time in min to refresh XT target window  
+`yaulp` - (on/off) use yaulp [priority: spell (if set), Donal's Helm, AA]  
+
+
+## Druid
+**`/dru`**  
+`groupheal` - (on/off) group Heals  
+`healpoint` -  [1,99]% sets the start healpoint for the class of the targeted PC or Pet   
+`rampage` - [TARGET] will mark your target as the rampage tank and will NOT heal them  
+`rod` - (on/off) use modulation shards  
+`xttime` - [1,5]m time in min to refresh XT Healing window. in minutes  
+
+
+## Enchanter
+**`/enc`**  
+`charm` -  
+`gather` - (on/off) use of mana recovery skills  
+`gather` - [1,99]% manna to start using mana recovery skills  
+`healpoint` - [1,99]% you want to start firing off self heal skills/spells  
+`rod` - (on/off) use modulation shards  
+
+
+## Magician
+**`/mag`**  
+`forcetwincast` - (on/off) forces use of twincast nuke whenever it is up to get a twincast proc from it  
+`gather` - (on/off) use of mana recovery skills
+`gather` - [1,99] % manna to start using mana recovery skills  
+`healpoint` - [1,99] set the % you want to start firing off self heal skills/spells  
+`line` - [off|fire|ice|magic|mix] set the line of current nukes  
+`rod` - (on/off) use modulation shards  
+`rods` -  
+
+
+## Monk
+**`/mnk`**  
+`ae` -  
+`agpct` -  
+`fdpct` -  
+`healpoint` - [1,99]% you want to start firing off self heal skills/spells  
+`trainmelee` -   
+
+
+## Necromancer
+**`/nec`**  
+`gather` -  
+`healpoint` - [1,99]% you want to start firing off self heal skills/spells  
+`rod` - (on/off) use modulation shards  
+
+
+## Paladin
+**`/pal`**  
+`ae` - (on/off) use of AE skills (including agro AAs)  
+`defcount` - [1,50] count of mobs in range to start defensive skills and for AE triggers  
+`groupheal` - (on/off) group Heals  
+`harmonious` - (on/off) harmonious spell line  
+`healpoint` - [1,99] sets the start healpoint for the class of the targeted PC or Pet   
+`loh` -  
+`mg` - (on/off) use of Marr's Gift  
+`mg` - [1,99] set Marr's Gift use at %  
+`rampage` - [TARGET] will mark your target as the rampage tank and will NOT heal them  
+`rod` - (on/off) use modulation shards  
+`shieldflash` -  
+`stance` - (on/off) use stance spell line  
+`steel` - (on/off) use steel spell line  
+`stun` - [stop|divine|force|disruptive] set the stun you prefer to spam. stop to disable  
+`taunt` -  
+`xttime` - [1,5] time in min to refresh XT target window   
+`yaulp` - (on/off) set yaulp [AA only]
+
+
+## Rogue
+**`/rog`**  
+`ae` - (on/off) use of AE skills  
+`autosos` -  
+`healpoint` - [1,99] set the % you want to start firing off self heal skills/spells  
+`poison` - [1,100] set the amount of summoned poison to keep on hand.  
+
+
+## Ranger
+**`/rng`**  
+`healpoint` - [1,99] set the % you want to start firing off self heal skills/spells  
+`rod` - (on/off) use modulation shards  
+`summer` - (on/off) use summers line of spells.  
+`spice` - forces MGB Auspice.  
+`taunt` -  
+
+
+## Shadowknight
+**`/shd`**  
+`ae` - (on/off) use of AE skills (including agro AAs)  
+`defcount` - [1,50] count of mobs in range to start defensive skills and for AE triggers  
+`harmonious` -  
+`healpoint` - [1,99] set the % you want to start firing off self heal skills/spells  
+`rod` - (on/off) use modulation shards  
+`shieldflash` -  
+`skin` -  
+`stance` -  
+`taunt` -  
+`vot` -  
+
+
+## Shaman
+**`/shm`**  
+`aggressive` -  
+`cannihps` -  
+`cannimanna` -   
+`groupheal` -   
+`grouphot` -   
+`healpoint` - [1,99] sets the start healpoint for the class of the targeted PC or Pet   
+`rampage` - [TARGET] will mark your target as the rampage tank and will NOT heal them  
+`rod` - (on/off) use modulation shards  
+`surge` -   
+`talisman` -   
+`xtradius` - [1,300] set maximum range you will look for classes to add to XT Healing  
+`xttime` - [1,5]m time in min to refresh XT Healing window. in minutes  
+
+
+## Warrior
+**`/war`**  
+`defcount` - [1,50] mobs present to activate defensive discs  
+`healpoint` - [1,99] set the % you want to start firing off self heal skills/spells  
+`taunt` -  
+
+
+## Wizard
+**`/wiz`**  
+`forcetwincast` - Force using twincast spell and nuking with twincast nuke as much as possible  
+`gather` - (on/off) use of mana recovery skills  
+`gather` - [1,99] % manna to start using mana recovery skills  
+`healpoint` - [1,99] set the % you want to start firing off self heal skills/spells  
+`line` - [off|fire|ice|magic|mix] set the line of nukes  
+`manaburn` - (on/off) auto use of Mana Burn AA  
+`rod` - (on/off) use modulation shards  
