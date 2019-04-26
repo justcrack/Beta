@@ -60,6 +60,7 @@ sub disc_RNG()
 	CHECKEXIT
 	CHECKINPUTS
 	/if (${is_target_dead[${Target2Kill}]}) /return
+	/call set_combat ${combat.Upper}
 	
 	| agro control
 	/if (${swAgro}) {
@@ -167,6 +168,7 @@ sub click_DPS_RNG()
 	AMIDEAD
 	CHECKEXIT
 	CHECKINPUTS
+	/call set_combat ${combat.Upper}
 	/call use_skill_melee ${Target2Kill}
 	/call click_horn_of_unity 	
 
@@ -210,57 +212,72 @@ sub burn_RNG()
 	AMIDEAD
 	CHECKEXIT
 	CHECKINPUTS
-	
-	| MELEE
-	/if (${combat.Equal[MELEE]}) {
-		/if (!${Bool[${Me.ActiveDisc}]} && !${Bool[${Me.Buff[${useGlyph}]}]}) {
-			/if (${validate_cast[FALSE, alt, "Empowered Blades", ${Me.ID}]}) /call core_cast2 "Empowered Blades" alt 0 FALSE
-		} else /if (!${Bool[${Me.ActiveDisc}]} && !${Bool[${Me.Song[Empowered Blades]}]} && !${Bool[${Me.Buff[${useGlyph}]}]}) {
-			/if (${validate_cast[FALSE, disc, "${DiscMele}", ${Me.ID}]}) /call core_cast2 "${DiscMele}" disc 0 FALSE
-		} else /if (!${Bool[${Me.ActiveDisc}]} && !${Me.CombatAbilityReady[${DiscMele}]} && !${Me.AltAbilityReady[Empowered Blades]} && !${Bool[${Me.Song[Empowered Blades]}]}) {
-			/call use_glyph
-		} else /if (!${Bool[${Me.ActiveDisc}]} && !${Me.CombatAbilityReady[${DiscMele}]} && !${Me.AltAbilityReady[Empowered Blades]} && !${Bool[${Me.Song[Empowered Blades]}]} && !${Bool[${Me.Buff[${useGlyph}]}]}) {
-			/if (${validate_cast[FALSE, epicitem, "2", ${Me.ID}]}) /call core_cast2 "${${Me.Class.ShortName}Epic2}" item 0 FALSE
-		}
+	/call set_combat ${combat.Upper}
 
-	| RANGE
-	} else /if (${combat.Equal[RANGE]}) {
-		/if (!${Bool[${Me.ActiveDisc}]} && !${Bool[${Me.Buff[${useGlyph}]}]}) {
-			/if (${validate_cast[FALSE, disc, "${DiscRange}", ${Me.ID}]}) /call core_cast2 "${DiscRange}" disc 0 FALSE
-		} else /if (!${Bool[${Me.ActiveDisc}]} && !${Me.CombatAbilityReady[${DiscRange}]}) {
-			/call use_glyph
-		}
-	}
-	
 	/call cast_AA_spire
-	
-	| proc
-	/if (${validate_cast[FALSE, alt, "Imbued Ferocity", ${Me.ID}]} && !${Bool[${${Me.Class.ShortName}spire.Arg[1,|]}]}) {
-		/call core_cast2 "Imbued Ferocity" alt 0 FALSE
-	}
 
 	| cheeta
 	/if (${validate_cast[FALSE, alt, "${RNGcheetah}", ${Me.ID}]}) /call core_cast2 "${RNGcheetah}" alt 0 FALSE
 	
-	| att buffs
-	/if (${Me.AltAbilityReady[Outrider's Accuracy]} && !${Bool[${Me.Buff[Outrider's Attack]}]}) {
-		/if (${validate_cast[FALSE, alt, "Outrider's Accuracy", ${Me.ID}]}) /call core_cast2 "Outrider's Accuracy" alt 0 FALSE
-	} else /if (${Me.AltAbilityReady[Outrider's Attack]} && !${Bool[${Me.Song[Outrider's Accuracy]}]} && !${Me.AltAbilityReady[Outrider's Accuracy]} ) {
-		/if (${validate_cast[FALSE, alt, "Outrider's Attack", ${Me.ID}]}) /call core_cast2 "Outrider's Attack" alt 0 FALSE
+	
+
+
+	
+	| MELEE
+	/if (${swCombatMelee}) {
+		/if (${Target.Distance} <= ${setCombatDistance}) {
+			/if (!${Bool[${Me.ActiveDisc}]} && !${Bool[${Me.Buff[${useGlyph}]}]}) {
+				/if (${validate_cast[FALSE, alt, "Empowered Blades", ${Me.ID}]}) /call core_cast2 "Empowered Blades" alt 0 FALSE
+			} else /if (!${Bool[${Me.ActiveDisc}]} && !${Bool[${Me.Song[Empowered Blades]}]} && !${Bool[${Me.Buff[${useGlyph}]}]}) {
+				/if (${validate_cast[FALSE, disc, "${DiscMele}", ${Me.ID}]}) /call core_cast2 "${DiscMele}" disc 0 FALSE
+			} else /if (!${Bool[${Me.ActiveDisc}]} && !${Me.CombatAbilityReady[${DiscMele}]} && !${Me.AltAbilityReady[Empowered Blades]} && !${Bool[${Me.Song[Empowered Blades]}]}) {
+				/call use_glyph
+			} else /if (!${Bool[${Me.ActiveDisc}]} && !${Me.CombatAbilityReady[${DiscMele}]} && !${Me.AltAbilityReady[Empowered Blades]} && !${Bool[${Me.Song[Empowered Blades]}]} && !${Bool[${Me.Buff[${useGlyph}]}]}) {
+				/if (${validate_cast[FALSE, epicitem, "2", ${Me.ID}]}) /call core_cast2 "${${Me.Class.ShortName}Epic2}" item 0 FALSE
+			}
+		}
+		
+		| proc
+		/if (${validate_cast[FALSE, alt, "Imbued Ferocity", ${Me.ID}]} && !${Bool[${${Me.Class.ShortName}spire.Arg[1,|]}]}) {
+			/call core_cast2 "Imbued Ferocity" alt 0 FALSE
+		}		
+			
+	}
+
+	
+	
+	| RANGE
+	/if (${swCombatRange}) {
+		/if (${Target.Distance} >= 31) {
+			/if (!${Bool[${Me.ActiveDisc}]} && !${Bool[${Me.Buff[${useGlyph}]}]}) {
+				/if (${validate_cast[FALSE, disc, "${DiscRange}", ${Me.ID}]}) /call core_cast2 "${DiscRange}" disc 0 FALSE
+			} else /if (!${Bool[${Me.ActiveDisc}]} && !${Me.CombatAbilityReady[${DiscRange}]}) {
+				/call use_glyph
+			}
+		}
+	
+	
+	
 	}
 	
+	| attack / dmg AA
+	/if (${validate_cast[FALSE, alt, "Outrider's Accuracy", ${Me.ID}]}) /call core_cast2 "Outrider's Accuracy" alt 0 FALSE
+	/if (${validate_cast[FALSE, alt, "Outrider's Attack", ${Me.ID}]}) /call core_cast2 "Outrider's Attack" alt 0 FALSE
+	
 	| guardian buff
-	/if (!${Bool[${Me.Song[${RNGgroupguardian}]}]}) {  
+	/if (!${Me.Song[${RNGgroupguardian}].ID} && ${Me.AltAbilityReady[Guardian of the Forest]}) {  
 		/if (${validate_cast[FALSE, alt, "Guardian of the Forest", ${Me.ID}]}) /call core_cast2 "Guardian of the Forest" alt 0 FALSE
-	} else /if (!${Bool[${Me.Song[Guardian of the Forest]}]} && !${Me.AltAbilityReady[Guardian of the Forest]}) {
+	} else /if (!${Me.Song[Guardian of the Forest].ID} && !${Me.AltAbilityReady[${RNGgroupguardian}]}) {
 		/if (${validate_cast[FALSE, alt, "${RNGgroupguardian}", ${Me.ID}]}) /call core_cast2 "${RNGgroupguardian}" alt 0 FALSE
 	}
 		
-	| swarm
-	/if (${validate_cast[FALSE, alt, "Pack Hunt", ${Target2Kill}]} && ${swSwarm}) /call core_cast2 "Pack Hunt" alt ${Target2Kill} FALSE   
+	| swarm pets
+	/if (${swSwarm}) {
+		/if (${validate_cast[FALSE, alt, "Pack Hunt", ${Target2Kill}]}) /call core_cast2 "Pack Hunt" alt ${Target2Kill} FALSE   
+	}
 	
 	| ae regen 
-	/if (${validate_cast[FALSE, disc, "${DiscHeal}", ${Target2Kill}]} !${Bool[${DiscHeal}]} && !${Bool[${Me.Song[Bladespur Reflection]}]}) /call core_cast2 "${DiscHeal}" disc ${Target2Kill} FALSE
+	/if (${validate_cast[FALSE, disc, "${DiscHeal}", ${Target2Kill}]} && !${Me.Song[Bladespur Reflection].ID}) /call core_cast2 "${DiscHeal}" disc ${Target2Kill} FALSE
 			
 	/call click_burn_circle
 	/call click_item_burn

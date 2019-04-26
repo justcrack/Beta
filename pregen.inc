@@ -15,6 +15,15 @@
  ***|
 sub pregen_data_arrays()
 
+	| sin/cos generation for ranged movement combat
+	/declare _count int local 0
+	/declare cos[10] float outer
+	/declare sin[10] float outer
+	/for _count 1 to 10 
+		/varcalc cos[${_count}] ${Math.Cos[18.81 * ${_count}]}
+		/varcalc sin[${_count}] ${Math.Sin[18.81 * ${_count}]}
+	/next _count	
+
 	| schema
 	/if (!${Defined[sqlTables]}) /declare sqlTables[2] 							string outer
 	| tables by chrID
@@ -259,7 +268,7 @@ sub pregen_environment()
 	/call setDeclare wikipct																						string 		outer "[\a-w1,99\ax]"
 
 	| please take a number and have a seat.
-	/call setDeclare bitchcount																					string 		outer 31
+	/call setDeclare bitchcount																					string 		outer 32
 	/call setDeclare bitch1																							string		outer	"Seriously... Again..."
 	/call setDeclare bitch2																							string		outer	"Did your parents ever ask you to run away from home?"
 	/call setDeclare bitch3																							string		outer	"Aha, I see the Fuck-Up Fairy has visited us again!"
@@ -291,6 +300,7 @@ sub pregen_environment()
 	/call setDeclare bitch29																						string	 	outer "Don't worry about it too much. I did the same thing when I was eleven."
 	/call setDeclare bitch30																						string	 	outer "As the sun rose, Dawn crept across the lawn.. Searching for her car keys."
 	/call setDeclare bitch31																						string		outer "Thank you for nothing... You useless reptile."
+	/call setDeclare bitch32																						string		outer "Cows are like women, the crazy ones taste the best. --alynel"
 
 	| EQ expansions
 	/call setDeclare expansion1																					string	 	outer "The Ruins of Kunark"
@@ -342,7 +352,7 @@ sub pregen_environment()
 	/call sql_control FALSE environment setCrew1Assist									string		outer FALSE
 	/call sql_control FALSE environment setCrew1Looter									string		outer FALSE
 	/call sql_control FALSE environment lstCrew2												string		outer "|FALSE"
-	/call sql_control FALSE environment set04/12/2019 8:02:39 PM04/12/2019 8:02:39 PM2Leader									string		outer FALSE
+	/call sql_control FALSE environment setCrew2Leader									string		outer FALSE
 	/call sql_control FALSE environment setCrew2Assist									string		outer FALSE
 	/call sql_control FALSE environment setCrew2Looter									string		outer FALSE
                                                             					
@@ -1571,6 +1581,12 @@ sub pregen_ENC()
 	| /if (!${Defined[aggroAnim]}) /declare aggroAnim string outer "|5|8|12|17|18|42|44|80|106|129|144"
 	
 	/call sql_control FALSE ENC switchCharmPet													bool			outer FALSE
+	
+	
+  | nights endless terror
+  /call sql_control FALSE ENC swTerror																bool			outer FALSE
+  /call sql_control FALSE ENC spellTerror															string		outer PREGENDATA
+  /call sql_control FALSE ENC lstTerrorToon														string		outer "|FALSE"
 
 	/call sql_control FALSE ENC switchGather			 											bool			outer FALSE
 	/call sql_control FALSE ENC GatherPercent			 											int				outer 60

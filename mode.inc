@@ -151,8 +151,8 @@ sub mode_get_mob()
 		| use nav for movement
 		/if (${setTieMode.Equal[nav]} && ${Bool[${Plugin[MQ2Nav]}]} && !${Navigation.Active}) {
 			/echo nav to ${Target2Kill}
-			/if (${Navigation.Active}) /squelch /nav stop
-			/squelch /nav id ${Target2Kill}
+			/if (${Navigation.Active}) /nav stop log=off
+			/squelch /nav ID ${Target2Kill} log=off
 
 		| use stick for movement
 		} else /if (${setTieMode.Equal[stick]} && ${Bool[${Plugin[MQ2MoveUtils]}]} && !${Stick.Active}) {
@@ -634,7 +634,7 @@ sub mode_collect()
 		/return
 	}	
   	
-	/squelch /nav item  	
+	/nav item log=off
 	/delay 1s
 	/delay 3m !${Navigation.Active}
 					
@@ -673,8 +673,7 @@ sub get_ground_harvest(string _tmpItem)
 				/delay 1 
 				
 				/if (${Navigation.PathExists[item]}) {
-					/echo here nav
-	        /nav item
+	        /nav item log=off
 	    	} else /if (!${Navigation.PathExists[item]}) {
 	    		/echo no path
 	    	}
@@ -689,7 +688,7 @@ sub get_ground_harvest(string _tmpItem)
 				/if (${Ground.Distance3D} < 19) /call Bind_grab ${_tmpItem}
 				
 				
-				/squelch /nav stop
+				/nav stop log=off
 				
 			} else /if (!${Navigation.MeshLoaded}) {
 				OUT NO Nav Mesh for this zone. Returning to Stick.
@@ -935,7 +934,7 @@ sub mode_summon(string _type)
 	| do we need to buy a stone?
   /if (!${FindItem[${_soulstone}].ID}) {
 
-		/nav spawn npc A Disciple of Luclin
+		/nav spawn npc A Disciple of Luclin |log=off
 
 		:priestinventory
 			/delay 10s !${Navigation.Active}
@@ -958,7 +957,7 @@ sub mode_summon(string _type)
 	/if (!${FindItem[${_soulstone}].ID}) /goto :start
 
 	| move to rezer
-  /nav spawn npc A Priest of Luclin
+  /nav spawn npc A Priest of Luclin |log=off
   /delay 10s !${Navigation.Active}
 
 	| get stone on cursor

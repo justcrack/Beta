@@ -151,14 +151,12 @@ sub check_engaged()
 	/if (${Me.AutoFire}) /return TRUE
 	
 	| am i the puller or main agro with mobs in range?
-	| /if (((${swPull} && ${swAgro}) || ${Group.MainAssist.Name.Equal[${Me.DisplayName}]} || ${Group.MainTank.Name.Equal[${Me.DisplayName}]}) && ${SpawnCount[npc ${If[${swOverrideLOS},,los]} radius ${setCombatDistance}*2 playerstate 4]}) /return TRUE
 	/if (${swPull} && ${swAgro}) {
 		/if (${SpawnCount[npc ${If[${swOverrideLOS},,los]} radius ${setCombatDistance}*2 playerstate 4]}) /return TRUE
 	}
 	/if (${Group.MainAssist.Name.Equal[${Me.DisplayName}]}) {
 		/if (${SpawnCount[npc ${If[${swOverrideLOS},,los]} radius ${setCombatDistance}*2 playerstate 4]}) /return TRUE
 	}
-	| /if (${Group.MainTank.Name.Equal[${Me.DisplayName}]} && ${SpawnCount[npc ${If[${swOverrideLOS},,los]} radius ${setCombatDistance}*2 playerstate 4]}) /return TRUE
 
 /return FALSE
 
@@ -506,9 +504,6 @@ sub check_buffs_item()
 	
 	| check clickItemBuff
 	/for _count 1 to 6
-		| /if (${Me.Buff[${FindItem[=${clickItemBuff${_count}}].Spell}].ID}) /continue 
-		| /if (!${Me.FreeBuffSlots}) /continue
-		| /if (!${Me.ItemReady[=${clickItemBuff${_count}}]}) /continue
 		/if (${validate_cast[FALSE, item, "${clickItemBuff${_count}}", ${Me.ID}]}) /call core_cast2 "${clickItemBuff${_count}}" item 0 FALSE
 	/next _count
 	
@@ -932,7 +927,6 @@ sub check_buffs_BC()
 		| each buff. cycle all ${setMaxBuffCount}, used or not
 		/for _count 1 to ${setMaxBuffCount}
 			/varset _found TRUE
-			| /echo 
 			| SDEBUG ${_count}::${setMaxBuffCount}::\at${_toonName}\ax::\aw${Buff${_count}}\ax
 			CHECKCOMBATCAST
 			
@@ -985,28 +979,8 @@ sub check_buffs_BC()
 					/if (!${Bool[${Spell[${Spell[${Buff${_count}}].Base2[${_i}]}].Duration}]}) /continue
 					/if (!${_found}) /continue
 					
-					| /declare _qBuffName${_count}${_i}${_toonName} string local
-					| /declare _qBuffNewStacks${_count}${_i}${_toonName} string local
-
-					/if (!${Defined[_qBuffName${_count}${_i}${_toonName}]}) /declare _qBuffName${_count}${_i}${_toonName} string local
-					/if (!${Defined[_qBuffNewStacks${_count}${_i}${_toonName}]}) /declare _qBuffNewStacks${_count}${_i}${_toonName} string local
-
-
 					| parsing issues: set the name of the secondary spell before passing the request to the other toon. should not need to do this.
 					/varset _base2 ${Spell[${Spell[${Buff${_count}}].Base2[${_i}]}].Name}
-
-					|***
-					| do we have the triggered buff?
-					/dobserve ${_toonName} -q "Me.Buff[${_base2}].Name" -o _qBuffName${_count}${_i}${_toonName}
-					| SDEBUG .Name2 _qBuffName${_count}${_i}${_toonName}:\at${_qBuffName${_count}${_i}${_toonName}}\ax
-					/if (!${Bool[${_qBuffName${_count}${_i}${_toonName}}]}) /varset _found FALSE
-
-					| does it stack
-					/dobserve ${_toonName} -q "Spell[${_base2}].NewStacks" -o _qBuffNewStacks${_count}${_i}${_toonName}
-					| SDEBUG .NewStacks2 _qBuffNewStacks${_count}${_i}${_toonName}:\at${_qBuffNewStacks${_count}${_i}${_toonName}}\ax
-					/if (!${Bool[${_qBuffNewStacks${_count}${_i}${_toonName}}]}) /varset _found TRUE
-					***|
-
 
 					| do we have the triggered buff?
 					/dquery ${_toonName} -q "Me.Buff[${_base2}].ID" -o _DNqout -t 1s
@@ -1019,28 +993,15 @@ sub check_buffs_BC()
 					/if (!${Bool[${_DNqout}]}) /varset _found TRUE
 
 
+					| is it buff blocked 
+					/dquery ${_toonName} -q "lstBlockedSpells.Find[${_base2}]" -o _DNqout -t 1s 
+					| SDEBUG .Base2.Blocked Buff \at${_DNqout}\ax
+					/if (${Bool[${_DNqout}]}) /varset _found TRUE
+
 				/next _i
 
 			| no secondary procing buffs. just check for the spells main name
 			} else {
-				| SDEBUG ${sep} NO SPA
-
-				/declare _qBuffName${_count}${_toonName} string local
-				/declare _qBuffStacks${_count}${_toonName} string local
-					
-				|**
-				| has the buff?
-				/dobserve ${_toonName} -q "Me.Buff[${Buff${_count}}].Name" -o _qBuffName${_count}${_toonName}
-				| SDEBUG .Name _qBuffName${_count}${_toonName}:\at${_qBuffName${_count}${_toonName}}\ax
-				/if (!${Bool[${_qBuffName${_count}${_toonName}}]}) /varset _found FALSE
-
-				| stacks				
-				/dobserve ${_toonName} -q "Spell[${Buff${_count}}].NewStacks" -o _qBuffStacks${_count}${_toonName}
-				| SDEBUG .NewStacks _qBuffStacks${_count}${_toonName}:\at${_qBuffStacks${_count}${_toonName}}\ax
-				/if (!${Bool[${_qBuffStacks${_count}${_toonName}}]}) /varset _found TRUE
-				**|
-
-
 	
 				| has the buff?
 				/dquery ${_toonName} -q "Me.Buff[${Buff${_count}}].Name" -o _DNqout -t 1s
@@ -1051,7 +1012,10 @@ sub check_buffs_BC()
 				/dquery ${_toonName} -q "Spell[${Buff${_count}}].NewStacks" -o _DNqout -t 1s
 				| SDEBUG .NewStacks \at${_DNqout}\ax
 				/if (!${Bool[${_DNqout}]}) /varset _found TRUE
-				
+
+				| is it buff blocked 
+				/dquery ${_toonName} -q "lstBlockedSpells.Find[${Buff${_count}}]" -o _DNqout -t 1s 
+				/if (${Bool[${_DNqout}]}) /varset _found TRUE
 
 			}
 
@@ -1070,17 +1034,6 @@ sub check_buffs_BC()
 
 	UPDATEHUD FALSE
 /return
-
-
-
-${Spell[Strength of the WildStalker].IsStackBlocked}
-
-
-Strength of the WildStalker
-
-.StacksTarget
-
-/echo ${Spell[Strength of the WildStalker].StacksTarget}
 
 
 
@@ -1357,7 +1310,7 @@ sub set_stop(string _echo)
 	
 	/if (${Stick.Active}) /squelch /stick off
 	/if (${AdvPath.Following}) /squelch /afollow off
-	/if (${Navigation.Active}) /squelch /nav stop
+	/if (${Navigation.Active}) /nav stop log=off
 	/if (${swsnapstuck}) {
 		/varset swsnapstuck FALSE
 	}
@@ -1422,8 +1375,6 @@ sub click_item_swarm(int _tmpID)
 		}
 		/if (${Target.DSed.ID}) /return FALSE		
 	}
-	
-	
 	
 	/for _count 1 to 4
 		/if (${Spawn[${Target.ID}].PctHPs} < 5*.${tmpHealOverride}) /break
@@ -1573,7 +1524,6 @@ sub set_xtarget()
 				}
 			/next _x
 		}
-
 		
 		| set raid protected classes
 		/for _count 1 to ${XHealClass.Count[|]}
@@ -1582,7 +1532,6 @@ sub set_xtarget()
 			/if (!${SpawnCount[pc ${XHealClass.Arg[${_count},|]} raid radius ${setMobAgro}]}) /continue
 
 			/for _x 1 to ${SpawnCount[pc ${XHealClass.Arg[${_count},|]} raid radius ${setMobAgro}]}
-				
 
 				/if (${_b} > 13) /break
 				
@@ -1974,7 +1923,6 @@ sub cast_nuke()
 
 		/if (!${Range.Between[1,8:${Int[${_count}]}]}) /continue
 		/if (!${cast_condition[Nuke${_count}Condition]}) /continue
-				
 
 		AMIDEAD
 		CHECKEXIT
@@ -2143,7 +2091,7 @@ sub get_target_2kill()
 	/if (${Target.ID} != ${Target2Kill} && ${Spawn[id ${Target2Kill}].Distance} <= ${setMobAgro}) {
 		/squelch /target ID ${Target2Kill}
 	}	
-	| /if (${coreAuto} && ${Target.Distance} > ${setMobAgro}) /call clear_combat
+
 /return
 
 
@@ -2735,7 +2683,6 @@ sub set_combat(str _mode)
 	/if (${Me.State.NotEqual[STAND]}) /stand
 	/if (${coreAuto} && ${Me.State.Equal[FEIGN]}) /squelch /stand
 	/if (!${coreAuto} && ${Me.Invis}) /makemevisible
-
 		
 	| combat	
 	/if (${Bool[${_mode}]}) {
@@ -2753,10 +2700,9 @@ sub set_combat(str _mode)
 			/call clear_combat
 			/return
 		} 
-			
-			
+						
 		| not within ${combatradius} and far enought to range?
-		/if (${Target.Distance} > 31) {
+		/if (${Target.Distance} > 30) {
 			| SDEBUG  Target.Distance:${Target.Distance}
 
 			| range mobs if enabled
@@ -2785,9 +2731,6 @@ sub set_combat(str _mode)
 				}
 
 			}
-			
-			
-
 
 		| mob too close for range
 		} else /if (${Target.Distance} <= 31) {
@@ -2795,7 +2738,7 @@ sub set_combat(str _mode)
 	
 			| adjust range if melee is diabled to keep close to target. give them some range to.. range again
 			/if (${Target.Distance} < 31 && ${swCombatRange} && !${swCombatMelee}) {
-				/if (${coreAuto} && !${Stick.Active} && ${Me.TargetOfTarget.Name.NotEqual[${Me.DisplayName}]}) /stick moveback 38
+				/if (${coreAuto} && !${Stick.Active} && ${Me.TargetOfTarget.Name.NotEqual[${Me.DisplayName}]}) /call moveto_range ${Target2Kill} 35
 				
 			| can we get to the melee already?
 			} else /if (${swCombatMelee}) {
@@ -2808,125 +2751,9 @@ sub set_combat(str _mode)
 					/if (${coreAuto}) /call stick_to_target ${Target2Kill}
 				}
 			}
-			
-			
-			
-			
 	}
-	
-	
 
 /return
-
-
-
-
-
-
-
-| this is in here for reference for the rewrite.  please ignore...
-sub set_combat_OLD(str _mode)
-	DEBUG set_combat(${_mode})
-	AMIDEAD
-	CHECKINPUTS
-	/if (${is_target_dead[${Target2Kill}]}) /return	
-	/if (!${coreAuto} && ${Me.Invis}) /makemevisible
-	UPDATEHUD "${_mode}"
-	/if (${Me.State.NotEqual[STAND]}) /stand
-	/if (${coreAuto} && ${Me.State.Equal[FEIGN]}) /squelch /stand
-		
-	| combat	
-	/if (${Bool[${_mode}]}) {
-		| /if ((${switchCombatMelee} || ${switchCombatRange}) && ${coreAuto} && !${Range.Between[0,${SetFaceArc}:${Math.Abs[${Math.Calc[${Target.HeadingTo.Degrees}-${Me.Heading.Degrees}]}]}]}) /squelch /face ID ${Target2Kill} nolook ${If[${SetFaceFast},fast,]}
-		
-		/if (${coreAuto}) {
-			/if (${switchCombatMelee} || ${switchCombatRange}) {
-				/if (!${Range.Between[0,${SetFaceArc}:${Math.Abs[${Math.Calc[${Target.HeadingTo.Degrees}-${Me.Heading.Degrees}]}]}]}) /squelch /face ID ${Target2Kill} nolook ${If[${SetFaceFast},fast,]}
-			}
-		}
-
-
-		| stop melee on DS ??
-		/if (${coreAuto} && ${Bool[${Target.DSed}]} && ${stoponDS} && !${switchAgro}) {
-			/call set_stop NOECHO
-			/call clear_combat
-		} else {
-			
-			|**
-			/if (${Target.Distance} > 31 && ${switchCombatRange} && !${SetStickBehind}) {
-				/if ((${Spawn[${Target2Kill}].LineOfSight} && !${switchOverrideLos}) && !${Me.AutoFire}) /squelch /autofire on
-				/if (${coreAuto} && ${switchCombatMelee} && !${RangeList.Find[${Target.DisplayName}]}) /call stick_to_target ${Target2Kill}
-			} else /if ((${Target.Distance} <= 31 && ${switchCombatMelee}) || (${SetStickBehind} && ${Target.Distance} <= ${MobAgro} && ${switchCombatMelee})) {
-				/if (${NoMeleeList.Find[${Target.DisplayName}]}) {
-					/squelch /attack off
-				} else {
-					/squelch /attack on
-					/if (${coreAuto} && ${switchCombatMelee}) /call stick_to_target ${Target2Kill}
-				}
-			}
-			**|
-
-			| range all the things
-			/if (${Target.Distance} > 31 && ${switchCombatRange} && !${SetStickBehind}) {
-				
-				| no need to move were are at a good distance
-				/if (${Stick.Active}) /squelch /stick off		
-				
-				/if (${RangeList.Find[${Target.DisplayName}]}) {
-					/if (${Me.AutoFire}) /squelch /autofire
-				} else {
-					/if (${Spawn[${Target2Kill}].LineOfSight} && !${Me.AutoFire}) /squelch /autofire
-				}
-				
-			| adjust range id melee is diabled to keep close to target.
-			} else /if (${Target.Distance} < 31 && ${switchCombatRange} && !${SetStickBehind} && !${switchCombatMelee}) {
-				/if (${coreAuto} && !${Stick.Active} && ${Me.TargetOfTarget.Name.NotEqual[${Me.DisplayName}]}) /stick moveback 38
-				
-			| melee shit?
-			} else /if ((${Target.Distance} <= 31 && ${switchCombatMelee}) || (${SetStickBehind} && ${Target.Distance} <= ${MobAgro} && ${switchCombatMelee})) {
-				/if (${NoMeleeList.Find[${Target.DisplayName}]}) {
-					/squelch /attack off
-				} else {
-					/if (${Me.AutoFire}) /squelch /autofire
-					/squelch /attack on
-					/if (${coreAuto}) /call stick_to_target ${Target2Kill}
-				}
-			}
-		}
-	}
-/return
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -2936,16 +2763,10 @@ sub set_combat_OLD(str _mode)
  *  NOTE: 
  ***|
 sub cast_nuke_GoM(int _tmpID)
-	| clerics have their own GOM routine in group heals
-	| /if (${Select[${Me.Class.ShortName},CLR]}) /return
 
 	CHECKEXIT
 	CHECKINPUTS
 
-	| /if (${Me.Casting.ID} && (${Me.Gem[${GoMNuke}]} || ${Me.Gem[${GoMNuke2}]})) {
-	| 	/delay 
-	| }
-	
 	| nuke 1
 	/if (${Me.SpellReady[${GoMNuke}]}) {
 		/if (${Me.CurrentMana} < ${Spell[${GoMNuke}].Mana} || ${Me.CurrentMana} < 2) /return 
@@ -3151,13 +2972,13 @@ sub set_tie()
 			/if (!${Navigation.Active} && ${Spawn[pc ${setTieToon}].Distance} > ${setTieDistance}) {
 				/if (${Target.ID}) /squelch /target clear
 				/squelch /face ID ${Spawn[pc ${setTieToon}].ID} ${If[${swFaceFast},fast,]}
-				/squelch /nav spawn pc ${setTieToon}
+				/nav spawn pc ${setTieToon} |log=off
 		
 				:navtime
 
 			} else /if (${Spawn[pc ${setTieToon}].Distance} <= ${setTieDistance}) {
 				/if (${Navigation.Active}) {
-					/squelch /nav stop
+					/nav stop log=off
 				}
 			}
 
@@ -3235,7 +3056,7 @@ sub sort_familiar()
 |***
 *	DES: check and claim Free Station Cash
 *	USE: manual
-* NOTE:  Credit: v1.0 - Initial release on Macroquest VIP forums - Dewey2461 on 7-7-2014 [butchered by me]
+* NOTE: Credit: v1.0 - Initial release on Macroquest VIP forums - Dewey2461 on 7-7-2014 [butchered by me]
 ***|
 sub check_free_ingame_cash()
 	
@@ -3371,8 +3192,6 @@ sub update_HUD_notices(string _mode)
 		/varset tmpMode FALSE
 	}
 
-	| /if (!${timer_check_status}) /call broadcast_status
-
 	|**  HUD warning notices.. the red stuff up top **|
 	
 	| rez warning
@@ -3451,7 +3270,6 @@ sub update_HUD_notices(string _mode)
 	/if (${Bool[${Target.Slowed}]}) /varset _tmptarNotice ${_tmptarNotice} Slow
 	/if (${Bool[${Target.DSed}]}) /varset _tmptarNotice ${_tmptarNotice} DS
 	/if (${Target.Buff[${setBufftoWatch}].ID}) /varset _tmptarNotice ${_tmptarNotice} ${setBufftoWatch}
-	
 	
 	| target things and stuff
 	/if (${_tmptarNotice.Length} != ${hudTargetLength}) {
@@ -3859,7 +3677,6 @@ sub cast_rez(int _tmpID, string _rezAA)
 		/call timer_update timer_corpse_${_tmpID}} 30m
 		/return FALSE
 	}
-
 		
 	| get the corpse close to us
 	/if (${Spawn[pccorpse ${_tmpID}].Distance} > ${setCombatRadius}*2 && ${Spawn[pccorpse ${_tmpID}].Distance} <= ${setMaxRezRange}) {
@@ -4227,7 +4044,6 @@ sub do_loot()
 			}
 			/varset _advlChoice ${Ini[${INILoot},"${_advlItem.Left[1]}","${_advlItem}"].Arg[1,|]}
 			/varset _advlPerson ${Ini[${INILoot},"${_advlItem.Left[1]}","${_advlItem}"].Arg[2,|]}
-
 
 			| Does it exist in the loot.ini (check to see if there is a choice for it)
 			/if (${AdvLoot.SList[${_scount}].ID} && !${Select[${_advlChoice},Leave,Keep,Destroy,Sell,Announce,Ignore]}) {
@@ -5064,7 +4880,6 @@ sub exit_class_loop()
 	} else /if (!${coreAuto}) {
 		| no target. go away
 		/if (!${Target.ID}) /return TRUE
-		| /if (${Target.ID} && !${Bool[${combat}]}) /return TRUE
 		| forced combat in manual
 		/if (${Bool[${combat}]}) {
 			| target dead. end
@@ -5146,7 +4961,7 @@ sub is_burn_time()
  *  NOTE: THIS NEEDS TO BE WORKED OUT OF THE CODE.. MOVE TO check_exit...
  ***|
 sub check1offBuffs()
-	AMIDEAD
+	| AMIDEAD
 	| /if (${Me.Buff[Holistic Health].ID}) /call cure_Anashti_DT
 	| /if (${Me.Buff[Pyroignition].ID}) /call CurePyroignitionDot
 	| /if (${Me.Buff[Withering Physicality].ID} || ${Me.Buff[Withering Limbs].ID} || ${Me.Buff[Withering Faith].ID}) /call CureDamselofDecay
@@ -5504,29 +5319,6 @@ sub click_item_burn()
  *	DES: cast whatever spire you set for burns
  *	USE: /call cast_AA_spire
  *  NOTE: 
-sub cast_AA_spire()
-	AMIDEAD
-	CHECKEXIT
-	CHECKINPUTS
-	/if (${Raid.Members} && ${Bool[${${Me.Class.ShortName}spire${spireRaid}}]}) {
-		/if (!${Bool[${Me.Buff[${${Me.Class.ShortName}spire${spireRaid}}]}]} && ${Spell[${${Me.Class.ShortName}spire${spireRaid}}].NewStacks}) {
-			/if (${validate_cast[FALSE, alt, "${${Me.Class.ShortName}spire${spireRaid}}", ${Me.ID}]}) /call core_cast2 "${${Me.Class.ShortName}spire${spireRaid}}" alt 0 FALSE
-		}
-	} else /if (!${Raid.Members} && ${Bool[${${Me.Class.ShortName}spire${spireGroup}}]}) {
-		/if (!${Bool[${Me.Buff[${${Me.Class.ShortName}spire${spireGroup}}]}]} && ${Spell[${${Me.Class.ShortName}spire${spireGroup}}].NewStacks}) {
-			/if (${validate_cast[FALSE, alt, "${${Me.Class.ShortName}spire${spireGroup}}", ${Me.ID}]}) /call core_cast2 "${${Me.Class.ShortName}spire${spireGroup}}" alt 0 FALSE
-		}
-	}
-
-/return
- ***|
-
-
-
-|***
- *	DES: cast whatever spire you set for burns
- *	USE: /call cast_AA_spire
- *  NOTE: 
  ***|
 sub cast_AA_spire()
 	AMIDEAD
@@ -5708,7 +5500,6 @@ sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 			/varset _type item
 		}
 	}
-
 		
 	| check spell
 	/if (${_type.Equal[spell]}) {
@@ -5869,7 +5660,6 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub)
 		}
 	} 	
 
-
 	| spell
 	/if (!${Select[${_type},alt,item,disc,pulse,epicitem,activedisc]}) {
 		| correct the rank
@@ -5889,7 +5679,6 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub)
 		| bc output if enabled
 		VBC Spell "${_spell}" ${_tmpID} 0 		
 
-
 	| AA
 	} else /if (${Select[${_type},alt]}) {
 		
@@ -5905,7 +5694,6 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub)
 
 		| bc output if enabled
 		VBC Alt "${_spell}" ${_tmpID} 0 
-
 
 	| item
 	} else /if (${Select[${_type},item,epicitem]}) {
@@ -5928,7 +5716,6 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub)
 		VBC Disc "${_spell}" ${_tmpID} 0 
 		/disc ${_spell}
 		/delay 5s !${Me.Casting.ID}
-
 
 	| bard song	
 	} else /if (${Select[${_type},pulse]}) {
@@ -5954,7 +5741,6 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub)
 		/delay 2
 		/if (${Me.BardSongPlaying}) /call pulse_stop
 	}
-	
 
 	| cooldown the system needs the tiny inturrupt to register the cast routine and grey out for spells
 	AMIDEAD
@@ -6364,39 +6150,6 @@ sub check_deBuffs(int _tmpID)
 
 /return
 
-
-
-|***
- *	DES: checks the build increments. if theres a varriance, will check INIs
- *	USE: 
- *  NOTE: 
-
-sub verify_build()
-	| if mismatch #s
-	/varset swBuildMatch TRUE
-	
-	| echo the build changes.
-	/varset swEchosSQL TRUE
-
-	| fix version builds
-	/sqlite ${dbCore} prevBuild SELECT currentBuild FROM environment 
- 	/sqlite ${dbCore} dummy UPDATE character SET currentBuild="${currentBuild}" WHERE chrID="${chrID}"
-	/sqlite ${dbCore} dummy UPDATE environment SET currentBuild="${currentBuild}"
-
-	| clean out all old aliases.
-	/call whitewash NOECHO
-	
-	| re establish aliases
-	/call set_alias
-	
-	| echo startup notice
-	/call echo_notice
-
-	| update MyButtons
-	/call mybutton_control
-
-/return 
- ***|
 
 
 |***
@@ -7389,7 +7142,6 @@ sub sql_control(bool _debug, string _table, string _field, strint _type, string 
 		/sqlite ${dbCore} dummy ALTER TABLE ${_table} ADD ${_field} 
 		/if (${_debug}) VSQL \aw${_table}\ax::\aw${_field}\ax
 	}	
-	
 
 	| checking for unique /primary key. if not there, build it and reattach query.
 	/if (${sqlTables[1].Find[${_table}]}) {	
@@ -7421,7 +7173,6 @@ sub sql_control(bool _debug, string _table, string _field, strint _type, string 
 				/varset _count ${Math.Calc[${_count}+1]}	
 			/next _count	
 			
-			
 		| if what we are passing does not equal whats in the database, take new value and reattach query
 		} else /if (${_value.NotEqual[PREGENDATA]}) {
 			/sqlite ${dbCore} dummy UPDATE ${_table} SET ${_field}="${_value}" WHERE chrID="${chrID}"
@@ -7437,20 +7188,12 @@ sub sql_control(bool _debug, string _table, string _field, strint _type, string 
 
 	| what has been added to DB
 	/if (${_debug}) VSQL \aw${_table}\ax::\aw${_field}\ax::\ag${_value}\ax
-	
 
 	| is this an update from edit or to establish
-	| /if (${_type.Equal[UPDATE]}) {
-		
-		| just update the data and call it a night.
-		| /varset ${_field} ${_value}
-		
-	| } else {
-		| define the variable if it does not exist
-		/if (!${Defined[${_field}]}) /declare ${_field} ${_type} outer
-		| populate the variable
-		/varset ${_field} ${sqlite.Result[dummy 1 ${_field}]}
-	| }
+	| define the variable if it does not exist
+	/if (!${Defined[${_field}]}) /declare ${_field} ${_type} outer
+	| populate the variable
+	/varset ${_field} ${sqlite.Result[dummy 1 ${_field}]}
 
   | Not a spell, move on
   /if (!${_spell}) /return
@@ -7544,14 +7287,12 @@ sub sql_update(bool _debug, string _table, string _field, string _value)
 	| what has been added to DB
 	/if (${_debug}) VSQL \aw${_table}\ax::\aw${_field}\ax::\ag${_value}\ax::${sqlite.Status[dummy]}
 	
-	
 	| populate the variable
-	
 	/varset ${_field} ${sqlite.Result[dummy 1 ${_field}]}
 
 /return
 
-
+|**
 	/if (${_debug}) /echo before rk adaptation ${_field}::\at${${_field}}\ax
 
 	| This isn't even my final form!
@@ -7577,6 +7318,7 @@ sub sql_update(bool _debug, string _table, string _field, string _value)
 	} 
 
 /return TRUE
+**|
 
 
 
@@ -7685,8 +7427,6 @@ sub sql_return(string _variable, string _query)
  *  NOTE: attention span of a fucking gnat...
  ***|
 sub sql_delete(string _table, string _variable)
-
-
 
 /return
 
@@ -7959,12 +7699,7 @@ sub sql_clear(bool _debug, string _query)
  ***|
 sub check_health_group()
 	/declare _count int local 0
-	| /declare _hurtPctHP ${If[${setHealOverride},${Float[${setHealOverride}].Centi},99.99]}
 
-	| /varset hurtIndex ${Group.Member[${Me}].Index}
-	| /varset hurtCLS ${Me.Class.ShortName}
-	| /varset hurtCount 0
-		
 	/for _count 0 to ${Group}
 		/if (${Group.Member[${_count}].PctHPs} > ${${Group.Member[${_count}].Class.ShortName}Point}*.${tmpHealOverride}) /continue
 		/if (${Group.Member[${_count}].PctHPs} > ${hurtPctHP}) /continue
@@ -8041,40 +7776,6 @@ sub check_health_pet()
 
 
 |***
- *	DES: creates/displays who has core set to manual mode in the HUD
- *	USE: /call broadcast_status
- *  NOTE: this only works for your group that share the same databas
-
-sub broadcast_status()
-	/if (${Me.Zoning}) /return FALSE
-	/call timer_update timer_check_status ${tCheck_status}
-	/if (${Group} < 1) /return FALSE
-
-	/declare _count int local
-	/declare _build string local 
-	/declare _chrID string local
-	
-	| cycle the group members
-	/for _count 0 to ${Group}
-		/if (!${DanNet.Peers.Find[${Group.Member[${_count}].DisplayName}]}) /continue
-		| /if (!${Group.Member[${_count}].Index}) /continue
-		/varset _chrID ${MacroQuest.Server}_${Group.Member[${_count}].Class.ShortName}_${Group.Member[${_count}].DisplayName}
-		04/13/2019 6:11:17 PM04/13/2019 6:11:17 PM04/13/2019 6:11:17 PM04/13/2019 6:11:17 PM04/13/2019 6:11:17 PM04/13/2019 6:11:17 PM04/13/2019 6:11:17 PM04/13/2019 6:11:17 PM04/13/2019 6:11:17 PM
-		/sqlite ${dbCore} queryBuild SELECT coreAuto FROM character WHERE chrID="${_chrID}"
-		/if (!${sqlite.Rows[queryBuild]}) /continue
-		/if (${sqlite.Status[queryBuild].NotEqual[Success]}) /continue
-		/if (${sqlite.Result[queryBuild 1 coreAuto]}) {
-			/varset _build ${_build} ${Group.Member[${_count}].DisplayName.Left[3]}
-		}
-		
-	/next _count
-	/varset setHUDBroadcast ${_build}
-/return
- ***|
- 
- 
-
-|***
  *	DES: just clears the xtarget list
  *	USE: 
  *  NOTE: really thats all it does
@@ -8084,6 +7785,7 @@ sub clear_xtarget()
 	/for _count 1 to 13
 		/xtarget set ${_count} Autohater
 	/next _count
+	
 /return
 
 
@@ -8111,30 +7813,6 @@ sub check_ready(string _type, string _tocheck)
 	}
 
 /return FALSE
-
-
-
-
-|***
- *  DES: 
- *  USE: 
- *  NOTE: 
-
-sub check_geomantra()
-
-
-	/call sql_control FALSE character swGeomantra												bool			outer FALSE
-
-
-
-${Me.Buff[Geomantra].ID}
-
-
-${Me.ItemReady[${setGeomantra}]}
-
-
-/return
- ***|
 
 
 
@@ -8230,33 +7908,89 @@ sub check_buffs_blocked()
 	/declare _tmpList string local
 
 	| cycle the blocked buff list and add them to a string
-	| /windowstate BlockedBuffWnd open
+	/squelch /windowstate BlockedBuffWnd open
 	/for _count 0 to 39
-		| SDEBUG ${_count}::${Window[BlockedBuffWnd].Child[BW_BLOCKEDBUFF${_count}_Button].Tooltip}
-
 		| skip empty ones
 		/if (${Window[BlockedBuffWnd].Child[BW_BLOCKEDBUFF${_count}_Button].Tooltip.Length} < 1) /continue
 
 		| + -> ++
 		/varset _tmpList ${_tmpList}|${Window[BlockedBuffWnd].Child[BW_BLOCKEDBUFF${_count}_Button].Tooltip}
 	/next _count
+	/squelch /windowstate BlockedBuffWnd close
 
 	| write it so the buffers dont go apeshit
-	/call sql_update FALSE character lstBlockedSpells "${_tmpList}"
-	| /varset tmpLstBLockedSpells "${_tmpList}"
-
+	/call Bind_sql_edit lstBlockedSpells "${_tmpList}" NA TRUE
+	
 	| set the timer again
 	/call timer_update timer_check_buffs_blocked ${tBlocked_Buff}
-	| /windowstate BlockedBuffWnd close
 
 /return
 
 
-${Window[BlockedBuffWnd].Child[BW_BLOCKEDBUFF3_Button].Tooltip}
+
+|***
+ *	DES: moves the toon to a valid/LoS location of a target id with a given distance
+ *	USE: /call moveto_range [ID] [DISTANCE]
+ *  NOTE: requires MQ2nav, ${cos[]}/${sin[]} are evaluated at start of mac in pregen.inc
+ ***|
+sub moveto_range(int _tmpID, int _range)
+
+	/declare _i int local 0
+	/declare _locX float local 0
+	/declare _locY float local 0
+	/declare _locZ float local 0
+	/declare _tmpX float local 0
+	/declare _tmpY float local 0
+	| /declare _tmpZ float local 0
+	/declare _dist float local ${Math.Calc[${_range} / ${Spawn[${_tmpID}].Distance}]}
+	
+	/varcalc _locX ${_dist}*${Me.X} + (1-${_dist})*${Spawn[${_tmpID}].X}	
+	/varcalc _locY ${_dist}*${Me.Y} + (1-${_dist})*${Spawn[${_tmpID}].Y}	
+	| /varcalc _locY ${_dist}*${Me.Z} + (1-${_dist})*${Spawn[${_tmpID}].Z}	
+	/if (${Navigation.PathExists[locyxz ${_locY} ${_locX} ${Me.Z}]} && ${EverQuest.ValidLoc[${_locX} ${_locY} ${Me.Z}]} && ${LineOfSight[${_locY},${_locX},${Me.Z}:${Spawn[${_tmpID}].Y},${Spawn[${_tmpID}].X},${Spawn[${_tmpID}].Z}]}) {
+		/nav locyxz ${_locY} ${_locX} ${Me.Z} log=off
+		/delay 5 ${Navigation.Active}
+		/delay 5s !${Navigation.Active}
+		| /call wait_while Navigation.Active 5
+		/return
+	}
+
+	/for _i 1 to 10
+		/varcalc _tmpX ${_locX}*${cos[${_i}]} - ${_locY}*${sin[${_i}]}
+		/varcalc _tmpY ${_locX}*${cos[${_i}]} + ${_locY}*${sin[${_i}]}
+		| /varcalc _tmpZ ${_locZ}*${cos[${_i}]} + ${_locY}*${sin[${_i}]}
+		/if (${Navigation.PathExists[locyxz ${_tmpY} ${_tmpX} ${Me.Z}]} && ${EverQuest.ValidLoc[${_tmpX} ${_tmpY} ${Me.Z}]} && ${LineOfSight[${_tmpY},${_tmpX},${Me.Z}:${Spawn[${_tmpID}].Y},${Spawn[${_tmpID}].X},${Spawn[${_tmpID}].Z}]}) {
+			/nav locyxz ${_tmpY} ${_tmpX} ${Me.Z} log=off
+			/delay 5 ${Navigation.Active}
+			/delay 5s !${Navigation.Active}
+			| /call wait_while Navigation.Active 5
+			/break
+		}
+
+		/varcalc _tmpX ${_locX}*${cos[${_i}]} + ${_locY}*${sin[${_i}]}
+		/varcalc _tmpY ${_locX}*${cos[${_i}]} - ${_locY}*${sin[${_i}]}
+		/if (${Navigation.PathExists[locyxz ${_tmpY} ${_tmpX} ${Me.Z}]} && ${EverQuest.ValidLoc[${_tmpX} ${_tmpY} ${Me.Z}]} && ${LineOfSight[${_tmpY},${_tmpX},${Me.Z}:${Spawn[${_tmpID}].Y},${Spawn[${_tmpID}].X},${Spawn[${_tmpID}].Z}]}) {
+			/nav locyxz ${_tmpY} ${_tmpX} ${Me.Z} log=off
+			/delay 5 ${Navigation.Active}
+			/delay 5s !${Navigation.Active}
+			| /call wait_while Navigation.Active 5
+			/break
+		}
+	    
+	/next _i
+
+/return
 
 
 
-
-
-
-
+|***
+ *	DES: waits for something to get done
+ *	USE: /call wait_while [thing.to.wait.for] [duration]
+ *  NOTE: 
+ ***|
+sub wait_while(string _what, string _time)
+	/while (${${_what}}) {
+ 		/delay ${_time}
+	}
+	
+/return

@@ -51,6 +51,7 @@ lstSafeNames									[list] list of names you TRUST
 lstResidentMage								[list] list of your mages using core
 lstResidentDruid							[list] list of your druids using core
 lstResidentWizard							[list] list of your wizards using core
+lstResidentCleric							[list] list of your clerics using core
 swBCZonereset									[switch] broadcast zone resets
 swBCStop											[switch] broadcast /stop command
 swBCTake											[switch] broadcast /take command
@@ -68,14 +69,10 @@ swEchosBC											[switch] echo broadcasts to the MQ window (not widely implem
 swEchosVerbose								[switch] echo misc stuff to the MQ window
 swEchosSQL										[switch] ** Disabled for now ***
 swHUDTime											[switch] swap the time in the hud from real life to ingame
-lstCrew1											[list] list of crew 1
-setCrew1Leader								[set] crew 1 leader
-setCrew1Assist								[set] crew 1 main assist
-setCrew1Looter								[set] crew 1 master looter
-lstCrew2											[list] list of crew 2
-setCrew2Leader								[set] crew 2 leader
-setCrew2Assist								[set] crew 2 assist
-setCrew2Looter								[set] crew 2 master looter
+lstCrew#											[list] (1-2) list of crew 1
+setCrew#Leader								[set] (1-2) crew 1 leader
+setCrew#Assist								[set] (1-2) crew 1 main assist
+setCrew#Looter								[set] (1-2) crew 1 master looter
 
 ; adjustmetns for /here command                    					
 baseAgroRange									[set] sets the new agro range so you dont overdo it
@@ -163,8 +160,8 @@ swRezEveryone									[switch] rez everyone (RTFM)
 
 
 ;spire control               
-spireRaid		 									[set] spire # to use during group burns
-spireGroup		 								[set] spire # to use during raid burns
+spireRaid		 									[set] spire # to use during group burns. 0 to disable
+spireGroup		 								[set] spire # to use during raid burns. 0 to disable
 
 
 ;watchspawn stuff            
@@ -225,22 +222,23 @@ swBuffGroup										[switch] buff other non boxed people in your group
 swBuffMGB											[switch] ** under construction**
 BuffAAUnity#									[set] (1-7) aa unity buffs
 Buff#                         [set] (1-10) name of buff you want to cast
-Buff#self											[switch] buff yourself with this damn thing
+Buff#self											[switch] (1-10) buff yourself with this damn thing
 Buff#selfCondition            [set] (1-10) 
 Buff#Alias                    [list] (1-10) key words to watch to cast tell buffs (e.g. |surety|voice)
 BCBuff#Class                  [list] (1-10) shrotname clases to use this buff on for broadcasting 
 RaidBuff#Class                [list] (1-10) shrotname clases to use this buff on during raids 
 ManualBuff#Class              [list] (1-10) shrotname clases to use this buff on for mercs and strangers in your group raids
-Buff#noBCinRaid               [switch] disable broacasting this buff during raids
+Buff#noBCinRaid               [switch] (1-10) disable broacasting this buff during raids
 BuffMGBname 		 	            [set] ** under construction**
 BuffMGBchk	 		 	            [set] ** under construction**
 BuffMGBalias	 		            [set] ** under construction**
 BuffMGBcount                  [set] ** under construction**
 BuffMGBmana                   [set] ** under construction**
-Aura1Spell	 		              [set] aura to cast
-Aura1Buff		 		              [set] aura buff in aura window to watch for
-Aura2Spell	 		              [set] aura to cast
-Aura2Buff	                    [set] aura buff in aura window to watch for
+
+
+; Auras
+Aura#Spell	 		              [set] (1-2) aura to cast
+Aura#Buff		 		              [set] (1-2) aura buff in aura window to watch for
 
               
 ;cursor                             			
@@ -261,8 +259,6 @@ conjuration                   [set] conjuration spell for mode trainspell
 divination                    [set] divination spell for mode trainspell
 evocation                     [set] evocation spell for mode trainspell
  
-/edit setFam1Buff "Familiar: Emperor Ganak"
-
                  
 ;pet
 setPetEngagePct								[set] ##% health to send pet into combat
@@ -270,15 +266,9 @@ setPetType	                  [set] name of the pet spell to use
 swPet													[switch] use pets
 swSwarm												[switch] use swarm pets and clickies
 setSwarmEngagePct	            [set] ##% to send swarm pets
-setFam1	                      [set] familiar to summon 
-setFam1Buff	                  [set] familiar buff to watch for
-swFam1Leave	                  [switch] tell familiar to get lost
-setFam2	                      [set] familiar to summon 
-setFam2Buff	                  [set] familiar buff to watch for
-swFam2Leave	                  [switch] tell familiar to get lost
-setFam3	                      [set] familiar to summon 
-setFam3Buff	                  [set] familiar buff to watch for
-swFam3Leave	                  [switch] tell familiar to get lost
+setFam#	                      [set] (1-3) familiar to summon 
+setFam#Buff	                  [set] (1-3) familiar buff to watch for
+swFam#Leave	                  [switch] (1-3) tell familiar to get lost
 swPetTank											[switch] ** disabled atm. does not do anything **
 swMAGWep											[switch] 
 setPetEpicClick	              [set] epic item to use on pets
@@ -313,13 +303,15 @@ clickItemBuff#                [set] (1-6) click items for buffs. like geomantra?
 
 
 ;alwasy up AAs 
-AANow1												[set] aa to alwasy keep on
-AANow2												[set] aa to alwasy keep on
+AANow#												[set] (1-2) aa to alwasy keep on
 
 
 ;always up Discs
-DiscNow1											[set] disc to alwasy keep on
-DiscNow2											[set] disc to alwasy keep on
+DiscNow#											[set] (1-2) disc to alwasy keep on
+
+
+;always up Item Clickies
+ItemNow#											[set] (1-2) item to alwasy keep on
 
 
 ;melee
@@ -344,11 +336,10 @@ roundkick											[switch] use roundkick
 ;food
 Food													[set] food to eat
 FoodDispenser                 [set] item to summon food
-FoodCount                     [set] how much of the food to keep
+FoodCount                     [set] how much of the food to keep on you
 Drink                         [set] drink to .. drink..
 DrinkDispenser                [set] item to summon drinks
-DrinkCount                    [set] how many drinks to keep
-
+DrinkCount                    [set] how many drinks to keep on you
 
 
 switchNukeDelay               [switch] enable nuke delays
@@ -378,7 +369,7 @@ BRDPoint                      [set] ##% health heal point
 BERPoint                      [set] ##% health heal point
 PALPoint                      [set] ##% health heal point
 GoMpoint                      [set] ##% health heal point
-XHealClass                    [set] ##% health heal point
+XHealClass                    [set] list of class short names you want to be healing during raids
 PanicPoint										[set] ##% health panic heal point
 
 ;heals                            			

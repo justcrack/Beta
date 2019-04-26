@@ -31,7 +31,7 @@ sub core_ENC()
 	
 	/while (${prep_combat[]}) {
 		CHECKINPUTS
-		/if (${swHealSelf}) /call patch_heal_${Me.Class.ShortName}
+		/if (${swHealSelf}) /call check_heal_self_${Me.Class.ShortName}
 		/if (${swHealCure}) /call cast_cure
 		/if (${exit_class_loop[]}) /return
 				
@@ -75,6 +75,7 @@ sub core_ENC()
 				/call check_for_adds
 				/if (${addList.Count[|]}) /return
 			}
+			/if (${swTerror}) /call check_buffs_tmp_list "${spellTerror}" "${lstTerrorToon}"
 			/if (${swAlliance}) /call trigger_alliance ${Target2Kill}
 			/call click_BP
 			/call click_item
@@ -112,13 +113,17 @@ sub check_rune_ENC()
 	/if (${validate_cast[FALSE, alt, "${runeMind}", ${Me.ID}]}) /call core_cast2 "${runeMind}" alt 0 FALSE
 	/if (${validate_cast[FALSE, spell, "${runeAuspice}", ${Me.ID}]} && ${FindItemCount[Peridot]}) /call core_cast2 "${runeAuspice}" 0 ${Me.ID} FALSE
 	
-	/if (${validate_cast[FALSE, spell, "${runeWard}", ${Me.ID}]}) /call core_cast2 "${runeWard}" 0 0 FALSE
+	/if (${validate_cast[FALSE, spell, "${runeWard}", ${Me.ID}]}) /call core_cast2 "${runeWard}" ${buffGem} 0 FALSE
 	/if (${validate_cast[FALSE, spell, "${runePoly}", ${Me.ID}]}) /call core_cast2 "${runePoly}" ${buffGem} ${Me.ID} FALSE
 	/if (${validate_cast[FALSE, spell, "${runeBrimstone}", ${Me.ID}]}) /call core_cast2 "${runeBrimstone}" ${buffGem} ${Me.ID} FALSE
 	/if (${validate_cast[FALSE, spell, "${runeShieldofFate}", ${Me.ID}]}) /call core_cast2 "${runeShieldofFate}" ${buffGem} ${Me.ID} FALSE
 	/if (${validate_cast[FALSE, spell, "${runeLegion}", ${Me.ID}]} && ${FindItemCount[Peridot]}) /call core_cast2 "${runeLegion}" ${buffGem} ${Me.ID} FALSE
 
 	/if (${FindItemCount[Peridot]}) /call check_buffs_tmp_list "${runeAuspice}" "${runeAuspiceToon}"
+
+	| epic 2.0
+	/if (${validate_cast[FALSE, epicitem, "2", ${Me.ID}]}) /call core_cast2 "${${Me.Class.ShortName}Epic2}" item 0 FALSE
+
 
 	UPDATEHUD FALSE
 /return
@@ -137,17 +142,21 @@ sub disc_ENC()
 	CHECKINPUTS
 	CHECKTIE
 	
-	/if (${validate_cast[FALSE, alt, "Crippling Aurora", ${Me.ID}]}) /call core_cast2 "Crippling Aurora" alt 0 FALSE
+	| /if (${validate_cast[FALSE, alt, "Crippling Aurora", ${Me.ID}]}) /call core_cast2 "Crippling Aurora" alt 0 FALSE
+
+	| swarm pet
 	/if (${swSwarm}) {
 		/if (${validate_cast[FALSE, alt, "Phantasmal Opponent", ${Me.ID}]} && (${Target.PctHPs} <= ${setSwarmEngagePct} || ${swOverrideEngagePct})) /call core_cast2 "Phantasmal Opponent" alt 0 FALSE
 	}
-	/if (${validate_cast[FALSE, alt, "Chromatic Haze", ${Me.ID}]}) /call core_cast2 "Chromatic Haze" alt 0 FALSE
+
+
+	| /if (${validate_cast[FALSE, alt, "Chromatic Haze", ${Me.ID}]}) /call core_cast2 "Chromatic Haze" alt 0 FALSE
 /return
 
 
 
 |***
- *	DES: Keep the chanter stocked with self crystals
+ *	DES: Keep the chanter stocked with self AA crystals
  *	USE: 
  *  NOTE: 
  ***|
@@ -210,16 +219,32 @@ sub click_DPS_ENC()
  *	USE: 
  *  NOTE: 
  ***|
-sub patch_heal_ENC()
-	DEBUG patch_heal_ENC()
+sub check_heal_self_ENC()
+	DEBUG check_heal_self_ENC()
 	/if (${Me.PctHPs} > ${${Me.Class.ShortName}Point}*.${tmpHealOverride}) /return
+
+	AMIDEAD
+	CHECKEXIT
+	CHECKTIE
+	
+	| AA Sanguine mind crystal summoned item 5 min
+	/if (${Me.PctHPs} <= 80*.${tmpHealOverride} && ${Me.ItemReady[${healCrystal}]}) {
+		/if (${validate_cast[FALSE, alt , "${healCrystal}", ${Me.ID}]}) /call core_cast2 "${healCrystal}" item 0 FALSE
+	}	
+	
+	| 3 decoys 10 min
+	/if (${Me.PctHPs} <= 70*.${tmpHealOverride} && ${validate_cast[FALSE, alt, "Doppelganger", ${Me.ID}]}) /call core_cast2 "Doppelganger" alt ${Me.ID} FALSE
+	
+	| rune and anti hate 20 min
+	/if (${Me.PctHPs} <= 40*.${tmpHealOverride} && ${validate_cast[FALSE, alt, "Dimensional Shield", ${Me.ID}]}) /call core_cast2 "Dimensional Shield" alt 0 FALSE
+	
+	
+	
+	
+	|**
 	/declare _count int local
-	| /declare _tmpID int local
 	/if (${SpawnCount[npc radius 15 playerstate 4]} > 1) {
 		/for _count 1 to ${SpawnCount[npc radius 15]}
-			AMIDEAD
-			CHECKEXIT
-			CHECKTIE
 		/varset _tmpID ${NearestSpawn[${_count},npc radius 15].ID}
 		/if (!${NearestSpawn[${_count},npc radius 15].ID}) /next _count
 		/squelch /target id ${_tmpID}
@@ -239,6 +264,9 @@ sub patch_heal_ENC()
 		}
 		/next _count
 	}
+	**|
+	
+	
 /return
 
 
@@ -302,93 +330,6 @@ sub mez_adds()
 		/goto :loopmezzadds
 	}
 /return
-
-
-
-
-
-|***
-
-sub mez_adds()
-	DEBUGCLASS ${cbug}mez_adds()\ax
-	AMIDEAD
-	CHECKINPUTS
-	/declare _tmpID string local
-
-	:loopmezzadds
-	/if (${addList.Count[|]} && ${Me.CurrentMana} >= ${Spell[${spellMez}].Mana}) {
-		| /if (${addList.Count[|]} > 1) /varset addList ${addList.Right[-${Math.Calc[${addList.Find[|]}-1]}]}
-		| /varset _tmpID ${addList.Arg[1,|].Left[-1]}
-		/varset _tmpID ${addList.Arg[1,|]}
-		/if (${_tmpID} == ${Target2Kill}) {
-			/call list_delete addList ${_tmpID}
-			/goto :loopmezzadds
-		}
-		/if (!${Spawn[${_tmpID}].Type.Equal[NPC]}) {
-			/call clear_timer ${_tmpID}
-		} else {
-			/squelch /target id ${_tmpID}
-			/delay 5 ${Target.ID} == ${_tmpID}
-			/delay 2.25s ${Me.SpellReady[${spellMez}]}
-			/if (${SpawnCount[npc los radius 30 zradius 15 targetable]} > 1 ) {
-				VOUT ${sepO} ${cinfo}${SpawnCount[npc radius 30 zradius 15]}\ax ${sepC} ${If[${SpawnCount[npc los radius 30 zradius 15 targetable]} == 1,Target,Targets]} in point blank range.
-
-				/if (${switchdeBuffTash}) {
-					/if (${validate_cast[FALSE, alt, "Bite of Tashani", ${Me.ID}]}) /call core_cast2 "Bite of Tashani" alt 0 check_for_adds
-				}
-				
-				/if (${Me.Gem[${spellpbaeMez}]} && ${Me.SpellReady[${spellpbaeMez}]}) {
-					/if (${Me.Casting.Name.NotEqual[${spellpbaeMez}]}) /call interrupt
-					/if (${validate_cast[FALSE, spell, "${spellpbaeMez}", ${Me.ID}]}) /call core_cast2 "${spellpbaeMez}" 0 0 check_for_adds
-				}
-				/if (${Me.Gem[${spellStun}]} && ${Me.SpellReady[${spellStun}]}) {
-					/if (${Me.Casting.Name.NotEqual[${spellStun}]}) /call interrupt
-					/if (${validate_cast[FALSE, spell, "${spellStun}", ${Me.ID}]}) /call core_cast2 "${spellStun}" 0 0 check_for_adds
-				}
-			}
-			/if (${Spawn[${_tmpID}].NearestSpawn[3,npc radius 30].ID} && ${Spawn[${_tmpID}].Distance3D} <= 200 && ${Spawn[${_tmpID}].Distance3D} >= ${MobAgro}*.5) {
-				/if (${Me.AltAbilityReady[Beam of Slumber]}) {
-					/if (${Me.Casting.ID}) /call interrupt
-					/face ID ${_tmpID} ${If[${SetFaceFast},fast,]}
-					/if (${validate_cast[FALSE, alt, "Beam of Slumber", ${Me.ID}]}) /call core_cast2 "Beam of Slumber" alt 0				
-				} 
-			}
-			/if (!${timer_mez_${_tmpID}}) /call cast_mez ${_tmpID}
-		}
-		/call list_delete addList ${_tmpID}
-		| VOUT ${sepO} ${cinfo}${addList.Count[|]}\ax ${sepC} ${If[${addList.Count[|]} == 1,Target,Targets]} left to mez.
-		/if (!${addList.Count[|]} && ${switchBuffSelf} && !${timer_check_runes}) /call check_rune_${Me.Class.ShortName}
-		/goto :loopmezzadds
-	}
-/return
-
-
-***|
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -549,18 +490,107 @@ sub burn_ENC()
 	CHECKEXIT
 	CHECKINPUTS
 	
-	/if (${validate_cast[FALSE, alt, "${ENCIoG}", ${Me.ID}]}) /call core_cast2 "${ENCIoG}" alt 0
-	/call cast_AA_spire
-	/if (${validate_cast[FALSE, alt, "Dimensional Shield", ${Me.ID}]}) /call core_cast2 "Dimensional Shield" alt 0
-	/if (${validate_cast[FALSE, alt, "Calculated Insanity", ${Me.ID}]}) /call core_cast2 "Calculated Insanity" alt 0
+	/if (${validate_cast[FALSE, alt, "${ENCIoG}", ${Me.ID}]}) /call core_cast2 "${ENCIoG}" alt 0 FALSE
 
-	| epic 2.0
-	/if (${validate_cast[FALSE, epicitem, "2", ${Me.ID}]}) /call core_cast2 "${${Me.Class.ShortName}Epic2}" item ${Me.Pet.ID} FALSE
+	/call cast_AA_spire
+
+	/if (${validate_cast[FALSE, alt, "Improved Twincast", ${Me.ID}]}) /call core_cast2 "Improved Twincast" alt 0 FALSE
+
+	| # DD spell damage bonus
+	/if (${validate_cast[FALSE, alt, "Calculated Insanity", ${Me.ID}]}) /call core_cast2 "Calculated Insanity" alt 0 FALSE
+
+	| anti hate
+	/if (${Me.AltAbilityReady[Silent Casting]}) {
+		/if (${validate_cast[FALSE, alt, "Silent Casting", ${Me.ID}]}) /call core_cast2 "Silent Casting" alt 0 FALSE
+	} else (!${Me.AltAbilityReady[Silent Casting]} && ${Me.AltAbilityReady[Dimensional Shield]})
+		/if (${validate_cast[FALSE, alt, "Dimensional Shield", ${Me.ID}]}) /call core_cast2 "Dimensional Shield" alt 0 FALSE
+	}
+
+	| resist mod
+	/if (${validate_cast[FALSE, alt, "Focus of Arcanum", ${Me.ID}]}) /call core_cast2 "Focus of Arcanum" alt 0 FALSE
+
+	| Group DD Bonus
+	/if (${validate_cast[FALSE, alt, "Chromatic Haze", ${Me.ID}]}) /call core_cast2 "Chromatic Haze" alt 0 FALSE
 	
 	/call use_glyph
 	/call click_burn_circle
 	/call click_item_burn
 /return
+
+
+
+
+
+
+
+
+8:39 AM] Zergon: if we meet the counter set for burn
+[8:40 AM] Zergon: if mobcount >3 and mezz enabled
+[8:40 AM] Zergon: we want IOG
+[8:40 AM] Zergon: then mez
+[8:40 AM] Zergon: only after this
+[8:40 AM] Zergon: Improved twincast + calculated insanity
+[8:40 AM] Zergon: Silent casting and focus arcanum
+[8:40 AM] Zergon: and finally at the end
+[8:40 AM] Zergon: Chroma haze
+[8:41 AM] Zergon: if chroma haze is cast
+[8:41 AM] Zergon: no dots
+[8:41 AM] Zergon: 2 nukes first
+[8:41 AM] Zergon: then continue as normal
+
+[8:41 AM] Zergon: can we somehow add it to the routines with an if statement
+[8:41 AM] Zergon: to fork to it for now
+
+
+[8:42 AM] Zergon: also there is a buff that should be cast even during combat
+[8:42 AM] Zergon: Nights endless terror
+[8:42 AM] Zergon: i have rank 3 that crits on sk alot
+[8:42 AM] Zergon: providing 40k heals
+[8:42 AM] exspes: chanter gonna run out of gem slots.
+[8:42 AM] Zergon: main nukes we need for max dps
+[8:43 AM] Zergon: and max CC
+[8:43 AM] Zergon: Main dot + 3 nukes
+[8:43 AM] Zergon: poly rune and unity rune
+[8:43 AM] Zergon: delude, tash, aoe mez and ground mez
+[8:43 AM] Zergon: that setup can do any content
+[8:43 AM] Zergon: and usually im at top of dps lists in caster groups
+[8:43 AM] Zergon: endless terror should be ok tank and melee dps
+[8:44 AM] Zergon: but usually jus ton tank is fine
+[8:44 AM] Zergon: also in burn routine
+[8:44 AM] Zergon: i missed one part
+[8:44 AM] Zergon: before chroma haze
+[8:44 AM] Zergon: dicho is a must
+[8:44 AM] Zergon: it adds 165k per cast x2 with twincast
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -619,7 +649,7 @@ sub Bind_setENC(string _type, string _verbage)
 	/declare _listout string local
 	/declare _count int local 0
 	/declare _bind string local ${Me.Class.ShortName.Lower}
-  /declare _lstClass string local |bos|charm|gather|healpoint|spiregroup|spireraid
+  /declare _lstClass string local |bos|charm|gather|healpoint|spiregroup|spireraid|terror
 
 	| charm pet
 	/if (${_type.Equal[charm]}) {
@@ -646,6 +676,9 @@ sub Bind_setENC(string _type, string _verbage)
 	} else /if (${_type.Equal[spiregroup]} || ${_type.Equal[spireraid]}) {
 		/call set_character_spire FALSE ${_type} ${_verbage}
 
+	| terror spell		
+	} else /if (${_type.Equal[terror]}) {
+	 	/call set_switch ${Me.Class.ShortName} swTerror ${_verbage}  
 
 	| healpoint
 	} else /if (${_type.Equal[healpoint]}) {
@@ -662,6 +695,7 @@ sub Bind_setENC(string _type, string _verbage)
 		/if (${_lstClass.Arg[${_count},|].Equal[healpoint]}) /varset _listout ${_listout}:${cnum}${${Me.Class.ShortName}Point}\ax
 		/if (${_lstClass.Arg[${_count},|].Equal[gather]}) /varset _listout ${_listout}:${If[${switchGather},${cnum}${GatherPercent}\ax,${cbad}${GatherPercent}\ax]}
 		/if (${_lstClass.Arg[${_count},|].Equal[bos]}) /varset _listout ${_listout}:${If[${Bool[${switchAABeamofSlumber}]},${oon},${ooff}]}
+		/if (${_lstClass.Arg[${_count},|].Equal[terror]}) /varset _listout ${_listout}:${If[${swTerror},${oon},${ooff}]}
 		/varset _sep TRUE
 	/next _count
 	VOUT /${_bind} [${_listout}]

@@ -23,6 +23,32 @@ Plugins Required: MQ2Cast, MQ2Exchange, MQ2MoveUtils, MQ2Debuffs, MQ2DanNet, MQ2
     -- script: files use to aid database or character generation. these files are fair game, i will be overwriting them if i need
 
 
+
+BETA 0426.01
+- MQ2Nav removed a majority of the spam. will get whatevers left when i find it (lots of files)
+- Ranged Combat Movement (thanks @Danniuc)
+  -- the movement code for ranged combat has been adjusted a little (translate: a fucktonne)
+  -- the range toon will search for an open LOS position around the mob and move to that spot
+- fairly sure i have blocked buff checking working correctly. maybe.. well. i guess we will see
+  -- can use /admin blockedbuffs to force an update. otherwise..
+  -- updates are on core start and every 10 min
+- some house cleaning; got rid of a lot of commented code
+- class.rng.inc
+  -- complete rewrite of ranger burns (will need considerable testing)
+  -- correct the swarm pet switch for pack hunt aa
+- class.enc.inc
+  -- correction to the runeWard for casts. sohuld not place in buff slot 5 anymore
+  -- added terror spell line to bc buff routines
+    -- /enc terror (on/off)
+    -- DB::spellTerror::NAME OF TERROR SPELL TO USE
+    -- DB::lstTerrorToon::|NAME1|NAME2|NAME3
+    -- you will want to keep this spell memed due to load time. if you plan to use it
+  -- moved epic2 click to runes
+  -- corrected a nam error in azure mind crystal and sanguine mind crytal usage
+  -- several skills added to the burn routine
+  -- adjustments to the self healr outine to try and speed it up
+
+
 BETA 0425.01
 - commented out the mybuttons plugin init for now.
 - DB:environment:lstResidentCleric::"|CLERICNAME|OTHERCLERICNAME|LAZYCLERICNAME"

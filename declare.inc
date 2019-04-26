@@ -466,103 +466,6 @@ sub Bind_setstop()
 
 
 |***
- *	DES: use primary anchor.
- *	USE: /primary
- *  NOTE:
-
-#bind click_primary_anchor /primary
-sub Bind_click_primary_anchor()
-	/if (${Me.ItemReady[Primary Anchor Transport Device]}) {
-		/if (${Me.Invis}) /makemevisible
-		/if (!${swModePersistent}) /call switch_clear_mode
-		/call set_stop NOECHO
-		/call clear_combat
-		/if (${validate_cast[FALSE, item, "Primary Anchor Transport Device", ${Me.ID}]}) /call core_cast2 "Primary Anchor Transport Device" item 0 FALSE
-	}
-/return
- ***| 
-
-
-|***
- *	DES: use secondary anchor
- *	USE: /secondary
- *  NOTE:
-
-#bind click_secondary_anchor /secondary
-sub Bind_click_secondary_anchor()
-	/if (${Me.ItemReady[Secondary Anchor Transport Device]}) {
-		/if (${Me.Invis}) /makemevisible
-		/if (!${swModePersistent}) /call switch_clear_mode
-		/call set_stop NOECHO
-		/call clear_combat
-		/if (${validate_cast[FALSE, item, "Secondary Anchor Transport Device", ${Me.ID}]}) /call core_cast2 "Secondary Anchor Transport Device" item 0 FALSE
-	}
-/return
- ***| 
-
-
-|***
- *	DES: will use which ever anchor is available
- *	USE: /anchor
- *  NOTE:
-#bind anchor /anchor
-sub Bind_anchor()
-	/if (${swBCAnchor}) {
-		/dgexecute /prisec_anchor
-	} 
-	/call Bind_prisec_anchor
-/return
-
-|***
- *	DES: sub for /anchor
-
-#bind prisec_anchor /prisec_anchor
-sub Bind_prisec_anchor()
-	/if (${Me.ItemReady[Primary Anchor Transport Device]}) {
-		/call Bind_click_primary_anchor
-		/return
-	} else /if (${Me.ItemReady[Secondary Anchor Transport Device]}) {
-		/call Bind_click_secondary_anchor
-		/return			
-	}
-
-/return
- ***| 
-
-
-|***
- *	DES: use Drunkard's Stein
- *	USE: /stein
- *  NOTE:
-#bind click_drunkards_stein /stein
-sub Bind_click_drunkards_stein()
-	/if (!${Me.ItemReady[Drunkard's Stein]}) /return
-		/if (${Me.Invis}) /makemevisible
-		/if (!${swModePersistent}) /call switch_clear_mode
-		/call set_stop NOECHO
-		/call clear_combat
-	/if (${validate_cast[FALSE, item, "Drunkard's Stein", ${Me.ID}]}) /call core_cast2 "Drunkard's Stein" item 0 FALSE
-/return
- ***| 
-
-
-|***
- *	DES: use Mirror Fragment of Anashti Sul
- *	USE: /mirror
- *  NOTE:
-#bind click_mirror_fragment /mirror
-sub Bind_click_mirror_fragment()
-	/if (!${Me.ItemReady[Mirror Fragment of Anashti Sul]}) /return
-		/if (${Me.Invis}) /makemevisible
-		/if (!${swModePersistent}) /call switch_clear_mode
-		/call set_stop NOECHO
-		/call clear_combat
-	/if (${validate_cast[FALSE, item, "Mirror Fragment of Anashti Sul", ${Me.ID}]}) /call core_cast2 "Mirror Fragment of Anashti Sul" item 0 FALSE
-/return
- ***| 
-
-
-|***
  *	DES: keeps an eye out for a mob
  *	USE: /watchspawn
  *  NOTE:
@@ -1002,9 +905,7 @@ sub Bind_listControl(string _type, string _verbage, bool _silent)
 			/return TRUE
 		}
 
-
 	} 
-	
 	
 	/if (${_silent}) /return
 	/if (${swMQClear}) /mqclear
@@ -1105,8 +1006,6 @@ sub Bind_petControl(string _type, string _verbage, bool _silent)
 	| swarm pets on a DS mob	
 	} else /if (${_type.Equal[dsswarm]}) {
 		/call set_switch ${_table} swNoSwarmonDS ${_verbage}
-				
-		
 
 	}
 	
@@ -1201,6 +1100,7 @@ sub Bind_setTieControl(string _type, string _verbage, bool _silent)
 		/varset _sep TRUE
 	/next _count
 	VOUT /${_bind.Lower} [${_listout}]
+	
 /return TRUE
 
 
@@ -1230,6 +1130,7 @@ sub Bind_setTie(string _type)
 	}
 
 	VOUT /tie ${sep} ${If[${swSetTie},${oenabled},${odisabled}]} ${If[${swTieLock},${sep} (${cgood}Locked\ax),]}
+	
 /return TRUE
 
 
@@ -1291,6 +1192,7 @@ sub Bind_burn(string _type, string _verbage, bool _silent)
 		/varset _sep TRUE
 	/next _count
 	VOUT /${_bind.Lower} [${_listout}]
+	
 /return
 
 
@@ -1372,8 +1274,6 @@ sub Bind_Core(string _type, string _verbage, string _verbage2, bool _silent)
 	| enable/disable using events.inc file
 	} else /if (${_type.Equal[events]}) {
 		/call set_switch character swEventsInc ${_verbage}
-
-
 				
 	}
 
@@ -1393,6 +1293,7 @@ sub Bind_Core(string _type, string _verbage, string _verbage2, bool _silent)
 		/varset _sep TRUE
 	/next _count
 	VOUT /${_bind.Lower} [${_listout}]
+	
 /return
 
 
@@ -1427,6 +1328,7 @@ sub Bind_onoff(string _type, string _verbage, bool _silent)
 		/varset _sep TRUE
 	/next _count
 	VOUT /${_bind.Lower} [${_listout}]
+	
 /return  
 
 
@@ -1494,6 +1396,7 @@ sub Bind_ts(string _tsType)
 		/next _count
 		VOUT /${_bind.Lower} [${_listout}]
 	} 
+	
 /return
 
 
@@ -1506,6 +1409,7 @@ sub Bind_ts(string _tsType)
 #bind setAssist /setassist
 sub Bind_setAssist(string _verbage, string _name)
 	/call validate_assist FALSE ${_verbage} ${If[${Bool[${_name}]},${_name},]}
+	
 /return
 
 
@@ -1692,24 +1596,6 @@ sub Bind_setCombatControl(string _type, string _verbage, bool _silent)
 	} else /if (${_type.Equal[alliance]}) {
 		/call set_switch character swAlliance ${_verbage}
 		
-		|**
-		/declare _alliancetype string local |off|group|raid
-		/if (${_alliancetype.Find[${_verbage}]}) {
-			/if (${_verbage.Equal[off]}) {
-				/call sql_update FALSE character setAlliance FALSE
-			} else /if (${_verbage.Equal[group]} || ${_verbage.Equal[raid]}) {
-				/call sql_update FALSE character setAlliance ${_verbage.Lower}
-			}
-		}
-
-		/for _count 1 to ${_alliancetype.Count[|]}
-			/varset _listout ${_listout} ${If[${_sep},${sep},]} ${If[${setAlliance.Equal[${_alliancetype.Arg[${_count},|]}]},${cgood},${cinfo}]}${_alliancetype.Arg[${_count},|]}\ax   
-			/varset _sep TRUE
-		/next _count
-		VOUT /${_bind.Lower} alliance [${_listout}]	
-		/return
-		**|
-
 	| enable combat: melee, range, nuke, dot, heal
 	} else /if (${Select[${_type},melee,range,nuke,dot,heal]}) {
 
@@ -1762,7 +1648,6 @@ sub Bind_setCombatControl(string _type, string _verbage, bool _silent)
 		/if (${_verbage.Equal[roundkick]} && ${Me.Skill[round kick]}) /call set_switch ${Me.Class.ShortName} roundkick ${If[${roundkick},FALSE,TRUE]}
 		/if (${_verbage.Equal[slam]} && ${Me.Skill[slam]}) /call set_switch ${Me.Class.ShortName} slam ${If[${slam},FALSE,TRUE]}
 
-
 		/declare _meleeskill string local |backstab|bash|disarm|dragonpunch|eaglestrike|flyingkick|frenzy|intimidation|kick|roundkick|slam|taunt|tigerclaw
 		/for _count 1 to ${_meleeskill.Count[|]}
 			/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${_meleeskill.Arg[${_count},|].Lower}\ax		
@@ -1812,6 +1697,7 @@ sub Bind_setCombatControl(string _type, string _verbage, bool _silent)
 		/varset _sep TRUE
 	/next _count
 	VOUT /${_bind.Lower} [${_listout}]
+	
 /return	
 	
 
@@ -1824,6 +1710,7 @@ sub Bind_setCombatControl(string _type, string _verbage, bool _silent)
 #bind setMobAgro /agro
 sub Bind_setMobAgro(int _setMobAgro)
 	/call Bind_setCombatControl agro ${_setMobAgro}
+	
 /return
 
 
@@ -1853,9 +1740,9 @@ sub Bind_setMovementControls(string _type, string _verbage, bool _silent)
 			/return
 		}
 		/if (${Bool[${_verbage}]}) {
-			/squelch /nav spawn ${_verbage}
+			/squelch /nav spawn ${_verbage} |log=off
 		} else /if (${Target.ID}) {
-			/squelch /nav spawn ${Target.DisplayName}
+			/squelch /nav spawn ${Target.DisplayName} |log=off
 		}
 		/return		
 
@@ -1876,10 +1763,6 @@ sub Bind_setMovementControls(string _type, string _verbage, bool _silent)
 	| set home radius
 	} else /if (${_type.Equal[radius]}) {
 		/if (${Range.Between[1,99:${Int[${_verbage}]}]}) {
-			| /if (${_verbage} < ${setHomeLeash}) {
-			| 	VOUT ${onotice} ${sep} Radius must be greater then leash(${cnum}${setHomeLeash}\ax)
-			| 	/return
-			| }
 			/call sql_update FALSE movement setHomeRadius ${_verbage} 
 		} else {
 			VOUT /${_bind.Lower} radius(${cnum}${setHomeRadius}\ax) allowable range ${cinfo}1 - 99\ax
@@ -1897,7 +1780,7 @@ sub Bind_setMovementControls(string _type, string _verbage, bool _silent)
 			/if (${_clist.Arg[${_count},|].Equal[${Me.DisplayName}]}) /continue
 			/if (${Bool[${Spawn[pc ${_clist.Arg[${_count},|]}]}]}) {
 				VOUT Gathering ${sep} ${cinfo}${_clist.Arg[${_count},|]}\ax
-				/dexecute ${_clist.Arg[${_count},|]} /nav ID ${Me.ID}
+				/dexecute ${_clist.Arg[${_count},|]} /nav ID ${Me.ID} log=off
 				
 			}
 
@@ -1907,10 +1790,6 @@ sub Bind_setMovementControls(string _type, string _verbage, bool _silent)
 	| set leash range
 	} else /if (${_type.Equal[leash]}) {
 		/if (${Range.Between[1,99:${Int[${_verbage}]}]}) {
-			| /if (${setHomeRadius} > ${_verbage}) {
-			| 	VOUT ${onotice} ${sep} Leash must be less then radius(${cnum}${setHomeRadius}\ax)
-			| 	/return
-			| }
 			/call sql_update FALSE movement setHomeLeash ${_verbage} 
 		} else {
 			VOUT /${_bind.Lower} leash(${cnum}${setHomeLeash}\ax) allowable range ${cinfo}1 - 99\ax
@@ -1963,6 +1842,7 @@ sub Bind_setMovementControls(string _type, string _verbage, bool _silent)
 		/varset _sep TRUE
 	/next _count
 	VOUT /${_bind.Lower} [${_listout}]
+	
 /return
 
 
@@ -2045,6 +1925,7 @@ sub Bind_crew(int _crew)
 	}
 	
 	VOUT Leader:${cinfo}${setCrew${_crew}Leader}\ax ${sep} Assist:${cinfo}${setCrew${_crew}Assist}\ax ${sep} Looter:${cinfo}${setCrew${_crew}Looter}\ax
+	
 /return
 
 
@@ -2068,6 +1949,7 @@ sub Bind_oof()
  	
  	/em looks around for the biggest fucking rock to hit ${_pronoun} head against.
 	/say ${bitch${Math.Rand[${bitchcount}]}}
+	
 /return
 
 
@@ -2080,6 +1962,7 @@ sub Bind_oof()
 #bind lesson /lesson
 sub Bind_lesson()
   /if (${validate_cast[FALSE, alt, "Lesson of the Devoted", ${Me.ID}]}) /call core_cast2 "Lesson of the Devoted" alt 0 FALSE
+  
 /return
 
 
@@ -2105,6 +1988,7 @@ sub Bind_grab(string _name)
 	} else /if (${Ground[${_name}].Distance3D} <= 20) {
 		/invoke ${Ground[${_name}].Grab}
 	}
+	
 /return
 
 
@@ -2117,6 +2001,7 @@ sub Bind_grab(string _name)
 #bind nav_to_target /navto
 sub Bind_nav_to_target(string _name)
 	/call Bind_setMovementControls goto ${_name}
+	
 /return
 
 
@@ -2132,6 +2017,7 @@ sub Bind_broadcast_take()
 		/dgexecute /click_window_option
 	}
 	/call Bind_click_window_option
+	
 /return
 
 |***
@@ -2158,19 +2044,6 @@ sub Bind_click_window_option()
 	/if (${Window[GiveWnd]}) /squelch /notify GiveWnd GVW_Give_Button leftmouseup
 	
 /return
-
-
-
-
-| are these useful ?
-/squelch /notify ConfirmationDialogBox OK_Button leftmouseup
-/squelch /notify TradeWND TRDW_Trade_Button leftmouseup
-/squelch /notify TaskTemplateSelectWnd TaskTemplateSelectAcceptButton leftmouseup
-/squelch /notify ProgressionTemplateSelectWnd ProgressionTemplateSelectAcceptButton leftmouseup
-
-
-
-
 
 
 
@@ -2226,6 +2099,7 @@ sub Bind_cast_AA_invis()
 		ECHOCHANNEL AA: Shared Camouflage
 		/return
 	}
+	
 /return
 
 
@@ -2242,6 +2116,7 @@ sub Bind_broadcast_door()
 	}
 	OUT ${obroadcasted} ${sep} /enter
 	/call Bind_click_door
+	
 /return
 
 |***
@@ -2265,6 +2140,7 @@ sub Bind_click_door()
 		/delay 1s
 		/doevents flush
 	}
+	
 /return
 
 
@@ -2281,6 +2157,7 @@ sub Bind_cls()
 		/dgexecute /clear_corpse_sub
 	} 
 	/call Bind_clear_corpse_sub
+	
 /return
 
 |***
@@ -2290,6 +2167,7 @@ sub Bind_cls()
 sub Bind_clear_corpse_sub()
 	/if (${Cursor.ID}) /call sort_cursor TRUE
 	/hidecorpse all
+	
 /return
 
 
@@ -2304,6 +2182,7 @@ sub Bind_broadcast_here()
 	/call Bind_broadcast_on
 	/dgexecute /set_combat_here
 	OUT ${obroadcasted} ${sep} /here
+	
 /return
 
 |***
@@ -2350,7 +2229,7 @@ sub Bind_set_combat_here()
 	/if (${Stick.Active}) /squelch /stick off
 
 	| stop mq2nav
-	/if (${Navigation.Active}) /squelch /nav stop
+	/if (${Navigation.Active}) /squelch /nav stop log=off
 
 	| stop moving
 	/if (${Me.Moving}) {
@@ -2389,6 +2268,7 @@ sub Bind_set_combat_here()
 	}
 
 	UPDATEHUD FALSE	
+	
 /return
 
 
@@ -2405,6 +2285,7 @@ sub Bind_killmob()
 		/dgexecute /override engagepct
 	} 	
 	OUT ${obroadcasted} ${sep} /killmob
+	
 /return
 
 
@@ -2418,6 +2299,7 @@ sub Bind_killmob()
 sub Bind_checkvar()
 	/mqclear
 	/invoke ${Macro.Undeclared}
+	
 /return
 
 
@@ -2453,16 +2335,8 @@ sub Bind_imincharge()
 		/dexecute ${_toonName} /squelch /target clear
 		/dexecute ${_toonName} /varset setTieToon ${Me.DisplayName}
 	/next _count
-
-
-
-
-	| set my tie name off
-	
-
-	| set everyone elses /tie defaults
-	| /dgexecute /tc name ${Me.DisplayName}
 	OUT ${obroadcasted} ${sep} I'm the damn boss!
+
 /return
 	
 	
@@ -2534,6 +2408,7 @@ sub Bind_get_the_fuck_out()
 	} else /if (${Me.AltAbility[${setGTFO}].ID}) {
 		/if (${validate_cast[FALSE, alt, "${setGTFO}", ${Me.ID}]}) /call core_cast2 "${setGTFO}" alt 0 FALSE
 	}
+	
 /return
 
 
@@ -2611,6 +2486,7 @@ sub Bind_request_coh(string _verbage)
 		/dex ${get_resident[mage, 99999]} /call_of_the_hero "${Me.DisplayName}"
 		/return
 	}
+	
 /return
 
 
@@ -2711,10 +2587,7 @@ sub Bind_gem_control(string _verbage, string _name)
 
 	| delete a spell set
 	} else /if (${_verbage.Equal[delete]}) {
-
 		/ini ${INIGemControl} ${_section} "${_name}" NULL
-		
-
 
 	| list the details of a saved gemset
 	} else /if (${_verbage.Equal[detail]}) {
@@ -2759,7 +2632,7 @@ sub Bind_gem_control(string _verbage, string _name)
  *  NOTE: hey look squirrels...
  ***|
 #bind sql_edit /edit
-sub Bind_sql_edit(string _variable, string _value, string _add_delete)
+sub Bind_sql_edit(string _variable, string _value, string _add_delete, bool _silent)
 	| SDEBUG Bind_sql_edit(variable:\at${_variable}\ax value:\at${_value}\ax a/d:\at${_add_delete}\ax)
 	/declare _count int local 0
 	/declare _countArray int local 
@@ -2835,6 +2708,7 @@ sub Bind_sql_edit(string _variable, string _value, string _add_delete)
 				| if last entity deleted, reset to factory false
 				/if (${_value.Equal[NULL]} || !${Bool[${_value}]}) /varset _value |FALSE
 				
+			} else /if (${_add_delete.Equal[NA]}) {
 			}
 	
 			| update the _value into the DB						
@@ -2846,7 +2720,7 @@ sub Bind_sql_edit(string _variable, string _value, string _add_delete)
 			/varset ${_variable} ${sqlite.Result[dummy 1 ${_variable}]}
 
 			| results!
-			VSQL /edit ${sep} ${cinfo}${_table}\ax::${cinfo}${_variable}\ax::${If[${sqlite.Status[dummy].Equal[Success]},${cgood}${_value}\ax,${cbad}${${_variable}}\ax]}\ax
+			/if (!${Bool[${_silent}]}) VSQL /edit ${sep} ${cinfo}${_table}\ax::${cinfo}${_variable}\ax::${If[${sqlite.Status[dummy].Equal[Success]},${cgood}${_value}\ax,${cbad}${${_variable}}\ax]}\ax
 			/call sql_clear FALSE dummy
 			/call sql_clear FALSE sqlFindTable
 			/return TRUE
@@ -3154,8 +3028,8 @@ sub Bind_hud(string _type, string _verbage, bool _silent)
 		/varset _sep TRUE
 	/next _count
 	VOUT /${_bind.Lower} [${_listout}]
+	
 /return
-
 
 
 
@@ -3192,7 +3066,6 @@ sub Bind_admin(string _type, string _verbage, string _verbage2, bool _silent)
 		
 		/return
 		
-		
 	| place in maintenance mode
 	} else /if (${_type.Equal[maintenance]}) {
 		/call set_switch character swMaintenance ${_verbage}
@@ -3204,7 +3077,6 @@ sub Bind_admin(string _type, string _verbage, string _verbage2, bool _silent)
 		| /admin get lstBlockedSpells
 		/return
 
-
 	} else /if (${_type.Equal[safelist]}) {
 		/if (!${Target.ID} || ${Target.ID} == ${Me.ID}) OUT ${onotice} ${sep} requires a target.
 
@@ -3214,7 +3086,6 @@ sub Bind_admin(string _type, string _verbage, string _verbage2, bool _silent)
 			/call Bind_sql_edit lstSafeNames "${Target.DisplayName}" delete
 		}
 		/return
-
 
 	| reset core
 	} else /if (${_type.Equal[reset]}) {
@@ -3236,7 +3107,6 @@ sub Bind_admin(string _type, string _verbage, string _verbage2, bool _silent)
 		/call control_zone FALSE
 		VOUT Zone ${sep} \awzone\ax::\at${Zone.Name}\ax 
 		/return
-
 
 	| edit kill code
 	} else /if (${_type.Equal[killkey]}) {
@@ -3442,7 +3312,6 @@ sub Bind_admin(string _type, string _verbage, string _verbage2, bool _silent)
 		| end of /admin list commands			
 		/return
 
-
 	}
 
 	/if (${_silent}) /return
@@ -3453,6 +3322,7 @@ sub Bind_admin(string _type, string _verbage, string _verbage2, bool _silent)
 		/varset _sep TRUE
 	/next _count
 	VOUT /${_bind.Lower} [${_listout}]
+	
 /return
 
 
@@ -3480,8 +3350,6 @@ sub Bind_port_list(string _class, string _location, string _sublocation)
 
 
 	/if (${_class.Equal[aa]}) {
-		
-		
 		
 	} else /if (${_class.Equal[guild]}) {
 		
@@ -3565,7 +3433,6 @@ sub Bind_port_list(string _class, string _location, string _sublocation)
 			/squelch /notify "${_tmpLocation}" menuselect
 			/return
 		}		
-
 		
 		/if (${swMQClear}) /mqclear
 		/for _count 1 to ${lstTypesPortGuildHall.Count[|]}
@@ -3802,7 +3669,6 @@ sub Bind_port_list(string _class, string _location, string _sublocation)
 		/return
 	}
 
-
 	| druid port list
 	/declare _portDruidAlaris 											string local |beast|pillars|shardslanding
 	/declare _portDruidAntonica  										string local |commonlands|feerrott|karana|lavastorm|misty|ro|surefall|undershore|westkarna
@@ -3913,8 +3779,6 @@ sub Bind_int_pull()
 	/if (!${Target.ID}) /return FALSE
 
 	/dex ${get_resident[cleric, 150]}	/intervention ${Me.ID}
-
-	
 	
 /return TRUE
 
