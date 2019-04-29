@@ -24,6 +24,27 @@ Plugins Required: MQ2Cast, MQ2Exchange, MQ2MoveUtils, MQ2Debuffs, MQ2DanNet, MQ2
 
 
 
+BETA 0429.01
+HUDUPDATE
+- HUD
+  -- Added a background.. we will see how this goes
+- pal/hs Harmonious
+  -- small adjustment to mem in buff gem if not on spell bar.. though i dont know why anyone would not keep it memed.
+- set_combat()
+  -- fixed a bug caused by the new ranged combat adjustments
+- trigger_alliance()
+  -- correted some missing } from healers main tank tank ID
+- class.enc.inc
+  -- fixed a condition with anti hate spells on a burn
+  -- added a class.enc.test.inc - this is for a complete rewrite of the enchanter. DO NOT USE, it will break your shit.
+- class.rng.inc
+  -- more refinements to the burn routine
+- class.bst.inc
+  -- added Bestial disc line to combat/pregen
+  -- rearranged some of its burn routine
+ 
+
+
 BETA 0426.01
 - MQ2Nav removed a majority of the spam. will get whatevers left when i find it (lots of files)
 - Ranged Combat Movement (thanks @Danniuc)
@@ -44,9 +65,9 @@ BETA 0426.01
     -- DB::lstTerrorToon::|NAME1|NAME2|NAME3
     -- you will want to keep this spell memed due to load time. if you plan to use it
   -- moved epic2 click to runes
-  -- corrected a nam error in azure mind crystal and sanguine mind crytal usage
+  -- corrected a name error in azure mind crystal and sanguine mind crytal usage
   -- several skills added to the burn routine
-  -- adjustments to the self healr outine to try and speed it up
+  -- adjustments to the self heal routine to try and speed it up
 
 
 BETA 0425.01

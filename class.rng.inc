@@ -219,13 +219,16 @@ sub burn_RNG()
 	| cheeta
 	/if (${validate_cast[FALSE, alt, "${RNGcheetah}", ${Me.ID}]}) /call core_cast2 "${RNGcheetah}" alt 0 FALSE
 	
-	
-
-
+	| auspice
+	/if (${validate_cast[FALSE, alt, "${RNGauspice}", ${Me.ID}]}) /call core_cast2 "${RNGauspice}" alt 0 FALSE
 	
 	| MELEE
 	/if (${swCombatMelee}) {
 		/if (${Target.Distance} <= ${setCombatDistance}) {
+
+			| weapon proc
+			/if (${validate_cast[FALSE, alt, "Imbued Ferocity", ${Me.ID}]}) /call core_cast2 "Imbued Ferocity" alt 0 FALSE
+
 			/if (!${Bool[${Me.ActiveDisc}]} && !${Bool[${Me.Buff[${useGlyph}]}]}) {
 				/if (${validate_cast[FALSE, alt, "Empowered Blades", ${Me.ID}]}) /call core_cast2 "Empowered Blades" alt 0 FALSE
 			} else /if (!${Bool[${Me.ActiveDisc}]} && !${Bool[${Me.Song[Empowered Blades]}]} && !${Bool[${Me.Buff[${useGlyph}]}]}) {
@@ -236,12 +239,8 @@ sub burn_RNG()
 				/if (${validate_cast[FALSE, epicitem, "2", ${Me.ID}]}) /call core_cast2 "${${Me.Class.ShortName}Epic2}" item 0 FALSE
 			}
 		}
-		
-		| proc
-		/if (${validate_cast[FALSE, alt, "Imbued Ferocity", ${Me.ID}]} && !${Bool[${${Me.Class.ShortName}spire.Arg[1,|]}]}) {
-			/call core_cast2 "Imbued Ferocity" alt 0 FALSE
-		}		
-			
+
+
 	}
 
 	
@@ -264,11 +263,11 @@ sub burn_RNG()
 	/if (${validate_cast[FALSE, alt, "Outrider's Accuracy", ${Me.ID}]}) /call core_cast2 "Outrider's Accuracy" alt 0 FALSE
 	/if (${validate_cast[FALSE, alt, "Outrider's Attack", ${Me.ID}]}) /call core_cast2 "Outrider's Attack" alt 0 FALSE
 	
-	| guardian buff
-	/if (!${Me.Song[${RNGgroupguardian}].ID} && ${Me.AltAbilityReady[Guardian of the Forest]}) {  
-		/if (${validate_cast[FALSE, alt, "Guardian of the Forest", ${Me.ID}]}) /call core_cast2 "Guardian of the Forest" alt 0 FALSE
-	} else /if (!${Me.Song[Guardian of the Forest].ID} && !${Me.AltAbilityReady[${RNGgroupguardian}]}) {
+	| guardian buff (group first)
+	/if (!${Me.Song[Guardian of the Forest].ID} && ${Me.AltAbilityReady[${RNGgroupguardian}]}) {
 		/if (${validate_cast[FALSE, alt, "${RNGgroupguardian}", ${Me.ID}]}) /call core_cast2 "${RNGgroupguardian}" alt 0 FALSE
+	} else /if (!${Me.Song[${RNGgroupguardian}].ID} && ${Me.AltAbilityReady[Guardian of the Forest]}) {  
+		/if (${validate_cast[FALSE, alt, "Guardian of the Forest", ${Me.ID}]}) /call core_cast2 "Guardian of the Forest" alt 0 FALSE
 	}
 		
 	| swarm pets

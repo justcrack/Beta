@@ -100,6 +100,7 @@
 #include tc\class.clr.inc
 #include tc\class.dru.inc
 #include tc\class.enc.inc
+| #include tc\class.enc.test.inc
 #include tc\class.mag.inc
 #include tc\class.mnk.inc
 #include tc\class.nec.inc
@@ -120,7 +121,7 @@
  ***|
 sub main(string _custom)
 	| Current Build
-	/call setDeclare currentBuild 			string outer 0426.01
+	/call setDeclare currentBuild 			string outer 0429.01
 	
 	| force SQL echos on for the start
 	/call setDeclare swEchosSQL 				bool outer FALSE

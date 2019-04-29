@@ -32,7 +32,7 @@ sub pregen_data_arrays()
 	/varset sqlTables[2] 								|environment
 	
 	| Invisibilities
-	/if (!${Defined[lstIV]}) /declare lstIV[2] 									string 	outer
+	/if (!${Defined[lstIV]}) /declare lstIV[2] 										string 	outer
 	/if (!${Defined[lstIVU]}) /declare lstIVU[1]									string 	outer
 	/varset lstIV[1] 										|Shared Perfected Camouflage|Shared Camouflage|Camouflage|Group Perfected Invisibility I|Invisibility|Perfected Invisibility|Phase March|Nethervoid March|Perfected Silent Presence|Cloak of Shadows|Cloak of Shadows I|Cloak of Shadows II|Gather Umbra|Invisibility Cloak
 	/varset lstIV[2] 										|Perfected Natural Invisibility|Perfected Spirit Walk Invisibility|Perfected Group Spirit Walk Invisibility|Shauri's Sonorous Clouding|Shauri's Sonorous Clouding I|Shauri's Sonorous Clouding II|Shauri's Sonorous Clouding III|Selo's Song of Travel
@@ -268,7 +268,7 @@ sub pregen_environment()
 	/call setDeclare wikipct																						string 		outer "[\a-w1,99\ax]"
 
 	| please take a number and have a seat.
-	/call setDeclare bitchcount																					string 		outer 32
+	/call setDeclare bitchcount																					string 		outer 33
 	/call setDeclare bitch1																							string		outer	"Seriously... Again..."
 	/call setDeclare bitch2																							string		outer	"Did your parents ever ask you to run away from home?"
 	/call setDeclare bitch3																							string		outer	"Aha, I see the Fuck-Up Fairy has visited us again!"
@@ -301,6 +301,7 @@ sub pregen_environment()
 	/call setDeclare bitch30																						string	 	outer "As the sun rose, Dawn crept across the lawn.. Searching for her car keys."
 	/call setDeclare bitch31																						string		outer "Thank you for nothing... You useless reptile."
 	/call setDeclare bitch32																						string		outer "Cows are like women, the crazy ones taste the best. --alynel"
+	/call setDeclare bitch33																						string		outer "I think the real problem is someone made a stupid decision --Knightly"
 
 	| EQ expansions
 	/call setDeclare expansion1																					string	 	outer "The Ruins of Kunark"
@@ -1225,16 +1226,18 @@ sub pregen_BST()
 
 	/call sql_control FALSE BST swModRod																bool	 	outer TRUE
 	
-	/call sql_control FALSE BST DiscForay 															string 	outer "Pummel"
-	/call sql_control FALSE BST DiscFocusClaws 													string 	outer "Focused Clamor of Claws"
-	/call sql_control FALSE BST DiscSavage 															string 	outer "Savage Rage"
-	/call sql_control FALSE BST DiscRuaabri 														string 	outer "Ruaabri's Fury"	 TRUE
- 	
+	/call sql_control FALSE BST DiscForay 															string 	outer PREGENDATA
+	/call sql_control FALSE BST DiscFocusClaws 													string 	outer PREGENDATA
+	/call sql_control FALSE BST DiscSavage 															string 	outer PREGENDATA
+	/call sql_control FALSE BST DiscRuaabri 														string 	outer PREGENDATA
+	/call sql_control FALSE BST DiscVindication 												string 	outer PREGENDATA
+	/call sql_control FALSE BST DiscBestial			 												string 	outer PREGENDATA
+
  	| pet swarm
  	/call sql_control FALSE BST ServantNuke		 													string 	outer PREGENDATA
-  /call sql_control FALSE BST FeroSpell 															string 	outer "Savage Ferocity"
-  /call sql_control FALSE BST DiscEnduring														string 	outer "Enduring Frenzy"
-  /call sql_control FALSE BST DiscRending															string 	outer "Reflexive Rending"
+  /call sql_control FALSE BST FeroSpell 															string 	outer PREGENDATA
+  /call sql_control FALSE BST DiscEnduring														string 	outer PREGENDATA
+  /call sql_control FALSE BST DiscRending															string 	outer PREGENDATA
 	         
 	| you/pet growl spell                                   		
 	/call sql_control FALSE BST GrowlSpell 															string 	Pet PREGENDATA
@@ -3070,10 +3073,6 @@ sub hud_control(string _verbage)
 		HUDPATH "Core" "camp4" "19,180,26,255,255,255,${If[${swHomeSet},${setHomeLeash},]}"
 		HUDPATH "Core" "camp5" "19,150,26,25,25,25,${If[${swHomeSet},,##      ##]}"
 
-
-
-
-
 		| tie info
 		HUDPATH "Core" "tie1" "19,140,38,100,149,237,${setTieMode}"
 		HUDPATH "Core" "tie3" "19,167,38,255,255,255,${If[${swSetTie},${setTieDistance},]}"
@@ -3215,6 +3214,22 @@ sub hud_control(string _verbage)
 
 		HUDPATH "Core" "time1" "19,360,132,146,149,180,${If[${swHUDTime} || !${currentBuild},${Time.Time24},${GameTime}]}"
 		
+		| back ground generation. @korha
+		HUDPATH "Core" "BG2a" "3,131,0,0,0,0,███████████████████████████████████"
+		HUDPATH "Core" "BG2a2" "3,131,13,0,0,0,███████████████████████████████████"
+		HUDPATH "Core" "BG2b" "3,3,25,0,0,0,███████████████████████████████████████████████████"
+		HUDPATH "Core" "BG2c" "3,3,35,0,0,0,███████████████████████████████████████████████████"
+		HUDPATH "Core" "BG2d" "3,3,45,0,0,0,███████████████████████████████████████████████████"
+		HUDPATH "Core" "BG2e" "3,3,55,0,0,0,███████████████████████████████████████████████████"
+		HUDPATH "Core" "BG2f" "3,3,65,0,0,0,███████████████████████████████████████████████████"
+		HUDPATH "Core" "BG2g" "3,3,75,0,0,0,███████████████████████████████████████████████████"
+		HUDPATH "Core" "BG2h" "3,3,85,0,0,0,███████████████████████████████████████████████████"
+		HUDPATH "Core" "BG2i" "3,3,95,0,0,0,███████████████████████████████████████████████████"
+		HUDPATH "Core" "BG2j" "3,3,105,0,0,0,███████████████████████████████████████████████████"
+		HUDPATH "Core" "BG2k" "3,3,115,0,0,0,███████████████████████████████████████████████████"
+		HUDPATH "Core" "BG2l" "3,3,125,0,0,0,███████████████████████████████████████████████████"
+		HUDPATH "Core" "BG2m" "3,3,135,0,0,0,███████████████████████████████████████████████████"
+		
 		
 	| elements HUD	
 	} else /if (${_verbage.Equal[elements]}) {
@@ -3263,9 +3278,6 @@ sub hud_control(string _verbage)
 		| burn
 		| HUDPATH "Debug" "debug.burn1" "19,70,180,255,0,0,${If[${swBurnControl},BURN,]}"
 		| HUDPATH "Debug" "debug.burn2" "19,70,180,255,255,255,${If[${swBurnControl},,BURN]}"
-
-
-
 
 		| --- row 3
 
@@ -3329,13 +3341,11 @@ sub hud_control(string _verbage)
 		HUDPATH "Debug" "debug.sub1" "19,5,197,100,149,237,${currentdebugsub}"
 		| zone
 		HUDPATH "Debug" "debug.zone" "3,310,197,100,149,237,${Zone.ShortName}"
-		| communications?		
-		| HUDPATH "Debug" "debug.comm" "19,365,150,100,149,237,${setCommunications}"
 
 
 	}
 	
-	
+
 /return
 
 

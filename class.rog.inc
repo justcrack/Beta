@@ -33,11 +33,11 @@ sub core_ROG()
 		/if (${isValidTarget}) {
 			/call sneak_attack
 			/call set_combat ${combat.Upper}
+			/if (${swAlliance}) /call trigger_alliance ${Target2Kill}
 			/if (${swBurnControl}) /call burn_${Me.Class.ShortName}
 			/if (${swSwarm} || ${swPet}) /call send_pet
 			/if (${swCombatMelee}) /call use_skill_melee ${Target2Kill}
 			/call disc_${Me.Class.ShortName}
-			/if (${swAlliance}) /call trigger_alliance ${Target2Kill}
 			/call check_deBuffs ${Target2Kill}
 			/call click_BP
 			/call click_item

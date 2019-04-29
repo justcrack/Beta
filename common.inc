@@ -1742,7 +1742,7 @@ sub get_assist_target()
 		}
 	}
 	
-	| target acquisition when not using manual Forced assist.
+	| target acquisition when not using manual Forced assist
 	:skippingtoMAforcedtarget	
 	/if (${Bool[${swAssistF}]} && ${Target2Kill} != 0) {
 		
@@ -2150,7 +2150,7 @@ sub cast_AA_snare(int _tmpID)
 
 	| Berzerkers
 	/if (${Select[${Me.Class.ShortName},BER]}) {
-		/if (${validate_cast[FALSE, disc, "Leg Strike", ${_tmpID}]}) /call core_cast2 "Leg Strike" disc ${_tmpID} FALSE
+		/if (${validate_cast[FALSE, disc, "${DiscSnare}", ${_tmpID}]}) /call core_cast2 "${DiscSnare}" disc ${_tmpID} FALSE
 
 	| Rangers and Druids
 	} else /if (${Select[${Me.Class.ShortName},DRU,RNG]}) {
@@ -2751,6 +2751,7 @@ sub set_combat(str _mode)
 					/if (${coreAuto}) /call stick_to_target ${Target2Kill}
 				}
 			}
+		}
 	}
 
 /return
@@ -4789,7 +4790,7 @@ sub check_harmonious()
 	CHECKEXIT
 	CHECKINPUTS
 	/if (!${Bool[${Me.Buff[${Harmonious}]}]} && ${Me.PctMana} > 10) {
-		/if (${validate_cast[FALSE, spell, "${Harmonious}", ${Me.ID}]}) /call core_cast2 "${Harmonious}" 0 0 FALSE
+		/if (${validate_cast[FALSE, spell, "${Harmonious}", ${Me.ID}]}) /call core_cast2 "${Harmonious}" ${buffGem} 0 FALSE
 	}
 
 /return
@@ -6421,6 +6422,7 @@ sub watch_for_rezbox()
 			/delay 2s !${Me.State.Equal[HOVER]}
 			/delay 2s !${Me.Hovering}
 			/delay 2s !${Me.Dead}
+			/varset Target2Kill 0
 			/call set_stop NOECHO
 			/varset swAmIDead FALSE
 			/varset swValidRezFound FALSE
@@ -6674,9 +6676,9 @@ sub trigger_alliance(int _tmpID)
 			/varset _tmpID ${Spawn[pc ${Raid.MainAssist}].ID}
 		} else /if (!${Raid.Members} && ${Group}) {
 			/varset _tmpID ${Spawn[pc ${Group.MainAssist}].ID}			
-		} else /if (${Bool[${setMA1}]} && ${Bool[${Spawn[pc ${setMA1}].ID}]} && !${Bool[${Spawn[pc ${setMA1}].Dead}]) {
+		} else /if (${Bool[${setMA1}]} && ${Bool[${Spawn[pc ${setMA1}].ID}]} && !${Bool[${Spawn[pc ${setMA1}].Dead}]}) {
 			/varset _tmpID ${Spawn[pc ${setMA1}].ID}
-		} else /if (${Bool[${setMA2}]} && ${Bool[${Spawn[pc ${setMA2}].ID}]} && !${Bool[${Spawn[pc ${setMA2}].Dead}]) {
+		} else /if (${Bool[${setMA2}]} && ${Bool[${Spawn[pc ${setMA2}].ID}]} && !${Bool[${Spawn[pc ${setMA2}].Dead}]}) {
 			/varset _tmpID ${Spawn[pc ${setMA2}].ID}
 		}
 	}

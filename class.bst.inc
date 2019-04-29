@@ -63,36 +63,35 @@ sub core_BST()
  ***|
 sub disc_BST()
 	DEBUG disc_BST()
-	/if (${Me.PctEndurance} < 3) /return
+	/if (${Me.PctEndurance} < 2) /return
 	AMIDEAD
 	CHECKEXIT
 	CHECKINPUTS
 
 	/if (${is_target_dead[${Target2Kill}]}) /return
+	
+	/if (${validate_cast[FALSE, disc, "${DiscBestial}", ${Me.ID}]} && !${Me.Song[${DiscBestial}].ID}) /call core_cast2 "${DiscBestial}" disc 0 FALSE
+	/if (${validate_cast[FALSE, disc, "${DiscFocusClaws}", ${Target2Kill}]}) /call core_cast2 "${DiscFocusClaws}" disc ${Target2Kill} FALSE
+	/if (${validate_cast[FALSE, alt, "${DiscEnduring}", ${Target2Kill}]} && !${Bool[${Target.Buff[${DiscEnduring}]}]}) /call core_cast2 "${DiscEnduring}" alt ${Target2Kill} FALSE
+	/if (${validate_cast[FALSE, alt, "Roar of Thunder", ${Target2Kill}]} && ${Me.PctAggro}) /call core_cast2 "Roar of Thunder" alt ${Target2Kill} FALSE
+	/if (${validate_cast[FALSE, alt, "Chameleon Strike", ${Target2Kill}]}) /call core_cast2 "Chameleon Strike" alt ${Target2Kill} FALSE
+	/if (${validate_cast[FALSE, disc, "${DiscForay}", ${Target2Kill}]}) /call core_cast2 "${DiscForay}" disc ${Target2Kill} FALSE
+	/if (${validate_cast[FALSE, disc, "${DiscRending}", ${Target2Kill}]}) /call core_cast2 "${DiscRending}" disc ${Target2Kill} FALSE
 			
 	| do we want the mobs attention?
 	/if (${swAgro}) {
 		/if (${validate_cast[FALSE, alt, "Roaring Strike", ${Target2Kill}]} && ${Me.PctAggro} < 80) /call core_cast2 "Roaring Strike" alt ${Target2Kill} FALSE
 	} else /if (!${swAgro}) {
-		/if (${validate_cast[FALSE, alt, "Roar of Thunder", ${Target2Kill}]} && ${Me.PctAggro} > 50) /call core_cast2 "Roar of Thunder" alt ${Target2Kill} FALSE
-		/if (${validate_cast[FALSE, alt, "Chameleon Strike", ${Target2Kill}]} && ${Me.PctAggro} > 30) /call core_cast2 "Chameleon Strike" alt ${Target2Kill} FALSE
 	}
 
 	/if (${Me.Pet.ID}) {
 		/if (!${Me.Song[Growl of the].ID} && !${Me.Song[${GrowlSpell}].ID} && !${Me.PetBuff[Savage Rage]} && !${Me.Song[${DiscSavage}].ID}) {
-			/if (${validate_cast[FALSE, spell, "${GrowlSpell}", ${Me.ID}]}) /call core_cast2 "${GrowlSpell}" 0 0 FALSE
+			/if (${validate_cast[FALSE, spell, "${GrowlSpell}", ${Me.ID}]}) /call core_cast2 "${GrowlSpell}" ${buffGem} 0 FALSE
 		}
 	}
 
-	/if (${Me.PctEndurance} > 5) {
-		/if (${validate_cast[FALSE, disc, "${DiscForay}", ${Target2Kill}]}) /call core_cast2 "${DiscForay}" disc ${Target2Kill} FALSE
-		/if (${validate_cast[FALSE, disc, "${DiscRending}", ${Target2Kill}]}) /call core_cast2 "${DiscRending}" disc ${Target2Kill} FALSE
-	}
-
-	/if (${validate_cast[FALSE, disc, "${DiscFocusClaws}", ${Target2Kill}]}) /call core_cast2 "${DiscFocusClaws}" disc ${Target2Kill} FALSE
-	/if (${validate_cast[FALSE, alt, "${DiscEnduring}", ${Target2Kill}]} && !${Bool[${Target.Buff[${DiscEnduring}]}]}) /call core_cast2 "${DiscEnduring}" alt ${Target2Kill} FALSE
 	
-	/if (${validate_cast[FALSE, alt, "Bestial Savagery", ${Me.ID}]} && !${Me.Song[Bestial Savagery].ID}) /call core_cast2 "Bestial Savagery" alt 0 FALSE
+
 	
 /return
 
@@ -269,18 +268,22 @@ sub burn_BST()
 	
 	/if (${validate_cast[FALSE, alt, "Bestial Alignment", ${Me.ID}]}) /call core_cast2 "Bestial Alignment" alt 0 FALSE
 	/if (${validate_cast[FALSE, alt, "Frenzied Swipes", ${Me.ID}]}) /call core_cast2 "Frenzied Swipes" alt 0 FALSE
+	/if (${validate_cast[FALSE, alt, "Ferociousness", ${Me.ID}]} && !${Me.Song[${DiscSavage}].ID}) /call core_cast2 "Ferociousness" alt 0 FALSE
+
 
 	/if (${swSwarm}) {
 		/if (${validate_cast[FALSE, alt, "Attack of the Warders", ${Target2Kill}]}) /call core_cast2 "Attack of the Warders" alt ${Target2Kill} FALSE
 	}
 
-	/if (${Me.Pet.ID} && ${Me.AltAbilityReady[Companion's Fury]}) /alt act 443
+	| /if (${Me.Pet.ID} && ${Me.AltAbilityReady[Companion's Fury]}) /alt act 443
 
-	| /if (${Me.Pet.ID}) {
-	| 	/if (${validate_cast[FALSE, alt, "Companion's Fury", ${Me.ID}]}) /call core_cast2 "Companion's Fury" alt 0 FALSE
-	| }
+	/if (${Me.Pet.ID}) {
+		/if (${validate_cast[FALSE, alt, "Companion's Fury", ${Pet.ID}]}) /call core_cast2 "Companion's Fury" alt 0 FALSE
+	}
 	
-	/if (${validate_cast[FALSE, disc, "Al`ele's Vindication", ${Me.ID}]}) /call core_cast2 "Al`ele's Vindication" disc 0 FALSE
+	/if (${swCombatMelee} || ${swCombatDot} ) {
+		/if (${validate_cast[FALSE, disc, "${DiscVindication}", ${Me.ID}]}) /call core_cast2 "${DiscVindication}" disc 0 FALSE
+	}
 
 	/call use_glyph
 
@@ -293,7 +296,6 @@ sub burn_BST()
 		/if (${validate_cast[FALSE, alt, "BloodLust", ${Me.ID}]}) /call core_cast2 "BloodLust" alt 0 FALSE
 		/call cast_AA_spire
 		/if (${validate_cast[FALSE, disc, "${DiscSavage}", ${Me.ID}]} && !${Me.Song[Bestial Alignment].ID}) /call core_cast2 "${DiscSavage}" disc 0 FALSE
-		/if (${validate_cast[FALSE, alt, "Ferociousness", ${Me.ID}]} && !${Me.Song[${DiscSavage}].ID}) /call core_cast2 "Ferociousness" alt 0 FALSE
 		/if (${validate_cast[FALSE, alt, "Group Bestial Alignment", ${Me.ID}]} && !${Me.Buff[Ferociousness].ID}) /call core_cast2 "Group Bestial Alignment" alt 0 FALSE
 	}
 	
