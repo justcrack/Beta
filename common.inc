@@ -892,6 +892,12 @@ sub click_horn_of_unity()
 
 
 
+${DanNet[${corecomminications}].PeerCount}
+
+
+
+
+
 |***
  *	DES: Broadcasted Buff Routines
  *	USE: automatic any peers
@@ -913,10 +919,10 @@ sub check_buffs_BC()
 	/declare _found bool
 	
 	| each toon
-	/while (${_toon} <= ${DanNet.PeerCount}) {
+	/while (${_toon} <= ${DanNet[${corecomminications}].PeerCount}) {
 		
 		| get the name to something usable
-		/varset _toonName ${DanNet.Peers.Arg[${_toon},|]}
+		/varset _toonName ${DanNet[${corecomminications}].Peers.Arg[${_toon},|]}
 		
 		| healers ignore the rampage tank
 		/if (${validate_class[FALSE, |CLR|PAL|DRU|SHM]}) {
@@ -2975,8 +2981,7 @@ sub set_tie()
 				/squelch /face ID ${Spawn[pc ${setTieToon}].ID} ${If[${swFaceFast},fast,]}
 				/nav spawn pc ${setTieToon} |log=off
 		
-				:navtime
-
+			:navtime
 			} else /if (${Spawn[pc ${setTieToon}].Distance} <= ${setTieDistance}) {
 				/if (${Navigation.Active}) {
 					/nav stop log=off

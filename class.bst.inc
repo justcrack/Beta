@@ -89,10 +89,6 @@ sub disc_BST()
 			/if (${validate_cast[FALSE, spell, "${GrowlSpell}", ${Me.ID}]}) /call core_cast2 "${GrowlSpell}" ${buffGem} 0 FALSE
 		}
 	}
-
-	
-
-	
 /return
 
 
@@ -110,7 +106,7 @@ sub check_mana_BST()
 	| consumption of Spirits AA
 	/if (${switchConsumeSpirit}) {
 		/if (${Me.PctMana} < ${ConsumeSpiritPct}*.${tmpHealOverride}) {
-		 	/if (${validate_cast[FALSE, alt, "Consumption of Spirit", ${Me.ID}]}) /call core_cast2 "Consumption of Spirit" alt ${Me.ID} FALSE
+		 	/if (${validate_cast[FALSE, alt, "Consumption of Spirit", ${Me.ID}]}) /call core_cast2 "Consumption of Spirit" alt 0 FALSE
 		}
 	}
 	
@@ -281,7 +277,7 @@ sub burn_BST()
 		/if (${validate_cast[FALSE, alt, "Companion's Fury", ${Pet.ID}]}) /call core_cast2 "Companion's Fury" alt 0 FALSE
 	}
 	
-	/if (${swCombatMelee} || ${swCombatDot} ) {
+	/if (${swCombatMelee} || ${swCombatDoT}) {
 		/if (${validate_cast[FALSE, disc, "${DiscVindication}", ${Me.ID}]}) /call core_cast2 "${DiscVindication}" disc 0 FALSE
 	}
 

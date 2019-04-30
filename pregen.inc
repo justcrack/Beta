@@ -74,6 +74,11 @@ sub pregen_environment()
 	| Base Environment settings
 	/call setDeclare forceINIcheck																			string 		outer TRUE
 	
+	| macro communications channel (group) for DanNet
+	/call setDeclare DanNetMacroChannel																	string 		outer core_communications
+	| join the group
+	/djoin ${DanNetMacroChannel}
+
 	| remote kill key (not documented)
 	/call sql_control FALSE environment remoteKillKey										string		outer FALSE
 		
@@ -483,6 +488,7 @@ sub pregen_character()
 	/call setDeclare swRezRange																					bool			outer FALSE
 	/call sql_control FALSE character swRezTake 												bool 			outer TRUE 
 	/call sql_control FALSE character swRezToken												bool			outer FALSE
+	/call sql_control FALSE character lstRezToken												string		outer FALSE
 	/call sql_control FALSE character setMinRezPct											int				outer 90
 	/call sql_control FALSE character setMaxRezRange				 						int 			outer 60 
 	/call sql_control FALSE character swRezGive	 												bool 			outer FALSE 

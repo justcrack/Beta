@@ -45,6 +45,19 @@ HUDUPDATE
  
 
 
+
+BETA 0430.01
+- Core blocked buffs and KissAssit (damn compatability issue)
+  -- i've added in a default communications channel for core. it will load all toons running core into that channel
+     anything dannet related for buffing will (read should) stay focused in that chennel only
+     this should prevent dannet from asking if kissassit users have buff block issues with core castsing
+- added back in a custom.inc for those that wanted to use.
+- token rez list
+  -- corrected an error in the loop for token rezing
+- cls.bst.inc
+  -- fixed a targeting issue with Comsume AA. as in it doesn't need a target
+
+
 BETA 0426.01
 - MQ2Nav removed a majority of the spam. will get whatevers left when i find it (lots of files)
 - Ranged Combat Movement (thanks @Danniuc)
