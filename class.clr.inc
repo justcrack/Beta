@@ -61,8 +61,6 @@ sub core_CLR()
 			/if (${swCombatNuke}) /call cast_nuke
 			/call click_BP
 			/call click_item
-			/if (${swSwarm} && !${Me.Pet.ID}) /call cast_temp_pet ${Target2Kill} "${tempPet}"
-			/if (${swSwarm}) /call click_item_swarm ${Target2Kill}
 			/call click_DPS_${Me.Class.ShortName}
 		}
 	}
@@ -82,6 +80,7 @@ sub click_DPS_CLR()
 	CHECKEXIT
 	/if (${is_target_dead[${Target2Kill}]}) /return
 	/call click_horn_of_unity 	
+	/if (${swSwarm}) /call click_item_swarm ${Target2Kill}
 /return
 
 
@@ -100,6 +99,8 @@ sub disc_CLR()
 	/if (${is_target_dead[${Target2Kill}]}) /return
 
 	/if (${doYaulp}) /call cast_yaulp
+
+	/if (${swSwarm} && !${Me.Pet.ID}) /call cast_temp_pet ${Target2Kill} "${tempPet}"
 
 	| pet AA hammer	
 	/if (${swBurnForce} || (${swBurnAuto} && ${NameList.Find[${Target.DisplayName}]})) {
@@ -160,8 +161,6 @@ sub check_heal_group_CLR()
 	/varset hurtCount 0
 
 	| Do group members need healing? 
-  | /call check_health_group
-  
 	/for _count 0 to ${Group}
 		/if (${Group.Member[${_count}].PctHPs} > ${${Group.Member[${_count}].Class.ShortName}Point}*.${tmpHealOverride}) /continue
 		/if (${Group.Member[${_count}].PctHPs} > ${hurtPctHP}) /continue
@@ -185,8 +184,24 @@ sub check_heal_group_CLR()
  	/if (${useGroupHoT} && !${hurtCount} && !${SafeZone}) {
 	 	/if (${SpawnCount[npc radius ${setMobAgro} playerstate 4 targetable]} >= 1) {
 			/if (!${Me.Song[Focused Celestial Regeneration].ID} && !${Me.Song[${healWholeGroupHoT}].ID} && !${Me.Song[Shear of Renewal].ID} && !${Me.Song[Ghost of Renewal].ID} && !${Me.Song[Cloud of Renewal].ID}) {
-		    /if (${validate_cast[FALSE, spell, "${healWholeGroupHoT}", ${Me.ID}]}) /call core_cast2 "${healWholeGroupHoT}" 0 0 FALSE
-		  }
+
+
+				/declare _found bool TRUE
+				| check regen SPA
+				/if (${Spell[${healWholeGroupHoT}].HasSPA[374]}) {
+					/for _count 1 to ${Spell[${healWholeGroupHoT}].NumEffects}
+						/if (!${Spell[${Spell[${healWholeGroupHoT}].Base2[${_count}]}].Duration}) /continue
+						/if (!${Me.Song[${Spell[${healWholeGroupHoT}].Base2[${_count}]}].ID}) /varset _found FALSE
+						/if (!${Spell[${Spell[${healWholeGroupHoT}].Base2[${_count}]}].NewStacks}) /varset _found TRUE
+						/if (${_found}) /break
+					/next _count
+				} else {
+					/if (!${Me.Song[${healWholeGroupHoT}].ID}) /varset _found FALSE
+					/if (${Spell[${healWholeGroupHoT}].NewStacks}) /varset _found FALSE
+				}
+				/if (!${_found} && ${validate_cast[FALSE, spell, "${healWholeGroupHoT}", ${Me.ID}]}) /call core_cast2 "${healWholeGroupHoT}" ${buffGem} ${Me.ID} FALSE
+				| /if (${validate_cast[FALSE, spell, "${healWholeGroupHoT}", ${Me.ID}]}) /call core_cast2 "${healWholeGroupHoT}" 0 0 FALSE
+			}
 		}
 	}
 	
@@ -271,7 +286,7 @@ sub check_heal_group_CLR()
 	
 	| heal breastplate
 	/if (${Bool[${BreastplateHeal}]}) {
-		/if (${hurtCount} > 2 && ${Me.ItemReady[${BreastplateHeal}]} && ${cast_condition[BreastplateHealCondition]}) {
+		/if (${Me.ItemReady[${BreastplateHeal}]} && ${cast_condition[BreastplateHealCondition]}) {
 			/if (${validate_cast[FALSE, item, "${BreastplateHeal}", ${Group.Member[${hurtIndex}].ID}]}) /call core_cast2 "${BreastplateHeal}" item ${Group.Member[${hurtIndex}].ID} FALSE
 		}
 	}
@@ -325,7 +340,7 @@ sub check_heal_group_CLR()
 			/dquery ${Group.Member[${hurtIndex}].DisplayName} -q "Spell[${healHoT}].Stacks" -o _stacks
 			/dquery ${Group.Member[${hurtIndex}].DisplayName} -q "Me.Song[${healHoT}].Duration" -o _has
 			/if (${_stacks} && !${_has}) {
-				/if (${validate_cast[FALSE, spell, "${healHoT}", ${Group.Member[${hurtIndex}].ID}]}) /call core_cast2 "${healHoT}" 0 ${Group.Member[${hurtIndex}].ID} check_health_group
+				/if (${validate_cast[FALSE, spell, "${healHoT}", ${Group.Member[${hurtIndex}].ID}]}) /call core_cast2 "${healHoT}" ${buffGem} ${Group.Member[${hurtIndex}].ID} check_health_group
 			}
 		}
 	}
@@ -354,6 +369,9 @@ sub check_heal_self_CLR()
 	UPDATEHUD "HEAL Self"
 	/if (${Me.PctHPs} > ${CLRPoint}*.${tmpHealOverride}) /return
 	/declare _count int local 0
+
+	| self single target regen
+	/if (${validate_cast[FALSE, spell, "${healHoT}", ${Me.ID}]}) /call core_cast2 "${healHoT}" ${buffGem} ${Me.ID} FALSE
 
 	| check for personal debuffs
 	/if (${swHealCure}) {
@@ -453,9 +471,6 @@ sub check_heal_XTarget_CLR()
 	/varset hurtCount 0
 
 	| does anyone need healing?
-	| /call check_health_xtarget
- 
- 
 	/for _count 1 to 13
   	/if (!${Me.XTarget[${_count}].ID}) /continue
   	/if (${Me.XTarget[${_count}].Dead}) /continue
@@ -472,9 +487,6 @@ sub check_heal_XTarget_CLR()
 		/varset hurtCount 1
 
   /next _count
-
-
-
   	
 	/if (!${hurtCount}) {
 		UPDATEHUD FALSE
@@ -652,7 +664,6 @@ Sub cast_AA_celest_regen()
 	/if (${Me.AltAbilityReady[Mass Group Buff]} && ${Me.AltAbilityReady[Celestial Regeneration]} && !${Bool[${Me.Song[Celestial Regeneration]}]}) {
 		/if (${validate_cast[FALSE, alt, "Mass Group Buff", ${Me.ID}]}) /call core_cast2 "Mass Group Buff" alt ${Me.ID} FALSE
 		/if (${validate_cast[FALSE, alt, "Celestial Regeneration", ${Me.ID}]}) /call core_cast2 "Celestial Regeneration" alt ${Me.ID} FALSE
-		| /if (${Bool[${Raid.Members}]}) /rs ${CRTXT}
 	} else /if (${Bool[${Me.Song[Celestial Regeneration]}]}) {
 		VOUT ${cbad}QUIT\ax trying to cast Celestial Regeneration while its running.	
 	}		
@@ -677,20 +688,17 @@ sub Bind_issuance()
 		/delay 2.5s ${Me.SpellReady[${Spell[${healIssuance}].RankName}]}
 	}
 
-
 	:castIssuance
 	/if (!${Spawn[${Target2Kill}].CanSplashLand}) /return 
 
 	/if (${Spawn[${Target2Kill}].Distance} > 100) {
-		/if (${validate_cast[FALSE, spell, "${healIssuance}", ${Target2Kill}]}) /cast "${healIssuance}" loc ${Target.X} ${Target.Y} ${Target.Z}
+		/if (${validate_cast[FALSE, spell, "${healIssuance}", ${Target2Kill}]}) /cast "${healIssuance}" loc ${Spawn[${Target2Kill}].X} ${Spawn[${Target2Kill}].Y} ${Spawn[${Target2Kill}].Z}
 		/delay 4s !${Me.Casting.ID}
-	} else {
-		/if (${validate_cast[FALSE, spell, "${healIssuance}", ${Target2Kill}]}) /cast "${healIssuance}" loc ${Me.X} ${Me.Y} ${Me.Z}
-		/delay 4s !${Me.Casting.ID}
-	}
+	} 
 	
 	| can we recast?
 	/if (${Me.AltAbilityReady[Forceful Rejuvenation]}) {
+		
 		/if (${validate_cast[FALSE, alt, "Forceful Rejuvenation", ${Me.ID}]}) /call core_cast2 "Forceful Rejuvenation" alt 0 FALSE
 		/delay 4s !${Me.Casting.ID}
 		/goto :castIssuance
@@ -830,10 +838,6 @@ sub burn_CLR()
 
 
 
-
-
-
-
 |***
  *	DES: forces an intervention spell on that target
  *	USE: /intervention [TargetID]
@@ -853,11 +857,6 @@ sub Bind_clr_intervention(int _tmpID)
 	/next _count
 	
 /return TRUE
-
-
-
-
-
 
 
 

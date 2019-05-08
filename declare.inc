@@ -347,9 +347,11 @@ sub Event_Zone(string _line)
 	| force a delay while zoning
 	/if (${swDelayZoning} && ${Me.Zoning}) {
 		:stillfuckingzoningOMGwillthiseverend
-		/delay 20s !${Me.Zoning}
-		/if (${swDelayZoning} && ${Me.Zoning}) /goto :stillfuckingzoningOMGwillthiseverend
-	} else /if (!${Me.Zoning}) {
+		/delay 1m !${Me.Zoning}
+		/if (${Me.Zoning}) /goto :stillfuckingzoningOMGwillthiseverend
+	}
+	
+	/if (!${Me.Zoning}) {
 		/call validate_zone FALSE TRUE
 	}
 	
@@ -616,6 +618,7 @@ sub Bind_heal(string _type, string _verbage, bool _silent)
 		}
 		/if (!${validate_expansion[TRUE, |16]}) {
 			/call set_switch ${_table} swHealXTarget FALSE
+			| /call timer_update timer_set_xtarget 1
 			/return
 		}
 		/call Bind_admin XT build
@@ -1948,7 +1951,7 @@ sub Bind_oof()
  	}
  	
  	/em looks around for the biggest fucking rock to hit ${_pronoun} head against.
-	/say ${bitch${Math.Rand[${bitchcount}]}}
+	/call echo_bitch say
 	
 /return
 
@@ -2807,6 +2810,16 @@ sub Bind_Core_environment(string _type, string _verbage, bool _silent)
 	} else /if (${_type.Equal[moblvmax]}) {
 		/call sql_update FALSE ${_bind.Lower} setMobLvlMax ${_verbage}
 
+	| enable TLP settings
+	} else /if (${_type.Equal[tlp]}) {
+		/call sql_update FALSE ${_bind.Lower} swTLP ${_verbage}
+		/delay 1s
+		| force mac restart if turning on the switch
+		/if (${swTLP}) {
+			OUT ${owarning} ${sep} \awENDING MACRO\ax ${sep} RESTART to rebuild database for TLP.
+			/endm
+		}
+
 	| use sarcastic remarks
 	} else /if (${_type.Equal[bitch]}) {
 		/call set_switch ${_bind.Lower} swBitch ${_verbage}
@@ -2931,6 +2944,7 @@ sub Bind_Core_environment(string _type, string _verbage, bool _silent)
 			/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${lstTypes${_bind}[${_countArray}].Arg[${_count},|].Lower}\ax		
 			/if (${lstTypes${_bind}[${_countArray}].Arg[${_count},|].Equal[moblvlmin]}) /varset _listout ${_listout}:${If[${setMobLvlMin},${cnum}${setMobLvlMin}\ax,${ooff}]}
 			/if (${lstTypes${_bind}[${_countArray}].Arg[${_count},|].Equal[moblvmax]}) /varset _listout ${_listout}:${If[${setMobLvlMax},${cnum}${setMobLvlMax}\ax,${ooff}]}
+			/if (${lstTypes${_bind}[${_countArray}].Arg[${_count},|].Equal[tlp]}) /varset _listout ${_listout}:${If[${swTLP},${oon},${ooff}]}
 			/if (${lstTypes${_bind}[${_countArray}].Arg[${_count},|].Equal[bitch]}) /varset _listout ${_listout}:${If[${swBitch},${oon},${ooff}]}
 			/if (${lstTypes${_bind}[${_countArray}].Arg[${_count},|].Equal[nukeloop]}) /varset _listout ${_listout}:${If[${swNukeLoop},${oon},${ooff}]}
 			/if (${lstTypes${_bind}[${_countArray}].Arg[${_count},|].Equal[dispinfo]}) /varset _listout ${_listout}:${If[${swDispInfo},${oon},${ooff}]}
@@ -3065,7 +3079,25 @@ sub Bind_admin(string _type, string _verbage, string _verbage2, bool _silent)
 		}
 		
 		/return
-		
+	
+	| this is used for adjusting the PRAGMA journal_mode of how the database writes data.
+	| i strongly suggest you dont fuck with this unless know what you are doing.	
+	} else /if (${_type.Equal[journalmode]}) {
+		/if (${_verbage.Equal[DELETE]}) /sqlite ${dbCore} query_journal_mode PRAGMA journal_mode=DELETE
+		/if (${_verbage.Equal[TRUNCATE]}) /sqlite ${dbCore} query_journal_mode PRAGMA journal_mode=TRUNCATE
+		/if (${_verbage.Equal[PERSIST]}) /sqlite ${dbCore} query_journal_mode PRAGMA journal_mode=PERSIST
+		/if (${_verbage.Equal[MEMORY]}) /sqlite ${dbCore} query_journal_mode PRAGMA journal_mode=MEMORY
+		/if (${_verbage.Equal[WAL]}) /sqlite ${dbCore} query_journal_mode PRAGMA journal_mode=WAL
+		/if (${_verbage.Equal[OFF]}) /sqlite ${dbCore} query_journal_mode PRAGMA journal_mode=OFF
+
+		/declare _lstList string local |DELETE|TRUNCATE|PERSIST|MEMORY|WAL|OFF
+		/for _count 1 to ${_lstList.Count[|]}
+			/varset _listout ${_listout} ${If[${_sep},${sep},]} ${If[${sqlite.Result[query_journal_mode 1 journal_mode].Equal[${_lstList.Arg[${_count},|]}]},${cgood}${_lstList.Arg[${_count},|]}\ax,${cinfo}${_lstList.Arg[${_count},|]}\ax]}
+			/varset _sep TRUE
+		/next _count
+		VOUT /${_bind.Lower} journalmode [${_listout}]	
+		/return
+	
 	| place in maintenance mode
 	} else /if (${_type.Equal[maintenance]}) {
 		/call set_switch character swMaintenance ${_verbage}
@@ -3242,7 +3274,7 @@ sub Bind_admin(string _type, string _verbage, string _verbage2, bool _silent)
 		| AA/Disc Now
 		} else /if (${_verbage.Equal[now]}) {
 			/mqclear
-			OUT AA/Disc Now List ${sep} ${If[${Bool[${_verbage2}]},#${Int[${_verbage2}]},]}
+			OUT AA/Disc/Item Now List ${sep} ${If[${Bool[${_verbage2}]},#${Int[${_verbage2}]},]}
 			/for _count 1 to 2
 				/if (${Bool[${_verbage2}]} && ${_verbage2.NotEqual[${_count}]}) /continue
 				OUT AANow${cinfo}${_count}\ax ${sep} ${cnum}${sql_return[AANow${_count}, dummy]}\ax
@@ -3251,7 +3283,10 @@ sub Bind_admin(string _type, string _verbage, string _verbage2, bool _silent)
 				/if (${Bool[${_verbage2}]} && ${_verbage2.NotEqual[${_count}]}) /continue
 				OUT DiscNow${cinfo}${_count}\ax ${sep} ${cnum}${sql_return[DiscNow${_count}, dummy]}\ax
 			/next _count
-				
+			/for _count 1 to 2
+				/if (${Bool[${_verbage2}]} && ${_verbage2.NotEqual[${_count}]}) /continue
+				OUT ItemNow${cinfo}${_count}\ax ${sep} ${cnum}${sql_return[ItemNow${_count}, dummy]}\ax
+			/next _count				
 		| odds and ends
 		} else /if (${_verbage.Equal[odditem]}) {
 			/mqclear
@@ -3427,7 +3462,9 @@ sub Bind_port_list(string _class, string _location, string _sublocation)
 			
 		| found an item
 		/if (${Bool[${_tmpItem}]}) {	
-			/squelch /itemtarget "${_tmpItem}"
+			| /squelch /itemtarget "${_tmpItem}"
+			/invoke ${Ground[${_tmpItem}].DoTarget}
+			/click right item
 			/squelch /click right item
 			/delay 1s
 			/squelch /notify "${_tmpLocation}" menuselect

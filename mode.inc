@@ -150,7 +150,7 @@ sub mode_get_mob()
 		
 		| use nav for movement
 		/if (${setTieMode.Equal[nav]} && ${Bool[${Plugin[MQ2Nav]}]} && !${Navigation.Active}) {
-			/echo nav to ${Target2Kill}
+			| /echo nav to ${Target2Kill}
 			/if (${Navigation.Active}) /nav stop log=off
 			/squelch /nav ID ${Target2Kill} log=off
 
@@ -897,6 +897,9 @@ sub mode_open(string _type)
 
 	UPDATEHUD FALSE
 /return
+
+
+| /edit modeOpenItem "a hollows mushroom"
 
 
 

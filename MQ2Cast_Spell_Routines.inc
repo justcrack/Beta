@@ -241,6 +241,12 @@ AMIDEAD
         /squelch /stick pause
         /delay 5 !${Me.Moving}
     }
+    
+    | added for MQ2Nav plugin
+    /if (${Navigation.Active}) {
+    	/nav stop log=off
+    }   
+    
 
     /if (${Defined[FollowFlag]}) {
         /if (${AdvPath.Following} && !${AdvPath.Paused} && ${FollowFlag} && ${FollowFlag}<2) {

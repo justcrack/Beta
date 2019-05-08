@@ -391,7 +391,7 @@ sub Bind_setMAG(string _type, string _verbage)
 		/return
 		
 	| spell line. not quite done with this. 
-	} else /if (${_classType.Equal[line]}) {
+	} else /if (${_type.Equal[line]}) {
 		| mem a line of spells.
 		/if (${Bool[${lineType.Find[${_verbage.Lower}]}]}) {
 			/call sql_update FALSE ${Me.Class.ShortName} lineCurrent ${_verbage.Left[1].Upper}${_verbage.Right[-1].Lower}

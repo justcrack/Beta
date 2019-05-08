@@ -1123,7 +1123,7 @@ sub timer_update(string _my_timer, string _my_duration)
  ***|
 sub do_rest()
 	| the dead dont need to rest
-	/if (!${coreAuto} || ${swAmIDead}) /return FALSE
+	/if (!${coreAuto} || ${swAmIDead} || ${Me.Zoning}) /return FALSE
 	
 	| dont rest while in tie
 	/if (${swTieLock} && ${swSetTie}) /return FALSE
@@ -1485,7 +1485,7 @@ sub set_xtarget()
 	| set protection for NPCs
 	/if (${Bool[${ProtectNPCList}]}) {
 		/for _count 1 to ${ProtectNPCList.Count[|]}
-			/varset _name ${Spawn[pc ${ProtectNPCList.Arg[${_x},|]}].DisplayName}
+			/varset _name ${Spawn[=${ProtectNPCList.Arg[${_x},|]} npc].DisplayName}
 
 			/if (${_b} > 13 || !${Bool[${Spawn[${_name}]}]}) {
 			} else /if (${Bool[${Me.XTarget[${_name}]}]}) {
@@ -1500,7 +1500,7 @@ sub set_xtarget()
 	| protect PCs when outside group
 	/if (!${Raid.Members} && ${Bool[${ProtectOutsideGroup}]}) {
 		/for _x 1 to ${ProtectOutsideGroup.Count[|]}
-			/varset _name ${Spawn[pc ${ProtectOutsideGroup.Arg[${_x},|]}].DisplayName}
+			/varset _name ${Spawn[=${ProtectOutsideGroup.Arg[${_x},|]} pc].DisplayName}
 			/if (${Spawn[pc ${_name}].Distance} > ${setMobAgro}) /continue
 			/if (${Group.Member[${_name}].ID}) /continue
 			/if (${_b} > 13 || !${Bool[${Spawn[pc ${_name}]}]}) /continue
@@ -1517,7 +1517,7 @@ sub set_xtarget()
 	/if (${Raid.Members}) {
 		/if (${Bool[${ProtectInsideRaid}]}) {
 			/for _x 1 to ${ProtectInsideRaid.Count[|]}
-			/varset _name ${Spawn[pc ${ProtectInsideRaid.Arg[${_x},|]}].DisplayName}
+			/varset _name ${Spawn[=${ProtectInsideRaid.Arg[${_x},|]} pc].DisplayName}
 
 				/if (${Spawn[pc ${_name}].Distance} > ${setMobAgro}) /continue
 				/if (${Bool[${Group.Member[${_name}]}]}) /continue
@@ -1979,8 +1979,10 @@ sub cast_nuke_line()
 		/if (${is_target_dead[${Target2Kill}]}) /return
 		/if (${Me.CurrentMana} < ${Spell[${_list.Arg[${_count},|]}].Mana} || ${Me.PctMana} < 2) /break 
 		/if (!${cast_condition[line${lineCurrent}Condition${_count}]}) /continue 
+		/if (!${Me.SpellReady[${Spell[${_list.Arg[${_count},|]}].RankName}]}) /continue
 		
 		/if (${validate_cast[FALSE, spell, "${Spell[${_list.Arg[${_count},|]}].RankName}", ${Target2Kill}]}) /call core_cast2 "${Spell[${_list.Arg[${_count},|]}].RankName}" 0 ${Target2Kill} cast_break
+		| SDEBUG cast return for: ${Spell[${_list.Arg[${_count},|]}].RankName} .. ${castReturn}
 		/if (${Select[${castReturn},CAST_SUCCESS]}) /call timer_update timer_Nuke_Delay ${tNuke_Delay}
 
 		| toons ini switch. maintain the loop of nuked till all are cycled.
@@ -3120,12 +3122,11 @@ sub odds_and_ends()
  *  NOTE: All reasons to not attack a target..
  ***|
 sub check_exit()
+	/if (${Me.Zoning}) /return TRUE
 	
 	| invis 
 	/if (${Me.Invis}) /return TRUE
 	
-	| am i zoning?
-	/if (${Me.Zoning}) /return TRUE
 	
 	| am i dead on the floor?
 	/if (${Me.State.Equal[HOVER]} || ${Me.Hovering} || ${Me.Dead}) /return TRUE
@@ -3506,38 +3507,54 @@ sub check_for_corpse()
 		/if (${Spawn[pc CLR radius ${setMaxRezRange}].ID}) /return FALSE
 	}
 	
-	| disable rezemergency if you dont have tokens
-	/if (${swRezToken} && !${FindItem[Token of Resurrection].ID}) {
+	| disable rezemergency if you dont have tokens or are on a TLP box
+	/if (${swRezToken} && (!${FindItem[Token of Resurrection].ID} || ${swTLP}) {
 		/varset swRezToken FALSE
 		ECHOCHANNEL ${Me.DisplayName} needs Rez Tokens....
 	}
 		
-	| necro stuff
-	/if (${Select[${Me.Class.ShortName},NEC]}) {
-		/if (!${FindItem[Essence Emerald].ID}) /return FALSE
-		/declare _rezNEC						string	local "Convergence"
+	| set rez name/type	
+	/if	 (${swTLP}) {
+		/if (${Select[${Me.Class.ShortName},NEC]}) {
+			/if (!${FindItem[Essence Emerald].ID}) /return FALSE
+			/declare _rezNEC						string	local "${spellRez}"
 
-	| cleric stuff
-	} else /if (${Select[${Me.Class.ShortName},CLR]}) {
-		/declare _divinerezCLR			string	local "Divine Resurrection"
-		/declare _rezCLR						string	local "Blessing of Resurrection"
-	
-	| pally, shaman, druid stuff
-	} else /if (${Select[${Me.Class.ShortName},PAL,SHM,DRU]}) {
-		/if (${Select[${Me.CombatState},COMBAT]}) {
-			/declare _rezDRU						string	local "Call of the Wild"
-			/declare _rezSHM						string	local "Call of the Wild"
-			/declare _rezPAL						string	local "Gift of Resurrection"
-		} else {
-			/declare _rezDRU						string	local "Rejuvenation of Spirit"
-			/declare _rezSHM						string	local "Rejuvenation of Spirit"
-			/declare _rezPAL						string	local "Restore Life"
+		| cleric stuff
+		} else /if (${Select[${Me.Class.ShortName},CLR,PAL,SHM,DRU]}) {
+			/declare _rez${Me.Class.ShortName}			string	local "${spellRez}"
 		}
-	}
+		
+	} else {
 
-	/if (${swRezToken}) {		
-		/declare _rezEmergency			string	local "Token of Resurrection"
+		| necro stuff
+		/if (${Select[${Me.Class.ShortName},NEC]}) {
+			/if (!${FindItem[Essence Emerald].ID}) /return FALSE
+			/declare _rezNEC						string	local "Convergence"
+
+		| cleric stuff
+		} else /if (${Select[${Me.Class.ShortName},CLR]}) {
+			/declare _divinerezCLR			string	local "Divine Resurrection"
+			/declare _rezCLR						string	local "Blessing of Resurrection"
+		
+		| pally, shaman, druid stuff
+		} else /if (${Select[${Me.Class.ShortName},PAL,SHM,DRU]}) {
+			/if (${Select[${Me.CombatState},COMBAT]}) {
+				/declare _rezDRU						string	local "Call of the Wild"
+				/declare _rezSHM						string	local "Call of the Wild"
+				/declare _rezPAL						string	local "Gift of Resurrection"
+			} else {
+				/declare _rezDRU						string	local "Rejuvenation of Spirit"
+				/declare _rezSHM						string	local "Rejuvenation of Spirit"
+				/declare _rezPAL						string	local "Restore Life"
+			}
+		}
+
+		/if (${swRezToken}) {		
+			/declare _rezEmergency			string	local "Token of Resurrection"
+		}
+		
 	}
+		
 
 	/declare _count 						int 		local 0
 	/declare _tmpID 						int 		local 0
@@ -3666,7 +3683,7 @@ sub check_for_corpse()
  *	USE: /call cast_rez [ID] [rez aa|token]
  *  NOTE: 
  ***|
-sub cast_rez(int _tmpID, string _rezAA)
+sub cast_rez(int _tmpID, string _rez)
 	/if (${Me.Dead}) /return FALSE
 	/if (${timer_corpse_${_tmpID}}) /return FALSE
 	AMIDEAD
@@ -3689,8 +3706,9 @@ sub cast_rez(int _tmpID, string _rezAA)
 		/squelch /corpse
 	}
 
+
 	| can we AA res or token?
-	/if (${Me.AltAbilityReady[${_rezAA}]} || (${Me.ItemReady[Token of Resurrection]} && ${swRezToken})) {	
+	/if (${Me.AltAbilityReady[${_rez}]} || (${Me.ItemReady[Token of Resurrection]} && ${swRezToken})) {	
 
 		| res the damn person
 		
@@ -3700,7 +3718,7 @@ sub cast_rez(int _tmpID, string _rezAA)
 			/delay 5s !${Me.Casting.ID}
 			/squelch /target ID ${_tmpID}
 			/delay 1s ${Target.ID} == ${_tmpID}
-			/if (${validate_cast[FALSE, alt, "${_rezAA}", ${Me.ID}]}) /call core_cast2 "${_rezAA}" alt ${_tmpID} FALSE
+			/if (${validate_cast[FALSE, FIND, "${_rez}", ${Me.ID}]}) /call core_cast2 "${_rez}" FIND ${_tmpID} FALSE
 
 		| token rez
 		} else /if (${swRezToken}) {
@@ -4012,7 +4030,7 @@ sub Event_forcedloreleave(string line, string _itemName)
 /return
 
 sub do_loot()
-	/if (!${swADVLoot}) /return
+	/if (!${swADVLoot} || ${Me.Zoning}) /return
 	AMIDEAD
 	CHECKINPUTS
 	/if (${Stick.Active} || !${Me.FreeInventory} || !${Me.UseAdvancedLooting}) /return
@@ -5202,7 +5220,7 @@ sub check_for_item(string _verbage)
 
 |***
  *	DES: one line echo bitch
- *	USE: /call echo_bitch [MQWindow|ECHO]
+ *	USE: /call echo_bitch [MQWindow|ECHO|Say]
  *  NOTE:
  ***| 	
 sub echo_bitch(string _out)
@@ -5212,13 +5230,16 @@ sub echo_bitch(string _out)
 	:loopgetrandom
 	/varset _rnd ${Math.Rand[${bitchcount}]}
 	/if (!${Range.Between[1,${bitchcount}:${_rnd}]}) /goto :loopgetrandom
-	/varset _bitch ${bitch${_rnd}}
 
-	/if (${_out.Find[MQWindow]}) {
+	/varset _bitch ${sql_return[bitch${_rnd}, dummybitch]}
+
+	/if (${_out.Equal[MQWindow]}) {
 		VOUT \a-g${_bitch}\ax
-	} else /if (${_out.Find[ECHO]}) {
+	} else /if (${_out.Equal[ECHO]}) {
 		ECHOCHANNEL ${_bitch}
-	} 
+	} else /if (${_out.Equal[say]}) {
+		/say ${_bitch}
+	}
 
 /return
 
@@ -6209,7 +6230,7 @@ sub validate_expansion(bool _error, string _exp)
 		}
 	/next _count
 
-	/if (!${_pass} && ${_error}) OUT ${onotice} ${sep} Expansion ${cinfo}${expansion${_count}}\ax required for this feature.
+	/if (!${_pass} && ${_error}) OUT ${onotice} ${sep} Expansion ${cinfo}${sql_return[xpac${_count}, dummyxpac]}\ax required for this feature.
 
 /return ${_pass}
 
@@ -6287,6 +6308,7 @@ sub validate_debuff(bool _error, string _deBuffType)
  *  NOTE: returns swAmIDead TRUE if you died
  ***|
 sub watch_for_death()
+	/if (${Me.Zoning}) /return FALSE
 	CHECKINPUTS
 
 	| check for current flags. watch for rez box if I have them
@@ -6328,6 +6350,7 @@ sub watch_for_death()
  *  NOTE: 
  ***|
 sub watch_for_rezbox()
+	/if (${Me.Zoning}) /return FALSE
 	CHECKINPUTS
 	
 	| do I have corpses around ?
@@ -7009,7 +7032,7 @@ sub check_buffs_tmp_list(string _spell, string _toonList)
 		/dquery ${_toonList.Arg[${_count},|]} -q "Me.Buff[${_spell}].ID" -o _DNqout
 		/if (${Bool[${_DNqout}]}) /continue
 
-		/if (${validate_cast[FALSE, spell, "${_spell}", ${Spawn[pc ${_toonList.Arg[${_count},|]}].ID}]}) /call core_cast2 "${_spell}" 0 ${Spawn[pc ${_toonList.Arg[${_count},|]}].ID} FALSE
+		/if (${validate_cast[FALSE, spell, "${_spell}", ${Spawn[=${_toonList.Arg[${_count},|]} pc].ID}]}) /call core_cast2 "${_spell}" 0 ${Spawn[=${_toonList.Arg[${_count},|]} pc].ID} FALSE
 	
 	/next _count	
 
@@ -7023,6 +7046,9 @@ sub check_buffs_tmp_list(string _spell, string _toonList)
  *  NOTE: 
  ***|
 sub sql_schema(bool _debug)
+	
+	| get pragma write mode and hang on to it
+	/sqlite ${dbCore} query_journal_mode PRAGMA journal_mode
 	
 	| check environment build builds
 	/sqlite ${dbCore} prevBuild SELECT currentBuild FROM environment
@@ -7056,7 +7082,7 @@ sub sql_schema(bool _debug)
 	| if the build match is still true, our work is done here.
 	/if (${swBuildMatch}) /return TRUE
 	
-	/delay ${Math.Rand[5]}s
+	| /delay ${Math.Rand[5]}s
 
 	| ok, something needs building...
 	/declare _loopArray int local 0
@@ -7085,7 +7111,7 @@ sub sql_schema(bool _debug)
 			| if table doesnt exist, make it and populate the primary/unique key
 			/if (${_loopArray} == 1) {
 				/if (!${sqlite.Rows[dummy]}) {
-					/if (${_debug}) /echo creating${_loopArray}-${_count}: ${_tmpTable} 
+					/if (${_debug}) /echo creating ${_loopArray}-${_count}::${_tmpTable} 
 					/sqlite ${dbCore} dummy CREATE TABLE ${_tmpTable} (chrID TEXT UNIQUE)
 					/sqlite ${dbCore} dummy INSERT INTO ${_tmpTable} (chrID) VALUES ("${chrID}")
 				}
@@ -7093,15 +7119,21 @@ sub sql_schema(bool _debug)
 				/sqlite ${dbCore} dummy SELECT currentBuild FROM environment ORDER BY ROWID ASC LIMIT 1
 				
 				/if (${sqlite.Rows[dummy]}) {
-					/if (${_debug}) /echo updating${_loopArray}-${_count}: ${_tmpTable} 
-					| /sqlite ${dbCore} dummy UPDATE environment SET currentBuild="${currentBuild}" WHERE currentBuild="${sqlite.Result[prevBuild 1 currentBuild]}"
+					/if (${_debug}) /echo updating ${_loopArray}-${_count}::${_tmpTable} 
 					/sqlite ${dbCore} dummy UPDATE environment SET currentBuild="${currentBuild}" WHERE ROWID=1
 				} else {
-					/if (${_debug}) /echo creating${_loopArray}-${_count}: ${_tmpTable} 
+					/if (${_debug}) /echo creating ${_loopArray}-${_count}::${_tmpTable} 
 					/sqlite ${dbCore} dummy CREATE TABLE ${_tmpTable} (currentBuild TEXT UNIQUE)
 					/sqlite ${dbCore} dummy INSERT INTO ${_tmpTable} (currentBuild) VALUES ("${currentBuild}")
 				}
-			} 
+			} else /if (${_loopArray} == 3) {
+				/sqlite ${dbCore} dummy SELECT name FROM sqlite_master WHERE type='table' AND name="${_tmpTable}"
+				/if (!${sqlite.Rows[dummy]}) {
+					/if (${_debug}) /echo creating DB::${_loopArray}-${_count}::${_tmpTable} 
+					/sqlite ${dbCore} dummy CREATE TABLE ${_tmpTable} (content TEXT UNIQUE)
+					/sqlite ${dbCore} dummy INSERT INTO ${_tmpTable} (content) VALUES ("StaticData")
+				}
+			}
 
 			| response
 			/if (${swEchosSQL}) /echo \at-\ax \aw${_tmpTable}\ax
@@ -7134,7 +7166,7 @@ sub sql_schema(bool _debug)
  *  _scope - outer, local, global
  *  _value - value of the data you wish to change
  ***|
-sub sql_control(bool _debug, string _table, string _field, strint _type, string _scope, string _value, bool _spell)
+sub sql_control(bool _debug, string _table, string _field, string _type, string _scope, string _value, bool _spell)
 	/if (${_debug}) /echo \awsql_update\ax(table:\at${_table}\ax field:\at${_field}\ax type:\at${_type}\ax scope:\at${_scope}\ax value:\at${_value}\ax)
 	/declare _count int local 0 
 	/declare _tmpVar string local
@@ -7167,7 +7199,7 @@ sub sql_control(bool _debug, string _table, string _field, strint _type, string 
 	}
 
 	| k on to the data. finally.. this is taking forever..
-	/if (${sqlTables[1].Find[${_table}]} && ${sqlite.Result[dummy 1  ${_field}].Equal[NULL]}) {
+	/if (${sqlTables[1].Find[${_table}]} && ${sqlite.Result[dummy 1 ${_field}].Equal[NULL]}) {
 		/if (${_value.Equal[PREGENDATA]}) {
 			/for _count 1 to ${Ini[${INIPreGen},${Me.Class.ShortName},${_field}].Count[|]}
 				/if (${Me.Level} >= ${Ini[${INIPreGen},${Me.Class.ShortName},${_field}].Arg[${_count},|]}) {
@@ -7209,6 +7241,54 @@ sub sql_control(bool _debug, string _table, string _field, strint _type, string 
   /varset ${_field} ${Spell[${${_field}}].RankName}
   /if (${_debug}) VSQL \aw${_table}\ax::\aw${_field}\ax::\ag${${_field}}\ax
       
+/return TRUE
+
+
+
+
+|***
+ *	DES: sql data adder
+ *	USE: adds tables/fields at mac start time. nothing else.
+ *  NOTE: theres a lot
+ *  _debug - echo shit....
+ *  _table - table the field is stored in
+ *  _field - the table field MUST MATCH MQ VARIABLE NAME
+ ***|
+sub sql_staticbuild(bool _debug, string _table, string _field, string _value)
+	/if (${_debug}) /echo \awsql_staticbuild\ax(\awDB\ax::\aw${_table}\ax::\aw${_field}\ax::${cnum}"${_value}"\ax)
+	/declare _count int local 0 
+
+	| check field
+
+	/sqlite ${dbCore} dummy SELECT ${_field} FROM ${_table}
+	/if (${_debug}) /echo	/sqlite dbCore dummy SELECT ${_field} FROM ${_table}
+	
+	/if (${_debug}) /echo ${sqlite.Rows[dummy]}
+
+	/if (!${sqlite.Rows[dummy]}) {
+		
+		
+		
+		
+		/sqlite ${dbCore} dummy ALTER TABLE ${_table} ADD ${_field} 
+		| /sqlite ${dbCore} dummy INSERT INTO ${_table} (${_field}) VALUES ("${_value}") WHERE chrID="${chrID}"
+		/sqlite ${dbCore} dummy UPDATE ${_table} SET ${_field}="${_value}" WHERE content="StaticData"
+		
+		/if (${_debug}) VSQL \aw${_table}\ax::\aw${_field}\ax
+	}	
+
+	| checking for unique /primary key. if not there, build it and reattach query.
+	| 	/sqlite ${dbCore} dummy SELECT ${_field} FROM ${_table}
+	| 	/if (!${sqlite.Rows[dummy]}) {
+	| 		/sqlite ${dbCore} dummy INSERT INTO ${_table} (${_field}) VALUES ("${_value}")
+			| /sqlite ${dbCore} dummy SELECT ${_field} FROM ${_table} WHERE chrID="${chrID}"
+	| 	}
+
+
+	| what has been added to DB
+	/if (${_debug}) VSQL \aw${_table}\ax::\aw${_field}\ax
+
+	    
 /return TRUE
 
 
@@ -7411,7 +7491,10 @@ sub sql_return(string _variable, string _query)
 			} else /if (${_countArray} == 2) {
 				/varset _whereField ${sql_where.Arg[3,|]}
 				/varset _whereValue ${sql_where.Arg[4,|]}
-			}			
+			} else /if (${_countArray} == 3) {
+				/varset _whereField ${sql_where.Arg[5,|]}
+				/varset _whereValue ${sql_where.Arg[6,|]}
+			}
 			
 			/sqlite ${dbCore} ${_query} SELECT ${_variable} FROM ${sqlTables[${_countArray}].Arg[${_count},|]} WHERE ${_whereField}="${_whereValue}"
 			/if (${sqlite.Rows[${_query}]}) {
@@ -7910,9 +7993,11 @@ sub merc_control()
  *	USE: whenever i suppose
  *  NOTE: 
  ***|
-sub check_buffs_blocked()
+sub check_buffs_blocked(bool _debuf, bool _silent)
 	/declare _count int local 0
 	/declare _tmpList string local
+	
+	/if (!${_silent}) OUT ${onotice} ${sep} Updating Blocked Buffs
 
 	| cycle the blocked buff list and add them to a string
 	/squelch /windowstate BlockedBuffWnd open
@@ -7948,17 +8033,14 @@ sub moveto_range(int _tmpID, int _range)
 	/declare _locZ float local 0
 	/declare _tmpX float local 0
 	/declare _tmpY float local 0
-	| /declare _tmpZ float local 0
-	/declare _dist float local ${Math.Calc[${_range} / ${Spawn[${_tmpID}].Distance}]}
+	/declare _dist float local ${Math.Calc[${If[${_range}==0,1,${_range}]} / ${If[${Spawn[${_tmpID}].Distance}==0,1,${Spawn[${_tmpID}].Distance}]}]}
 	
 	/varcalc _locX ${_dist}*${Me.X} + (1-${_dist})*${Spawn[${_tmpID}].X}	
 	/varcalc _locY ${_dist}*${Me.Y} + (1-${_dist})*${Spawn[${_tmpID}].Y}	
-	| /varcalc _locY ${_dist}*${Me.Z} + (1-${_dist})*${Spawn[${_tmpID}].Z}	
 	/if (${Navigation.PathExists[locyxz ${_locY} ${_locX} ${Me.Z}]} && ${EverQuest.ValidLoc[${_locX} ${_locY} ${Me.Z}]} && ${LineOfSight[${_locY},${_locX},${Me.Z}:${Spawn[${_tmpID}].Y},${Spawn[${_tmpID}].X},${Spawn[${_tmpID}].Z}]}) {
 		/nav locyxz ${_locY} ${_locX} ${Me.Z} log=off
 		/delay 5 ${Navigation.Active}
 		/delay 5s !${Navigation.Active}
-		| /call wait_while Navigation.Active 5
 		/return
 	}
 
@@ -7970,7 +8052,6 @@ sub moveto_range(int _tmpID, int _range)
 			/nav locyxz ${_tmpY} ${_tmpX} ${Me.Z} log=off
 			/delay 5 ${Navigation.Active}
 			/delay 5s !${Navigation.Active}
-			| /call wait_while Navigation.Active 5
 			/break
 		}
 
@@ -7980,7 +8061,6 @@ sub moveto_range(int _tmpID, int _range)
 			/nav locyxz ${_tmpY} ${_tmpX} ${Me.Z} log=off
 			/delay 5 ${Navigation.Active}
 			/delay 5s !${Navigation.Active}
-			| /call wait_while Navigation.Active 5
 			/break
 		}
 	    

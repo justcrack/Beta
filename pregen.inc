@@ -17,19 +17,21 @@ sub pregen_data_arrays()
 
 	| sin/cos generation for ranged movement combat
 	/declare _count int local 0
-	/declare cos[10] float outer
-	/declare sin[10] float outer
-	/for _count 1 to 10 
-		/varcalc cos[${_count}] ${Math.Cos[18.81 * ${_count}]}
-		/varcalc sin[${_count}] ${Math.Sin[18.81 * ${_count}]}
+	/declare cos[20] float outer
+	/declare sin[20] float outer
+	/for _count 1 to 20 
+		/varcalc cos[${_count}] ${Math.Cos[9 * ${_count}]}
+		/varcalc sin[${_count}] ${Math.Sin[9 * ${_count}]}
 	/next _count	
 
 	| schema
-	/if (!${Defined[sqlTables]}) /declare sqlTables[2] 							string outer
+	/if (!${Defined[sqlTables]}) /declare sqlTables[3] 							string outer
 	| tables by chrID
 	/varset sqlTables[1] 								|character|${Me.Class.ShortName}|buff|pet|movement|mode|item|timer
 	| tables by currentBuildbuild
 	/varset sqlTables[2] 								|environment
+	| non memory static data (pulled only as needed) not updated in game
+	/varset sqlTables[3] 								|bitch|expansion
 	
 	| Invisibilities
 	/if (!${Defined[lstIV]}) /declare lstIV[2] 										string 	outer
@@ -38,9 +40,15 @@ sub pregen_data_arrays()
 	/varset lstIV[2] 										|Perfected Natural Invisibility|Perfected Spirit Walk Invisibility|Perfected Group Spirit Walk Invisibility|Shauri's Sonorous Clouding|Shauri's Sonorous Clouding I|Shauri's Sonorous Clouding II|Shauri's Sonorous Clouding III|Selo's Song of Travel
 	/varset lstIVU[1] 									|Group Perfected Invisibility to Undead|Perfected Invisibility to Undead|Invisibility to Undead|Invisibility versus Undead|Shauri's Sonorous Clouding|Shauri's Sonorous Clouding I|Shauri's Sonorous Clouding II|Shauri's Sonorous Clouding III
 
+
+	| /varset lstIV[1] 										|Camouflage|Invisibility|Phase March|Nethervoid March|Perfected Silent Presence|Cloak of Shadows|Gather Umbra|Shauri's Sonorous|Selo's Song of Travel
+	| /varset lstIVU[1] 									|Invisibility to Undead|Invisibility versus Undead|Shauri's Sonorous Clouding
+
+
+
 	| environment .. /environment []
 	/if (!${Defined[lstTypesEnvironment]}) /declare lstTypesEnvironment[3]			string outer
-	/varset lstTypesEnvironment[1]			|advloot|bitch|buffgemhold|combattie|delayzoning|dispbuild|dispinfo|dispexp|eqcash|glyphoutsideraid|manualaadiscnow|maxbuffcount|mealinmanual|moblvmax|moblvlmin|modepersistant|mqcaptions|mqclear|mqfontsize|nukeloop|restfull|safelistguild
+	/varset lstTypesEnvironment[1]			|advloot|bitch|buffgemhold|combattie|delayzoning|dispbuild|dispinfo|dispexp|eqcash|glyphoutsideraid|manualaadiscnow|maxbuffcount|mealinmanual|moblvmax|moblvlmin|modepersistant|mqcaptions|mqclear|mqfontsize|nukeloop|restfull|safelistguild|TLP
 	/varset lstTypesEnvironment[2]			|echoalt|echospell|echodisc|echoitem|echomelee|echopulse|echobc|echoverbose|echosql
 	/varset lstTypesEnvironment[3]			|bczonereset|bcstop|bctake|bcenter|bcinvis|bckillmob|bcclean
 
@@ -55,7 +63,7 @@ sub pregen_data_arrays()
  ***|
 sub pregen_environment()
 	| WHERE for sql matching
-	/call setDeclare sql_where																					string		outer |chrID|${chrID}|currentBuild|${currentBuild}
+	/call setDeclare sql_where																					string		outer |chrID|${chrID}|currentBuild|${currentBuild}|content|StaticData
 
 	/call setDeclare swEchosSQL																					bool			outer TRUE
 	                                                          
@@ -90,6 +98,7 @@ sub pregen_environment()
 	/call setDeclare swNeedRez																					bool			outer FALSE
 	/call setDeclare swAmIDead																					bool			outer FALSE
 	
+	/call sql_control FALSE environment swTLP														bool	 		outer FALSE
 	/call sql_control FALSE environment swLog														bool	 		outer FALSE
 	/call sql_control FALSE environment setMobLvlMin										int				outer 1
 	/call sql_control FALSE environment setMobLvlMax										int				outer 150
@@ -100,7 +109,7 @@ sub pregen_environment()
 	/call sql_control FALSE environment swDispBuild											bool			outer TRUE
 	/call sql_control FALSE environment swDispEXP												bool			outer TRUE
 	/call sql_control FALSE environment swManualAADiscNow								bool			outer FALSE
-	/call sql_control FALSE environment swDelayZoning										bool			outer FALSE
+	/call sql_control FALSE environment swDelayZoning										bool			outer TRUE
 	/call sql_control FALSE environment swRestFull											bool			outer FALSE
 	/call sql_control FALSE environment swRestModRod										bool			outer TRUE
 	/call sql_control FALSE environment swRestBuff											bool			outer TRUE
@@ -229,7 +238,7 @@ sub pregen_environment()
 
 
 	| admin stuff .. /admin []
-  /call setDeclare lstTypesAdmin																			string		outer "|blockedbuffs|maintenance|get|list|migrate|notice|reset|safelist|table|whitewash|xt|zonereset"
+  /call setDeclare lstTypesAdmin																			string		outer "|blockedbuffs|get|journalmode|list|maintenance|migrate|notice|reset|safelist|table|whitewash|xt|zonereset"
 
  	| clickie item on off -- /onoff []
   /call setDeclare lstTypesOnOff																			string		outer "|horn|shrink"
@@ -273,67 +282,71 @@ sub pregen_environment()
 	/call setDeclare wikipct																						string 		outer "[\a-w1,99\ax]"
 
 	| please take a number and have a seat.
-	/call setDeclare bitchcount																					string 		outer 33
-	/call setDeclare bitch1																							string		outer	"Seriously... Again..."
-	/call setDeclare bitch2																							string		outer	"Did your parents ever ask you to run away from home?"
-	/call setDeclare bitch3																							string		outer	"Aha, I see the Fuck-Up Fairy has visited us again!"
-	/call setDeclare bitch4																							string		outer	"Will trade a Halfling for a rez, or three Gn0mes."
-	/call setDeclare bitch5																							string		outer	"I'm sorry I bit you... pulled your hair... and punched you in the face..."
-	/call setDeclare bitch6																							string		outer	"Go ahead, tell them everything you know. It'll only take 10 seconds."
-	/call setDeclare bitch7																							string		outer	"Sometimes the first step to forgiveness, is realising the other person was born an idiot."
-	/call setDeclare bitch8																							string		outer	"I'm getting Disc lag . . . again."
-	/call setDeclare bitch9																							string		outer	"oh man....i figured out why i was lagging the other day...i look in my case and my kids knocked off my cpu fan."
-	/call setDeclare bitch10																						string		outer	"I'm jealous of all the people that haven't met you!"
-	/call setDeclare bitch11																						string		outer	"You're slower than a herd of turtles stampeding through peanut butter."
-	/call setDeclare bitch12																						string		outer	"Oh good, my dog found a chainsaw."
-	/call setDeclare bitch13																						string		outer	"You are not as bad as people say, you are much, much worse."
-	/call setDeclare bitch14																						string		outer	"Stupidity is not a crime so you are free to go."
-	/call setDeclare bitch15																						string		outer "AFK, playing Pokemon. More productive then this shit."
-	/call setDeclare bitch16																						string		outer	"All I did was move the mouse over it."
-	/call setDeclare bitch17																						string		outer	"You sound reasonable. It must be time to up my medication!"
-	/call setDeclare bitch18																						string		outer	"I'll never forget the first time we met. Although, I'll keep trying."
-	/call setDeclare bitch19																						string		outer	"Roses are red. Violets are blue. You're an idiot."
-	/call setDeclare bitch20																						string		outer	"Sometimes, when I close my eyes, I... can't see you."
-	/call setDeclare bitch21																						string	 	outer "Shock me. Say something intelligent."
-	/call setDeclare bitch22																						string	 	outer "I'm typing this with my middle finger."
-	/call setDeclare bitch23																						string	 	outer "It takes courage just to be you. To get out of bed every single day, knowing full well, you gotta be you."
-	/call setDeclare bitch24																						string	 	outer "For someone with such a smart mouth you sure do have a lot of teeth."
-	/call setDeclare bitch25																						string	 	outer "Do you want a piece of gum?"
-	/call setDeclare bitch26																						string	 	outer "Good thing you're pretty."
-	/call setDeclare bitch27																						string	 	outer "You breathe through your mouth a lot don't you?"
-	/call setDeclare bitch28																						string	 	outer "Your mother was a hamster and your father smelt of elderberries!"
-	/call setDeclare bitch29																						string	 	outer "Don't worry about it too much. I did the same thing when I was eleven."
-	/call setDeclare bitch30																						string	 	outer "As the sun rose, Dawn crept across the lawn.. Searching for her car keys."
-	/call setDeclare bitch31																						string		outer "Thank you for nothing... You useless reptile."
-	/call setDeclare bitch32																						string		outer "Cows are like women, the crazy ones taste the best. --alynel"
-	/call setDeclare bitch33																						string		outer "I think the real problem is someone made a stupid decision --Knightly"
+	/call setDeclare bitchcount																					string 		outer 36
+	/call sql_staticbuild FALSE bitch bitch1														"Seriously... Again..."
+	/call sql_staticbuild FALSE bitch bitch2														"Did your parents ever ask you to run away from home?"
+	/call sql_staticbuild FALSE bitch bitch3														"How do you have the energy to talk so much?"
+	/call sql_staticbuild FALSE bitch bitch4														"I wish I didn't have any responsibilities like you."
+	/call sql_staticbuild FALSE bitch bitch5														"Aha, I see the Fuck-Up Fairy has visited us again!"
+	/call sql_staticbuild FALSE bitch bitch6														"Will trade a Halfling for a rez, or three Gn0mes."
+	/call sql_staticbuild FALSE bitch bitch7														"I'm sorry I bit you... pulled your hair... and punched you in the face..."
+	/call sql_staticbuild FALSE bitch bitch8														"Go ahead, tell them everything you know. It'll only take 10 seconds."
+	/call sql_staticbuild FALSE bitch bitch9														"Sometimes the first step to forgiveness, is realising the other person was born an idiot."
+	/call sql_staticbuild FALSE bitch bitch10														"I'm getting Disc lag . . . again."
+	/call sql_staticbuild FALSE bitch bitch11														"oh man....i figured out why i was lagging the other day...i look in my case and my kids knocked off my cpu fan. -- "
+	/call sql_staticbuild FALSE bitch bitch12														"I'm jealous of all the people that haven't met you!"
+	/call sql_staticbuild FALSE bitch bitch13														"You're slower than a herd of turtles stampeding through peanut butter."
+	/call sql_staticbuild FALSE bitch bitch14														"Oh good, my dog found a chainsaw."
+	/call sql_staticbuild FALSE bitch bitch15														"You are not as bad as people say, you are much, much worse."
+	/call sql_staticbuild FALSE bitch bitch16														"Stupidity is not a crime so you are free to go."
+	/call sql_staticbuild FALSE bitch bitch17														"AFK, playing Pokemon. More productive then this shit."
+	/call sql_staticbuild FALSE bitch bitch18														"All I did was move the mouse over it."
+	/call sql_staticbuild FALSE bitch bitch19														"You sound reasonable. It must be time to up my medication!"
+	/call sql_staticbuild FALSE bitch bitch20														"I'll never forget the first time we met. Although, I'll keep trying."
+	/call sql_staticbuild FALSE bitch bitch21														"Roses are red. Violets are blue. You're an idiot."
+	/call sql_staticbuild FALSE bitch bitch22														"Sometimes, when I close my eyes, I... can't see you."
+	/call sql_staticbuild FALSE bitch bitch23														"Shock me. Say something intelligent."
+	/call sql_staticbuild FALSE bitch bitch24														"I'm typing this with my middle finger."
+	/call sql_staticbuild FALSE bitch bitch25														"It takes courage just to be you. To get out of bed every single day, knowing full well, you gotta be you."
+	/call sql_staticbuild FALSE bitch bitch26														"For someone with such a smart mouth you sure do have a lot of teeth."
+	/call sql_staticbuild FALSE bitch bitch27														"Do you want a piece of gum?"
+	/call sql_staticbuild FALSE bitch bitch28														"Good thing you're pretty."
+	/call sql_staticbuild FALSE bitch bitch29														"You breathe through your mouth a lot don't you?"
+	/call sql_staticbuild FALSE bitch bitch30														"Your mother was a hamster and your father smelt of elderberries!"
+	/call sql_staticbuild FALSE bitch bitch31														"Don't worry about it too much. I did the same thing when I was eleven."
+	/call sql_staticbuild FALSE bitch bitch32														"As the sun rose, Dawn crept across the lawn.. Searching for her car keys."
+	/call sql_staticbuild FALSE bitch bitch33														"Thank you for nothing... You useless reptile."
+	/call sql_staticbuild FALSE bitch bitch34														"Cows are like women, the crazy ones taste the best."
+	/call sql_staticbuild FALSE bitch bitch35														"I think the real problem is someone made a stupid decision."
+	/call sql_staticbuild FALSE bitch bitch36														"no one plays like you cause you are dumb"
+
 
 	| EQ expansions
-	/call setDeclare expansion1																					string	 	outer "The Ruins of Kunark"
-	/call setDeclare expansion2																					string	 	outer "The Scars of Velious"
-	/call setDeclare expansion3																					string	 	outer "The Shadows of Luclin"
-	/call setDeclare expansion4																					string	 	outer "The Planes of Power"
-	/call setDeclare expansion5																					string	 	outer "The Legacy of Ykesha"
-	/call setDeclare expansion6																					string	 	outer "Lost Dungeons of Norrath"
-	/call setDeclare expansion7																					string	 	outer "Gates of Discord"
-	/call setDeclare expansion8																					string	 	outer "Omens of War"
-	/call setDeclare expansion9																					string	 	outer "Dragons of Norrath"
-	/call setDeclare expansion10																				string	 	outer "Depths of Darkhollow"
-	/call setDeclare expansion11																				string	 	outer "Prophecy of Ro"
-	/call setDeclare expansion12																				string	 	outer "The Serpent's Spine"
-	/call setDeclare expansion13																				string	 	outer "The Buried Sea"
-	/call setDeclare expansion14																				string	 	outer "Secrets of Faydwer"
-	/call setDeclare expansion15																				string	 	outer "Seeds of Destruction"
-	/call setDeclare expansion16																				string	 	outer "Underfoot"
-	/call setDeclare expansion17																				string	 	outer "House of Thule"
-	/call setDeclare expansion18																				string	 	outer "Veil of Alaris"
-	/call setDeclare expansion19																				string	 	outer "Rain of Fear"
-	/call setDeclare expansion20																				string	 	outer "Call of the Forsaken"
-	/call setDeclare expansion21																				string	 	outer "The Darkened Sea"
-	/call setDeclare expansion22																				string	 	outer "The Broken Mirror"
-	/call setDeclare expansion23																				string	 	outer "Empires of Kunark"
-	/call setDeclare expansion24																				string	 	outer "Ring of Scale"
-	/call setDeclare expansion25																				string	 	outer "The Burning Lands"
+	/call sql_staticbuild FALSE expansion xpac1													"The Ruins of Kunark"
+	/call sql_staticbuild FALSE expansion xpac2													"The Scars of Velious"
+	/call sql_staticbuild FALSE expansion xpac3													"The Shadows of Luclin"
+	/call sql_staticbuild FALSE expansion xpac4													"The Planes of Power"
+	/call sql_staticbuild FALSE expansion xpac5													"The Legacy of Ykesha"
+	/call sql_staticbuild FALSE expansion xpac6													"Lost Dungeons of Norrath"
+	/call sql_staticbuild FALSE expansion xpac7													"Gates of Discord"
+	/call sql_staticbuild FALSE expansion xpac8													"Omens of War"
+	/call sql_staticbuild FALSE expansion xpac9													"Dragons of Norrath"
+	/call sql_staticbuild FALSE expansion xpac10												"Depths of Darkhollow"
+	/call sql_staticbuild FALSE expansion xpac11												"Prophecy of Ro"
+	/call sql_staticbuild FALSE expansion xpac12												"The Serpent's Spine"
+	/call sql_staticbuild FALSE expansion xpac13												"The Buried Sea"
+	/call sql_staticbuild FALSE expansion xpac14												"Secrets of Faydwer"
+	/call sql_staticbuild FALSE expansion xpac15												"Seeds of Destruction"
+	/call sql_staticbuild FALSE expansion xpac16												"Underfoot"
+	/call sql_staticbuild FALSE expansion xpac17												"House of Thule"
+	/call sql_staticbuild FALSE expansion xpac18												"Veil of Alaris"
+	/call sql_staticbuild FALSE expansion xpac19												"Rain of Fear"
+	/call sql_staticbuild FALSE expansion xpac20												"Call of the Forsaken"
+	/call sql_staticbuild FALSE expansion xpac21												"The Darkened Sea"
+	/call sql_staticbuild FALSE expansion xpac22												"The Broken Mirror"
+	/call sql_staticbuild FALSE expansion xpac23												"Empires of Kunark"
+	/call sql_staticbuild FALSE expansion xpac24												"Ring of Scale"
+	/call sql_staticbuild FALSE expansion xpac25												"The Burning Lands"
 	
 	| HUD controls
 	/call setDeclare setHUDBroadcast																		string		outer
@@ -439,8 +452,7 @@ sub pregen_character()
 	/call sql_control FALSE character swGiveRaidInvite									bool 			outer FALSE
 	/call sql_control FALSE character lstBlockedSpells									string		outer FALSE
 	/call sql_control FALSE character setBufftoWatch										string		outer FALSE
-	/call setDeclare tmpLstBLockedSpells																string 		outer	FALSE
-
+	
 	| burns
 	/call sql_control FALSE character swBurnControl											bool			outer FALSE
 	/call sql_control FALSE character swBurnForce												bool			outer FALSE
@@ -850,6 +862,12 @@ sub pregen_character()
 		/call sql_control FALSE mode evocation														string 		outer FALSE
 	}
 
+	| forced delay for mez target6
+	/if (${Select[${Me.Class.ShortName},ENC,BRD,NEC]}) {
+ 		/call sql_control FALSE ${Me.Class.ShortName} setMezDelay					int 			outer 0
+	}                                                             			
+
+
 /return
 
 
@@ -873,9 +891,9 @@ sub pregen_timers()
 
 	/call timer_set FALSE tCheck_Runes																	string		outer	10s		timer_check_runes
 	/call timer_set FALSE tScorchedEarth_fail														string		outer	1m 		timer_scorched_earth_fail
+	/call timer_set FALSE tScorchedEarth_delay													string		outer	5s 		timer_ScorchedEarth_delay
 	/call timer_set FALSE tCheck_Familiar																string		outer	30s		timer_Check_Familiar
 	/call timer_set FALSE tHarvest_delay																string		outer	1s 		timer_Harvest_delay
-	/call timer_set FALSE tScorchedEarth_delay													string		outer	5s 		timer_ScorchedEarth_delay
 	/call timer_set FALSE tCheck_EQBC																		string		outer	10m		timer_check_EQBC
 	/call timer_set FALSE tOdds_and_Ends																string		outer	30m 	timer_check_odds_and_ends
 	/call timer_set FALSE tCheck_EXP																		string		outer	5m 		timer_check_EXP
@@ -1424,6 +1442,12 @@ sub pregen_CLR()
 		/call sql_control FALSE CLR DoT${_count}Condition									string		outer FALSE
 	/next _count
 	
+	/if (${swTLP}) {
+  	/call sql_control FALSE CLR spellRez	 														string		outer FALSE
+	}
+	
+	
+	
 /return		                                        		
 
 
@@ -1507,7 +1531,9 @@ sub pregen_DRU()
 		/call sql_control FALSE DRU DoT${_count}Condition									string		outer FALSE
 	/next _count
 
-
+	/if (${swTLP}) {
+  	/call sql_control FALSE DRU spellRez	 														string		outer FALSE
+	}
 
 	| ports	
 	/call setDeclare looping																						string		outer "Zephyr: Looping Planes"
@@ -1861,6 +1887,9 @@ sub pregen_NEC()
 		/call sql_control FALSE NEC DoT${_count}Condition									string		outer FALSE
 	/next _count
 
+	/if (${swTLP}) {
+  	/call sql_control FALSE NEC spellRez	 														string		outer FALSE
+	}
 
 /return		                                        		
 
@@ -2017,6 +2046,11 @@ sub pregen_PAL()
 	/call sql_control FALSE PAL useLoH																	bool			outer FALSE
 	/call sql_control FALSE PAL useLoHPct																int				outer 10
 	/call sql_control FALSE PAL switchAttraction												bool			outer FALSE
+
+	/if (${swTLP}) {
+  	/call sql_control FALSE PAL spellRez	 														string		outer FALSE
+	}
+
 
 /return		                                        		
 
@@ -2344,7 +2378,10 @@ sub pregen_SHM()
 		/call sql_control FALSE SHM DoT${_count}Condition									string		outer FALSE
 	/next _count
 	
-                                          		
+ 	/if (${swTLP}) {
+  	/call sql_control FALSE SHM spellRez	 														string		outer FALSE
+	}
+	                                         		
 	/call sql_control FALSE SHM CanniPctHPs				 											int				outer 60
 	/call sql_control FALSE SHM CanniPctManna				 										int				outer 60
 	/call sql_control FALSE SHM spellCannibalization										string		outer PREGENDATA
@@ -3113,7 +3150,7 @@ sub hud_control(string _verbage)
 		HUDPATH "Core" "rezRange" "19,201,62,255,255,255,${If[${swRezGive},${setMaxRezRange},]}"
 
 		| HUD WARNING/OVERIDE notices
-		HUDPATH "Core" "hudwarning1" "19,110,2,240,0,0,${If[${Bool[${hudWarning}]},${hudWarning},]}"
+		HUDPATH "Core" "hudwarning1" "19,135,2,240,0,0,${If[${Bool[${hudWarning}]},${hudWarning},]}"
 
 		| group broadcast stauts
 		HUDPATH "Core" "hudbroadcast0" "19,280,2,255,51,153,${setHUDBroadcast}"

@@ -74,7 +74,6 @@ sub disc_BST()
 	/if (${validate_cast[FALSE, disc, "${DiscFocusClaws}", ${Target2Kill}]}) /call core_cast2 "${DiscFocusClaws}" disc ${Target2Kill} FALSE
 	/if (${validate_cast[FALSE, alt, "${DiscEnduring}", ${Target2Kill}]} && !${Bool[${Target.Buff[${DiscEnduring}]}]}) /call core_cast2 "${DiscEnduring}" alt ${Target2Kill} FALSE
 	/if (${validate_cast[FALSE, alt, "Roar of Thunder", ${Target2Kill}]} && ${Me.PctAggro}) /call core_cast2 "Roar of Thunder" alt ${Target2Kill} FALSE
-	/if (${validate_cast[FALSE, alt, "Chameleon Strike", ${Target2Kill}]}) /call core_cast2 "Chameleon Strike" alt ${Target2Kill} FALSE
 	/if (${validate_cast[FALSE, disc, "${DiscForay}", ${Target2Kill}]}) /call core_cast2 "${DiscForay}" disc ${Target2Kill} FALSE
 	/if (${validate_cast[FALSE, disc, "${DiscRending}", ${Target2Kill}]}) /call core_cast2 "${DiscRending}" disc ${Target2Kill} FALSE
 			
@@ -82,6 +81,7 @@ sub disc_BST()
 	/if (${swAgro}) {
 		/if (${validate_cast[FALSE, alt, "Roaring Strike", ${Target2Kill}]} && ${Me.PctAggro} < 80) /call core_cast2 "Roaring Strike" alt ${Target2Kill} FALSE
 	} else /if (!${swAgro}) {
+		/if (${validate_cast[FALSE, alt, "Chameleon Strike", ${Target2Kill}]}) /call core_cast2 "Chameleon Strike" alt ${Target2Kill} FALSE
 	}
 
 	/if (${Me.Pet.ID}) {
@@ -122,7 +122,13 @@ sub check_mana_BST()
 		}
 	}
 	
+	| get the mob focus back
+	/if (${Target.ID} == ${Me.ID}) /squelch /target ID ${Target2Kill}
+	
+	| do not group paragon in raids
 	/if (${Raid.Members}) /return
+	
+	| do not group paragon while solo
 	/if (!${Group}) /return
 	
 	| group paragon
@@ -271,9 +277,9 @@ sub burn_BST()
 		/if (${validate_cast[FALSE, alt, "Attack of the Warders", ${Target2Kill}]}) /call core_cast2 "Attack of the Warders" alt ${Target2Kill} FALSE
 	}
 
-	| /if (${Me.Pet.ID} && ${Me.AltAbilityReady[Companion's Fury]}) /alt act 443
 
 	/if (${Me.Pet.ID}) {
+		| Bestila Bloodrage
 		/if (${validate_cast[FALSE, alt, "Companion's Fury", ${Pet.ID}]}) /call core_cast2 "Companion's Fury" alt 0 FALSE
 	}
 	

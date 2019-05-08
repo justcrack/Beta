@@ -120,9 +120,9 @@
  *	USE: 
  *  NOTE: 
  ***|
-sub main(string _custom)
+sub main(string _custom, string _startparam)
 	| Current Build
-	/call setDeclare currentBuild 			string outer 0430.01
+	/call setDeclare currentBuild 			string outer 0508.01
 	
 	| force SQL echos on for the start
 	/call setDeclare swEchosSQL 				bool outer FALSE
@@ -135,12 +135,19 @@ sub main(string _custom)
 
 	| shopping time
 	/call initialize_core ${_custom}
+		
+	| mac start params
+
+	| noauto on start
+	/if (${_startparam.Equal[noauto]}) /call set_switch character coreAuto FALSE
 	
 	/if (${swLog}) /mqlog ${currentBuild} .. Clean Start
 
 	
 	| maintenance mode loop lock
 	/while (${swMaintenance}) {
+		/if (${Me.Zoning}) /call Event_Zone
+		
 	  CHECKINPUTS
 	  UPDATEHUD FALSE
 		/if (!${timer_validate_zone}) /call validate_zone FALSE FALSE
@@ -156,6 +163,7 @@ sub main(string _custom)
 	
 	| normal Core operations loop
 	/while (!${swMaintenance}) {
+		/if (${Me.Zoning}) /call Event_Zone
 	  CHECKINPUTS
 	  UPDATEHUD FALSE
 	    	
@@ -220,7 +228,7 @@ sub main(string _custom)
 		}
 		
 		| update blocked buffs
-		/if (!${timer_check_buffs_blocked}) /call check_buffs_blocked
+		/if (!${timer_check_buffs_blocked}) /call check_buffs_blocked FALSE FALSE
 
 		| watch for spawn
 		/if (${Bool[${watchSpawn}]}) {
@@ -268,7 +276,7 @@ sub main(string _custom)
 	
 	| this is MQ2 reserved for end of macro
 	:OnExit	
-		/if (!${MacroQuest.LastCommand.Find[/end]}) {
+		/if (!${MacroQuest.LastCommand.Find[/end]} && !${MacroQuest.LastCommand.Find[/camp]}) {
 			/if (${swLog}) {
 				 /mqlog ${currentBuild} .. ERROR SOMEWHERE
 				 /mqlog .. LastCMD: ${MacroQuest.LastCommand}
@@ -353,15 +361,13 @@ sub initialize_core(string _custom)
 	
 	| set base core environment
 	/call base_preperation
-	
-	
+		
 	| call any custom.inc declares
 	/call set_declares_custom
 	
-	| set initial blocked spells
-	/call check_buffs_blocked
-	
-	
+	| set initial blocked spells timer
+	/call check_buffs_blocked FALSE TRUE
+		
   /if (${swOverrideLOS}) VOUT ${ocaution} ${sep} Ignoring Line of Sight\ax
 	OUT ${cgood}Ready\ax
 /return
