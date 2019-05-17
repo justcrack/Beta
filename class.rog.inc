@@ -83,6 +83,7 @@ sub disc_ROG()
 	CHECKEXIT
 	CHECKINPUTS
 	/if (${is_target_dead[${Target2Kill}]}) /return
+	/call set_combat ${combat.Upper}
 	/if (${validate_cast[FALSE, disc, "${DiscAssault}", ${Target2Kill}]}) /call core_cast2 "${DiscAssault}" disc ${Target2Kill} FALSE
 	
 	/if (${validate_cast[FALSE, alt, "Shadow's Flanking", ${Me.ID}]}) /call core_cast2 "Shadow's Flanking" alt 0 FALSE
@@ -154,7 +155,7 @@ sub automaticSoS()
 	DEBUG automaticSoS()
 	/if (!${swSoS}) /return
 	/if (${Me.Combat} || ${Me.Stunned} || ${Me.State.Equal[FEIGN]}) /return
-	/if (${Me.Casting.ID} || ${Me.State.Equal[BIND]} || ${Window[TradeWnd].Open} || ${Window[MerchantWnd].Open} || ${Window[BigBankWnd].Open} || ${Me.Mount.ID}) /return
+	/if (${Me.Casting.ID} || ${Window[TradeWnd].Open} || ${Window[MerchantWnd].Open} || ${Window[BigBankWnd].Open} || ${Me.Mount.ID}) /return
 
 	AMIDEAD
 	CHECKTIE
@@ -196,7 +197,7 @@ sub click_poison()
 	
 	| keep a stock on hand
 	/if (${FindItemCount[${clickPoisonItem}]} < ${clickPoisonCount} && ${Me.ItemReady[${clickPoisonDispenser}]}) {
-		/if (${validate_cast[FALSE, item, "${clickPoisonDispenser}", ${Me.ID}]}) /call core_cast2 "${clickPoisonDispenser}" item ${Me.ID} FALSE
+		/if (${validate_cast[FALSE, item, "${clickPoisonDispenser}", ${Me.ID}]}) /call core_cast2 "${clickPoisonDispenser}" item 0 FALSE
 		/call sort_cursor TRUE
 	}
 	
@@ -207,14 +208,14 @@ sub click_poison()
 		/if (${Bool[${Me.Buff[${clickPoisonBuff.Arg[${_count},|]}]}]}) /varset _found TRUE
 	/next _count		
 	/if (!${_found}) {
-		/if (${validate_cast[FALSE, item, "${clickPoisonItem}", ${Me.ID}]}) /call core_cast2 "${clickPoisonItem}" item ${Me.ID} FALSE
+		/if (${validate_cast[FALSE, item, "${clickPoisonItem}", ${Me.ID}]}) /call core_cast2 "${clickPoisonItem}" item 0 FALSE
 	}
 	/call timer_update timer_click_poison ${tClick_Poison}
 /return
 
 
 
- |***
+|***
  *	DES: Rogue burn routines
  *	USE: establish all comp/trigger skills
  *	NOTE: 
@@ -223,6 +224,9 @@ sub burn_ROG()
 	DEBUG burn_ROG()
 	CHECKEXIT
 	CHECKINPUTS
+	
+	/if (${is_target_dead[${Target2Kill}]}) /return
+	/call set_combat ${combat.Upper}
 
 	/if (${Me.ActiveDisc.Name.Equal[${DiscPlay}]} && ${Me.CombatAbilityReady[${DiscFrenzy}]}) {
 		:loopmakestop
@@ -240,7 +244,7 @@ sub burn_ROG()
 	}
 
 	/if (${validate_cast[FALSE, disc, "${DiscDicho}", ${Me.ID}]}) /call core_cast2 "${DiscDicho}" disc 0 FALSE
-	
+
 	/if (!${AEMelee}) {
 		/if (${validate_cast[FALSE, alt, "Focused Rake's Rampage", ${Me.ID}]}) /call core_cast2 "Focused Rake's Rampage" alt 0 FALSE
 	} else /if (${AEMelee}) {
@@ -289,7 +293,7 @@ sub Bind_setROG(string _type, string _verbage)
 		
 		| set max num of poison to keep
 		/if (${Range.Between[1,100:${Int[${_verbage}]}]}) {
-			/call sql_update FALSE ${Me.Class.ShortName} clickPoisonCount ${_verbage}
+			/call sql_update FALSE ${chrID} clickPoisonCount ${_verbage}
 			VOUT Rogue Poison Keep ${sep} ${cinfo}${_num}\ax
 			/return
 		} else /if (!${Bool[${_verbage}]} || !${Range.Between[1,100:${Int[${_verbage}]}]}) {
@@ -307,11 +311,11 @@ sub Bind_setROG(string _type, string _verbage)
 
 	| auto SOS... or not...
 	} else /if (${_type.Equal[sos]}) {
-		/call set_switch character swSoS ${_verbage}
+		/call set_switch ${chrID} swSoS ${_verbage}
 
 	| AE or Focused Melee
 	} else /if (${_type.Equal[ae]}) {
-		/call set_switch ${Me.Class.ShortName} AEMelee ${_verbage}
+		/call set_switch ${chrID} AEMelee ${_verbage}
 
 	| healpoint
 	} else /if (${_type.Find[healpoint]}) {

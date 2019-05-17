@@ -550,23 +550,23 @@ sub Bind_setENC(string _type, string _verbage)
 
 	| charm pet
 	/if (${_type.Equal[charm]}) {
-		/call sql_update FALSE ${Me.Class.ShortName} switchCharmPet ${If[${switchCharmPet},FALSE,TRUE]}  
+		/call sql_update FALSE ${chrID} switchCharmPet ${If[${switchCharmPet},FALSE,TRUE]}  
 		VOUT /${_bind} charm ${sep} ${If[${switchCharmPet},${oenabled},${odisabled}]}
 		/return
 
 	| AA Beam of slumber
 	} else /if (${_type.Equal[bos]}) {
-		/call sql_update FALSE ${Me.Class.ShortName} switchAABeamofSlumber ${If[${switchAABeamofSlumber},FALSE,TRUE]}  
+		/call sql_update FALSE ${chrID} switchAABeamofSlumber ${If[${switchAABeamofSlumber},FALSE,TRUE]}  
 
 	| gather enable/disable /pct
 	} else /if (${_type.Equal[gather]}) {
 		/if (${Bool[${_verbage}]} && ${Range.Between[1,99:${Int[${_verbage}]}]}) {
-			/call sql_update FALSE ${Me.Class.ShortName} GatherPercent ${_verbage} 
+			/call sql_update FALSE ${chrID} GatherPercent ${_verbage} 
 		} else /if (${Bool[${_verbage}]} && !${Range.Between[1,99:${Int[${_verbage}]}]}) {
 			VOUT /${_bind} gather [${cinfo}${GatherPercent}\ax] allowable range ${sep} ${cinfo}1 - 99\ax
 			/return
 		}	else /if (!${Bool[${_verbage}]}) {
-			/call sql_update FALSE ${Me.Class.ShortName} switchGather ${If[${switchGather},FALSE,TRUE]}  
+			/call sql_update FALSE ${chrID} switchGather ${If[${switchGather},FALSE,TRUE]}  
 		}			
 
 	| spire control
@@ -575,7 +575,7 @@ sub Bind_setENC(string _type, string _verbage)
 
 	| terror spell		
 	} else /if (${_type.Equal[terror]}) {
-	 	/call set_switch ${Me.Class.ShortName} swTerror ${_verbage}  
+	 	/call set_switch ${chrID} swTerror ${_verbage}  
 
 	| healpoint
 	} else /if (${_type.Equal[healpoint]}) {

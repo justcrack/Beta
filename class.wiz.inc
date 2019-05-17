@@ -298,12 +298,12 @@ sub Bind_setWIZ(string _type, string _verbage)
 	| gather enable/disable /pct
 	/if (${_type.Equal[gather]}) {
 		/if (${Bool[${_verbage}]} && ${Range.Between[1,99:${Int[${_verbage}]}]}) {
-			/call sql_update FALSE ${Me.Class.ShortName} GatherPercent ${_verbage} 
+			/call sql_update FALSE ${chrID} GatherPercent ${_verbage} 
 		} else /if (${Bool[${_verbage}]} && !${Range.Between[1,99:${Int[${_verbage}]}]}) {
 			VOUT /${_bind} gather(${cnum}${GatherPercent}\ax) allowable range ${sep} ${cinfo}1 - 99\ax
 			/return
 		}	else /if (!${Bool[${_verbage}]}) {
-			/call set_switch WIZ switchGather ${_verbage]}  
+			/call set_switch ${chrID} switchGather ${_verbage]}  
 			VOUT /${_bind} gather(${cnum}${GatherPercent}\ax) ${sep} ${If[${switchGather},${oenabled},${odisabled}]}
 			/return
 		}			
@@ -312,7 +312,7 @@ sub Bind_setWIZ(string _type, string _verbage)
 	} else /if (${_type.Equal[line]}) {
 		| mem a line of spells.
 		/if (${lineType.Find[${_verbage.Lower}]}) {
-			/call sql_update FALSE WIZ lineCurrent ${_verbage.Left[1].Upper}${_verbage.Right[-1].Lower}
+			/call sql_update FALSE ${chrID} lineCurrent ${_verbage.Left[1].Upper}${_verbage.Right[-1].Lower}
 			/if (${_verbage.Equal[off]}) {
 				VOUT Casting line ${sep} ${odisabled}
 				/return
@@ -333,11 +333,11 @@ sub Bind_setWIZ(string _type, string _verbage)
 
 	| enable/disable force twincasting
 	} else /if (${_type.Equal[forcetwincast]}) {
-		/call set_switch WIZ switchForceTwincast ${_verbage}
+		/call set_switch ${chrID} switchForceTwincast ${_verbage}
 
 	| use Modulation Rods
 	} else /if (${_type.Equal[rod]}) {
-		/call set_switch WIZ swModRod ${_verbage} 	
+		/call set_switch ${chrID} swModRod ${_verbage} 	
 
 	| set AA fade use %	
 	} else /if (${_type.Equal[fade]}) {

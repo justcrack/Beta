@@ -11,7 +11,7 @@
 	GitHub Code: https://github.com/exspes007/core
 	GitHub Wiki: https://github.com/exspes007/core/wiki
 	
-	Plugins Required: MQ2Cast, MQ2Exchange, MQ2MoveUtils, MQ2Debuffs, MQ2DanNet, MQ2SQLite, MQ2Nav
+	Plugins Required: MQ2Exchange, MQ2MoveUtils, MQ2Debuffs, MQ2DanNet, MQ2SQLite, MQ2Nav
 		
 	Files:
 	- class.???.inc							One include for each class [WIZ|NEC|MAG|ENC|WAR|PAL|SHD|BST|BER|BRD|RNG|ROG|CLR|DRU|SHM|MNK]
@@ -91,7 +91,7 @@
 #include tc\declare.inc
 #include tc\pregen.inc
 #include tc\common.inc
-#include tc\MQ2Cast_Spell_Routines.inc
+| #include tc\MQ2Cast_Spell_Routines.inc
 #include tc\mode.inc
 #include tc\events.inc
 #include tc\class.ber.inc
@@ -122,27 +122,24 @@
  ***|
 sub main(string _custom, string _startparam)
 	| Current Build
-	/call setDeclare currentBuild 			string outer 0508.01
+	/call setDeclare currentBuild 			string outer 0517.01
 	
-	| force SQL echos on for the start
-	/call setDeclare swEchosSQL 				bool outer FALSE
-
-	| do the DB builds match? 
-	/call setDeclare swBuildMatch				bool outer TRUE
-
 	| set the default character ID
 	/call setDeclare chrID 							string outer ${MacroQuest.Server}_${Me.Class.ShortName}_${Me.DisplayName}
+
+	| force SQL echos on for the start
+	/call setDeclare swEchosSQL 				bool outer TRUE
+
+	| dont fuck with this. i'm serious...
+	/call setDeclare swForceUpdate			bool outer FALSE
 
 	| shopping time
 	/call initialize_core ${_custom}
 		
-	| mac start params
-
 	| noauto on start
-	/if (${_startparam.Equal[noauto]}) /call set_switch character coreAuto FALSE
+	/if (${_startparam.Equal[noauto]}) /call set_switch ${chrID} coreAuto FALSE
 	
 	/if (${swLog}) /mqlog ${currentBuild} .. Clean Start
-
 	
 	| maintenance mode loop lock
 	/while (${swMaintenance}) {
@@ -213,6 +210,10 @@ sub main(string _custom, string _startparam)
 			/if (${swHomeSet}) {
 				/if (!${SpawnCount[npc radius ${setCombatRadius} playerstate 4 targetable]} && ((${Me.Y} != ${MakeCamp.AnchorY}) && (${Me.X} != ${MakeCamp.AnchorX})) && (!${SafeZone} || ${swOverrideSafeZone})) /makecamp return
 			}
+			
+			| update blocked buffs
+			/if (!${timer_check_buffs_blocked}) /call check_buffs_blocked FALSE FALSE
+			
 		}
 	
 		| meal
@@ -227,9 +228,6 @@ sub main(string _custom, string _startparam)
 			/if (!${timer_Waste_Fireworks}) /call cast_AA_fireworks
 		}
 		
-		| update blocked buffs
-		/if (!${timer_check_buffs_blocked}) /call check_buffs_blocked FALSE FALSE
-
 		| watch for spawn
 		/if (${Bool[${watchSpawn}]}) {
 			/if (!${timer_check_watch_spawn}) /call check_watch_spawn
@@ -332,23 +330,31 @@ sub initialize_core(string _custom)
 		/varset dbCore macros\tc\data\dbCore.db
 	}
 	
+	| SQLite Character Database
+	/if (!${Defined[chrDBID]}) /declare chrDBID string outer 
+		/varset chrDBID macros\tc\data\${MacroQuest.Server}${Me.Class.ShortName}${Me.DisplayName}.db
+	}	
+	
 	| validate pulgins, reload if needed
 	/call verify_plugins FALSE	
 	
 	| validate databas
 	/call sql_schema FALSE
 	
-	| load non static environment variables
-	/call pregen_environment
-
-	| echos
-	/if (${swDispBuild}) /call echos initialize 0 0 0 0
-
-	| load base character settings
-	/call pregen_character
+	| check zone table
+	/if (${bldenvironmentcurrent}) {
+		VSQL \awDB\ax::\awzone\ax::\a-tCurrent\ax
+	} else /if (!${bldenvironmentcurrent}) {
+		/call pregen_zone		
+	}
 	
-	| load class specific settings
-	/call pregen_${Me.Class.ShortName}
+	| update MyButtons
+	| /call mybutton_control
+	
+	| echo the notice
+	/if (!${bldenvironmentcurrent}) {
+		/call echo_notice
+	}
 	
 	| load aliases
 	/call set_alias
@@ -368,7 +374,7 @@ sub initialize_core(string _custom)
 	| set initial blocked spells timer
 	/call check_buffs_blocked FALSE TRUE
 		
-  /if (${swOverrideLOS}) VOUT ${ocaution} ${sep} Ignoring Line of Sight\ax
+  | /if (${swOverrideLOS}) VOUT ${ocaution} ${sep} Ignoring Line of Sight\ax
 	OUT ${cgood}Ready\ax
 /return
 
@@ -395,23 +401,23 @@ sub base_preperation()
 
 	| disable smart assists for TLP w/o underfoot
 	/if (!${validate_expansion[FALSE, |16]}) {
- 		/call set_switch character swAssist1 FALSE
- 		/call set_switch character swAssist2 FALSE
- 		/call set_switch character swAssist3 FALSE
-		/call set_switch character swAssistG FALSE
+ 		/call set_switch ${chrID} swAssist1 FALSE
+ 		/call set_switch ${chrID} swAssist2 FALSE
+ 		/call set_switch ${chrID} swAssist3 FALSE
+		/call set_switch ${chrID} swAssistG FALSE
 	}
 	
 	| clear the spawn watch
 	/if (${Bool[${watchSpawn}]}) {
-		/call sql_update FALSE character watchSpawn FALSE
+		/call sql_update FALSE ${chrID} watchSpawn FALSE
 	}
 	
 	| a little display adjustments. If ur blind, get some glasses.
-	/mqfont ${setMQFontSize}
+	| /mqfont ${setMQFontSize}
 	
 	| clear rampage tank for healers
 	/if (${validate_class[FALSE, |CLR|DRU|PAL|SHM]}) {
-		/call sql_update FALSE ${Me.Class.ShortName} RampageTank FALSE
+		/call sql_update FALSE ${chrID} RampageTank FALSE
 	}
 
 	| why the fuck did Verant/SOE/DayBreak ever implement these as a default..??	
@@ -435,7 +441,7 @@ sub base_preperation()
 
 	| turn off rez non guildies/group if it is still on. 'cause fuck everyone else.
 	/if (${swRezEveryone}) {
-		/call set_switch character swRezEveryone FALSE 
+		/call set_switch ${chrID} swRezEveryone FALSE 
 	}
 
 	| Show the HUD	
@@ -444,7 +450,7 @@ sub base_preperation()
 			
 	| force sos switch FALSE for non rogues
 	/if (!${validate_class[FALSE, |ROG]}) {
-		/if (${swSoS}) /call set_switch character swSoS FALSE
+		/if (${swSoS}) /call set_switch ${chrID} swSoS FALSE
 	}
 		
 	| check debuffs	switches	
@@ -476,7 +482,7 @@ sub base_preperation()
  ***|
 sub verify_plugins(bool _debug)
 	/declare _count int local 0
-	/declare _lstPlugin string local |DanNet|sqlite|Cast|Debuff|MoveUtils|Navigation|AdvPath
+	/declare _lstPlugin string local |DanNet|sqlite|Debuff|MoveUtils|Navigation|AdvPath
 
 	/for _count 1 to ${_lstPlugin.Count[|]}
 		/if (${_debug}) /echo check: \at${_lstPlugin.Arg[${_count},|]}\ax

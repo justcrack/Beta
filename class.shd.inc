@@ -300,29 +300,29 @@ sub Bind_setSHD(string _type, string _verbage)
 	| Shield Flash oh shit
 	/if (${_type.Equal[shieldflash]}) {
 		/if (${Bool[${_verbage}]} && ${Range.Between[1,99:${_verbage}]}) {
-			/call sql_update FALSE ${Me.Class.ShortName} useShieldFlashPct ${_verbage} 
+			/call sql_update FALSE ${chrID} useShieldFlashPct ${_verbage} 
 		} else /if (${Bool[${_verbage}]} && !${Range.Between[1,99:${_verbage}]}) {
 			VOUT /${_bind} shieldflash [${cinfo}##\ax] allowable range ${sep} ${cinfo}1 - 99\ax
 			/return
 		}	else /if (!${Bool[${_verbage}]}) {
-			/call set_switch ${Me.Class.ShortName} useShieldFlash ${_verbage}  
+			/call set_switch ${chrID} useShieldFlash ${_verbage}  
 		}			
 
 	| use Modulation Rods
 	} else /if (${_type.Equal[rod]}) {
-		/call set_switch ${Me.Class.ShortName} swModRod ${_verbage}
+		/call set_switch ${chrID} swModRod ${_verbage}
 
 	| on/off switch for Vizat's Skin
 	} else /if (${_type.Find[skin]}) {
-		/call set_switch ${Me.Class.ShortName} switchSkin ${_verbage} 
+		/call set_switch ${chrID} switchSkin ${_verbage} 
 	
 	| on/off switch for Harmonious
 	} else /if (${_type.Find[harmonious]}) {
-		/call set_switch ${Me.Class.ShortName} switchHarmonious ${_verbage}  
+		/call set_switch ${chrID} switchHarmonious ${_verbage}  
 
 	| on/off switch for Stance
 	} else /if (${_type.Find[stance]}) {
-		/call set_switch ${Me.Class.ShortName} switchStance ${_verbage}  
+		/call set_switch ${chrID} switchStance ${_verbage}  
 
 	| spire control
 	} else /if (${_type.Equal[spiregroup]} || ${_type.Equal[spireraid]}) {
@@ -339,26 +339,26 @@ sub Bind_setSHD(string _type, string _verbage)
 
 	| on/off taunt
 	} else /if (${_type.Equal[taunt]}) {
-		/call set_switch ${Me.Class.ShortName} taunt ${_verbage}  
+		/call set_switch ${chrID} taunt ${_verbage}  
 
 	| AE or Focused Melee
 	} else /if (${_type.Equal[ae]}) {
-		/call set_switch ${Me.Class.ShortName} AEMelee ${_verbage}
+		/call set_switch ${chrID} AEMelee ${_verbage}
 
 	| attraction Hate's Attraction while pulling
 	} else /if (${_type.Equal[attraction]}) {
-		/call set_switch ${Me.Class.ShortName} switchAttraction ${_verbage}
+		/call set_switch ${chrID} switchAttraction ${_verbage}
 
 	| AA Voice of Thule
 	} else /if (${_type.Equal[vot]}) {
-		/call set_switch ${Me.Class.ShortName} switchVoT Buffs ${_verbage}
+		/call set_switch ${chrID} switchVoT Buffs ${_verbage}
 
 	| aa unity adjustment
 	} else /if (${_type.Equal[unity]}) {
 		/if (${unityType.Equal[Azia]}) {
-			/call sql_update FALSE ${Me.Class.ShortName} unityType "Beza"
+			/call sql_update FALSE ${chrID} unityType "Beza"
 		} else /if (${unityType.Equal[Beza]}) {
-			/call sql_update FALSE ${Me.Class.ShortName} unityType "Azia"
+			/call sql_update FALSE ${chrID} unityType "Azia"
 		}
 		/call setDeclare SHDAAUnity "Dark Lord's Unity (${unityType})"
 
@@ -366,7 +366,7 @@ sub Bind_setSHD(string _type, string _verbage)
 	| defensive mob agro count
 	} else /if (${Bool[${_type.Equal[defcount]}]}) {
 		/if (${Range.Between[1,50:${Int[${_verbage}]}]}) {
-			/call sql_update FALSE ${Me.Class.ShortName} defCount ${_verbage}
+			/call sql_update FALSE ${chrID} defCount ${_verbage}
 		} else /if (!${Bool[${_verbage}]} || !${Range.Between[1,50:${Int[${_verbage}]}]}) {
 			VOUT /${_bind} defcount [${cinfo}${countsetMobAgro}\ax] allowable range ${sep} ${cinfo}1 - 50 min\ax
 			/return

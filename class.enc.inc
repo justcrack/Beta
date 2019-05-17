@@ -546,37 +546,28 @@ sub Bind_setENC(string _type, string _verbage)
 	/declare _listout string local
 	/declare _count int local 0
 	/declare _bind string local ${Me.Class.ShortName.Lower}
-  /declare _lstClass string local |bos|charm|gather|healpoint|mezdelay|spiregroup|spireraid|terror
+  /declare _lstClass string local |bos|charm|gather|healpoint|spiregroup|spireraid|terror
 
 	| charm pet
 	/if (${_type.Equal[charm]}) {
-		/call sql_update FALSE ${Me.Class.ShortName} switchCharmPet ${If[${switchCharmPet},FALSE,TRUE]}  
+		/call sql_update FALSE ${chrID} switchCharmPet ${If[${switchCharmPet},FALSE,TRUE]}  
 		VOUT /${_bind} charm ${sep} ${If[${switchCharmPet},${oenabled},${odisabled}]}
 		/return
 
 	| AA Beam of slumber
 	} else /if (${_type.Equal[bos]}) {
-		/call sql_update FALSE ${Me.Class.ShortName} switchAABeamofSlumber ${If[${switchAABeamofSlumber},FALSE,TRUE]}  
+		/call sql_update FALSE ${chrID} switchAABeamofSlumber ${If[${switchAABeamofSlumber},FALSE,TRUE]}  
 
 	| gather enable/disable /pct
 	} else /if (${_type.Equal[gather]}) {
 		/if (${Bool[${_verbage}]} && ${Range.Between[1,99:${Int[${_verbage}]}]}) {
-			/call sql_update FALSE ${Me.Class.ShortName} GatherPercent ${_verbage} 
+			/call sql_update FALSE ${chrID} GatherPercent ${_verbage} 
 		} else /if (${Bool[${_verbage}]} && !${Range.Between[1,99:${Int[${_verbage}]}]}) {
 			VOUT /${_bind} gather [${cinfo}${GatherPercent}\ax] allowable range ${sep} ${cinfo}1 - 99\ax
 			/return
 		}	else /if (!${Bool[${_verbage}]}) {
-			/call sql_update FALSE ${Me.Class.ShortName} switchGather ${If[${switchGather},FALSE,TRUE]}  
+			/call sql_update FALSE ${chrID} switchGather ${If[${switchGather},FALSE,TRUE]}  
 		}			
-
-	| mez delay
-	} else /if (${_type.Equal[mezdelay]}) {
-		/if (${Bool[${_verbage}]} && ${Range.Between[0,100:${Int[${_verbage}]}]}) {
-			/call sql_update FALSE ${Me.Class.ShortName} setMezDelay ${_verbage} 
-		} else /if (${Bool[${_verbage}]} && !${Range.Between[0,100:${Int[${_verbage}]}]}) {
-			VOUT /${_bind} mezdelay [${cinfo}${setMezDelay}\ax] allowable range ${sep} ${cinfo}0 - 100\ax
-			/return
-		}	
 
 	| spire control
 	} else /if (${_type.Equal[spiregroup]} || ${_type.Equal[spireraid]}) {
@@ -584,7 +575,7 @@ sub Bind_setENC(string _type, string _verbage)
 
 	| terror spell		
 	} else /if (${_type.Equal[terror]}) {
-	 	/call set_switch ${Me.Class.ShortName} swTerror ${_verbage}  
+	 	/call set_switch ${chrID} swTerror ${_verbage}  
 
 	| healpoint
 	} else /if (${_type.Equal[healpoint]}) {
@@ -600,7 +591,6 @@ sub Bind_setENC(string _type, string _verbage)
 		/if (${_lstClass.Arg[${_count},|].Equal[spireraid]}) /varset _listout ${_listout}:${cnum}${spireRaid}\ax
 		/if (${_lstClass.Arg[${_count},|].Equal[healpoint]}) /varset _listout ${_listout}:${cnum}${${Me.Class.ShortName}Point}\ax
 		/if (${_lstClass.Arg[${_count},|].Equal[gather]}) /varset _listout ${_listout}:${If[${switchGather},${cnum}${GatherPercent}\ax,${cbad}${GatherPercent}\ax]}
-		/if (${_lstClass.Arg[${_count},|].Equal[mezdelay]}) /varset _listout ${_listout}:${If[${setMezDelay},${cnum}${setMezDelay}\ax,${cbad}${setMezDelay}\ax]}
 		/if (${_lstClass.Arg[${_count},|].Equal[bos]}) /varset _listout ${_listout}:${If[${Bool[${switchAABeamofSlumber}]},${oon},${ooff}]}
 		/if (${_lstClass.Arg[${_count},|].Equal[terror]}) /varset _listout ${_listout}:${If[${swTerror},${oon},${ooff}]}
 		/varset _sep TRUE

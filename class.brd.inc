@@ -71,7 +71,8 @@ sub core_BRD()
 			/call click_item
 			/if (${swSwarm}) /call click_item_swarm ${Target2Kill}
 			/call click_DPS_${Me.Class.ShortName}
-	
+			/call pulse_stop
+				
 			/if (${coreAuto}) {	
 				/if (${switchAAFade} && ${Me.PctHPs} <= ${useAAFadePct}) /call cast_AA_fade
 				/if (${swModRod} && ${validate_class[FALSE, |BRD]}) /call use_mod_rod
@@ -95,38 +96,43 @@ sub disc_BRD()
 	CHECKINPUTS
 
 	/if (${is_target_dead[${Target2Kill}]}) {
+		/call pulse_stop
 		/call clear_combat
 		/return
 	}
 	
 	/if (${swdeBuffSlow} && !${timer_slow_${Target2Kill}}) /call pulse_slow ${Target2Kill}
-	/call pulse_stop
-	
-	| this is a weapon from Sebilis Hardcore Heratige
-	/if (!${Me.Song[Doben's Spry Sonata].ID}) {
-		/if (${validate_cast[FALSE, item, "Darkened Breath of Harmony", ${Me.ID}]}) /call core_cast2 "Darkened Breath of Harmony" item 0 FALSE
-	}
-	
-	/if (${swSwarm}) {
-		/call cast_servant_swarm ${Target2Kill} FALSE
-	}
+	/call pulse_stop 20
 
-	/if (${validate_cast[FALSE, alt, "Cacophony", ${Target2Kill}]}) /call core_cast2 "Cacophony" alt ${Target2Kill} FALSE
-	/if (${validate_cast[FALSE, alt, "Bladed Song", ${Target2Kill}]}) /call core_cast2 "Bladed Song" alt ${Target2Kill} FALSE
-	/if (${Spawn[${Target2Kill}].PctHPs} > 50) {
-		/if (${validate_cast[FALSE, alt, "Boastful Bellow", ${Target2Kill}]}) /call core_cast2 "Boastful Bellow" alt ${Target2Kill} FALSE	
-		/if (${is_target_dead[${Target2Kill}]}) {
-			/call clear_combat
-			/return
-		}
-	}
-	
+	/if (${validate_cast[FALSE, alt, "Fierce Eye", ${Me.ID}]}) /call core_cast2 "Fierce Eye" alt 0 FALSE
+ 	/if (${validate_cast[FALSE, alt, "Bladed Song", ${Me.ID}]}) /call core_cast2 "Bladed Song" alt 0 FALSE
+
 	| trigger Frenzied kicks AA for bards if target is debuffed from intimidate
 	/if (${switchIntimidKick}) {
 		/if (${Bool[${intimidation}]} && ${Target.Buff[Harbinger's Intimidation].ID} && ${Spawn[${Target2Kill}].Distance} <= 15) {
 			/if (${validate_cast[FALSE, alt, "Frenzied Kicks", ${Me.ID}]}) /call core_cast2 "Frenzied Kicks" alt 0 FALSE
 		}
 	}
+	
+	| this is a weapon from Sebilis Hardcore Heratige
+	/if (!${Me.Song[Doben's Spry Sonata].ID}) {
+		/if (${validate_cast[FALSE, item, "Darkened Breath of Harmony", ${Me.ID}]}) /call core_cast2 "Darkened Breath of Harmony" item 0 FALSE
+	}
+	
+	/if (${validate_cast[FALSE, alt, "Cacophony", ${Target2Kill}]}) /call core_cast2 "Cacophony" alt ${Target2Kill} FALSE
+	/if (${Spawn[${Target2Kill}].PctHPs} > 50) {
+		/if (${validate_cast[FALSE, alt, "Boastful Bellow", ${Target2Kill}]}) /call core_cast2 "Boastful Bellow" alt ${Target2Kill} FALSE	
+		/if (${is_target_dead[${Target2Kill}]}) {
+			/call pulse_stop
+			/call clear_combat
+			/return
+		}
+	}
+	
+	/if (${swSwarm}) {
+		/call cast_servant_swarm ${Target2Kill} FALSE
+	}
+
 	
 /return TRUE
 
@@ -181,19 +187,19 @@ sub cast_servant_swarm(int _tmpID)
 	/call get_target_2kill
 	/if (${Target.ID}) /pet swarm
 
-	| /call pulse_stop
+	| /call pulse_stop 21
 	/if (${validate_cast[FALSE, alt, "${ServantNukeAA1}", ${_tmpID}]}) {
 		/call core_cast2 "${ServantNukeAA1}" alt ${_tmpID} FALSE
 		/return
 	}
 
-	| /call pulse_stop
+	| /call pulse_stop 22
 	/if (${validate_cast[FALSE, alt, "${ServantNukeAA2}", ${_tmpID}]}) {
 		/call core_cast2 "${ServantNukeAA2}" alt ${_tmpID} FALSE
 		/return
 	}
 
-	| /call pulse_stop
+	| /call pulse_stop 23
 	/if (${validate_cast[FALSE, pulse, "${songServantNuke}", ${_tmpID}]}) {
 		/call core_cast2 "${songServantNuke}" pulse ${_tmpID} FALSE
 		/return
@@ -236,7 +242,7 @@ sub mem_song_line(string _line)
  ***|
 sub pulse()
 	/if (${is_target_dead[${Target2Kill}]}) {
-		/call pulse_stop
+		/call pulse_stop 24
 		/return
 	}
 
@@ -254,6 +260,11 @@ sub pulse()
 				/return
 			}
 
+			| stick to the damn mob
+			/if (${coreAuto} && (${swCombatMelee} || ${swCombatRange})) {
+				/if (!${Range.Between[0,${setFaceArc}:${Math.Abs[${Math.Calc[${Target.HeadingTo.Degrees}-${Me.Heading.Degrees}]}]}]}) /squelch /face ID ${Target2Kill} nolook ${If[${swFaceFast},fast,]}
+				/call stick_to_target ${Target2Kill}
+			}
 			AMIDEAD
 			CHECKINPUTS
 						
@@ -267,16 +278,17 @@ sub pulse()
 
 
 |***
- *	DES: quit singing. your voice sounds like ass.
+ *	DES: quit singing. your voice .. it sounds like ass.
  *	USE: 
  *  NOTE: 
  ***|
-sub pulse_stop()
-	/if (${Me.Casting.ID} || ${Me.BardSongPlaying}) {
-		/melody stop
+sub pulse_stop(int _marker)
+	| SDEBUG \atpulse_stop\ax(marker:\aw${_marker}\aw)
+	/if ((${Me.Casting.ID} == ${Spell[${Spell[${spellRestSong}].RankName}].ID}) && !${SpawnCount[npc radius ${setMobAgro} playerstate 4 targetable]}) /return FALSE
+	/if ((${Me.Casting.ID} || ${Me.BardSongPlaying})) {
 		/stopsong
 		/stopcast
-		/delay 2s !${Me.Casting.ID}
+		/delay 10 !${Me.Casting.ID}
 	}	
 /return TRUE
 
@@ -309,7 +321,7 @@ sub mez_adds_BRD()
 			/if (${SpawnCount[npc los radius 30 zradius 15 targetable]} > 3 ) {
 				VOUT ${sepO} ${cinfo}${SpawnCount[npc radius 30 zradius 15]}\ax ${sepC} Targets in point blank range.
 				/if (${check_ready[spell, "${spellpbaeMez}"]}) {
-					/if (${Me.Casting.Name.NotEqual[${spellpbaeMez}]}) /call pulse_stop
+					/if (${Me.Casting.Name.NotEqual[${spellpbaeMez}]}) /call pulse_stop 18
 					/if (${validate_cast[FALSE, pulse, "${spellpbaeMez}", ${Me.ID}]}) /call core_cast2 "${spellMez}" pulse 0 FALSE
 
 				}
@@ -395,18 +407,15 @@ sub burn_BRD()
 	CHECKEXIT
 	CHECKINPUTS
 	/if (${is_target_dead[${Target2Kill}]}) {
+		/call pulse_stop 19
 		/call clear_combat
 		/return
 	}
-
-	/if (${Me.Casting.ID}) /call pulse_stop
 	
 	| epic 2.0
 	/if (${validate_cast[FALSE, epicitem, "2", ${Me.ID}]} && ${Spawn[${Target2Kill}].Distance} <= ${setCombatDistance}) /call core_cast2 "${${Me.Class.ShortName}Epic2}" item 0 FALSE
 	
- 	/if (${validate_cast[FALSE, alt, "Bladed Song", ${Me.ID}]}) /call core_cast2 "Bladed Song" alt 0 FALSE
  	/if (${validate_cast[FALSE, alt, "Thousand Blades", ${Me.ID}]}) /call core_cast2 "Thousand Blades" disc 0 FALSE	
-	/if (${validate_cast[FALSE, alt, "Fierce Eye", ${Me.ID}]}) /call core_cast2 "Fierce Eye" alt 0 FALSE
 	/call cast_AA_spire
 	/if (${validate_cast[FALSE, alt, "Funeral Dirge", ${Me.ID}]}) /call core_cast2 "Funeral Dirge" alt 0 FALSE
 	/if (${validate_cast[FALSE, alt, "Quick Time", ${Me.ID}]} && !${Me.Song[Ruaabri's Fury].ID}) /call core_cast2 "Quick Time" alt 0 FALSE
@@ -479,12 +488,11 @@ sub Bind_setBRD(string _type, string _verbage)
 
 	| enable/disable rest song
 	/if (${_type.Equal[restsong]}) {
-		/call sql_update FALSE ${Me.Class.ShortName} switchRestSong ${If[${switchRestSong},FALSE,TRUE]}
-		VOUT /${_bind} restsong ${sep} ${If[${switchRestSong},${oenabled},${odisabled}]}
+		/call set_switch ${chrID} switchRestSong ${_verbage}
 
 	| use Modulation Rods
 	} else /if (${_type.Equal[rod]}) {
-		/call sql_update FALSE ${Me.Class.ShortName} swModRod ${If[${swModRod},FALSE,TRUE]} 	
+		/call set_switch ${chrID} swModRod ${_verbage}
 
 	| set AA fade use %	
 	} else /if (${_type.Equal[fade]}) {
@@ -493,7 +501,7 @@ sub Bind_setBRD(string _type, string _verbage)
 	| enable/disable sets bard song line
 	} else /if (${_type.Equal[line]}) {
 		/if (${Bool[${lineType.Find[${_verbage.Lower}]}]}) {
-			/call sql_update FALSE ${Me.Class.ShortName} lineCurrent ${_verbage.Left[1].Upper}${_verbage.Right[-1].Lower}
+			/call sql_update FALSE ${chrID} lineCurrent ${_verbage.Left[1].Upper}${_verbage.Right[-1].Lower}
 			/delay 2
 			/call mem_song_line ${lineCurrent}
 		}
@@ -506,8 +514,7 @@ sub Bind_setBRD(string _type, string _verbage)
 
 	| intimidation/frenzied kick control
 	} else /if (${_type.Equal[intimidkick]}) {
-		/call sql_update FALSE ${Me.Class.ShortName} switchIntimidKick ${If[${switchIntimidKick},FALSE,TRUE]}
-		VOUT /${_bind} intimidkick ${sep} ${If[${switchIntimidKick},${oenabled},${odisabled}]}
+		/call set_switch ${chrID} switchIntimidKick ${_verbage}
 
 	| spire control
 	} else /if (${_type.Equal[spiregroup]} || ${_classType.Equal[spireraid]}) {
@@ -525,7 +532,9 @@ sub Bind_setBRD(string _type, string _verbage)
 		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${_lstClass.Arg[${_count},|]}\ax
 		/if (${_lstClass.Arg[${_count},|].Equal[fade]}) /varset _listout ${_listout}:${If[${switchAAFade},${cnum}${useAAFadePct}\ax,${cbad}${useAAFadePct}\ax]}
 		/if (${_lstClass.Arg[${_count},|].Equal[healpoint]}) /varset _listout ${_listout}:${cnum}${${Me.Class.ShortName}Point}\ax
+		/if (${_lstClass.Arg[${_count},|].Equal[intimidkick]}) /varset _listout ${_listout}:${If[${Bool[${switchIntimidKick}]},${oon},${ooff}]}
 		/if (${_lstClass.Arg[${_count},|].Equal[line]}) /varset _listout ${_listout}:${cnum}${lineCurrent}\ax
+		/if (${_lstClass.Arg[${_count},|].Equal[restsong]}) /varset _listout ${_listout}:${If[${Bool[${switchRestSong}]},${oon},${ooff}]}
 		/if (${_lstClass.Arg[${_count},|].Equal[rod]}) /varset _listout ${_listout}:${If[${Bool[${swModRod}]},${oon},${ooff}]}
 		/if (${_lstClass.Arg[${_count},|].Equal[spiregroup]}) /varset _listout ${_listout}:${cnum}${spireGroup}\ax
 		/if (${_lstClass.Arg[${_count},|].Equal[spireraid]}) /varset _listout ${_listout}:${cnum}${spireRaid}\ax

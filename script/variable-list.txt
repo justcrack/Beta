@@ -555,6 +555,8 @@ Nuke#Condition						    [set] (1-8) nuke# condition
 DoT#											    [set] (1-8) dot to cast
 DoT#chk										    [set] (1-8) dot on target to watch for
 DoT#Condition							    [set] (1-8) dot# condition
+spellRetort										[set] name of retort spell
+spellRetortToon								[set] |nameof|the|toonsto|castretort|on
 
 
 ;DRU

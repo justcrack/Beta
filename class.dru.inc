@@ -400,25 +400,25 @@ sub burn_DRU()
 	DEBUG burn_DRU()
 	CHECKEXIT
 	CHECKINPUTS
-
+	
 	| swarm pets
-	/if (${validate_cast[FALSE, alt, "Nature's Guardian", ${Target2Kill}]}) /call core_cast2 "Nature's Guardian" alt ${Target2Kill} FALSE
-
+	/if (${validate_cast[FALSE, alt, "Natures Guardian", ${Target2Kill}]}) /call core_cast2 "Natures Guardian" alt ${Target2Kill} FALSE
+	
 	| defense
 	/if (${validate_cast[FALSE, alt, "Protection of Direwood", ${Me.ID}]}) /call core_cast2 "Protection of Direwood" alt 0 FALSE
 	/if (${validate_cast[FALSE, alt, "Silent Casting", ${Me.ID}]}) /call core_cast2 "Silent Casting" alt 0 FALSE
 
 	| damage boost
-	/if (${validate_cast[FALSE, alt, "Destructive Vortex", ${Me.ID}]}) /call core_cast2 "Destructive Vortex" alt 0 FALSE
-	/if (${validate_cast[FALSE, alt, "Nature's Fury", ${Me.ID}]}) /call core_cast2 "Nature's Fury" alt 0 FALSE
+	/if (${validate_cast[FALSE, alt, "Distructive Vortex", ${Me.ID}]}) /call core_cast2 "Distructive Vortex" alt 0 FALSE
+	/if (${validate_cast[FALSE, alt, "Natures Fury", ${Me.ID}]}) /call core_cast2 "Natures Fury" alt 0 FALSE
 	/if (${validate_cast[FALSE, alt, "Group Spirit of the Black Wolf", ${Me.ID}]}) /call core_cast2 "Group Spirit of the Black Wolf" alt 0 FALSE
-	/if (${validate_cast[FALSE, alt, "Season's Wrath", ${Target2Kill}]}) /call core_cast2 "Season's Wrath" alt ${Target2Kill} FALSE
-
+	/if (${validate_cast[FALSE, alt, "Seasons Wrath", ${Target2Kill}]}) /call core_cast2 "Seasons Wrath" alt ${Target2Kill} FALSE
+	
 	| heal boost
 	/if (${validate_cast[FALSE, alt, "Nature's Blessing", ${Me.ID}]}) /call core_cast2 "Nature's Blessing" alt 0 FALSE
 
 	/call cast_AA_spire
-
+	
 	| AA AE heal
 	/if (${validate_cast[FALSE, alt, "Nature's Boon", ${Me.ID}]}) /call core_cast2 "Nature's Boon" alt 0 FALSE
 
@@ -445,26 +445,26 @@ sub Bind_setDRU(string _type, string _verbage)
 
 	| use Modulation Rods
 	/if (${_type.Equal[rod]}) {
-		/call set_switch ${Me.Class.ShortName} swModRod ${_verbage} 	
+		/call set_switch ${chrID} swModRod ${_verbage} 	
 
 	| use group Heals
 	} else /if (${_type.Equal[groupheal]}) {
-		/call set_switch ${Me.Class.ShortName} useGroupHeal ${_verbage} 	
+		/call set_switch ${chrID} useGroupHeal ${_verbage} 	
 
 	| use grow temp buff
 	} else /if (${_type.Equal[grow]}) {
-		/call set_switch ${Me.Class.ShortName} switchGrowth Spells ${_verbage} 	
+		/call set_switch ${chrID} switchGrowth Spells ${_verbage} 	
 
 	| wolf spirit AAs
 	} else /if (${_type.Equal[wolf]}) {
 		/declare _wolflist string local |FALSE|black|white
 
 		/if (${_verbage.Equal[false]}) {
-			/call sql_update FALSE ${Me.Class.ShortName} AAWolfSpirit FALSE
+			/call sql_update FALSE ${chrID} AAWolfSpirit FALSE
 		} else /if (${Bool[${_verbage.Equal[black]}]}) {
-			/call sql_update FALSE ${Me.Class.ShortName} AAWolfSpirit black	
+			/call sql_update FALSE ${chrID} AAWolfSpirit black	
 		} else /if (${Bool[${_verbage.Equal[white]}]}) {
-			/call sql_update FALSE ${Me.Class.ShortName} AAWolfSpirit white 	
+			/call sql_update FALSE ${chrID} AAWolfSpirit white 	
 		}
 
 		/for _count 1 to ${_wolflist.Count[|]}
@@ -496,9 +496,9 @@ sub Bind_setDRU(string _type, string _verbage)
 	| set rampage tank toon
 	} else /if (${_type.Equal[rampage]}) {
 		/if (${Bool[${_verbage}]}) {
-			/call sql_update FALSE ${Me.Class.ShortName} RampageTank ${_verbage.Left[1].Upper}${_verbage.Right[-1].Lower}
+			/call sql_update FALSE ${chrID} RampageTank ${_verbage.Left[1].Upper}${_verbage.Right[-1].Lower}
 		} else /if (!${Bool[${_verbage}]}) {
-			/call sql_update FALSE ${Me.Class.ShortName} RampageTank FALSE
+			/call sql_update FALSE ${chrID} RampageTank FALSE
 		}
 
 	| spire control

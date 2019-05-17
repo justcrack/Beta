@@ -16,17 +16,19 @@
  ***|
 #bind mode /mode
 sub Bind_mode(string _type, string _verbage)
-	/declare _count int local 0
 	/declare _bind string local Mode
-	/declare _table string local mode
+	/declare _list string local ${sql_return[lstTypes${_bind}]}
+	/if (${Bool[${_type}]}) {
+		/varset _type ${list_isoloate[lstTypes${_bind}, ${_type}]}
+		}
+	/declare _count int local 0
 	/declare _listout string local
-	/declare _sep bool local
-	/varset _type ${list_isoloate[${lstTypes${_bind}}, ${_type}]}
+	/declare _sep bool local		
 	
 	| set mode agro range
 	/if (${_type.Equal[agro]}) {
 		/if (${Range.Between[1,999999:${Int[${_verbage}]}]}) {
-			/call sql_update FALSE ${_table} setModeAgro ${_verbage}  
+			/call sql_update FALSE ${chrID} setModeAgro ${_verbage}  
 		} else {
 			VOUT /mode agro [${cinfo}${setModeAgro}\ax] allowable range is ${cinfo}1 - 99999\ax
 			/return
@@ -35,15 +37,14 @@ sub Bind_mode(string _type, string _verbage)
 	| set harvest counts	
 	} else /if (${_type.Find[harvestcount]}) {
 		/if (${Range.Between[1,999999:${Int[${_verbage}]}]}) {
-			/call sql_update FALSE ${_table} setModeHarvestCount ${_verbage}  
+			/call sql_update FALSE ${chrID} setModeHarvestCount ${_verbage}  
 		} else {
 			VOUT /${_bind.Lower} harvestcount [${cinfo}${setModeHarvestCount}\ax] allowable range is ${cinfo}1 - 999999\ax
 			/return
 		}	
 
 	| all other switches
-	} else /if (${lstTypes${_bind}.Find[${_type}]}) {
-		| /call setDeclare setModeType ${_modeType.Left[1].Upper}${_modeType.Right[-1].Lower}
+	} else /if (${_list.Find[${_type}]}) {
 		/varset sw${_bind}${_type} ${If[${sw${_bind}${_type}},FALSE,TRUE]}
 		/if ((${_type.Equal[hunt]} || ${_type.Equal[scorch]})) {
 			/call set_stop NOECHO
@@ -53,17 +54,17 @@ sub Bind_mode(string _type, string _verbage)
 
 	| output
 	/if (${swMQClear}) /mqclear
-	/for _count 1 to ${lstTypes${_bind}.Count[|]}
-		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${If[${sw${_bind}${lstTypes${_bind}.Arg[${_count},|]}},${cgood},${cinfo}]}${lstTypes${_bind}.Arg[${_count},|].Lower}\ax
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[agro]}) /varset _listout ${_listout}:${cnum}${setModeAgro}\ax
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[harvestcount]}) /varset _listout ${_listout}:${cnum}${setModeHarvestCount}\ax
+	/for _count 1 to ${_list.Count[|]}
+		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${If[${sw${_bind}${_list.Arg[${_count},|]}},${cgood},${cinfo}]}${_list.Arg[${_count},|].Lower}\ax
+		/if (${_list.Arg[${_count},|].Equal[agro]}) /varset _listout ${_listout}:${cnum}${setModeAgro}\ax
+		/if (${_list.Arg[${_count},|].Equal[harvestcount]}) /varset _listout ${_listout}:${cnum}${setModeHarvestCount}\ax
 		/varset _sep TRUE
 	/next _count
 	VOUT /${_bind.Lower} [${_listout}]				
 
-	/varset swOverrideLOS ${sql_return[swOverrideLOS, dummy]}
-	/varset swOverrideEngagePct ${sql_return[swOverrideEngagePct, dummy]}
-	/varset swAutoCursor ${sql_return[swAutoCursor, dummy]}
+	/varset swOverrideLOS ${sql_return[swOverrideLOS]}
+	/varset swOverrideEngagePct ${sql_return[swOverrideEngagePct]}
+	/varset swAutoCursor ${sql_return[swAutoCursor]}
 
 /return
 
@@ -77,17 +78,18 @@ sub Bind_mode(string _type, string _verbage)
  ***|
 sub switch_clear_mode()
 	/declare _count int local 0
+	/declare _list string local ${sql_return[lstTypesMode]}
 	/if (${setMode}) /varset setMode FALSE
 
-	/for _count 1 to ${lstTypesMode.Count[|]}
-		/if (${swMode${lstTypesMode.Arg[${_count},|]}}) {
-			/varset swMode${lstTypesMode.Arg[${_count},|]} FALSE  
+	/for _count 1 to ${_list.Count[|]}
+		/if (${swMode${_list.Arg[${_count},|]}}) {
+			/varset swMode${_list.Arg[${_count},|]} FALSE  
 		}
 	/next _count	
 	
-	/varset swOverrideLOS ${sql_return[swOverrideLOS, dummy]}
-	/varset swOverrideEngagePct ${sql_return[swOverrideEngagePct, dummy]}
-	/varset swAutoCursor ${sql_return[swAutoCursor, dummy]}
+	/varset swOverrideLOS ${sql_return[swOverrideLOS]}
+	/varset swOverrideEngagePct ${sql_return[swOverrideEngagePct]}
+	/varset swAutoCursor ${sql_return[swAutoCursor]}
 	/varset swModeTrainspellSPC FALSE
 /return
 
@@ -313,7 +315,6 @@ sub mode_hunt()
 		/if (${Spawn[npc ${HuntMobList.Arg[${_count},|]} radius ${setModeAgro} targetable].ID}) {
 			/varset Target2Kill ${NearestSpawn[npc ${HuntMobList.Arg[${_count},|]}].ID}
 			/call echos hunt 0 0 ${Target2Kill} 0
-			| /call writeINI watchSpawn Common "${Spawn[${Target2Kill}].DisplayName}"
 			/goto :haveatarget
 		}
 	/next _count	

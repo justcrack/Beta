@@ -604,39 +604,39 @@ sub Bind_setPAL(string _type, string _verbage)
 	
 	| to Yaulp or not		
 	/if (${_type.Equal[yaulp]}) {
-	 	/call set_switch ${Me.Class.ShortName} doYaulp ${_verbage}  
+	 	/call set_switch ${chrID} doYaulp ${_verbage}  
 		
 	| AA Marr's Gift	Control	
 	} else /if (${_type.Equal[mg]}) {
 		/if (${Bool[${_verbage}]} && ${Range.Between[1,99:${_verbage}]}) {
-			/call sql_update FALSE ${Me.Class.ShortName} useMGPct ${_verbage} 
+			/call sql_update FALSE ${chrID} useMGPct ${_verbage} 
 		} else /if (${Bool[${_verbage}]} && !${Range.Between[1,99:${_verbage}]}) {
 			VOUT /${_bind} mg [${cinfo}##\ax] allowable range ${sep} ${cinfo}1 - 99\ax
 			/return
 		}	else /if (!${Bool[${_verbage}]}) {
-			/call set_switch ${Me.Class.ShortName} useMG ${_verbage}  
+			/call set_switch ${chrID} useMG ${_verbage}  
 		}	
 
 	| AA Lay on Hands	
 	} else /if (${_type.Equal[loh]}) {
 		/if (${Bool[${_verbage}]} && ${Range.Between[1,99:${_verbage}]}) {
-			/call sql_update FALSE ${Me.Class.ShortName} useLoHPct ${_verbage} 
+			/call sql_update FALSE ${chrID} useLoHPct ${_verbage} 
 		} else /if (${Bool[${_verbage}]} && !${Range.Between[1,99:${_verbage}]}) {
 			VOUT /${_bind} loh [${cinfo}##\ax] allowable range ${sep} ${cinfo}1 - 99\ax
 			/return
 		}	else /if (!${Bool[${_verbage}]}) {
-			/call set_switch  ${Me.Class.ShortName} useLoH ${_verbage}  
+			/call set_switch  ${chrID} useLoH ${_verbage}  
 		}	
 		
 	| Shield Flash oh shit
 	} else /if (${_type.Equal[shieldflash]}) {
 		/if (${Bool[${_verbage}]} && ${Range.Between[1,99:${_verbage}]}) {
-			/call sql_update FALSE ${Me.Class.ShortName} useShieldFlashPct ${_verbage} 
+			/call sql_update FALSE ${chrID} useShieldFlashPct ${_verbage} 
 		} else /if (${Bool[${_verbage}]} && !${Range.Between[1,99:${_verbage}]}) {
 			VOUT /${_bind} shieldflash [${cinfo}##\ax] allowable range ${sep} ${cinfo}1 - 99\ax
 			/return
 		}	else /if (!${Bool[${_verbage}]}) {
-			/call set_switch ${Me.Class.ShortName} useShieldFlash ${_verbage}  
+			/call set_switch ${chrID} useShieldFlash ${_verbage}  
 		}			
 
 	| spire control
@@ -653,7 +653,7 @@ sub Bind_setPAL(string _type, string _verbage)
 		
 	| use Modulation Rods
 	} else /if (${_type.Equal[rod]}) {
-		/call set_switch ${Me.Class.ShortName} swModRod ${_verbage} 	
+		/call set_switch ${chrID} swModRod ${_verbage} 	
 
 	| set Class Heal Point	
 	} else /if (${_type.Equal[healpoint]}) {
@@ -662,23 +662,23 @@ sub Bind_setPAL(string _type, string _verbage)
 			
 	| on/off taunt
 	} else /if (${_type.Equal[taunt]}) {
-		/call set_switch ${Me.Class.ShortName} taunt ${_verbage}  
+		/call set_switch ${chrID} taunt ${_verbage}  
 
 	| on/off switch for Steel
 	} else /if (${_type.Equal[steel]}) {
-		/call set_switch ${Me.Class.ShortName} switchSteel ${_verbage}  
+		/call set_switch ${chrID} switchSteel ${_verbage}  
 		VOUT /${_bind} steel (${cnum}${Steel}\ax) ${sep} ${If[${switchSteel},${oenabled},${odisabled}]}
 		/return
 	
 	| on/off switch for Harmonious
 	} else /if (${_type.Equal[harmonious]}) {
-		/call set_switch ${Me.Class.ShortName} switchHarmonious ${_verbage}  
+		/call set_switch ${chrID} switchHarmonious ${_verbage}  
 		VOUT /${_bind} harmonious (${cnum}${Harmonious}\ax) ${sep} ${If[${switchHarmonious},${oenabled},${odisabled}]}
 		/return
 
 	| on/off switch for Stance
 	} else /if (${_type.Equal[stance]}) {
-		/call set_switch ${Me.Class.ShortName} switchStance ${_verbage}  
+		/call set_switch ${chrID} switchStance ${_verbage}  
 		VOUT /${_bind} stance (${cnum}${Stance}\ax) ${sep} ${If[${switchStance},${oenabled},${odisabled}]}
 		/return
 
@@ -699,31 +699,31 @@ sub Bind_setPAL(string _type, string _verbage)
 
 	| AE or Focused Melee
 	} else /if (${_type.Equal[ae]}) {
-		/call set_switch ${Me.Class.ShortName} AEMelee ${_verbage}
+		/call set_switch ${chrID} AEMelee ${_verbage}
 
 	| attraction Divine call while pulling
 	} else /if (${Bool[${_type.Equal[attraction]}]}) {
-		/call set_switch ${Me.Class.ShortName} switchAttraction ${_verbage}
+		/call set_switch ${chrID} switchAttraction ${_verbage}
 
 	| set rampage tank toon
 	} else /if (${_type.Equal[rampage]}) {
 		/if (${Bool[${_verbage}]}) {
-			/call sql_update FALSE ${Me.Class.ShortName} RampageTank ${_verbage.Left[1].Upper}${_verbage.Right[-1].Lower}
+			/call sql_update FALSE ${chrID} RampageTank ${_verbage.Left[1].Upper}${_verbage.Right[-1].Lower}
 		} else /if (!${Bool[${_verbage}]}) {
-			/call sql_update FALSE ${Me.Class.ShortName} RampageTank FALSE
+			/call sql_update FALSE ${chrID} RampageTank FALSE
 		}
 
 	| Stun Control
 	} else /if (${_type.Equal[stun]}) {
 		/if (${Bool[${_verbage}]}) {
 			/if (${Bool[${_verbage.Equal[stop]}]}) {
-					/call sql_update FALSE ${Me.Class.ShortName} chainStun FALSE
+					/call sql_update FALSE ${chrID} chainStun FALSE
 			} else /if (${Bool[${_verbage.Find[divine]}]}) {
-					/call sql_update FALSE ${Me.Class.ShortName} chainStun "Divine Stun"
+					/call sql_update FALSE ${chrID} chainStun "Divine Stun"
 			} else /if (${Bool[${_verbage.Find[force]}]}) {
-					/call sql_update FALSE ${Me.Class.ShortName} chainStun "Force of Disruption"
+					/call sql_update FALSE ${chrID} chainStun "Force of Disruption"
 			} else /if (${Bool[${_verbage.Find[disruptive]}]}) {
-					/call sql_update FALSE ${Me.Class.ShortName} chainStun "Disruptive Persecution"
+					/call sql_update FALSE ${chrID} chainStun "Disruptive Persecution"
 			}	
 		} else {
 			/declare _stunType |stop|divine|force|disruptive
@@ -739,7 +739,7 @@ sub Bind_setPAL(string _type, string _verbage)
 	| defensive mob agro count
 	} else /if (${_type.Equal[defcount]}) {
 		/if (${Range.Between[1,50:${Int[${_verbage}]}]}) {
-			/call sql_update FALSE ${Me.Class.ShortName} defCount ${_verbage}
+			/call sql_update FALSE ${chrID} defCount ${_verbage}
 		} else /if (!${Bool[${_verbage}]} || !${Range.Between[1,50:${Int[${_verbage}]}]}) {
 			VOUT /${_bind} defcount [${cinfo}${countsetMobAgro}\ax] allowable range ${sep} ${cinfo}1 - 50 min\ax
 			/return

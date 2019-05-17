@@ -649,14 +649,14 @@ sub Bind_setSHM(string _type, string _verbage)
 
 	| enable/disable talisman line of spells
 	/if (${_type.Find[talisman]}) {
-		/call set_switch ${Me.Class.ShortName} switchTalisman ${_verbage}
+		/call set_switch ${chrID} switchTalisman ${_verbage}
 
 	| set rampage tank toon
 	} else /if (${_type.Equal[rampage]}) {
 		/if (${Bool[${_verbage}]}) {
-			/call sql_update FALSE ${Me.Class.ShortName} RampageTank ${_verbage.Left[1].Upper}${_verbage.Right[-1].Lower}
+			/call sql_update FALSE ${chrID} RampageTank ${_verbage.Left[1].Upper}${_verbage.Right[-1].Lower}
 		} else /if (!${Bool[${_verbage}]}) {
-			/call sql_update FALSE ${Me.Class.ShortName} RampageTank FALSE
+			/call sql_update FALSE ${chrID} RampageTank FALSE
 		}
 
 	| set AA fade use %	
@@ -670,11 +670,11 @@ sub Bind_setSHM(string _type, string _verbage)
 		
 	| use Modulation Rods
 	} else /if (${_type.Equal[rod]}) {
-		/call set_switch ${Me.Class.ShortName} swModRod ${_verbage} 	
+		/call set_switch ${chrID} swModRod ${_verbage} 	
 		
 	| use grow temp buff
 	} else /if (${_type.Equal[grow]}) {
-		/call set_switch ${Me.Class.ShortName} switchGrowth ${_verbage}	
+		/call set_switch ${chrID} switchGrowth ${_verbage}	
 	
 	| force epic click
 	} else /if (${_type.Equal[epic]}) {
@@ -684,16 +684,16 @@ sub Bind_setSHM(string _type, string _verbage)
 
 	| use group Heals
 	} else /if (${_type.Equal[groupheal]}) {
-		/call set_switch ${Me.Class.ShortName} useGroupHeal ${_verbage}
+		/call set_switch ${chrID} useGroupHeal ${_verbage}
 
 	| use surge Heals
 	} else /if (${_type.Equal[surge]}) {
-		/call set_switch ${Me.Class.ShortName} switchSurge ${_verbage}
+		/call set_switch ${chrID} switchSurge ${_verbage}
 
 	
 	| use group Heal over Time	
 	} else /if (${_type.Equal[grouphot]}) {
-		/call set_switch ${Me.Class.ShortName} useGroupHoT ${_verbage}
+		/call set_switch ${chrID} useGroupHoT ${_verbage}
 	 	
 	| set Class Heal Point	
 	} else /if (${_type.Equal[healpoint]}) {
@@ -703,7 +703,7 @@ sub Bind_setSHM(string _type, string _verbage)
 	| canni HP pct
 	} else /if (${_type.Equal[cannihps]}) {
 		/if (${Range.Between[1,99:${Int[${_verbage}]}]}) {
-			/call sql_update FALSE ${Me.Class.ShortName} CanniPctHPs ${_verbage}
+			/call sql_update FALSE ${chrID} CanniPctHPs ${_verbage}
 		} else {
 			VOUT /${_bind} cannihp [${cinfo}${CanniPctHPs}\ax] allowable range ${sep} ${cinfo}1 - 99\ax
 			/return
@@ -718,12 +718,12 @@ sub Bind_setSHM(string _type, string _verbage)
 		
 	| enable/disable lead with aggerssive heals
 	} else /if (${_type.Equal[aggressive]}) {
-		/call set_switch ${Me.Class.ShortName} switchHealAggressive ${_verbage}
+		/call set_switch ${chrID} switchHealAggressive ${_verbage}
 
 	| canni Manna pct
 	} else /if (${_type.Equal[cannimanna]}) {
 		/if (${Range.Between[1,99:${Int[${_verbage}]}]}) {
-			/call sql_update FALSE ${Me.Class.ShortName} CanniPctManna ${_verbage}
+			/call sql_update FALSE ${chrID} CanniPctManna ${_verbage}
 		} else {
 			VOUT /${_bind} cannimanna [${cinfo}${CanniPctHPs}\ax] allowable range ${sep} ${cinfo}1 - 99\ax
 			/return

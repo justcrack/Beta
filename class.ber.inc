@@ -282,7 +282,7 @@ sub Bind_setBER(string _type, string _verbage)
 
 	| AE or Focused Melee
 	/if (${_type.Equal[ae]}) {
-		/call set_switch ${Me.Class.ShortName} AEMelee ${_verbage}
+		/call set_switch ${chrID} AEMelee ${_verbage}
 
 	| spire control
 	} else /if (${_type.Equal[spiregroup]} || ${_type.Equal[spireraid]}) {

@@ -324,16 +324,16 @@ sub Bind_setMAG(string _type, string _verbage)
 	
 	| use Modulation Rods
 	/if (${_type.Equal[rod]}) {
-		/call set_switch ${Me.Class.ShortName} swModRod ${_verbage} 	
+		/call set_switch ${chrID} swModRod ${_verbage} 	
 
 	| gather enable/disable /pct
 	} else /if (${_type.Find[gather]}) {
 		/if (${Bool[${_verbage}]} && ${Range.Between[1,99:${Int[${_verbage}]}]}) {
-			/call sql_update FALSE ${Me.Class.ShortName} GatherPercent ${_verbage} 
+			/call sql_update FALSE ${chrID} GatherPercent ${_verbage} 
 		} else /if (${Bool[${_verbage}]} && !${Range.Between[1,99:${Int[${_verbage}]}]}) {
 			VOUT /${_bind} gather(${cnum}${GatherPercent}\ax) allowable range ${sep} ${cinfo}1 - 99\ax
 		}	else {
-			/call set_switch ${Me.Class.ShortName} switchGather ${_verbage}  
+			/call set_switch ${chrID} switchGather ${_verbage}  
 		}			
 		
 	| set AA fade use %	
@@ -342,7 +342,7 @@ sub Bind_setMAG(string _type, string _verbage)
 
 	| enable/disable force twincasting
 	} else /if (${_type.Equal[forcetwincast]}) {
-		/call set_switch ${Me.Class.ShortName} switchForceTwincast ${_verbage}
+		/call set_switch ${chrID} switchForceTwincast ${_verbage}
 
 
 	| get rods.. cause things and stuff
@@ -391,10 +391,10 @@ sub Bind_setMAG(string _type, string _verbage)
 		/return
 		
 	| spell line. not quite done with this. 
-	} else /if (${_type.Equal[line]}) {
+	} else /if (${_classType.Equal[line]}) {
 		| mem a line of spells.
 		/if (${Bool[${lineType.Find[${_verbage.Lower}]}]}) {
-			/call sql_update FALSE ${Me.Class.ShortName} lineCurrent ${_verbage.Left[1].Upper}${_verbage.Right[-1].Lower}
+			/call sql_update FALSE ${chrID} lineCurrent ${_verbage.Left[1].Upper}${_verbage.Right[-1].Lower}
 			/if (${_verbage.Equal[off]}) {
 				VOUT Casting line ${sep} ${odisabled}
 				/return

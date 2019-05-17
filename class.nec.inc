@@ -252,17 +252,17 @@ sub Bind_setNEC(string _type, string _verbage)
 		
 	| use Modulation Rods
 	} else /if (${_type.Equal[rod]}) {
-		/call sql_update FALSE ${Me.Class.ShortName} swModRod ${If[${swModRod},FALSE,TRUE]} 	
+		/call sql_update FALSE ${chrID} swModRod ${If[${swModRod},FALSE,TRUE]} 	
 
 	| gather enable/disable /pct
 	} /if (${_type.Find[gather]}) {
 		/if (${Bool[${_classVerbage}]} && ${Range.Between[1,99:${Int[${_verbage}]}]}) {
-			/call sql_update FALSE ${Me.Class.ShortName} GatherPercent ${_verbage} 
+			/call sql_update FALSE ${chrID} GatherPercent ${_verbage} 
 		} else /if (${Bool[${_classVerbage}]} && !${Range.Between[1,99:${Int[${_verbage}]}]}) {
 			VOUT /${_bind} gather(${cnum}${GatherPercent}\ax) allowable range ${sep} ${cinfo}1 - 99\ax
 			/return
 		}	else /if (!${Bool[${_classVerbage}]}) {
-			/call sql_update FALSE ${Me.Class.ShortName} switchGather ${If[${switchGather},FALSE,TRUE]}  
+			/call sql_update FALSE ${chrID} switchGather ${If[${switchGather},FALSE,TRUE]}  
 		}		
 
 	| set AA fade use %	

@@ -317,7 +317,7 @@ sub Bind_setMNK(string _type, string _verbage)
 	| set FD HP PCT
 	/if (${_type.Equal[fdpct]}) {
 		/if (${Range.Between[1,99:${Int[${_verbage}]}]}) {
-			/call sql_update FALSE ${Me.Class.ShortName} setFDAgroPct ${_verbage}
+			/call sql_update FALSE ${chrID} setFDAgroPct ${_verbage}
 		} else /if (!${Range.Between[1,99:${Int[${_verbage}]}]}) {
 			VOUT /${_bind} fdpct(${cnum}${setFDAgroPct}\ax) allowable range ${sep} ${cinfo}1 - 99\ax
 			/return
@@ -326,7 +326,7 @@ sub Bind_setMNK(string _type, string _verbage)
 	| set FD agro PCT
 	} else /if (${_type.Equal[agpct]}) {
 		/if (${Range.Between[1,99:${Int[${_verbage}]}]}) {
-			/call sql_update FALSE ${Me.Class.ShortName} setAgroPct ${_verbage}
+			/call sql_update FALSE ${chrID} setAgroPct ${_verbage}
 		} else /if (!${Range.Between[1,99:${Int[${_verbage}]}]}) {
 			VOUT /${_bind} agpct(${cnum}${setAgroPct}\ax) allowable range ${sep} ${cinfo}1 - 99\ax
 			/return
@@ -338,7 +338,7 @@ sub Bind_setMNK(string _type, string _verbage)
 
 	| AE or Focused Melee
 	} else /if (${_type.Equal[ae]}) {
-		/call set_switch ${Me.Class.ShortName} AEMelee ${_verbage}
+		/call set_switch ${chrID} AEMelee ${_verbage}
 
 	| healpoint
 	} else /if (${_type.Equal[healpoint]}) {
@@ -347,7 +347,7 @@ sub Bind_setMNK(string _type, string _verbage)
 
 	| enable/disable training melee punches and kicks
 	} else /if (${_type.Equal[trainmelee]}) {
-		/call set_switch ${Me.Class.ShortName} switchMNKTrainMelee ${_verbage}
+		/call set_switch ${chrID} switchMNKTrainMelee ${_verbage}
 
 
 	}

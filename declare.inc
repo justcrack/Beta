@@ -56,7 +56,7 @@ sub Bind_broadcast_off()
 		/varset _toonName ${DanNet.Peers.Arg[${_count},|].Left[1].Upper}${DanNet.Peers.Arg[${_count},|].Right[-1]}
 		/if (${_toonName.Equal[${Me.DisplayName}]}) /continue
 		/if (!${Spawn[pc ${_toonName}].ID}) /continue
-		/sqlite ${dbCore} onoff UPDATE character SET coreAuto="FALSE" WHERE chrID="${MacroQuest.Server}_${Spawn[pc ${_toonName}].Class.ShortName}_${_toonName}"
+		/sqlite ${chrDBID} onoff UPDATE ${chrID} SET coreAuto="FALSE" WHERE currentBuild="${currentBuild}"
 		/dexecute ${_toonName} /varset coreAuto FALSE
 		/dexecute ${_toonName} VOUT /core auto ${odisabled}
 		/dexecute ${_toonName} /squelch /target clear
@@ -79,7 +79,7 @@ sub Bind_broadcast_on()
 		/varset _toonName ${DanNet.Peers.Arg[${_count},|].Left[1].Upper}${DanNet.Peers.Arg[${_count},|].Right[-1]}
 		/if (${_toonName.Equal[${Me.DisplayName}]}) /continue
 		/if (!${Spawn[pc ${_toonName}].ID}) /continue
-		/sqlite ${dbCore} onoff UPDATE character SET coreAuto="TRUE" WHERE chrID="${MacroQuest.Server}_${Spawn[pc ${_toonName}].Class.ShortName}_${_toonName}"
+		/sqlite ${chrDBID} onoff UPDATE ${chrID} SET coreAuto="TRUE" WHERE WHERE currentBuild="${currentBuild}"
 		/dexecute ${_toonName} /varset coreAuto TRUE
 		/dexecute ${_toonName} VOUT /core auto ${oenabled}
 	/next _count
@@ -475,13 +475,13 @@ sub Bind_setstop()
 #bind watchspawn /watchspawn
 sub Bind_watchspawn(string _spawn)
 	/if (${Bool[${_spawn}]}) {
-		/call sql_update FALSE character watchSpawn "${_spawn}"
+		/call sql_update FALSE ${chrID} watchSpawn "${_spawn}"
 	} else /if (!${Bool[${_spawn}]} && ${Target.ID}) {
-		/call sql_update FALSE character watchSpawn "${Target.DisplayName}"
+		/call sql_update FALSE ${chrID} watchSpawn "${Target.DisplayName}"
 	} else /if (!${Bool[${_spawn}]} && !${Target.ID}) {
 		VOUT ${sep} ${cinfo}/watchspawn\ax requires a target or mob partial name. 
 		VOUT ${sep} NPC and CORPSE is also acceptable.
-		/if (!${Bool[${_spawn}]}) /call sql_update FALSE character watchSpawn FALSE
+		/if (!${Bool[${_spawn}]}) /call sql_update FALSE ${chrID} watchSpawn FALSE
 	}
 	
 	/if (${_spawn.Equal[FALSE]}) /mapshow reset
@@ -496,25 +496,27 @@ sub Bind_watchspawn(string _spawn)
  ***|
 #bind override /override
 sub Bind_override(string _type, string _verbage, bool _silent)
-	/declare _count int local 0
 	/declare _bind string local Override
-	/declare _table string local character
+	/declare _list string local ${sql_return[lstTypes${_bind}]}
+	/if (${Bool[${_type}]}) {
+		/varset _type ${list_isoloate[lstTypes${_bind}, ${_type}]}
+		}
+	/declare _count int local 0
 	/declare _listout string local
-	/declare _sep bool local
-	/varset _type ${list_isoloate[${lstTypes${_bind}}, ${_type}]}
-
+	/declare _sep bool local		
+	
 	| see if its something we can change?
-	/for _count 1 to ${lstTypes${_bind}.Count[|]}
-		/if (${_type.Equal[${lstTypes${_bind}.Arg[${_count},|].Lower}]}) {
-			/call set_switch ${_table} sw${_bind}${_type} ${_verbage}
+	/for _count 1 to ${_list.Count[|]}
+		/if (${_type.Equal[${_list.Arg[${_count},|].Lower}]}) {
+			/call set_switch ${chrID} sw${_bind}${_type} ${_verbage}
 		}
 	/next _count
 	
 	| spit out the results
 	/if (${_silent}) /return
 	/if (${swMQClear}) /mqclear
-	/for _count 1 to ${lstTypes${_bind}.Count[|]}
-		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${If[${sw${_bind}${lstTypes${_bind}.Arg[${_count},|]}},${cgood},${cinfo}]}${lstTypes${_bind}.Arg[${_count},|].Lower}\ax
+	/for _count 1 to ${_list.Count[|]}
+		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${If[${sw${_bind}${_list.Arg[${_count},|]}},${cgood},${cinfo}]}${_list.Arg[${_count},|].Lower}\ax
 		/varset _sep TRUE
 	/next _count
 	VOUT /${_bind.Lower} [${_listout}]	
@@ -529,48 +531,50 @@ sub Bind_override(string _type, string _verbage, bool _silent)
  ***| 	
 #bind deBuff /debuff
 sub Bind_deBuff(string _type, string _verbage, bool _silent)
-	/declare _count int local 0
 	/declare _bind string local deBuff
-	/declare _table string local character
+	/declare _list string local ${sql_return[lstTypes${_bind}]}
+	/if (${Bool[${_type}]}) {
+		/varset _type ${list_isoloate[lstTypes${_bind}, ${_type}]}
+		}
+	/declare _count int local 0
 	/declare _listout string local
-	/declare _sep bool local
-	/varset _type ${list_isoloate[${lstTypes${_bind}}, ${_type}]}
-
+	/declare _sep bool local	
+		
 	| can i do this debuff?
-	/if (${Bool[${_type.Equal[mezz]}]}) {
+	/if (${_type.Equal[mezz]}) {
 		/if (!${validate_debuff[TRUE, mezz]}) /return
-	} else /if (${Bool[${_type.Equal[malo]}]}) {
+	} else /if (${_type.Equal[malo]}) {
 		/if (!${validate_debuff[TRUE, malo]}) /return
-	} else /if (${Bool[${_type.Equal[tash]}]}) {
+	} else /if (${_type.Equal[tash]}) {
 		/if (!${validate_debuff[TRUE, tash]}) /return
-	} else /if (${Bool[${_type.Equal[cripple]}]}) {
+	} else /if (${_type.Equal[cripple]}) {
 		/if (!${validate_debuff[TRUE, cripple]}) /return
-	} else /if (${Bool[${_type.Equal[slow]}]}) {
+	} else /if (${_type.Equal[slow]}) {
 		/if (!${validate_debuff[TRUE, slow]}) /return
-	} else /if (${Bool[${_type.Equal[eradicate]}]}) {
+	} else /if (${_type.Equal[eradicate]}) {
 		/if (!${validate_debuff[TRUE, eradicate]}) /return
-	} else /if (${Bool[${_type.Equal[snare]}]}) {
+	} else /if (${_type.Equal[snare]}) {
 		/if (!${validate_debuff[TRUE, snare]}) /return
 	}	
 
 	| see if its something we can change?
-	/for _count 1 to ${lstTypes${_bind}.Count[|]}
-		/if (${_type.Equal[${lstTypes${_bind}.Arg[${_count},|].Lower}]}) {
-			/call set_switch ${_table} sw${_bind}${_type} ${_verbage}
+	/for _count 1 to ${_list.Count[|]}
+		/if (${_type.Equal[${_list.Arg[${_count},|].Lower}]}) {
+			/call set_switch ${chrID} sw${_bind}${_type} ${_verbage}
 		}
 	/next _count
 	
 	| spit out the results
 	/if (${_silent}) /return
-	/for _count 1 to ${lstTypes${_bind}.Count[|]}
-		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${If[${sw${_bind}${lstTypes${_bind}.Arg[${_count},|]}},${cgood},${cinfo}]}${lstTypes${_bind}.Arg[${_count},|].Lower}\ax
+	/for _count 1 to ${_list.Count[|]}
+		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${If[${sw${_bind}${_list.Arg[${_count},|]}},${cgood},${cinfo}]}${_list.Arg[${_count},|].Lower}\ax
 		/varset _sep TRUE
 	/next _count
 	VOUT /${_bind.Lower} [${_listout}]	
 	
 	| clear stickbehind. it will force bad targeting for the mezzer.
 	/if (${swStickBehind} && ${swdeBuffMezz}) {
-		/call sql_update movement swStickBehind FALSE
+		/call sql_update FALSE ${chrID} swStickBehind FALSE
 		VOUT /${_bind.Lower} behind ${sep} ${swStickBehind}
 	}	
 /return  
@@ -584,13 +588,14 @@ sub Bind_deBuff(string _type, string _verbage, bool _silent)
  ***| 	
 #bind heal /heal
 sub Bind_heal(string _type, string _verbage, bool _silent)
-	
-	/declare _count int local
 	/declare _bind string local Heal
-	/declare _table string local character
+	/declare _list string local ${sql_return[lstTypes${_bind}]}
+	/if (${Bool[${_type}]}) {
+		/varset _type ${list_isoloate[lstTypes${_bind}, ${_type}]}
+		}
+	/declare _count int local 0
 	/declare _listout string local
-	/declare _sep bool local
-	/varset _type ${list_isoloate[${lstTypes${_bind}}, ${_type}]}
+	/declare _sep bool local	
 
 	| can I do this heal
 	/if (${_type.Equal[self]}) {
@@ -603,10 +608,10 @@ sub Bind_heal(string _type, string _verbage, bool _silent)
 	}
 				
 	| see if its something we can change?
-	/for _count 1 to ${lstTypes${_bind}.Count[|]}
+	/for _count 1 to ${_list.Count[|]}
 		/if (${_type.Equal[override]}) /continue
-		/if (${_type.Equal[${lstTypes${_bind}.Arg[${_count},|].Lower}]}) {
-			/call set_switch ${_table} sw${_bind}${_type} ${_verbage}
+		/if (${_type.Equal[${_list.Arg[${_count},|].Lower}]}) {
+			/call set_switch ${chrID} sw${_bind}${_type} ${_verbage}
 		}
 	/next _count
 
@@ -617,8 +622,7 @@ sub Bind_heal(string _type, string _verbage, bool _silent)
 			/return FALSE
 		}
 		/if (!${validate_expansion[TRUE, |16]}) {
-			/call set_switch ${_table} swHealXTarget FALSE
-			| /call timer_update timer_set_xtarget 1
+			/call set_switch ${chrID} swHealXTarget FALSE
 			/return
 		}
 		/call Bind_admin XT build
@@ -627,7 +631,7 @@ sub Bind_heal(string _type, string _verbage, bool _silent)
 	| heal override
 	/if (${_type.Equal[override]}) {
 		/if (${Range.Between[0,99:${Int[${_verbage}]}]}) {
-			/call sql_update FALSE ${_table} setHealOverride ${_verbage} 
+			/call sql_update FALSE ${chrID} setHealOverride ${_verbage} 
 		} else {
 			VOUT /${_bind.Lower} override(${cnum}${setHealOverride}\ax) allowable range ${cinfo}0 - 99\ax
 			/return
@@ -636,12 +640,12 @@ sub Bind_heal(string _type, string _verbage, bool _silent)
 
 	/if (${_silent}) /return
 	/if (${swMQClear}) /mqclear
-	/for _count 1 to ${lstTypes${_bind}.Count[|]}
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[override]}) {
-			/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${lstTypes${_bind}.Arg[${_count},|].Lower}\ax:${If[${setHealOverride},${cnum}${setHealOverride}\ax,${ooff}]}
+	/for _count 1 to ${_list.Count[|]}
+		/if (${_list.Arg[${_count},|].Equal[override]}) {
+			/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${_list.Arg[${_count},|].Lower}\ax:${If[${setHealOverride},${cnum}${setHealOverride}\ax,${ooff}]}
 			/continue
 		}
-		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${If[${sw${_bind}${lstTypes${_bind}.Arg[${_count},|]}},${cgood},${cinfo}]}${lstTypes${_bind}.Arg[${_count},|].Lower}\ax
+		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${If[${sw${_bind}${_list.Arg[${_count},|]}},${cgood},${cinfo}]}${_list.Arg[${_count},|].Lower}\ax
 		/varset _sep TRUE
 	/next _count
 	VOUT /${_bind.Lower} [${_listout}]			
@@ -656,26 +660,28 @@ sub Bind_heal(string _type, string _verbage, bool _silent)
  ***| 	
 #bind buff /buff
 sub Bind_buff(string _type, string _verbage, bool _silent)
-	/declare _count int local 0
 	/declare _bind string local Buff
-	/declare _table string local buff
+	/declare _list string local ${sql_return[lstTypes${_bind}]}
+	/if (${Bool[${_type}]}) {
+		/varset _type ${list_isoloate[lstTypes${_bind}, ${_type}]}
+	}
+	/declare _count int local 0
 	/declare _listout string local
 	/declare _sep bool local
-	/varset _type ${list_isoloate[${lstTypes${_bind}}, ${_type}]}
 
 	| see if its something we can change?
-	/for _count 1 to ${lstTypes${_bind}.Count[|]}
-		/if (${_type.Equal[${lstTypes${_bind}.Arg[${_count},|].Lower}]}) {
+	/for _count 1 to ${_list.Count[|]}
+		/if (${_type.Equal[${_list.Arg[${_count},|].Lower}]}) {
 			/if (${_type.Equal[pet]} && !${validate_class[FALSE, ${lstClassPet}]}) /break
-			/call set_switch ${_table} sw${_bind}${_type} ${_verbage}
+			/call set_switch ${chrID} sw${_bind}${_type} ${_verbage}
 		}
 	/next _count
 	
 	| spit out the results
 	/if (${_silent}) /return
 	/if (${swMQClear}) /mqclear
-	/for _count 1 to ${lstTypes${_bind}.Count[|]}
-		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${If[${sw${_bind}${lstTypes${_bind}.Arg[${_count},|]}},${cgood},${cinfo}]}${lstTypes${_bind}.Arg[${_count},|].Lower}\ax
+	/for _count 1 to ${_list.Count[|]}
+		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${If[${sw${_bind}${_list.Arg[${_count},|]}},${cgood},${cinfo}]}${_list.Arg[${_count},|].Lower}\ax
 		/varset _sep TRUE
 	/next _count
 	VOUT /${_bind.Lower} [${_listout}]
@@ -690,16 +696,20 @@ sub Bind_buff(string _type, string _verbage, bool _silent)
  ***| 
 #bind cursor /cursor
 sub Bind_cursor(string _type, string _verbage)
-	/declare _properType string local
-	/declare _count int local 0
 	/declare _bind string local Cursor
-	/declare _passto string local NULL
+	/declare _list string local ${sql_return[lstTypes${_bind}]}
+	/if (${Bool[${_type}]}) {
+		/varset _type ${list_isoloate[lstTypes${_bind}, ${_type}]}
+	}
+	/declare _count int local 0
 	/declare _listout string local
 	/declare _sep bool local
+	/declare _properType string local
+	/declare _passto string local NULL
 	
 	| set cursot ro auto enable/disable
 	/if (${_type.Equal[auto]}) {
-		/call set_switch character swAutoCursor ${_verbage}  
+		/call set_switch ${chrID} swAutoCursor ${_verbage}  
 		/if (${timer_auto_cursor_pause}) /varset timer_auto_cursor_pause 1
 
 	| pause cursor controlls
@@ -742,9 +752,9 @@ sub Bind_cursor(string _type, string _verbage)
 	} 
 	
 	/if (${swMQClear}) /mqclear
-	/for _count 1 to ${lstTypes${_bind}.Count[|]}
-		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${lstTypes${_bind}.Arg[${_count},|].Lower}\ax		
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[auto]}) /varset _listout ${_listout}:${If[${swAutoCursor},${oon},${ooff}]}	
+	/for _count 1 to ${_list.Count[|]}
+		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${_list.Arg[${_count},|].Lower}\ax		
+		/if (${_list.Arg[${_count},|].Equal[auto]}) /varset _listout ${_listout}:${If[${swAutoCursor},${oon},${ooff}]}	
 		/varset _sep TRUE
 	/next _count
 	VOUT /${_bind.Lower} [${_listout}]
@@ -759,17 +769,18 @@ sub Bind_cursor(string _type, string _verbage)
  ***| 	
 #bind rez /rez
 sub Bind_rez(string _type, string _verbage, bool _silent)
-	/declare _count int local 0
 	/declare _bind string local Rez
-	/declare _table string local character
+	/declare _list string local ${sql_return[lstTypes${_bind}]}
+	/if (${Bool[${_type}]}) {
+		/varset _type ${list_isoloate[lstTypes${_bind}, ${_type}]}
+		}
+	/declare _count int local 0
 	/declare _listout string local
-	/declare _sep bool local
-	/varset _type ${list_isoloate[${lstTypes${_bind}}, ${_type}]}
-	
-	| set rez range 	
+	/declare _sep bool local	
+
 	/if (${_type.Equal[range]}) {
 		/if (${Range.Between[1,110:${Int[${_verbage}]}]}) {
-			/call sql_update FALSE ${_table} setMaxRezRange ${_verbage}
+			/call sql_update FALSE ${chrID} setMaxRezRange ${_verbage}
 		} else {
 			VOUT /${_bind.Lower} range(${cnum}${setMaxRezRange}\ax) allowable range is ${cinfo}1 - 110\ax
 			/return
@@ -778,7 +789,7 @@ sub Bind_rez(string _type, string _verbage, bool _silent)
 	| set rez accept percent	
 	} else /if (${_type.Equal[pct]}) {
 		/if (${Range.Between[10,96:${Int[${_verbage}]}]}) {
-			/if (${lstTypesRezPct.Find[${_verbage}]}) /call sql_update FALSE ${_table} setMinRezPct ${_verbage}
+			/if (${lstTypesRezPct.Find[${_verbage}]}) /call sql_update FALSE ${chrID} setMinRezPct ${_verbage}
 		}
 		/varset _sep FALSE
 		/for _count 1 to ${lstTypesRezPct.Count[|]}
@@ -789,23 +800,23 @@ sub Bind_rez(string _type, string _verbage, bool _silent)
 		/return
 		
 	| all the others				
-	} else /if (${lstTypes${_bind}.Find[${_type}]}) {
-		/call set_switch ${_table} sw${_bind}${_type} ${_verbage}
+	} else /if (${_list.Find[${_type}]}) {
+		/call set_switch ${chrID} sw${_bind}${_type} ${_verbage}
 
 	}
 
 	/if (${_silent}) /return
 	/varset _sep FALSE
 	/if (${swMQClear}) /mqclear
-	/for _count 1 to ${lstTypes${_bind}.Count[|]}
-		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${lstTypes${_bind}.Arg[${_count},|].Lower}\ax		
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[pct]}) /varset _listout ${_listout}:${cnum}${setMinRezPct}\ax
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[range]}) /varset _listout ${_listout}:${cnum}${setMaxRezRange}\ax
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[combat]}) /varset _listout ${_listout}:${If[${swRezCombat},${oon},${ooff}]}
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[everyone]}) /varset _listout ${_listout}:${If[${swRezEveryone},${oon},${ooff}]}
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[give]}) /varset _listout ${_listout}:${If[${swRezGive},${oon},${ooff}]}
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[take]}) /varset _listout ${_listout}:${If[${swRezTake},${oon},${ooff}]}
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[token]}) /varset _listout ${_listout}:${If[${swRezToken},${oon},${ooff}]}
+	/for _count 1 to ${_list.Count[|]}
+		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${_list.Arg[${_count},|].Lower}\ax		
+		/if (${_list.Arg[${_count},|].Equal[pct]}) /varset _listout ${_listout}:${cnum}${setMinRezPct}\ax
+		/if (${_list.Arg[${_count},|].Equal[range]}) /varset _listout ${_listout}:${cnum}${setMaxRezRange}\ax
+		/if (${_list.Arg[${_count},|].Equal[combat]}) /varset _listout ${_listout}:${If[${swRezCombat},${oon},${ooff}]}
+		/if (${_list.Arg[${_count},|].Equal[everyone]}) /varset _listout ${_listout}:${If[${swRezEveryone},${oon},${ooff}]}
+		/if (${_list.Arg[${_count},|].Equal[give]}) /varset _listout ${_listout}:${If[${swRezGive},${oon},${ooff}]}
+		/if (${_list.Arg[${_count},|].Equal[take]}) /varset _listout ${_listout}:${If[${swRezTake},${oon},${ooff}]}
+		/if (${_list.Arg[${_count},|].Equal[token]}) /varset _listout ${_listout}:${If[${swRezToken},${oon},${ooff}]}
 		/varset _sep TRUE
 	/next _count
 	VOUT /${_bind.Lower} [${_listout}]	
@@ -820,14 +831,15 @@ sub Bind_rez(string _type, string _verbage, bool _silent)
  ***| 
 #bind listControl /lc
 sub Bind_listControl(string _type, string _verbage, bool _silent)
-	/declare _properType string 	local
-	/declare _count int local 0
 	/declare _bind string local LC
+	/declare _list string local ${sql_return[lstTypes${_bind}]}
+	/if (${Bool[${_type}]}) {
+		/varset _type ${list_isoloate[lstTypes${_bind}, ${_type}]}
+		}
+	/declare _count int local 0
 	/declare _listout string local
 	/declare _sep bool local	
 	
-	/varset _type ${list_isoloate[${lstTypes${_bind}}, ${_type}]}
-
 	| make sure were on/in the right zone
 	/call validate_zone FALSE FALSE
 	
@@ -918,8 +930,8 @@ sub Bind_listControl(string _type, string _verbage, bool _silent)
 		/call echos needtarget 0 0 0 0
 	}	
 	
-	/for _count 1 to ${lstTypes${_bind}.Count[|]}
-		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${lstTypes${_bind}.Arg[${_count},|].Lower}\ax		
+	/for _count 1 to ${_list.Count[|]}
+		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${_list.Arg[${_count},|].Lower}\ax		
 		/varset _sep TRUE
 	/next _count
 	VOUT /${_bind.Lower} [${_listout}]
@@ -935,18 +947,19 @@ sub Bind_listControl(string _type, string _verbage, bool _silent)
  ***|
 #bind petControl /pc
 sub Bind_petControl(string _type, string _verbage, bool _silent)
-	/declare _count int local 0
 	/declare _bind string local PC
-	/declare _table string local pet
+	/declare _list string local ${sql_return[lstTypes${_bind}]}
+	/if (${Bool[${_type}]}) {
+		/varset _type ${list_isoloate[lstTypes${_bind}, ${_type}]}
+	}
+	/declare _count int local 0
 	/declare _listout string local
 	/declare _sep bool local
-	/varset _type ${list_isoloate[${lstTypes${_bind}}, ${_type}]}
-
 
 	| build and buff
 	/if (${Bool[${_type.Find[build]}]}) {
 		/if (!${validate_class[TRUE, ${lstClassPet}]}) /return
-		/call set_switch ${_table} swPet TRUE
+		/call set_switch ${chrID} swPet TRUE
 		/call check_pet
 		/if (${Me.Pet.ID}) /call check_buffs_pet
 		/return
@@ -955,7 +968,7 @@ sub Bind_petControl(string _type, string _verbage, bool _silent)
 	} else /if (${_type.Equal[pet]}) {
 		/if (!${validate_class[TRUE, ${lstClassPet}]}) /return
 		/if (!${Bool[${_verbage}]}) {
-			/call set_switch ${_table} swPet ${_verbage}
+			/call set_switch ${chrID} swPet ${_verbage}
 			/if (!${swPet} && ${Pet.ID}) {
 				/if (${Me.AltAbilityReady[Suspended Minion]}) {
 					/if (${validate_cast[FALSE, alt, "Suspended Minion", ${Me.ID}]}) /call core_cast2 "Suspended Minion" alt 0 FALSE
@@ -966,7 +979,7 @@ sub Bind_petControl(string _type, string _verbage, bool _silent)
 				}
 			}
 		} else /if (${Range.Between[1,99:${Int[${_verbage}]}]}) {
-			/call sql_update FALSE ${_table} setPetEngagePct ${_verbage}
+			/call sql_update FALSE ${chrID} setPetEngagePct ${_verbage}
 		} else /if (!${Bool[${_pcNum}]} || !${Range.Between[1,99:${Int[${_verbage}]}]}) {
 			VOUT /${_bind.Lower} pet(${cnum}${setPetEngagePct}\ax) valid range ${cinfo}1 - 99\ax
 			/return
@@ -975,9 +988,9 @@ sub Bind_petControl(string _type, string _verbage, bool _silent)
 	| swarm/engage#
 	} else /if (${_type.Equal[swarm]}) {
 		/if (!${Bool[${_verbage}]}) {
-			/call set_switch ${_table} swSwarm ${_verbage}
+			/call set_switch ${chrID} swSwarm ${_verbage}
 		} else /if (${Bool[${_verbage}]} && ${Range.Between[1,99:${Int[${_verbage}]}]}) {			
-			/call sql_update FALSE ${_table} setSwarmEngagePct ${_verbage}
+			/call sql_update FALSE ${chrID} setSwarmEngagePct ${_verbage}
 		} else /if (!${Bool[${_verbage}]} || !${Range.Between[1,99:${Int[${_verbage}]}]}) {
 			VOUT /${_bind.Lower} swarm(${cnum}${setSwarmEngagePct}\ax) valid range ${cinfo}1 - 99\ax
 			/return
@@ -987,20 +1000,20 @@ sub Bind_petControl(string _type, string _verbage, bool _silent)
 	} else /if (${_type.Equal[tank]}) {
 		/return
 		/if (!${validate_class[TRUE, ${lstClassPet}]}) /return
-		/call set_switch ${_table} swPettank ${_verbage}
+		/call set_switch ${chrID} swPettank ${_verbage}
 		/call echos switch "Pet Tank" swPettank	0 0
 		/return
 		
 	| pc type
 	} else /if (${_type.Equal[type]}) {
 		/if (!${validate_class[TRUE, ${lstClassPet}]}) /return
-		/call sql_update TRUE pet setPetType "${_verbage}"
+		/call sql_update FALSE ${chrID} setPetType "${_verbage}"
 		
 	| pc bag ##
 	} else /if (${_type.Equal[bag]}) {
 		/if (!${validate_class[TRUE, ${lstClassPet}]}) /return
 		/if (${Range.Between[1,10:${Int[${_verbage}]}]}) {
-			/call sql_update FALSE ${_table} setPetBagSlot ${_verbage}
+			/call sql_update FALSE ${chrID} setPetBagSlot ${_verbage}
 		} else {
 			VOUT /${_bind.Lower} bag(${cnum}${setPetBagSlot}\ax] valid range range ${cinfo}1 - 10\ax
 			/return
@@ -1008,20 +1021,20 @@ sub Bind_petControl(string _type, string _verbage, bool _silent)
 		
 	| swarm pets on a DS mob	
 	} else /if (${_type.Equal[dsswarm]}) {
-		/call set_switch ${_table} swNoSwarmonDS ${_verbage}
+		/call set_switch ${chrID} swNoSwarmonDS ${_verbage}
 
 	}
 	
 	/if (${_silent}) /return
 	/if (${swMQClear}) /mqclear
-	/for _count 1 to ${lstTypes${_bind}.Count[|]}
-		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${lstTypes${_bind}.Arg[${_count},|].Lower}\ax		
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[dsswarm]}) /varset _listout ${_listout}:${If[${swNoSwarmonDS},${oon},${ooff}]}
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[pet]}) /varset _listout ${_listout}:${If[${swPet},${cnum}${setPetEngagePct}\ax,${cbad}${setPetEngagePct}\ax]}
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[swarm]}) /varset _listout ${_listout}:${If[${swSwarm},${cnum}${setSwarmEngagePct}\ax,${cbad}${setSwarmEngagePct}\ax]}
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[type]}) /varset _listout ${_listout}:${If[${Bool[${setPetType}]},${cnum}${setPetType}\ax,${ooff}]}
+	/for _count 1 to ${_list.Count[|]}
+		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${_list.Arg[${_count},|].Lower}\ax		
+		/if (${_list.Arg[${_count},|].Equal[dsswarm]}) /varset _listout ${_listout}:${If[${swNoSwarmonDS},${oon},${ooff}]}
+		/if (${_list.Arg[${_count},|].Equal[pet]}) /varset _listout ${_listout}:${If[${swPet},${cnum}${setPetEngagePct}\ax,${cbad}${setPetEngagePct}\ax]}
+		/if (${_list.Arg[${_count},|].Equal[swarm]}) /varset _listout ${_listout}:${If[${swSwarm},${cnum}${setSwarmEngagePct}\ax,${cbad}${setSwarmEngagePct}\ax]}
+		/if (${_list.Arg[${_count},|].Equal[type]}) /varset _listout ${_listout}:${If[${Bool[${setPetType}]},${cnum}${setPetType}\ax,${ooff}]}
 		/if (${Me.Class.PetClass} || ${Select[${Me.Class.ShortName},ENC,DRU,SHM,SHD,NEC]}) {
-			/if (${lstTypes${_bind}.Arg[${_count},|].Equal[bag]}) /varset _listout ${_listout}:${If[${Bool[${setPetBagSlot}]},${cnum}${setPetBagSlot}\ax,${ooff}]}
+			/if (${_list.Arg[${_count},|].Equal[bag]}) /varset _listout ${_listout}:${If[${Bool[${setPetBagSlot}]},${cnum}${setPetBagSlot}\ax,${ooff}]}
 		}
 		/varset _sep TRUE
 	/next _count
@@ -1037,28 +1050,31 @@ sub Bind_petControl(string _type, string _verbage, bool _silent)
  ***| 
 #bind setTieControl /tc
 sub Bind_setTieControl(string _type, string _verbage, bool _silent)
-	/declare _count int local 0
 	/declare _bind string local TC
-	/declare _table string local movement
+	/declare _list string local ${sql_return[lstTypes${_bind}]}
+	/if (${Bool[${_type}]}) {
+		/varset _type ${list_isoloate[lstTypes${_bind}, ${_type}]}
+	}
+	/declare _count int local 0
 	/declare _listout string local
 	/declare _sep bool local
 
 	| set time to toon name
 	/if (${_type.Equal[name]}) {
 		/if (${setTieToon.NotEqual[${_verbage}]} && ${_verbage.NotEqual[${Me.DisplayName}]}) {	
-			/call sql_update FALSE ${_table} setTieToon ${_verbage}
+			/call sql_update FALSE ${chrID} setTieToon ${_verbage}
 		}
 
 	| forced tied
 	| we like it rough
 	} else /if (${_type.Equal[lock]}) {
-		/call set_switch ${_table} swTieLock ${_verbage}
-		/if (${swTieLock}) /call set_switch ${_table} setTieMode Stick
+		/call set_switch ${chrID} swTieLock ${_verbage}
+		/if (${swTieLock}) /call set_switch ${chrID} setTieMode Stick
 
 	| set tie time
 	} else /if (${_type.Equal[time]}) {
 		/if (${Range.Between[5,50:${Int[${_verbage}]}]}) {
-			/call sql_update FALSE timer tCheck_Tie ${_verbage} 
+			/call sql_update FALSE ${chrID} tCheck_Tie ${_verbage} 
 		} else {
 			VOUT /${_bind.Lower} time(${cnum}${tCheck_Tie}\ax) allowable range is ${cinfo}5 - 50\ax
 			/return
@@ -1067,9 +1083,9 @@ sub Bind_setTieControl(string _type, string _verbage, bool _silent)
 	| set tie mode
 	} else /if (${_type.Equal[mode]}) {
 		/if (${_verbage.Equal[stick]}) {
-			/call sql_update FALSE ${_table} setTieMode Stick
+			/call sql_update FALSE ${chrID} setTieMode Stick
 		} else /if (${_verbage.Equal[nav]}) {
-			/call sql_update FALSE ${_table} setTieMode Nav
+			/call sql_update FALSE ${chrID} setTieMode Nav
 		} 
 		/declare _tcModeType string local |stick|nav
 		/for _count 1 to ${_tcModeType.Count[|]}
@@ -1084,7 +1100,7 @@ sub Bind_setTieControl(string _type, string _verbage, bool _silent)
 	| set tie distance		
 	} else /if (${_type.Equal[distance]}) {
 		/if (${Range.Between[1,99:${Int[${_verbage}]}]}) {
-			/call sql_update FALSE ${_table} setTieDistance ${_verbage} 
+			/call sql_update FALSE ${chrID} setTieDistance ${_verbage} 
 		} else {
 			VOUT /${_bind.Lower} distance(${cnum}${setTieDistance}\ax) allowable range is ${cinfo}1 - 99\ax
 			/return
@@ -1093,13 +1109,13 @@ sub Bind_setTieControl(string _type, string _verbage, bool _silent)
 
 	/if (${_silent}) /return
 	/if (${swMQClear}) /mqclear
-	/for _count 1 to ${lstTypes${_bind}.Count[|]}
-		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${lstTypes${_bind}.Arg[${_count},|].Lower}\ax		
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[name]}) /varset _listout ${_listout}:${cnum}${If[${Bool[${setTieToon}]},${setTieToon},${ooff}]}\ax
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[time]}) /varset _listout ${_listout}:${cnum}${tCheck_Tie}\ax
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[distance]}) /varset _listout ${_listout}:${cnum}${setTieDistance}\ax
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[lock]}) /varset _listout ${_listout}:${If[${swTieLock},${oon},${ooff}]}
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[mode]}) /varset _listout ${_listout}:${cnum}${setTieMode}\ax
+	/for _count 1 to ${_list.Count[|]}
+		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${_list.Arg[${_count},|].Lower}\ax		
+		/if (${_list.Arg[${_count},|].Equal[name]}) /varset _listout ${_listout}:${cnum}${If[${Bool[${setTieToon}]},${setTieToon},${ooff}]}\ax
+		/if (${_list.Arg[${_count},|].Equal[time]}) /varset _listout ${_listout}:${cnum}${tCheck_Tie}\ax
+		/if (${_list.Arg[${_count},|].Equal[distance]}) /varset _listout ${_listout}:${cnum}${setTieDistance}\ax
+		/if (${_list.Arg[${_count},|].Equal[lock]}) /varset _listout ${_listout}:${If[${swTieLock},${oon},${ooff}]}
+		/if (${_list.Arg[${_count},|].Equal[mode]}) /varset _listout ${_listout}:${cnum}${setTieMode}\ax
 		/varset _sep TRUE
 	/next _count
 	VOUT /${_bind.Lower} [${_listout}]
@@ -1145,24 +1161,27 @@ sub Bind_setTie(string _type)
  ***| 	
 #bind burn /burn
 sub Bind_burn(string _type, string _verbage, bool _silent)
-	
-	/declare _count int local 0
 	/declare _bind string local Burn
+	/declare _list string local ${sql_return[lstTypes${_bind}]}
+	/if (${Bool[${_type}]}) {
+		/varset _type ${list_isoloate[lstTypes${_bind}, ${_type}]}
+		}
+	/declare _count int local 0
 	/declare _listout string local
-	/declare _sep bool local FALSE
+	/declare _sep bool local		
 
 	| Burn Automatic on/off
-	/if (${Bool[${_type.Find[auto]}]}) {
-		/call set_switch character swBurnAuto ${_verbage}  
+	/if (${_type.Equal[auto]}) {
+		/call set_switch ${chrID} swBurnAuto ${_verbage}  
 
 	| Burn in Raids
-	} else /if (${Bool[${_type.Find[raid]}]}) {
-		/call set_switch character swBurnRaid ${_verbage}  
+	} else /if (${_type.Equal[raid]}) {
+		/call set_switch ${chrID} swBurnRaid ${_verbage}  
 
 	| Mob count #
 	} else /if (${_type.Equal[count]}) {
 	 	/if (${Range.Between[1,99:${Int[${_verbage}]}]}) {
-			/call sql_update FALSE character setBurnCount ${_verbage} 
+			/call sql_update FALSE ${chrID} setBurnCount ${_verbage} 
 		} else {
 			VOUT /${_bind.Lower} count(${cnum}${setBurnCount}\ax) # of mobs in range ${cinfo}1 - 99\ax
 			/return
@@ -1171,7 +1190,7 @@ sub Bind_burn(string _type, string _verbage, bool _silent)
 	| Burn Engage at %
 	} else /if (${_type.Equal[engage]}) {
 	 	/if (${Range.Between[1,99:${Int[${_verbage}]}]}) {
-			/call sql_update FALSE character setBurnPct ${_verbage} 
+			/call sql_update FALSE ${chrID} setBurnPct ${_verbage} 
 		} else {
 			VOUT /${_bind.Lower} engage(${cnum}${setBurnPct}\ax] % of mobs health to engage burn ${cinfo}1 - 99\ax
 			/return
@@ -1179,19 +1198,19 @@ sub Bind_burn(string _type, string _verbage, bool _silent)
 
 	| force constant burning
 	} else /if (${_type.Equal[force]}) {
-		/call set_switch character swBurnForce ${_verbage}
+		/call set_switch ${chrID} swBurnForce ${_verbage}
 
 	} 
 	
 	/if (${_silent}) /return
 	/if (${swMQClear}) /mqclear
-	/for _count 1 to ${lstTypes${_bind}.Count[|]}
-		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${lstTypes${_bind}.Arg[${_count},|]}\ax
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[auto]}) /varset _listout ${_listout}:${cnum}${If[${Bool[${swBurnAuto}]},${oon},${ooff}]}\ax
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[force]}) /varset _listout ${_listout}:${cnum}${If[${Bool[${swBurnForce}]},${oon},${ooff}]}\ax
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[engage]}) /varset _listout ${_listout}:${cnum}${setBurnPct}\ax
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[count]}) /varset _listout ${_listout}:${cnum}${setBurnCount}\ax
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[raid]}) /varset _listout ${_listout}:${cnum}${If[${Bool[${swBurnRaid}]},${oon},${ooff}]}\ax
+	/for _count 1 to ${_list.Count[|]}
+		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${_list.Arg[${_count},|]}\ax
+		/if (${_list.Arg[${_count},|].Equal[auto]}) /varset _listout ${_listout}:${cnum}${If[${Bool[${swBurnAuto}]},${oon},${ooff}]}\ax
+		/if (${_list.Arg[${_count},|].Equal[force]}) /varset _listout ${_listout}:${cnum}${If[${Bool[${swBurnForce}]},${oon},${ooff}]}\ax
+		/if (${_list.Arg[${_count},|].Equal[engage]}) /varset _listout ${_listout}:${cnum}${setBurnPct}\ax
+		/if (${_list.Arg[${_count},|].Equal[count]}) /varset _listout ${_listout}:${cnum}${setBurnCount}\ax
+		/if (${_list.Arg[${_count},|].Equal[raid]}) /varset _listout ${_listout}:${cnum}${If[${Bool[${swBurnRaid}]},${oon},${ooff}]}\ax
 		/varset _sep TRUE
 	/next _count
 	VOUT /${_bind.Lower} [${_listout}]
@@ -1207,15 +1226,18 @@ sub Bind_burn(string _type, string _verbage, bool _silent)
  ***|
 #bind Core /core
 sub Bind_Core(string _type, string _verbage, string _verbage2, bool _silent)
-
-	/declare _count int local 0
 	/declare _bind string local Core
+	/declare _list string local ${sql_return[lstTypes${_bind}]}
+	/if (${Bool[${_type}]}) {
+		/varset _type ${list_isoloate[lstTypes${_bind}, ${_type}]}
+		}
+	/declare _count int local 0
 	/declare _listout string local
-	/declare _sep bool local FALSE
+	/declare _sep bool local		
 
 	| core auto/manual
 	/if (${_type.Equal[auto]}) {
-		/call set_switch character coreAuto ${_verbage}
+		/call set_switch ${chrID} coreAuto ${_verbage}
 		/if (!${coreAuto}) { 
 			/call set_stop NOECHO
 			/call clear_combat
@@ -1228,25 +1250,25 @@ sub Bind_Core(string _type, string _verbage, string _verbage2, bool _silent)
 		
 	| enable wasiting fireworks for those bastards with too much AA on their hands
 	} else /if (${_type.Equal[fireworks]}) {
-		/call set_switch character swAAFireworks ${_verbage}  
+		/call set_switch ${chrID} swAAFireworks ${_verbage}  
 		/if (!${swAAFireworks}) /call timer_update timer_Waste_Fireworks 1
 		
 	| take raid invites
 	} else /if (${_type.Equal[takeraidinvite]}) {
-		/call set_switch character swTakeRaidInvite ${_verbage} 
+		/call set_switch ${chrID} swTakeRaidInvite ${_verbage} 
 
 	| take group invites
 	} else /if (${_type.Equal[takegroupinvite]}) {
-		/call set_switch character swTakeGroupInvite ${_verbage} 
+		/call set_switch ${chrID} swTakeGroupInvite ${_verbage} 
 	
 	| invite people to your raid
 	} else /if (${_type.Equal[giveraidinvite]}) {
-		/call set_switch character swGiveRaidInvite ${_verbage} 
+		/call set_switch ${chrID} swGiveRaidInvite ${_verbage} 
 
 	| exp max level
 	} else /if (${_type.Equal[expmaintain]}) {
 		/if (${Range.Between[1,99:${Int[${_verbage}]}]}) {
-			/call sql_update FALSE character setLvlPct ${_verbage} 
+			/call sql_update FALSE ${chrID} setLvlPct ${_verbage} 
 		} else {
 			VOUT /${_bind.Lower} expmaintain(${cnum}${setLvlPct}\ax) allowable range ${cinfo}1 - 99\ax
 			/return
@@ -1255,7 +1277,7 @@ sub Bind_Core(string _type, string _verbage, string _verbage2, bool _silent)
 	| exp maintain level
 	} else /if (${_type.Equal[explevel]}) {
 		/if (${Range.Between[1,110:${Int[${_verbage}]}]}) {
-			/call sql_update FALSE character setLvlMax ${_verbage} 
+			/call sql_update FALSE ${chrID} setLvlMax ${_verbage} 
 		} else {
 			VOUT /${_bind.Lower} explevel(${cnum}${setLvlMax}\ax) allowable range ${cinfo}1 - 110\ax
 			/return
@@ -1263,7 +1285,7 @@ sub Bind_Core(string _type, string _verbage, string _verbage2, bool _silent)
 
 	| exp auto adjust
  	} else /if (${_type.Equal[expadjust]}) {
-		/call set_switch character swCorrectEXPAA ${_verbage} 
+		/call set_switch ${chrID} swCorrectEXPAA ${_verbage} 
 
 	| check in game cash
 	} else /if (${_type.Equal[checkcash]}) {
@@ -1276,23 +1298,23 @@ sub Bind_Core(string _type, string _verbage, string _verbage2, bool _silent)
 
 	| enable/disable using events.inc file
 	} else /if (${_type.Equal[events]}) {
-		/call set_switch character swEventsInc ${_verbage}
+		/call set_switch ${chrID} swEventsInc ${_verbage}
 				
 	}
 
 	/if (${_silent}) /return
 	/if (${swMQClear}) /mqclear	
-	/for _count 1 to ${lstTypes${_bind}.Count[|]}
-		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${lstTypes${_bind}.Arg[${_count},|]}\ax
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[auto]}) /varset _listout ${_listout}:${If[${coreAuto},${oon},${ooff}]}
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[events]}) /varset _listout ${_listout}:${If[${swEventsInc},${oon},${ooff}]}
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[expadjust]}) /varset _listout ${_listout}:${If[${swCorrectEXPAA},${oon},${ooff}]}
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[explevel]}) /varset _listout ${_listout}:${cnum}${setLvlMax}\ax
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[expmaintain]}) /varset _listout ${_listout}:${cnum}${setLvlPct}\ax
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[fireworks]}) /varset _listout ${_listout}:${If[${swAAFireworks},${oon},${ooff}]}
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[giveraidinvite]}) /varset _listout ${_listout}:${If[${swGiveRaidInvite},${oon},${ooff}]}
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[takegroupinvite]}) /varset _listout ${_listout}:${If[${swTakeGroupInvite},${oon},${ooff}]}
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[takeraidinvite]}) /varset _listout ${_listout}:${If[${swTakeRaidInvite},${oon},${ooff}]}
+	/for _count 1 to ${_list.Count[|]}
+		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${_list.Arg[${_count},|]}\ax
+		/if (${_list.Arg[${_count},|].Equal[auto]}) /varset _listout ${_listout}:${If[${coreAuto},${oon},${ooff}]}
+		/if (${_list.Arg[${_count},|].Equal[events]}) /varset _listout ${_listout}:${If[${swEventsInc},${oon},${ooff}]}
+		/if (${_list.Arg[${_count},|].Equal[expadjust]}) /varset _listout ${_listout}:${If[${swCorrectEXPAA},${oon},${ooff}]}
+		/if (${_list.Arg[${_count},|].Equal[explevel]}) /varset _listout ${_listout}:${cnum}${setLvlMax}\ax
+		/if (${_list.Arg[${_count},|].Equal[expmaintain]}) /varset _listout ${_listout}:${cnum}${setLvlPct}\ax
+		/if (${_list.Arg[${_count},|].Equal[fireworks]}) /varset _listout ${_listout}:${If[${swAAFireworks},${oon},${ooff}]}
+		/if (${_list.Arg[${_count},|].Equal[giveraidinvite]}) /varset _listout ${_listout}:${If[${swGiveRaidInvite},${oon},${ooff}]}
+		/if (${_list.Arg[${_count},|].Equal[takegroupinvite]}) /varset _listout ${_listout}:${If[${swTakeGroupInvite},${oon},${ooff}]}
+		/if (${_list.Arg[${_count},|].Equal[takeraidinvite]}) /varset _listout ${_listout}:${If[${swTakeRaidInvite},${oon},${ooff}]}
 		/varset _sep TRUE
 	/next _count
 	VOUT /${_bind.Lower} [${_listout}]
@@ -1309,24 +1331,27 @@ sub Bind_Core(string _type, string _verbage, string _verbage2, bool _silent)
  ***|
 #bind onoff /onoff
 sub Bind_onoff(string _type, string _verbage, bool _silent)
-	
+	/declare _bind string local OnOff
+	/declare _list string local ${sql_return[lstTypes${_bind}]}
+	/if (${Bool[${_type}]}) {
+		/varset _type ${list_isoloate[lstTypes${_bind}, ${_type}]}
+	}
 	/declare _count int local 0
 	/declare _listout string local
-	/declare _sep bool local FALSE
-	/declare _bind string local OnOff
+	/declare _sep bool local
 	
-	/if (${lstTypes${_bind}.Find[${_type}]}) {
+	/if (${_list.Find[${_type}]}) {
 		/if (${Defined[switch${_type.Left[1].Upper}${_type.Right[-1].Lower}]}) {
-			/call set_switch item switch${_type.Left[1].Upper}${_type.Right[-1].Lower} ${_verbage}  
+			/call set_switch ${chrID} switch${_type.Left[1].Upper}${_type.Right[-1].Lower} ${_verbage}  
 		} 
 	}
 	
 	/if (${_silent}) /return
 	/if (${swMQClear}) /mqclear
-	/for _count 1 to ${lstTypes${_bind}.Count[|]}
-		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${lstTypes${_bind}.Arg[${_count},|]}\ax
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[horn]}) /varset _listout ${_listout}:${If[${switchHorn},${oon},${ooff}]}	
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[shrink]}) /varset _listout ${_listout}:${If[${switchShrink},${oon},${ooff}]}
+	/for _count 1 to ${_list.Count[|]}
+		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${_list.Arg[${_count},|]}\ax
+		/if (${_list.Arg[${_count},|].Equal[horn]}) /varset _listout ${_listout}:${If[${switchHorn},${oon},${ooff}]}	
+		/if (${_list.Arg[${_count},|].Equal[shrink]}) /varset _listout ${_listout}:${If[${switchShrink},${oon},${ooff}]}
 
 		/varset _sep TRUE
 	/next _count
@@ -1343,11 +1368,14 @@ sub Bind_onoff(string _type, string _verbage, bool _silent)
  ***|
 #bind ts /ts
 sub Bind_ts(string _tsType)
-
+	/declare _bind string local ts
+	/declare _list string local ${sql_return[lstTypes${_bind}]}
+	/if (${Bool[${_type}]}) {
+		/varset _type ${list_isoloate[lstTypes${_bind}, ${_type}]}
+	}
+	/declare _count int local 0
 	/declare _listout string local
 	/declare _sep bool local
-	/declare _count int local
-	/declare _bind string local ts
 
 	| tradeskill commands
 	/if (${_tsType.Equal[movebank]}) {
@@ -1424,11 +1452,14 @@ sub Bind_setAssist(string _verbage, string _name)
  ***|
 #bind setCombatControl /cc
 sub Bind_setCombatControl(string _type, string _verbage, bool _silent)
-	
-	/declare _count int local 0
 	/declare _bind string local CC
+	/declare _list string local ${sql_return[lstTypes${_bind}]}
+	/if (${Bool[${_type}]}) {
+		/varset _type ${list_isoloate[lstTypes${_bind}, ${_type}]}
+	}
+	/declare _count int local 0
 	/declare _listout string local
-	/declare _sep bool local FALSE
+	/declare _sep bool local
 
 	| enable / disable forced assist
 	/if  (${_type.Equal[forceassist]}) {
@@ -1470,21 +1501,21 @@ sub Bind_setCombatControl(string _type, string _verbage, bool _silent)
 	| set rest %		
 	} else /if (${_type.Equal[rest]}) {
 		/if (${Range.Between[1,99:${Int[${_verbage}]}]}) {
-			/call sql_update FALSE character setRestPct ${_verbage}  
+			/call sql_update FALSE ${chrID} setRestPct ${_verbage}  
 		} else /if (${_verbage.Equal[0]}) {
-			/call sql_update FALSE character setRestPct 0  
+			/call sql_update FALSE ${chrID} setRestPct 0  
 		}
 		
 	| set bandolier swapping
 	} else /if (${_type.Equal[bandolier]}) {
-		/call set_switch character swBandolier ${_verbage}
+		/call set_switch ${chrID} swBandolier ${_verbage}
 		VOUT /${_bind.Lower} bandolier ${sep} ${cinfo}${combat}\ax
 		/return
 
 	| set stop nuke %
 	} else /if (${_type.Equal[stopnuke]}) {
 		/if (${Range.Between[0,99:${Int[${_verbage}]}]}) {
-			/call sql_update FALSE character setStopNukePct ${_verbage} 
+			/call sql_update FALSE ${chrID} setStopNukePct ${_verbage} 
 		} else {
 			VOUT /${_bind.Lower} stopnuke(${cnum}${setStopNukePct}\ax) allowable range is ${cinfo}0 - 99\ax
 		} 		
@@ -1493,7 +1524,7 @@ sub Bind_setCombatControl(string _type, string _verbage, bool _silent)
 	| set circle of to be used
 	} else /if (${_type.Equal[circle]}) {
 		/if (${_verbage.Equal[power]} || ${_verbage.Equal[life]} || ${_verbage.Equal[mana]}) {
-			/call sql_update FALSE item useCircle ${_verbage.Left[1].Upper}${_verbage.Right[-1].Lower}
+			/call sql_update FALSE ${chrID} useCircle ${_verbage.Left[1].Upper}${_verbage.Right[-1].Lower}
 			VOUT /${_bind.Lower} circle ${sep} ${cinfo}${_verbage.Left[1].Upper}${_verbage.Right[-1].Lower}\ax
 		} else /if (!${Bool[${_verbage}]}) {
 			VOUT /${_bind.Lower} circle allowable options [${cinfo}power, life, mana\ax] 
@@ -1502,21 +1533,21 @@ sub Bind_setCombatControl(string _type, string _verbage, bool _silent)
 
 	| set Pull
 	} else /if (${_type.Equal[pull]}) {
-		/call set_switch character swPull ${_verbage}
+		/call set_switch ${chrID} swPull ${_verbage}
 		VOUT /${_bind.Lower} pull ${sep} ${If[${swPull},${oenabled},${odisabled}]}
 		/if (${swPull}) /call validate_assist NOECHO x
 		/return
 		
 	| set Off Tank
 	} else /if (${_type.Equal[offtank]}) {
-		/call set_switch character swOffTank ${_verbage}
+		/call set_switch ${chrID} swOffTank ${_verbage}
 		VOUT /${_bind.Lower} offtank ${sep} ${If[${swOffTank},${oenabled},${odisabled}]}
 		/return
 		
 	| delay in nuking	
 	} else /if (${_type.Equal[nukedelay]}) {
 		/if (${Range.Between[1,100:${Int[${_verbage}]}]}) {
-			/call sql_update FALSE ${Me.Class.ShortName} switchNukeDelay ${_verbage}
+			/call sql_update FALSE ${chrID} switchNukeDelay ${_verbage}
 			VOUT /${_bind.Lower} nukedelay ${sep} ${cinfo}${_verbage}\ax
 		} else {
 			VOUT /${_bind.Lower} nukedelay(${cnum}${tNuke_Delay}\ax) allowable range is ${cinfo}1 - 100\ax
@@ -1526,15 +1557,15 @@ sub Bind_setCombatControl(string _type, string _verbage, bool _silent)
 	| force fade to rest
 	} else /if (${_type.Equal[faderest]}) {
 		/if (!${validate_class[TRUE, |WAR|PAL|SHD|ROG|BER|RNG|MON|BST]}) /return
-		/call set_switch character swForceFadeRest ${_verbage}
+		/call set_switch ${chrID} swForceFadeRest ${_verbage}
 
 	| agro switch/agro range ##
 	} else /if (${_type.Equal[agro]}) {
 		/if (!${Bool[${_verbage}]} || ${_verbage.Equal[on]} || ${_verbage.Equal[off]}) {
-			/call set_switch character swAgro ${_verbage} 
+			/call set_switch ${chrID} swAgro ${_verbage} 
 			VOUT /${_bind.Lower} agro ${sep} ${If[${swAgro},${oenabled},${odisabled}]}
 		} else /if (${Range.Between[1,400:${Int[${_verbage}]}]}) {
-			/call sql_update FALSE character setMobAgro ${_verbage} 
+			/call sql_update FALSE ${chrID} setMobAgro ${_verbage} 
 			VOUT /${_bind.Lower} agro ${sep} ${cinfo}${_verbage}\ax
 		} else /if (${Bool[${_verbage}]} && !${Range.Between[1,400:${Int[${_verbage}]}]})  {
 			VOUT /${_bind.Lower} agro(${cnum}${setMobAgro}\ax) allowable range is ${cinfo}1 - 400\ax
@@ -1546,7 +1577,7 @@ sub Bind_setCombatControl(string _type, string _verbage, bool _silent)
 	| setMA1/2 engage at %
 	} else /if (${_type.Equal[engage]}) {
 		/if (${Range.Between[1,100:${Int[${_verbage}]}]}) {
-			/call sql_update FALSE character setEngageMAPct ${_verbage}
+			/call sql_update FALSE ${chrID} setEngageMAPct ${_verbage}
 			VOUT /${_bind.Lower} engage ${sep} ${cinfo}${setEngageMAPct}\ax
 		} else {
 			VOUT /${_bind.Lower} engage(${cnum}${setEngageMAPct}\ax) allowable range ${cinfo}1 - 99\ax
@@ -1557,7 +1588,7 @@ sub Bind_setCombatControl(string _type, string _verbage, bool _silent)
 	} else /if (${_type.Equal[smartengage]}) {
 		/if (!${validate_expansion[TRUE, |16]}) /return
 		/if (${Range.Between[1,100:${Int[${_verbage}]}]}) {
-			/call sql_update FALSE character setEngagePct ${_verbage}
+			/call sql_update FALSE ${chrID} setEngagePct ${_verbage}
 			VOUT /${_bind.Lower} smartengage ${sep} ${cinfo}${setEngagePct}\ax
 		} else {
 			VOUT /${_bind.Lower} smartengage(${cnum}${setEngagePct}\ax) allowable range ${cinfo}1 - 99\ax
@@ -1567,7 +1598,7 @@ sub Bind_setCombatControl(string _type, string _verbage, bool _silent)
 	| set melee combat distance to target
 	} else /if (${_type.Equal[combatdistance]}) {
 		/if (${Range.Between[1,50:${Int[${_verbage}]}]}) {
-			/call sql_update FALSE character setCombatDistance ${_verbage}
+			/call sql_update FALSE ${chrID} setCombatDistance ${_verbage}
 			VOUT /${_bind.Lower} combatdistance ${sep} ${cinfo}${_verbage}\ax
 		} else {
 			VOUT /${_bind.Lower} combatdistance(${cnum}${setCombatDistance}\ax] minimum range to melee mob ${cinfo}1 - 50\ax
@@ -1577,7 +1608,7 @@ sub Bind_setCombatControl(string _type, string _verbage, bool _silent)
 	| set fake safe radius
 	} else /if (${_type.Equal[saferadius]}) {
 		/if (${Range.Between[1,50:${Int[${_verbage}]}]}) {
-			/call sql_update FALSE character setCombatRadius ${_verbage}
+			/call sql_update FALSE ${chrID} setCombatRadius ${_verbage}
 
 			VOUT /${_bind.Lower} saferadius ${sep} ${cinfo}${setCombatRadius}\ax
 		} else {
@@ -1588,7 +1619,7 @@ sub Bind_setCombatControl(string _type, string _verbage, bool _silent)
 	| set Z radius
 	} else /if (${_type.Equal[zradius]}) {
 		/if (${Range.Between[1,200:${Int[${_verbage}]}]}) {
-			/call sql_update FALSE character setzradius ${_verbage} 	
+			/call sql_update FALSE ${chrID} setzradius ${_verbage} 	
 
 		} else {
 			VOUT /${_bind.Lower} zradius(${cnum}${setzradius}\ax) allowable range ${cinfo}1 - 200\ax
@@ -1597,39 +1628,39 @@ sub Bind_setCombatControl(string _type, string _verbage, bool _silent)
 		
 	| alliance on or off... yada yada		
 	} else /if (${_type.Equal[alliance]}) {
-		/call set_switch character swAlliance ${_verbage}
+		/call set_switch ${chrID} swAlliance ${_verbage}
 		
 	| enable combat: melee, range, nuke, dot, heal
 	} else /if (${Select[${_type},melee,range,nuke,dot,heal]}) {
 
 		| enable combat: melee
 		/if (${_type.Equal[melee]}) {
-			/call set_switch character swCombatMelee ${_verbage}
+			/call set_switch ${chrID} swCombatMelee ${_verbage}
 
 		| enable combat: range
 		} else /if (${_type.Equal[range]}) {
-			/call set_switch character swCombatRange ${_verbage}
+			/call set_switch ${chrID} swCombatRange ${_verbage}
 
 		| enable combat: nuke
 		} else /if (${_type.Equal[nuke]}) {
-			/call set_switch character swCombatNuke ${_verbage}
+			/call set_switch ${chrID} swCombatNuke ${_verbage}
 
 		| enable combat: dot
 		} else /if (${_type.Equal[dot]}) {
-			/call set_switch character swCombatDoT ${_verbage}
+			/call set_switch ${chrID} swCombatDoT ${_verbage}
 
 		| enable combat: HEal
 		} else /if (${_type.Equal[heal]}) {
-			/call set_switch character swCombatHeal ${_verbage}
+			/call set_switch ${chrID} swCombatHeal ${_verbage}
 
 		}
 
-		/for _count 1 to ${lstTypes${_bind}.Count[|]}
-			/if (${lstTypes${_bind}.Arg[${_count},|].Equal[melee]}) /varset _listout ${_listout} ${cinfo}melee\ax:${If[${swCombatMelee},${oon},${ooff}]}	
-			/if (${lstTypes${_bind}.Arg[${_count},|].Equal[range]}) /varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}range\ax:${If[${swCombatRange},${oon},${ooff}]}	
-			/if (${lstTypes${_bind}.Arg[${_count},|].Equal[nuke]}) /varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}nuke\ax:${If[${swCombatNuke},${oon},${ooff}]}	
-			/if (${lstTypes${_bind}.Arg[${_count},|].Equal[dot]}) /varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}dot\ax:${If[${swCombatDoT},${oon},${ooff}]}	
-			/if (${lstTypes${_bind}.Arg[${_count},|].Equal[heal]}) /varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}heal\ax:${If[${swCombatHeal},${oon},${ooff}]}	
+		/for _count 1 to ${_list.Count[|]}
+			/if (${_list.Arg[${_count},|].Equal[melee]}) /varset _listout ${_listout} ${cinfo}melee\ax:${If[${swCombatMelee},${oon},${ooff}]}	
+			/if (${_list.Arg[${_count},|].Equal[range]}) /varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}range\ax:${If[${swCombatRange},${oon},${ooff}]}	
+			/if (${_list.Arg[${_count},|].Equal[nuke]}) /varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}nuke\ax:${If[${swCombatNuke},${oon},${ooff}]}	
+			/if (${_list.Arg[${_count},|].Equal[dot]}) /varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}dot\ax:${If[${swCombatDoT},${oon},${ooff}]}	
+			/if (${_list.Arg[${_count},|].Equal[heal]}) /varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}heal\ax:${If[${swCombatHeal},${oon},${ooff}]}	
 			/varset _sep TRUE
 		/next _count
 		VOUT /${_bind.Lower} [${_listout}]
@@ -1674,29 +1705,29 @@ sub Bind_setCombatControl(string _type, string _verbage, bool _silent)
 	}
 
 	/if (${swMQClear}) /mqclear
-	/for _count 1 to ${lstTypes${_bind}.Count[|]}
-		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${lstTypes${_bind}.Arg[${_count},|].Lower}\ax		
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[zradius]}) /varset _listout ${_listout}:${cnum}${setzradius}\ax
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[smartengage]}) /varset _listout ${_listout}:${cnum}${setEngagePct}\ax
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[engage]}) /varset _listout ${_listout}:${cnum}${setEngageMAPct}\ax
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[nukedelay]}) /varset _listout ${_listout}:${cnum}${tNuke_Delay}\ax
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[agro]}) /varset _listout ${_listout}:${If[${swAgro},${cnum}${setMobAgro}\ax,${cbad}${setMobAgro}\ax]}
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[combatdistance]}) /varset _listout ${_listout}:${cnum}${setCombatDistance}\ax
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[saferadius]}) /varset _listout ${_listout}:${cnum}${setCombatRadius}\ax
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[stopnuke]}) /varset _listout ${_listout}:${cnum}${setStopNukePct}\ax
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[circle]}) /varset _listout ${_listout}:${cnum}${useCircle}\ax
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[alliance]}) /varset _listout ${_listout}:${If[${swAlliance},${oon}\ax,${ooff}]}
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[pull]}) /varset _listout ${_listout}:${If[${swPull},${oon},${ooff}]}
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[rest]}) /varset _listout ${_listout}:${If[${setRestPct},${cnum}${setRestPct}\ax,${ooff}]}
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[setMA1]}) /varset _listout ${_listout}:${If[${Bool[${setMA1}]},${cnum}${setMA1}\ax,${ooff}]}
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[setMA2]}) /varset _listout ${_listout}:${If[${Bool[${setMA2}]},${cnum}${setMA2}\ax,${ooff}]}
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[faderest]}) /varset _listout ${_listout}:${If[${swForceFadeRest},${oon},${ooff}]}
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[melee]}) /varset _listout ${_listout}:${If[${swCombatMelee},${oon},${ooff}]}
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[range]}) /varset _listout ${_listout}:${If[${swCombatRange},${oon},${ooff}]}
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[nuke]}) /varset _listout ${_listout}:${If[${swCombatNuke},${oon},${ooff}]}
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[dot]}) /varset _listout ${_listout}:${If[${swCombatDoT},${oon},${ooff}]}
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[heal]}) /varset _listout ${_listout}:${If[${swCombatHeal},${oon},${ooff}]}
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[offtank]}) /varset _listout ${_listout}:${If[${swOffTank},${oon},${ooff}]}
+	/for _count 1 to ${_list.Count[|]}
+		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${_list.Arg[${_count},|].Lower}\ax		
+		/if (${_list.Arg[${_count},|].Equal[zradius]}) /varset _listout ${_listout}:${cnum}${setzradius}\ax
+		/if (${_list.Arg[${_count},|].Equal[smartengage]}) /varset _listout ${_listout}:${cnum}${setEngagePct}\ax
+		/if (${_list.Arg[${_count},|].Equal[engage]}) /varset _listout ${_listout}:${cnum}${setEngageMAPct}\ax
+		/if (${_list.Arg[${_count},|].Equal[nukedelay]}) /varset _listout ${_listout}:${cnum}${tNuke_Delay}\ax
+		/if (${_list.Arg[${_count},|].Equal[agro]}) /varset _listout ${_listout}:${If[${swAgro},${cnum}${setMobAgro}\ax,${cbad}${setMobAgro}\ax]}
+		/if (${_list.Arg[${_count},|].Equal[combatdistance]}) /varset _listout ${_listout}:${cnum}${setCombatDistance}\ax
+		/if (${_list.Arg[${_count},|].Equal[saferadius]}) /varset _listout ${_listout}:${cnum}${setCombatRadius}\ax
+		/if (${_list.Arg[${_count},|].Equal[stopnuke]}) /varset _listout ${_listout}:${cnum}${setStopNukePct}\ax
+		/if (${_list.Arg[${_count},|].Equal[circle]}) /varset _listout ${_listout}:${cnum}${useCircle}\ax
+		/if (${_list.Arg[${_count},|].Equal[alliance]}) /varset _listout ${_listout}:${If[${swAlliance},${oon}\ax,${ooff}]}
+		/if (${_list.Arg[${_count},|].Equal[pull]}) /varset _listout ${_listout}:${If[${swPull},${oon},${ooff}]}
+		/if (${_list.Arg[${_count},|].Equal[rest]}) /varset _listout ${_listout}:${If[${setRestPct},${cnum}${setRestPct}\ax,${ooff}]}
+		/if (${_list.Arg[${_count},|].Equal[setMA1]}) /varset _listout ${_listout}:${If[${Bool[${setMA1}]},${cnum}${setMA1}\ax,${ooff}]}
+		/if (${_list.Arg[${_count},|].Equal[setMA2]}) /varset _listout ${_listout}:${If[${Bool[${setMA2}]},${cnum}${setMA2}\ax,${ooff}]}
+		/if (${_list.Arg[${_count},|].Equal[faderest]}) /varset _listout ${_listout}:${If[${swForceFadeRest},${oon},${ooff}]}
+		/if (${_list.Arg[${_count},|].Equal[melee]}) /varset _listout ${_listout}:${If[${swCombatMelee},${oon},${ooff}]}
+		/if (${_list.Arg[${_count},|].Equal[range]}) /varset _listout ${_listout}:${If[${swCombatRange},${oon},${ooff}]}
+		/if (${_list.Arg[${_count},|].Equal[nuke]}) /varset _listout ${_listout}:${If[${swCombatNuke},${oon},${ooff}]}
+		/if (${_list.Arg[${_count},|].Equal[dot]}) /varset _listout ${_listout}:${If[${swCombatDoT},${oon},${ooff}]}
+		/if (${_list.Arg[${_count},|].Equal[heal]}) /varset _listout ${_listout}:${If[${swCombatHeal},${oon},${ooff}]}
+		/if (${_list.Arg[${_count},|].Equal[offtank]}) /varset _listout ${_listout}:${If[${swOffTank},${oon},${ooff}]}
 		/varset _sep TRUE
 	/next _count
 	VOUT /${_bind.Lower} [${_listout}]
@@ -1725,14 +1756,18 @@ sub Bind_setMobAgro(int _setMobAgro)
  ***|
 #bind setMovementControls /movement
 sub Bind_setMovementControls(string _type, string _verbage, bool _silent)
-	/declare _count int local 0
 	/declare _bind string local Movement
+	/declare _list string local ${sql_return[lstTypes${_bind}]}
+	/if (${Bool[${_type}]}) {
+		/varset _type ${list_isoloate[lstTypes${_bind}, ${_type}]}
+	}
+	/declare _count int local 0
 	/declare _listout string local
-	/declare _sep bool local FALSE
+	/declare _sep bool local
 
 	| set home on or off
 	/if (${_type.Equal[home]}) {
-		/call set_switch movement swHomeSet ${_verbage}  
+		/call set_switch ${chrID} swHomeSet ${_verbage}  
 		/call set_home
 		/return
 		
@@ -1751,22 +1786,22 @@ sub Bind_setMovementControls(string _type, string _verbage, bool _silent)
 
 	| set stick behind
 	} else /if (${_type.Equal[behind]}) {
-		/call set_switch movement swStickBehind ${_verbage}  
+		/call set_switch ${chrID} swStickBehind ${_verbage}  
 
 		| disable mezzing with stickbehind enabled.
 		/if (${swdeBuffMezz} && ${swStickBehind}) {
-			/if (${Defined[swdeBuffMezz]}) /call sql swdeBuffMezz Buffs FALSE  
+			/if (${Defined[swdeBuffMezz]}) /call set_switch ${chrID} swdeBuffMezz FALSE 
 			/VOUT /${_bind.Lower} behind ${sep} ${If[${swdeBuffMezz},${oenabled},${odisabled}]}
 		}
 
 	| set face fast
 	} else /if (${_type.Equal[fast]}) {
-		/call set_switch movement swFaceFast ${_verbage}  
+		/call set_switch ${chrID} swFaceFast ${_verbage}  
 
 	| set home radius
 	} else /if (${_type.Equal[radius]}) {
 		/if (${Range.Between[1,99:${Int[${_verbage}]}]}) {
-			/call sql_update FALSE movement setHomeRadius ${_verbage} 
+			/call sql_update FALSE ${chrID} setHomeRadius ${_verbage} 
 		} else {
 			VOUT /${_bind.Lower} radius(${cnum}${setHomeRadius}\ax) allowable range ${cinfo}1 - 99\ax
 			/return
@@ -1793,7 +1828,7 @@ sub Bind_setMovementControls(string _type, string _verbage, bool _silent)
 	| set leash range
 	} else /if (${_type.Equal[leash]}) {
 		/if (${Range.Between[1,99:${Int[${_verbage}]}]}) {
-			/call sql_update FALSE movement setHomeLeash ${_verbage} 
+			/call sql_update FALSE ${chrID} setHomeLeash ${_verbage} 
 		} else {
 			VOUT /${_bind.Lower} leash(${cnum}${setHomeLeash}\ax) allowable range ${cinfo}1 - 99\ax
 			/return
@@ -1802,7 +1837,7 @@ sub Bind_setMovementControls(string _type, string _verbage, bool _silent)
 	| set facing arc
 	} else /if (${_type.Equal[arc]}) {
 		/if (${Range.Between[1,45:${Int[${_verbage}]}]}) {
-			/call sql_update FALSE movement setFaceArc ${_verbage} 
+			/call sql_update FALSE ${chrID} setFaceArc ${_verbage} 
 		} else {
 			VOUT /${_bind.Lower} arc(${cnum}${setFaceArc}\ax) allowable range ${cinfo}1 - 45\ax
 			/return
@@ -1834,14 +1869,14 @@ sub Bind_setMovementControls(string _type, string _verbage, bool _silent)
 	}
 
 	/if (${swMQClear}) /mqclear
-	/for _count 1 to ${lstTypes${_bind}.Count[|]}
-		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${lstTypes${_bind}.Arg[${_count},|].Lower}\ax		
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[fast]}) /varset _listout ${_listout}:${If[${swFaceFast},${oon},${ooff}]}
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[behind]}) /varset _listout ${_listout}:${If[${swStickBehind},${oon},${ooff}]}
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[home]}) /varset _listout ${_listout}:${If[${swHomeSet},${oon},${ooff}]}
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[arc]}) /varset _listout ${_listout}:${cnum}${setFaceArc}\ax
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[leash]}) /varset _listout ${_listout}:${cnum}${setHomeLeash}\ax
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[radius]}) /varset _listout ${_listout}:${cnum}${setHomeRadius}\ax
+	/for _count 1 to ${_list.Count[|]}
+		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${_list.Arg[${_count},|].Lower}\ax		
+		/if (${_list.Arg[${_count},|].Equal[fast]}) /varset _listout ${_listout}:${If[${swFaceFast},${oon},${ooff}]}
+		/if (${_list.Arg[${_count},|].Equal[behind]}) /varset _listout ${_listout}:${If[${swStickBehind},${oon},${ooff}]}
+		/if (${_list.Arg[${_count},|].Equal[home]}) /varset _listout ${_listout}:${If[${swHomeSet},${oon},${ooff}]}
+		/if (${_list.Arg[${_count},|].Equal[arc]}) /varset _listout ${_listout}:${cnum}${setFaceArc}\ax
+		/if (${_list.Arg[${_count},|].Equal[leash]}) /varset _listout ${_listout}:${cnum}${setHomeLeash}\ax
+		/if (${_list.Arg[${_count},|].Equal[radius]}) /varset _listout ${_listout}:${cnum}${setHomeRadius}\ax
 		/varset _sep TRUE
 	/next _count
 	VOUT /${_bind.Lower} [${_listout}]
@@ -1868,8 +1903,11 @@ sub Bind_crew(int _crew)
 	/if (!${Bool[${_crew}]}) /return
 	
 	/declare _count int local 0
+	/declare _clist string local 
+	
 	/sqlite ${dbCore} dummy SELECT lstCrew${_crew} FROM environment WHERE currentBuild="${currentBuild}"
-	/declare _clist string local ${sqlite.Result[dummy 1 lstCrew${_crew}]}
+	| /echo ${sqlite.Result[dummy 1 lstCrew${_crew}]}
+	/varset _clist ${sqlite.Result[dummy 1 lstCrew${_crew}]}
 	
 	| disband raid if exists
 	/if (${Raid.Members}) {
@@ -2070,27 +2108,31 @@ sub Bind_cast_AA_invis()
 	| fucking bards
 	/if (${Me.AltAbilityReady[Shauri's Sonorous Clouding]} && ${Select[${Me.Class.ShortName},BRD]}) {
 		/call pulse_stop
-		/call MQ2Cast "Shauri's Sonorous Clouding" alt -targetid|${Me.ID}
+		| /call MQ2Cast "Shauri's Sonorous Clouding" alt -targetid|${Me.ID}
+		/call core_cast2 "Shauri's Sonorous Clouding" alt 0 FALSE
 		ECHOCHANNEL AA: Shauri's Sonorous Clouding
 		/return
 		
 	| Invis vs Normies  casters	
 	} else /if (${Me.AltAbilityReady[Group Perfected Invisibility]} && ${Select[${Me.Class.ShortName},WIZ,MAG,ENC]}) {
-		/call MQ2Cast "Group Perfected Invisibility" alt
+		| /call MQ2Cast "Group Perfected Invisibility" alt
+		/call core_cast2 "Group Perfected Invisibility" alt 0 FALSE
 		ECHOCHANNEL AA: Group Perfected Invisibility
 		/return
 	
 	| Invis Vs undead casters
 	} else /if (${Me.AltAbilityReady[Group Perfected Invisibility to Undead]} && ${Select[${Me.Class.ShortName},CLR,SHD,NEC,PAL]}) {
 		/delay 3
-		/call MQ2Cast "Group Perfected Invisibility to Undead" alt
+		| /call MQ2Cast "Group Perfected Invisibility to Undead" alt
+		/call core_cast2 "Group Perfected Invisibility to Undead" alt 0 FALSE
 		ECHOCHANNEL AA: Group Perfected Invisibility to Undead
 		/return
 		
 	| shaman	
 	} else /if (${Me.AltAbilityReady[Group Silent Presence]} && ${Select[${Me.Class.ShortName},SHM]}) {
 		/delay 5
-		/call MQ2Cast "Group Silent Presence" alt -targetid|${Me.ID}
+		| /call MQ2Cast "Group Silent Presence" alt -targetid|${Me.ID}
+		/call core_cast2 "Group Silent Presence" alt ${Me.ID} FALSE
 		ECHOCHANNEL AA: Group Silent Presence
 		/return
 	
@@ -2098,7 +2140,8 @@ sub Bind_cast_AA_invis()
 	}	else /if (${Me.AltAbilityReady[Shared Camouflage]} && ${Select[${Me.Class.ShortName},RNG,DRU]}) {
 		/return
 		/delay 15
-		/call MQ2Cast "Shared Camouflage" alt -targetid|${Me.ID}
+		| /call MQ2Cast "Shared Camouflage" alt -targetid|${Me.ID}
+		/call core_cast2 "Shared Camouflage" alt 0 FALSE
 		ECHOCHANNEL AA: Shared Camouflage
 		/return
 	}
@@ -2258,15 +2301,15 @@ sub Bind_set_combat_here()
 	| wake the Main Assist up from its nap, set him in place and group assists
 	/if (${Group.MainAssist.Name.Equal[${Me.DisplayName}]}) {
 		/if (!${swHomeSet}) {
-			/call set_switch character swHomeSet TRUE
+			/call set_switch ${chrID} swHomeSet TRUE
 			/call set_home
 		}
 		| cut the agro way down for safety
 		/if (${SpawnCount[npc ${If[${swOverrideLOS},,los]} radius ${setMobAgro}]} > 2) {
 			/if (${baseAgroRange} && ${setMobAgro} > ${baseAgroRange}) /agro ${baseAgroRange}
 		}	
-		/if (!${swAgro}) /call set_switch character swAgro TRUE
-		/if (!${swPull} && !${swAssistF}) /call set_switch character swPull TRUE
+		/if (!${swAgro}) /call set_switch ${chrID} swAgro TRUE
+		/if (!${swPull} && !${swAssistF}) /call set_switch ${chrID} swPull TRUE
 		/if (${setzradius} != ${hereZRadius}) /cc setzradius ${hereZRadius}	
 	}
 
@@ -2319,12 +2362,13 @@ sub Bind_imincharge()
 	/declare _toonName string local FALSE
 	
 	| cycle all the toons you are boxing
-	/for _count 1 to ${DanNet.PeerCount}
-		/varset _toonName ${DanNet.Peers.Arg[${_count},|].Left[1].Upper}${DanNet.Peers.Arg[${_count},|].Right[-1]}
+	/for _count 1 to ${DanNet[${DanNetMacroChannel}].PeerCount}
+		| /echo ${DanNet[${DanNetMacroChannel}].Peers.Arg[${_count},|].Left[1].Upper}${DanNet[${DanNetMacroChannel}].Peers.Arg[${_count},|].Right[-1]}
+		/varset _toonName ${DanNet[${DanNetMacroChannel}].Peers.Arg[${_count},|].Left[1].Upper}${DanNet[${DanNetMacroChannel}].Peers.Arg[${_count},|].Right[-1]}
 		
 		| if i'm issuing the command. turn off tie and move along
 		/if (${_toonName.Equal[${Me.DisplayName}]}) {
-			/call sql_update FALSE movement setTieToon FALSE
+			/call sql_update FALSE ${chrID} setTieToon FALSE
 			/continue
 		}
 		
@@ -2332,13 +2376,13 @@ sub Bind_imincharge()
 		/if (!${Spawn[pc ${_toonName}].ID}) /continue
 		
 		| update the toons DB setting
-		/sqlite ${dbCore} onoff UPDATE character SET movement="${Me.DisplayName}" WHERE chrID="${MacroQuest.Server}_${Spawn[pc ${_toonName}].Class.ShortName}_${_toonName}"
-		
-		| reset the variable in memory
 		/dexecute ${_toonName} /squelch /target clear
-		/dexecute ${_toonName} /varset setTieToon ${Me.DisplayName}
+		/dexecute ${_toonName} /tc name ${Me.DisplayName}
+
+		| /sqlite ${dbCore} dummy UPDATE ${chrID} SET setTieToon="${Me.DisplayName}" WHERE currentBuild="${currentBuild}"
+		
 	/next _count
-	OUT ${obroadcasted} ${sep} I'm the damn boss!
+	OUT ${obroadcasted} ${sep} Gator's bitches better be using jimmies!
 
 /return
 	
@@ -2423,10 +2467,14 @@ sub Bind_get_the_fuck_out()
  ***|
 #bind campfire /campfire
 sub Bind_campfire(string _verbage)
-	/declare _count int local 0
 	/declare _bind string local campfire
+	| /declare _list string local ${sql_return[lstTypes${_bind}]}
+	| /if (${Bool[${_type}]}) {
+	| 	/varset _type ${list_isoloate[lstTypes${_bind}, ${_type}]}
+	| 	}
+	/declare _count int local 0
 	/declare _listout string local
-	/declare _sep bool local FALSE
+	/declare _sep bool local		
 	/declare campfireType string local |drop|port
 
 	| drop a campfire
@@ -2640,9 +2688,11 @@ sub Bind_sql_edit(string _variable, string _value, string _add_delete, bool _sil
 	/declare _count int local 0
 	/declare _countArray int local 
 	/declare _table string local
-	/declare _whereField string local
-	/declare _whereValue string local
 	/declare _found bool local FALSE
+	/declare _db string local ${dbCore}
+
+
+	
 	
 	| error instructions
 	/if (!${Bool[${_variable}]} || (!${Bool[${_value}]} && ${_value.NotEqual[FALSE]})) {
@@ -2651,85 +2701,76 @@ sub Bind_sql_edit(string _variable, string _value, string _add_delete, bool _sil
 	} 
 
 	| find the table that holds the data we need to adjust
-	/for _countArray 1 to ${sqlTables.Size}
-		/for _count 1 to ${sqlTables[${_countArray}].Count[|]}
-			| SDEBUG ${sqlTables[${_countArray}].Arg[${_count},|]}
+	/for _count 1 to ${sqlTablesCount}
 
-			| prep sql info needed so it does not have to be done inline
-			/varset _table ${sqlTables[${_countArray}].Arg[${_count},|]}
+		| adjust db for character
+		/if (${sqlTables.Arg[${_count},|].Equal[${chrID}]}) /varset _db ${chrDBID}
+
+		| prep sql info needed so it does not have to be done inline
+		/varset _table ${sqlTables.Arg[${_count},|]}
+		
+		| SDEBUG Looking in: \at${_table}\ax WHERE \awcurrentBuild\ax = \aw"${currentBuild}"\ax
 			
-			/if (${_countArray} == 1) {
-				/varset _whereField ${sql_where.Arg[1,|]}
-				/varset _whereValue ${sql_where.Arg[2,|]}
-			} else /if (${_countArray} == 2) {
-				/varset _whereField ${sql_where.Arg[3,|]}
-				/varset _whereValue ${sql_where.Arg[4,|]}
-			}
+		/sqlite ${_db} sqlFindTable SELECT ${_variable} FROM ${_table} WHERE currentBuild="${currentBuild}"
+		/if (!${sqlite.Rows[sqlFindTable]}) /continue
+		/varset _found TRUE
+		| SDEBUG FOUND ${_variable} ${_table} WHERE currentBuild="${currentBuild}""
 			
-			| SDEBUG Looking in: \at${_table}\ax WHERE \aw${_whereField}\ax = \aw"${_whereValue}"\ax
-				
-			/sqlite ${dbCore} sqlFindTable SELECT ${_variable} FROM ${_table} WHERE ${_whereField}="${_whereValue}"
-			/if (!${sqlite.Rows[sqlFindTable]}) /continue
-			/varset _found TRUE
-			| SDEBUG FOUND ${_variable} ${_table} WHERE ${_whereField}="${_whereValue}"
-				
-			| if we add or delete data, prep the _value first before entering it
-			/declare _varData string local ${sql_return[${_variable}, dummy]}
+		| if we add or delete data, prep the _value first before entering it
+		/declare _varData string local ${sql_return[${_variable}]}
+		
+		| add to an existig or default value
+		/if (${_add_delete.Equal[add]}) {
+			| dont waste time adding same shit. we dont want dupes anyway
+			/if (${_varData.Find[${_value}]}) /return TRUE
 			
-			| add to an existig or default value
-			/if (${_add_delete.Equal[add]}) {
-				| dont waste time adding same shit. we dont want dupes anyway
-				/if (${_varData.Find[${_value}]}) /return TRUE
-				
-				| clear any false/.default data on new entries
-				/if (${_varData.Find[|FALSE]} || ${_varData.Find[FALSE]} ) /varset _varData
-				
-				| adjust the variable
-				/varset _value ${_varData}|${_value}
+			| clear any false/.default data on new entries
+			/if (${_varData.Find[|FALSE]} || ${_varData.Find[FALSE]} ) /varset _varData
+			
+			| adjust the variable
+			/varset _value ${_varData}|${_value}
 
-			| delete an existing value
-			} else /if (${_add_delete.Equal[delete]}) {
-				
-				| dont try and delete anything that is not there
-				/if (!${_varData.Find[${_value}]}) /return TRUE
-	
-				/varset _value |${_value}
-				/declare _a int local
-				/declare _b int local
-				/declare _strLeft string local
-				/declare _strRight string local
-				
-				| split the data along the | point of the list to be removed.
-				/varcalc _a ${_varData.Find[${_value}]}-1
-				/varcalc _b ${_varData.Length}-${_value.Length}-${_a}
-				/if (${_a} >= 0) /varset _strLeft ${If[${Select[${_a},0,NULL,FALSE,""]},,${_varData.Left[${_a}]}]}
-				/if (${_a} >= 0) /varset _strRight ${If[${Select[${_b},0,NULL,FALSE,""]},,${_varData.Right[${_b}]}]} 
-				
-				| reconnect the two variables w/o the data to be removed
-				/varset _value ${_strLeft}${_strRight}	
-				
-				| if last entity deleted, reset to factory false
-				/if (${_value.Equal[NULL]} || !${Bool[${_value}]}) /varset _value |FALSE
-				
-			} else /if (${_add_delete.Equal[NA]}) {
-			}
-	
-			| update the _value into the DB						
-			/sqlite ${dbCore} dummy UPDATE ${_table} SET ${_variable}="${_value}" WHERE ${_whereField}="${_whereValue}"
-			/sqlite ${dbCore} dummy SELECT ${_variable} FROM ${_table} WHERE ${_whereField}="${_whereValue}"
+		| delete an existing value
+		} else /if (${_add_delete.Equal[delete]}) {
+			
+			| dont try and delete anything that is not there
+			/if (!${_varData.Find[${_value}]}) /return TRUE
 
+			/varset _value |${_value}
+			/declare _a int local
+			/declare _b int local
+			/declare _strLeft string local
+			/declare _strRight string local
+			
+			| split the data along the | point of the list to be removed.
+			/varcalc _a ${_varData.Find[${_value}]}-1
+			/varcalc _b ${_varData.Length}-${_value.Length}-${_a}
+			/if (${_a} >= 0) /varset _strLeft ${If[${Select[${_a},0,NULL,FALSE,""]},,${_varData.Left[${_a}]}]}
+			/if (${_a} >= 0) /varset _strRight ${If[${Select[${_b},0,NULL,FALSE,""]},,${_varData.Right[${_b}]}]} 
+			
+			| reconnect the two variables w/o the data to be removed
+			/varset _value ${_strLeft}${_strRight}	
+			
+			| if last entity deleted, reset to factory false
+			/if (${_value.Equal[NULL]} || !${Bool[${_value}]}) /varset _value |FALSE
+			
+		} else /if (${_add_delete.Equal[NA]}) {
+		}
 
-			| repopulate the variable
-			/varset ${_variable} ${sqlite.Result[dummy 1 ${_variable}]}
+		| update the _value into the DB						
+		/sqlite ${_db} dummy UPDATE ${_table} SET ${_variable}="${_value}" WHERE currentBuild="${currentBuild}"
+		/sqlite ${_db} dummy SELECT ${_variable} FROM ${_table} WHERE currentBuild="${currentBuild}"
 
-			| results!
-			/if (!${Bool[${_silent}]}) VSQL /edit ${sep} ${cinfo}${_table}\ax::${cinfo}${_variable}\ax::${If[${sqlite.Status[dummy].Equal[Success]},${cgood}${_value}\ax,${cbad}${${_variable}}\ax]}\ax
-			/call sql_clear FALSE dummy
-			/call sql_clear FALSE sqlFindTable
-			/return TRUE
+		| repopulate the variable
+		/varset ${_variable} ${sqlite.Result[dummy 1 ${_variable}]}
 
-		/next _count		
-	/next _countArray	 
+		| results!
+		/if (!${Bool[${_silent}]}) VSQL /edit ${sep} ${cinfo}${_variable}\ax::${If[${sqlite.Status[dummy].Equal[Success]},${cgood}${_value}\ax,${cbad}${${_variable}}\ax]}\ax
+		/call sql_clear FALSE dummy
+		/call sql_clear FALSE sqlFindTable
+		/return TRUE
+
+	/next _count		
 	
 	| out error if we never found the variable the user entered
 	/if (!${_found}) VSQL \arSQLite Error\ax in ${sep} ::\aw${_variable}\ax
@@ -2801,24 +2842,22 @@ sub Bind_Core_environment(string _type, string _verbage, bool _silent)
 	/declare _bind string local Environment
 	/declare _listout string local
 	/declare _sep bool local FALSE
+	
+
+	
+	
 
 	| set mob minimum lvl for attacking
 	/if (${_type.Equal[moblvlmin]}) {
 		/call sql_update FALSE ${_bind.Lower} setMobLvlMin ${_verbage}
 
 	| set mob maximum level for attacking
+	} else /if (${_type.Equal[TLP]}) {
+		/call sql_update FALSE ${_bind.Lower} swTLP ${_verbage}
+
+	| set mob maximum level for attacking
 	} else /if (${_type.Equal[moblvmax]}) {
 		/call sql_update FALSE ${_bind.Lower} setMobLvlMax ${_verbage}
-
-	| enable TLP settings
-	} else /if (${_type.Equal[tlp]}) {
-		/call sql_update FALSE ${_bind.Lower} swTLP ${_verbage}
-		/delay 1s
-		| force mac restart if turning on the switch
-		/if (${swTLP}) {
-			OUT ${owarning} ${sep} \awENDING MACRO\ax ${sep} RESTART to rebuild database for TLP.
-			/endm
-		}
 
 	| use sarcastic remarks
 	} else /if (${_type.Equal[bitch]}) {
@@ -2936,6 +2975,10 @@ sub Bind_Core_environment(string _type, string _verbage, bool _silent)
 		/call set_switch ${_bind.Lower} swEchosSQL ${_verbage}
 
 	}
+	
+	| /if (${_type.Find[echosql]}) {
+	| 	
+	| }
 
 	/if (${swMQClear}) /mqclear
 	| VOUT /${_bind.Lower} 
@@ -3037,8 +3080,8 @@ sub Bind_hud(string _type, string _verbage, bool _silent)
 	
 	/if (${_silent}) /return
 
-	/for _count 1 to ${lstTypes${_bind}.Count[|]}
-		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${lstTypes${_bind}.Arg[${_count},|]}\ax
+	/for _count 1 to ${_list.Count[|]}
+		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${_list.Arg[${_count},|]}\ax
 		/varset _sep TRUE
 	/next _count
 	VOUT /${_bind.Lower} [${_listout}]
@@ -3054,15 +3097,28 @@ sub Bind_hud(string _type, string _verbage, bool _silent)
  ***| 
 #bind admin /admin
 sub Bind_admin(string _type, string _verbage, string _verbage2, bool _silent)
-	/declare _sep bool local
-	/declare _listout string local
+	/declare _bind string local Admin
+	/declare _list string local ${sql_return[lstTypes${_bind}]}
+	/if (${Bool[${_type}]}) {
+		/varset _type ${list_isoloate[lstTypes${_bind}, ${_type}]}
+		}
 	/declare _count int local 0
-	/declare _bind string local Admin	
-
+	/declare _listout string local
+	/declare _sep bool local		
 	| echo the notice
 	/if (${_type.Equal[notice]}) {
 		/mqclear
 		/call echo_notice
+		/return
+
+	| force a DB validation
+	} else /if (${_type.Equal[forceupdate]}) {
+		OUT ${onotice} ${sep} Forcing Database updates..
+		/varset swForceUpdate TRUE
+		/call sql_schema FALSE
+		/delay 1s
+		/varset swForceUpdate FALSE
+		OUT ${cgood}Ready\ax
 		/return
 
 	| xtarget control
@@ -3083,16 +3139,37 @@ sub Bind_admin(string _type, string _verbage, string _verbage2, bool _silent)
 	| this is used for adjusting the PRAGMA journal_mode of how the database writes data.
 	| i strongly suggest you dont fuck with this unless know what you are doing.	
 	} else /if (${_type.Equal[journalmode]}) {
-		/if (${_verbage.Equal[DELETE]}) /sqlite ${dbCore} query_journal_mode PRAGMA journal_mode=DELETE
-		/if (${_verbage.Equal[TRUNCATE]}) /sqlite ${dbCore} query_journal_mode PRAGMA journal_mode=TRUNCATE
-		/if (${_verbage.Equal[PERSIST]}) /sqlite ${dbCore} query_journal_mode PRAGMA journal_mode=PERSIST
-		/if (${_verbage.Equal[MEMORY]}) /sqlite ${dbCore} query_journal_mode PRAGMA journal_mode=MEMORY
-		/if (${_verbage.Equal[WAL]}) /sqlite ${dbCore} query_journal_mode PRAGMA journal_mode=WAL
-		/if (${_verbage.Equal[OFF]}) /sqlite ${dbCore} query_journal_mode PRAGMA journal_mode=OFF
+		/if (${_verbage.Equal[DELETE]}) {
+			/sqlite ${dbCore} query_journal_core PRAGMA journal_mode=DELETE
+			/sqlite ${chrDBID} query_journal_character PRAGMA journal_mode=DELETE
+		} else /if (${_verbage.Equal[TRUNCATE]}) {
+			/sqlite ${dbCore} query_journal_core PRAGMA journal_mode=TRUNCATE
+			/sqlite ${chrDBID} query_journal_character PRAGMA journal_mode=TRUNCATE
+		} else /if (${_verbage.Equal[PERSIST]}) {
+			/sqlite ${dbCore} query_journal_core PRAGMA journal_mode=PERSIST
+			/sqlite ${chrDBID} query_journal_character PRAGMA journal_mode=PERSIST
+		} else /if (${_verbage.Equal[MEMORY]}) {
+			/sqlite ${dbCore} query_journal_core PRAGMA journal_mode=MEMORY
+			/sqlite ${chrDBID} query_journal_character PRAGMA journal_mode=MEMORY
+		} else /if (${_verbage.Equal[WAL]}) {
+			/sqlite ${dbCore} query_journal_core PRAGMA journal_mode=WAL
+			/sqlite ${chrDBID} query_journal_character PRAGMA journal_mode=WAL
+		} else /if (${_verbage.Equal[OFF]}) {
+			/sqlite ${dbCore} query_journal_core PRAGMA journal_mode=OFF
+			/sqlite ${chrDBID} query_journal_character PRAGMA journal_mode=OFF
+		}
 
 		/declare _lstList string local |DELETE|TRUNCATE|PERSIST|MEMORY|WAL|OFF
+		/declare _db1 string local
+		/declare _db2 string local
+		/declare _out string local
+		
 		/for _count 1 to ${_lstList.Count[|]}
-			/varset _listout ${_listout} ${If[${_sep},${sep},]} ${If[${sqlite.Result[query_journal_mode 1 journal_mode].Equal[${_lstList.Arg[${_count},|]}]},${cgood}${_lstList.Arg[${_count},|]}\ax,${cinfo}${_lstList.Arg[${_count},|]}\ax]}
+			/varset _out ${cinfo}${_lstList.Arg[${_count},|]}\ax${cnum}(\ax
+			/varset _db1 ${If[${sqlite.Result[query_journal_core 1 journal_mode].Equal[${_lstList.Arg[${_count},|]}]},${cgood}E\ax,${cbad}E\ax]}
+			/varset _db2 ${If[${sqlite.Result[query_journal_character 1 journal_mode].Equal[${_lstList.Arg[${_count},|]}]},${cgood}C\ax,${cbad}C\ax]}
+			/varset _out ${_out}${_db1}:${_db2}${cnum})\ax
+			/varset _listout ${_listout} ${If[${_sep},${sep},]} ${If[${sqlite.Result[query_journal_mode 1 journal_mode].Equal[${_lstList.Arg[${_count},|]}]},${_out},${_out}]}
 			/varset _sep TRUE
 		/next _count
 		VOUT /${_bind.Lower} journalmode [${_listout}]	
@@ -3100,7 +3177,7 @@ sub Bind_admin(string _type, string _verbage, string _verbage2, bool _silent)
 	
 	| place in maintenance mode
 	} else /if (${_type.Equal[maintenance]}) {
-		/call set_switch character swMaintenance ${_verbage}
+		/call set_switch ${chrID} swMaintenance ${_verbage}
 
 	} else /if (${_type.Equal[blockedbuffs]}) {
 	
@@ -3150,14 +3227,14 @@ sub Bind_admin(string _type, string _verbage, string _verbage2, bool _silent)
 			VOUT /${_bind.Lower} get [${cnum}variable name\ax]
 			/return FALSE
 		}
-		OUT ${_verbage} ${sep} ${cnum}${sql_return[${_verbage}, dummy]}\ax
+		OUT ${_verbage} ${sep} ${cnum}${sql_return[${_verbage}]}\ax
 		/return
 
 	| list the tables for viewing
 	} else /if (${_type.Equal[table]}) {
 		/if (!${Bool[${_verbage}]}) {
-			/for _count 1 to ${sqlTables[1].Count[|]}
-				/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${sqlTables[1].Arg[${_count},|]}\ax		
+			/for _count 1 to ${sqlTables.Count[|]}
+				/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${sqlTables.Arg[${_count},|]}\ax		
 				/varset _sep TRUE
 			/next _count
 			VOUT /${_bind.Lower} table [${_listout} ${sep} ${cinfo}environment\ax]	
@@ -3186,15 +3263,15 @@ sub Bind_admin(string _type, string _verbage, string _verbage2, bool _silent)
 			OUT Buff List ${sep} ${If[${Bool[${_verbage2}]},#${Int[${_verbage2}]},]}
 			/for _count 1 to 10
 				/if (${Bool[${_verbage2}]} && ${_verbage2.NotEqual[${_count}]}) /continue
-				OUT Buff${cinfo}${_count}\ax ${sep} ${cnum}${sql_return[Buff${_count}, dummy]}\ax
-				OUT Buff${cinfo}${_count}\axself ${sep} ${cnum}${sql_return[Buff${_count}self, dummy]}\ax
-				OUT Buff${cinfo}${_count}\axselfCondition ${sep} ${cnum}${sql_return[Buff${_count}selfCondition, dummy]}\ax
-				OUT Buff${cinfo}${_count}\axAlias ${sep} ${cnum}${sql_return[Buff${_count}Alias, dummy]}\ax
-				OUT BCBuff${cinfo}${_count}\axClass ${sep} ${cnum}${sql_return[BCBuff${_count}Class, dummy]}\ax
-				OUT RaidBuff${cinfo}${_count}\axClass ${sep} ${cnum}${sql_return[RaidBuff${_count}Class, dummy]}\ax
-				OUT ManualBuff${cinfo}${_count}\axClass ${sep} ${cnum}${sql_return[ManualBuff${_count}Class, dummy]}\ax
-				OUT ManualBuff${cinfo}${_count}\axCheck ${sep} ${cnum}${sql_return[ManualBuff${_count}Check, dummy]}\ax
-				OUT Buff${cinfo}${_count}\axnoBCinRaid ${sep} ${cnum}${sql_return[Buff${_count}noBCinRaid, dummy]}\ax
+				OUT Buff${cinfo}${_count}\ax ${sep} ${cnum}${sql_return[Buff${_count}]}\ax
+				OUT Buff${cinfo}${_count}\axself ${sep} ${cnum}${sql_return[Buff${_count}self]}\ax
+				OUT Buff${cinfo}${_count}\axselfCondition ${sep} ${cnum}${sql_return[Buff${_count}selfCondition]}\ax
+				OUT Buff${cinfo}${_count}\axAlias ${sep} ${cnum}${sql_return[Buff${_count}Alias]}\ax
+				OUT BCBuff${cinfo}${_count}\axClass ${sep} ${cnum}${sql_return[BCBuff${_count}Class]}\ax
+				OUT RaidBuff${cinfo}${_count}\axClass ${sep} ${cnum}${sql_return[RaidBuff${_count}Class]}\ax
+				OUT ManualBuff${cinfo}${_count}\axClass ${sep} ${cnum}${sql_return[ManualBuff${_count}Class]}\ax
+				OUT ManualBuff${cinfo}${_count}\axCheck ${sep} ${cnum}${sql_return[ManualBuff${_count}Check]}\ax
+				OUT Buff${cinfo}${_count}\axnoBCinRaid ${sep} ${cnum}${sql_return[Buff${_count}noBCinRaid]}\ax
 			/next _count
 			
 		| list unity buffs
@@ -3202,7 +3279,7 @@ sub Bind_admin(string _type, string _verbage, string _verbage2, bool _silent)
 			/mqclear
 			OUT AA Unity List ${sep}
 			/for _count 1 to 7
-				OUT BuffAAUnity${cinfo}${_count}\ax ${sep} ${cnum}${sql_return[BuffAAUnity${_count}, dummy]}\ax
+				OUT BuffAAUnity${cinfo}${_count}\ax ${sep} ${cnum}${sql_return[BuffAAUnity${_count}]}\ax
 			/next _count
 			
 		| list nukes
@@ -3211,8 +3288,8 @@ sub Bind_admin(string _type, string _verbage, string _verbage2, bool _silent)
 			OUT Nuke List ${sep} ${If[${Bool[${_verbage2}]},#${Int[${_verbage2}]},]}
 			/for _count 1 to 8
 				/if (${Bool[${_verbage2}]} && ${_verbage2.NotEqual[${_count}]}) /continue
-				OUT Nuke${cinfo}${_count}\ax ${sep} ${cnum}${sql_return[Nuke${_count}, dummy]}\ax
-				OUT Nuke${cinfo}${_count}\axCondition ${sep} ${cnum}${sql_return[Nuke${_count}Condition, dummy]}\ax
+				OUT Nuke${cinfo}${_count}\ax ${sep} ${cnum}${sql_return[Nuke${_count}]}\ax
+				OUT Nuke${cinfo}${_count}\axCondition ${sep} ${cnum}${sql_return[Nuke${_count}Condition]}\ax
 			/next _count
 
 		| list DoTs
@@ -3221,19 +3298,19 @@ sub Bind_admin(string _type, string _verbage, string _verbage2, bool _silent)
 			OUT DoT List ${sep} ${If[${Bool[${_verbage2}]},#${Int[${_verbage2}]},]}
 			/for _count 1 to 8
 				/if (${Bool[${_verbage2}]} && ${_verbage2.NotEqual[${_count}]}) /continue
-				OUT DoT${cinfo}${_count}\ax ${sep} ${cnum}${sql_return[DoT${_count}, dummy]}\ax
-				OUT DoT${cinfo}${_count}\axchk ${sep} ${cnum}${sql_return[DoT${_count}chk, dummy]}\ax
-				OUT DoT${cinfo}${_count}\axCondition ${sep} ${cnum}${sql_return[DoT${_count}Condition, dummy]}\ax
+				OUT DoT${cinfo}${_count}\ax ${sep} ${cnum}${sql_return[DoT${_count}]}\ax
+				OUT DoT${cinfo}${_count}\axchk ${sep} ${cnum}${sql_return[DoT${_count}chk]}\ax
+				OUT DoT${cinfo}${_count}\axCondition ${sep} ${cnum}${sql_return[DoT${_count}Condition]}\ax
 			/next _count
 
 		| list GoM
 		} else /if (${_verbage.Equal[gom]}) {
 			/mqclear
 			OUT GoM List ${sep}
-			OUT GoMNuke ${sep} ${cnum}${sql_return[GoMNuke, dummy]}\ax
-			OUT GoMNukeCondition ${sep} ${cnum}${sql_return[GoMNukeCondition, dummy]}\ax
-			OUT GoMNuke2 ${sep} ${cnum}${sql_return[GoMNuke2, dummy]}\ax
-			OUT GoMNuke2Condition ${sep} ${cnum}${sql_return[GoMNuke2Condition, dummy]}\ax
+			OUT GoMNuke ${sep} ${cnum}${sql_return[GoMNuke]}\ax
+			OUT GoMNukeCondition ${sep} ${cnum}${sql_return[GoMNukeCondition]}\ax
+			OUT GoMNuke2 ${sep} ${cnum}${sql_return[GoMNuke2]}\ax
+			OUT GoMNuke2Condition ${sep} ${cnum}${sql_return[GoMNuke2Condition]}\ax
 
 		| click DPS items
 		} else /if (${_verbage.Equal[clickitem]}) {
@@ -3241,7 +3318,7 @@ sub Bind_admin(string _type, string _verbage, string _verbage2, bool _silent)
 			OUT DPS Click List ${sep} ${If[${Bool[${_verbage2}]},#${Int[${_verbage2}]},]}
 			/for _count 1 to 6
 				/if (${Bool[${_verbage2}]} && ${_verbage2.NotEqual[${_count}]}) /continue
-				OUT clickItem${cinfo}${_count}\ax ${sep} ${cnum}${sql_return[clickItem${_count}, dummy]}\ax
+				OUT clickItem${cinfo}${_count}\ax ${sep} ${cnum}${sql_return[clickItem${_count}]}\ax
 			/next _count
 
 		| click DPS items
@@ -3250,7 +3327,7 @@ sub Bind_admin(string _type, string _verbage, string _verbage2, bool _silent)
 			OUT Click Buff Item List ${sep} ${If[${Bool[${_verbage2}]},#${Int[${_verbage2}]},]}
 			/for _count 1 to 6
 				/if (${Bool[${_verbage2}]} && ${_verbage2.NotEqual[${_count}]}) /continue
-				OUT clickItemBuff${cinfo}${_count}\ax ${sep} ${cnum}${sql_return[clickItemBuff${_count}, dummy]}\ax
+				OUT clickItemBuff${cinfo}${_count}\ax ${sep} ${cnum}${sql_return[clickItemBuff${_count}]}\ax
 			/next _count
 		
 		| click BURN DPS items
@@ -3259,7 +3336,7 @@ sub Bind_admin(string _type, string _verbage, string _verbage2, bool _silent)
 			OUT Burn Click List ${sep} ${If[${Bool[${_verbage2}]},#${Int[${_verbage2}]},]}
 			/for _count 1 to 6
 				/if (${Bool[${_verbage2}]} && ${_verbage2.NotEqual[${_count}]}) /continue
-				OUT clickItemBurn${cinfo}${_count}\ax ${sep} ${cnum}${sql_return[clickItemBurn${_count}, dummy]}\ax
+				OUT clickItemBurn${cinfo}${_count}\ax ${sep} ${cnum}${sql_return[clickItemBurn${_count}]}\ax
 			/next _count
 
 		| click swarm DPS items
@@ -3268,7 +3345,7 @@ sub Bind_admin(string _type, string _verbage, string _verbage2, bool _silent)
 			OUT Swarm Click List ${sep} ${If[${Bool[${_verbage2}]},#${Int[${_verbage2}]},]}
 			/for _count 1 to 6
 				/if (${Bool[${_verbage2}]} && ${_verbage2.NotEqual[${_count}]}) /continue
-				OUT clickItemSwarm${cinfo}${_count}\ax ${sep} ${cnum}${sql_return[clickItemSwarm${_count}, dummy]}\ax
+				OUT clickItemSwarm${cinfo}${_count}\ax ${sep} ${cnum}${sql_return[clickItemSwarm${_count}]}\ax
 			/next _count
 
 		| AA/Disc Now
@@ -3277,15 +3354,15 @@ sub Bind_admin(string _type, string _verbage, string _verbage2, bool _silent)
 			OUT AA/Disc/Item Now List ${sep} ${If[${Bool[${_verbage2}]},#${Int[${_verbage2}]},]}
 			/for _count 1 to 2
 				/if (${Bool[${_verbage2}]} && ${_verbage2.NotEqual[${_count}]}) /continue
-				OUT AANow${cinfo}${_count}\ax ${sep} ${cnum}${sql_return[AANow${_count}, dummy]}\ax
+				OUT AANow${cinfo}${_count}\ax ${sep} ${cnum}${sql_return[AANow${_count}]}\ax
 			/next _count
 			/for _count 1 to 2
 				/if (${Bool[${_verbage2}]} && ${_verbage2.NotEqual[${_count}]}) /continue
-				OUT DiscNow${cinfo}${_count}\ax ${sep} ${cnum}${sql_return[DiscNow${_count}, dummy]}\ax
+				OUT DiscNow${cinfo}${_count}\ax ${sep} ${cnum}${sql_return[DiscNow${_count}]}\ax
 			/next _count
 			/for _count 1 to 2
 				/if (${Bool[${_verbage2}]} && ${_verbage2.NotEqual[${_count}]}) /continue
-				OUT ItemNow${cinfo}${_count}\ax ${sep} ${cnum}${sql_return[ItemNow${_count}, dummy]}\ax
+				OUT ItemNow${cinfo}${_count}\ax ${sep} ${cnum}${sql_return[ItemNow${_count}]}\ax
 			/next _count				
 		| odds and ends
 		} else /if (${_verbage.Equal[odditem]}) {
@@ -3293,7 +3370,7 @@ sub Bind_admin(string _type, string _verbage, string _verbage2, bool _silent)
 			OUT Odd Items List ${sep} ${If[${Bool[${_verbage2}]},#${Int[${_verbage2}]},]}
 			/for _count 1 to 4
 				/if (${Bool[${_verbage2}]} && ${_verbage2.NotEqual[${_count}]}) /continue
-				OUT clickOddItem${cinfo}${_count}\ax ${sep} ${cnum}${sql_return[clickOddItem${_count}, dummy]}\ax
+				OUT clickOddItem${cinfo}${_count}\ax ${sep} ${cnum}${sql_return[clickOddItem${_count}]}\ax
 			/next _count
 
 		| breastplate stacking
@@ -3302,9 +3379,9 @@ sub Bind_admin(string _type, string _verbage, string _verbage2, bool _silent)
 			OUT Breastplates List ${sep} ${If[${Bool[${_verbage2}]},#${Int[${_verbage2}]},]}
 			/for _count 1 to 2
 				/if (${Bool[${_verbage2}]} && ${_verbage2.NotEqual[${_count}]}) /continue
-				OUT Breastplate${cinfo}${_count}\ax ${sep} ${cnum}${sql_return[Breastplate${_count}, dummy]}\ax
-				OUT Breastplate${cinfo}${_count}\axCondition ${sep} ${cnum}${sql_return[Breastplate${_count}Condition, dummy]}\ax
-				OUT Breastplate${cinfo}${_count}\axeffect ${sep} ${cnum}${sql_return[Breastplate${_count}effect, dummy]}\ax
+				OUT Breastplate${cinfo}${_count}\ax ${sep} ${cnum}${sql_return[Breastplate${_count}]}\ax
+				OUT Breastplate${cinfo}${_count}\axCondition ${sep} ${cnum}${sql_return[Breastplate${_count}Condition]}\ax
+				OUT Breastplate${cinfo}${_count}\axeffect ${sep} ${cnum}${sql_return[Breastplate${_count}effect]}\ax
 			/next _count
 
 		| breastplate stacking
@@ -3313,9 +3390,9 @@ sub Bind_admin(string _type, string _verbage, string _verbage2, bool _silent)
 			OUT Breastplates List ${sep} ${If[${Bool[${_verbage2}]},#${Int[${_verbage2}]},]}
 			/for _count 1 to 3
 			/if (${Bool[${_verbage2}]} && ${_verbage2.NotEqual[${_count}]}) /continue
-				OUT setFam${cinfo}${_count}\ax ${sep} ${cnum}${sql_return[setFam${_count}, dummy]}\ax
-				OUT setFam${cinfo}${_count}\axBuff ${sep} ${cnum}${sql_return[setFam${_count}Buff, dummy]}\ax
-				OUT swFam${cinfo}${_count}\axLeave ${sep} ${cnum}${sql_return[swFam${_count}Leave, dummy]}\ax
+				OUT setFam${cinfo}${_count}\ax ${sep} ${cnum}${sql_return[setFam${_count}]}\ax
+				OUT setFam${cinfo}${_count}\axBuff ${sep} ${cnum}${sql_return[setFam${_count}Buff]}\ax
+				OUT swFam${cinfo}${_count}\axLeave ${sep} ${cnum}${sql_return[swFam${_count}Leave]}\ax
 			/next _count
 	
 
@@ -3351,9 +3428,10 @@ sub Bind_admin(string _type, string _verbage, string _verbage2, bool _silent)
 
 	/if (${_silent}) /return
 	/if (${swMQClear}) /mqclear	
-	/for _count 1 to ${lstTypes${_bind}.Count[|]}
-		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${lstTypes${_bind}.Arg[${_count},|]}\ax
-		/if (${lstTypes${_bind}.Arg[${_count},|].Equal[maintenance]}) /varset _listout ${_listout}:${If[${swMaintenance},${oon},${ooff}]}
+		
+	/for _count 1 to ${_list.Count[|]}
+		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${_list.Arg[${_count},|]}\ax
+		/if (${_list.Arg[${_count},|].Equal[maintenance]}) /varset _listout ${_listout}:${If[${swMaintenance},${oon},${ooff}]}
 		/varset _sep TRUE
 	/next _count
 	VOUT /${_bind.Lower} [${_listout}]
@@ -3542,6 +3620,7 @@ sub Bind_port_list(string _class, string _location, string _sublocation)
 
 		| TBL port lamp
 		} else /if (${_location.Equal[lamp]}) {
+			/if (!${FindItem[Wishing Lamp:]}) OUT ${onotice} ${sep} no wishing lamp. sorry, not sorry..
 			
 			/if (!${Bool[${_sublocation}]}) {
 				/declare _sublist string local |zephyr|palace|stone
@@ -3597,6 +3676,7 @@ sub Bind_port_list(string _class, string _location, string _sublocation)
 
 		| zueria slide
 		} else /if (${_location.Equal[slide]}) {
+			/if (!${FindItem[Zueria Slide:]}) OUT ${onotice} ${sep} no slide. sorry, not sorry..
 
 			/if (!${Bool[${_sublocation}]}) {
 				/declare _sublist string local |stonebrunt|greatdivide|ro|nektulos|dreadlands|skyfire

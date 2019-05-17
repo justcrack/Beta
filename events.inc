@@ -34,6 +34,156 @@ sub events_speakline(string _target, string _verbage)
 
 
 
+    
+    | #event CAST_SUCCESS                "You are already on a mount#*#"
+    
+    
+#event CAST_BEGIN                  "You begin casting#*#"
+#event CAST_BEGIN                  "You begin singing#*#"
+#event CAST_BEGIN                  "Your #1# begins to glow."
+sub Event_CAST_BEGIN(string line)
+	/varset castReturn CAST_SUCCESS
+/return
+
+#event CAST_CANNOTSEE              "You cannot see your target#*#"
+sub Event_CAST_CANNOTSEE(string line)
+	/varset castReturn CAST_CANNOTSEE
+/return    
+
+#event CAST_COLLAPSE               "Your gate is too unstable, and collapses#*#"
+sub Event_CAST_COLLAPSE(string line)
+	/varset castReturn CAST_COLLAPSE
+/return
+
+#event CAST_COMPONENTS             "You are missing some required components#*#"
+#event CAST_COMPONENTS             "Your ability to use this item has been disabled because you do not have at least a gold membership#*#"
+sub Event_CAST_COMPONENTS(string line)
+	/varset castReturn CAST_COMPONENTS
+	/doevents flush
+/return    
+
+#event CAST_DISTRACTED             "You need to play a#*#instrument for this song#*#"
+#event CAST_DISTRACTED             "You are too distracted to cast a spell now#*#"
+#event CAST_DISTRACTED             "You can't cast spells while invulnerable#*#"
+#event CAST_DISTRACTED             "You *CANNOT* cast spells, you have been silenced#*#"
+sub Event_CAST_DISTRACTED(string line)
+	/varset castReturn CAST_DISTRACTED
+/return    
+
+#event CAST_FDFAIL                 "#1# has fallen to the ground.#*#" 
+sub Event_CAST_FDFAIL(string line, string _name)
+	/if (${_name.Equal[${Me.Name}]} && ${Defined[castReturn]}) {
+		/if (${Me.Sitting}) /stand
+		/varset castReturn CAST_RESTART
+	}
+/return
+
+#event CAST_FIZZLE                 "Your spell fizzles#*#"
+#event CAST_FIZZLE                 "You miss a note, bringing your song to a close#*#"
+sub Event_CAST_FIZZLE(string line)
+	/varset castReturn CAST_FIZZLE
+/return
+
+#event CAST_IMMUNE                 "Your target has no mana to affect#*#"
+#event CAST_IMMUNE                 "Your target is immune to changes in its attack speed#*#"
+#event CAST_IMMUNE                 "Your target is immune to changes in its run speed#*#"
+#event CAST_IMMUNE                 "Your target is immune to snare spells#*#"
+#event CAST_IMMUNE                 "Your target is immune to the stun portion of this effect#*#"
+#event CAST_IMMUNE                 "Your target cannot be mesmerized#*#"
+#event CAST_IMMUNE                 "Your target looks unaffected#*#"
+sub Event_CAST_IMMUNE(string line)
+	/varset castReturn CAST_IMMUNE
+/return
+
+#event CAST_INTERRUPTED            "Your spell is interrupted#*#"
+#event CAST_INTERRUPTED            "Your casting has been interrupted#*#"
+sub Event_CAST_INTERRUPTED(string line)
+	/varset castReturn CAST_INTERRUPTED
+/return
+
+#event CAST_NOMOUNT                "You can only summon a mount on dry land#*#"
+#event CAST_NOMOUNT                "You need to be in a more open area to summon a mount#*#"
+#event CAST_NOMOUNT                "You can not summon a mount here#*#"
+#event CAST_NOMOUNT                "You must have both the Horse Models and your current Luclin Character Model enabled to summon a mount#*#"
+sub Event_CAST_NOMOUNT(string line)
+	/varset castReturn CAST_NOMOUNT
+/return
+
+#event CAST_NOTARGET               "You must first select a target for this spell#*#"
+#event CAST_NOTARGET               "This spell only works on#*#"
+#event CAST_NOTARGET               "You must first target a group member#*#"
+sub Event_CAST_NOTARGET(string line)
+	/varset castReturn CAST_NOTARGET
+/return
+
+#event CAST_NOTREADY               "Spell recast time not yet met#*#"
+sub Event_CAST_NOTREADY
+	/varset castReturn CAST_NOTREADY
+/return
+
+#event CAST_OUTDOORS               "This spell does not work here#*#"
+#event CAST_OUTDOORS               "You can only cast this spell in the outdoors#*#"
+sub Event_CAST_OUTDOORS(string line)
+	/varset castReturn CAST_OUTOFMANA
+/return    
+
+#event CAST_OUTOFMANA              "Insufficient Mana to cast this spell#*#"
+sub Event_CAST_OUTOFMANA(string line)
+/varset castReturn CAST_OUTOFMANA
+	/return
+
+#event CAST_OUTOFRANGE             "Your target is out of range, get closer#*#"
+sub Event_CAST_OUTOFRANGE(string line)
+	/varset castReturn CAST_OUTOFRANGE
+/return
+
+#event CAST_RECOVER                "You haven't recovered yet#*#"
+#event CAST_RECOVER                "Spell recovery time not yet met#*#"
+sub Event_CAST_RECOVER(string line)
+	/varset castReturn CAST_RECOVER
+/return
+
+#event CAST_RESISTED               "Your target resisted the #1# spell#*#"
+#event CAST_RESISTED               "#*# resisted your #1#!"                                   
+sub Event_CAST_RESISTED(string line, string _name)
+	/if (!${CheckResisted}) /return
+	OUT \aw${_name.Right[-11].Left[-1]} was Resisted \ag
+	/if (${castReturn.NotEqual[CAST_IMMUNE]}) /varset castReturn CAST_RESISTED
+/return
+
+#event CAST_RESISTEDYOU            "You resist the #1# spell#*#"
+#event CAST_RESISTEDYOU            "You resist #*#"
+sub Event_CAST_RESISTEDYOU(string line)
+/return
+
+#event CAST_STANDING               "You must be standing to cast a spell#*#"
+sub Event_CAST_STANDING(string line)
+	/stand
+	/varset castReturn CAST_RESTART
+/return
+
+#event CAST_STUNNED                "You can't cast spells while stunned#*#"
+#event CAST_STUNNED                "You are stunned#*#" 
+sub Event_CAST_STUNNED(string line)
+	/if (${Me.Stunned}) {
+		/delay 3s !${Me.Stunned}
+	} else {
+		/delay 7
+	}
+	/varset castReturn CAST_STUNNED
+/return
+
+#event CAST_TAKEHOLD               "Your spell did not take hold#*#"
+#event CAST_TAKEHOLD               "Your spell would not have taken hold#*#"
+#event CAST_TAKEHOLD               "Your spell is too powerfull for your intended target#*#"
+#event CAST_TAKEHOLD               "This pet may not be made invisible#*#"    
+sub Event_CAST_TAKEHOLD(string line)
+	/varset castReturn CAST_TAKEHOLD
+/return   
+
+
+
+
 
 | 16th anniversary .. http://special.eqresource.com/pubcrawl.php
 |***
@@ -137,7 +287,7 @@ sub Event_16stein6(string line)
 
  
 #Event hatchet1 "#*#Hatchet hefts a weighted throwing axe in his offhand#*#"
-Sub event_hatchet1
+sub Event_hatchet1
   /if (!${swEventsInc}) /return
   /echo I NEED TO RUN AWAY
   /declare running 						int 		local
@@ -198,7 +348,7 @@ Sub event_hatchet1
 
 
 #Event hatchet2 "#*#Hatchet lifts his axe high#*#"
-Sub event_hatchet2
+sub Event_hatchet2
   /if (!${swEventsInc}) /return
   /echo I NEED TO RUN BETWEEN HIS LEGS
   /declare running							int local
@@ -260,7 +410,7 @@ Sub event_hatchet2
 
 #Event hatchet3 "#*#Hatchet levels his axe at your upper body#*#"
 #Event hatchet3 "#*#Breakneck hoists an arm back#*#"
-Sub event_hatchet3
+sub Event_hatchet3
   /if (!${swEventsInc}) /return
   /echo I NEED TO DUCK
   /if (${Me.Class.Name.Equal[BARD]}) /twist off
@@ -272,7 +422,7 @@ Sub event_hatchet3
   /if (${Me.Class.Name.Equal[BARD]}) /twist
 /return
 
-Sub event_hatchet4
+sub Event_hatchet4
   /echo RUN AWAY FROM THE NAMED!!!
   /if (${Stick.Status[ON]}) /stick off
   /mqp
@@ -282,7 +432,7 @@ Sub event_hatchet4
 #Event hatchet4 "#*#Hatchet locks eyes with you#*#"
 #Event hatchet4 "#*#Breakneck locks eyes with you and snorts#*#"
 #Event hatchet5 "#*#Hatchet the torturer levels#*#"
-Sub event_hatchet5
+sub Event_hatchet5
   /echo HE IS CHARGING SOMEONE
 /return
 
@@ -293,7 +443,7 @@ Sub event_hatchet5
 #Event hatchet6 "#*#By darting between#*#"
 #Event hatchet6 "#*#You outdistance the reach#*#"
 #Event hatchet6 "#*#Hatchet's axe passes#*#"
-sub event_hatchet6
+sub Event_hatchet6
   /echo DANGER IS GONE!
   /if (${Me.State.Equal[DUCK]}) /keypress DUCK
 /return

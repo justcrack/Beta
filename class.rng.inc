@@ -300,7 +300,7 @@ sub Bind_setRNG(string _type, string _verbage)
 	
 	| enable/disable summer line of spells
 	/if (${_type.Find[summer]}) {
-		/call set_switch RNG switchNukeSummer ${_verbage}
+		/call set_switch ${chrID} switchNukeSummer ${_verbage}
 
 	| spire control
 	} else /if (${_type.Equal[spiregroup]} || ${_type.Equal[spireraid]}) {
@@ -312,11 +312,11 @@ sub Bind_setRNG(string _type, string _verbage)
 
 	| use Modulation Rods
 	} else /if (${_type.Equal[rod]}) {
-		/call set_switch ${Me.Class.ShortName} swModRod ${_verbage} 	
+		/call set_switch ${chrID} swModRod ${_verbage} 	
 
 	| on/off taunt
 	} else /if (${_type.Equal[taunt]}) {
-		/call set_switch ${Me.Class.ShortName} taunt ${_verbage}  
+		/call set_switch ${chrID} taunt ${_verbage}  
 		
 	| mgb spice
 	} else /if (${Bool[${_type.Find[spice]}]}) {
@@ -328,9 +328,9 @@ sub Bind_setRNG(string _type, string _verbage)
 	| aa unity adjustment
 	} else /if (${_type.Equal[unity]}) {
 		/if (${unityType.Equal[Azia]}) {
-			/call sql_update FALSE ${Me.Class.ShortName} unityType "Beza"
+			/call sql_update FALSE ${chrID} unityType "Beza"
 		} else /if (${unityType.Equal[Beza]}) {
-			/call sql_update FALSE ${Me.Class.ShortName} unityType "Azia"
+			/call sql_update FALSE ${chrID} unityType "Azia"
 		}
 		/call setDeclare RNGAAUnity "Wildstalker's Unity (${unityType})"
 		

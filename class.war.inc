@@ -218,16 +218,16 @@ sub Bind_setWAR(string _type, string _verbage)
 
 	| on/off taunt
 	} else /if (${_type.Equal[taunt]}) {
-		/call set_switch ${Me.Class.ShortName} taunt ${_verbage}
+		/call set_switch ${chrID} taunt ${_verbage}
 
 	| attraction Warlord's Grasp while pulling
 	} else /if (${_type.Equal[attraction]}) {
-		/call set_switch ${Me.Class.ShortName} switchAttraction ${_verbage}
+		/call set_switch ${chrID} switchAttraction ${_verbage}
 
 	| panic heal pct
 	} else /if (${_type.Find[panicheal]}) {
 		/if (${Range.Between[1,99:${Int[${_verbage}]}]}) {
-			/call sql_update FALSE ${Me.Class.ShortName} PanicHPPCT ${_verbage}
+			/call sql_update FALSE ${chrID} PanicHPPCT ${_verbage}
 		} else /if (!${Range.Between[1,99:${Int[${_verbage}]}]}) {
 			VOUT /${_bind} panicheal [${cinfo}${${PanicHPPCT}\ax] allowable range ${sep} ${cinfo}1 - 99\ax
 			/return
@@ -235,12 +235,12 @@ sub Bind_setWAR(string _type, string _verbage)
 		
 	| AE or Focused Melee
 	} else /if (${_type.Equal[ae]}) {
-		/call set_switch ${Me.Class.ShortName} AEMelee ${_verbage}
+		/call set_switch ${chrID} AEMelee ${_verbage}
 
 	| defensive mob agro count
 	} else /if (${_type.Equal[defcount]}) {
 		/if (${Range.Between[1,50:${Int[${_verbage}]}]}) {
-			/call sql_update FALSE ${Me.Class.ShortName} defCount ${_verbage}
+			/call sql_update FALSE ${chrID} defCount ${_verbage}
 		} else /if (!${Bool[${_verbage}]} || !${Range.Between[1,50:${Int[${_verbage}]}]}) {
 			VOUT /${_bind} defcount [${cinfo}${countsetMobAgro}\ax] allowable range ${sep} ${cinfo}1 - 50 min\ax
 			/return
