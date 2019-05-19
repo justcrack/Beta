@@ -23,6 +23,20 @@ Plugins Required: MQ2Exchange, MQ2MoveUtils, MQ2Debuffs, MQ2DanNet, MQ2SQLite, M
     -- script: files use to aid database or character generation. these files are fair game, i will be overwriting them if i need
 
 
+BETA 0519.01
+- some more alterations to casting events 
+- /lc controls are working again
+- some more adjustments to the events for cast returns.
+- dying will now turn off your return to camp. so if you get draged and rezed you dont run back to wherever the hell you were (even tho it is funny)
+- removed /cc [geo] if you want to keep geomantra up all the time use DB::ItemNow1::geomantraclickitemname
+- core_cast2
+  -- i was not happy at all with how the casts were looping. so i re-did them. i'm happer then i was before
+- class.clr.inc
+  - some changes to accomodate a faster casting flow/return. if works well will pass on to druid, pal and shm
+- class.brd.inc
+  -- fixed the damn hanging on the rest song
+  
+
 BETA 0517.01
 THERE HAVE BEEN SOME CHANGES. PLEASE READ SLOWLY!
 DO NOT UPDATE UNTIL YOU HAVE READ AND UNDERSTOOD!

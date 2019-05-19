@@ -23,7 +23,7 @@ sub core_BRD()
 			/if (${addList.Count[|]}) /varset addList
 		}
 		/call timer_update timer_validate_lists ${tValidate_Lists}
-	}	
+	}
 		
 	/while (${prep_combat[]}) {
 		CHECKINPUTS
@@ -38,6 +38,7 @@ sub core_BRD()
 			/call list_delete mobList ${Target2Kill}
 			/return
 			:loop
+			/echo :loop
 			/if (${Spawn[${Target2Kill}].Type.Equal[Corpse]}  || !${Target2Kill} || !${Target.ID} || ${Target.Type.Equal[corpse]} || !${Spawn[${Target2Kill}].ID}) /call get_assist_target
 			/call check_for_adds
 			/if (${addList.Count[|]}) /call mez_adds_BRD
@@ -46,7 +47,55 @@ sub core_BRD()
 			/if (${mobList.Find[|]}) /call list_update mobList ${Target2Kill}
 			/call check_for_adds
 			/if (${addList.Count[|]}) /return
+			/if (!${addList.Count[|]}) /call check_deBuffs ${Target2Kill}
+			/if (${mobList.Find[|]}) /call list_update mobList ${Target2Kill}
 		}
+		
+		
+|**		
+		/if (${coreAuto} && ${swdeBuffMezz}) {
+			/call get_target_ENC
+			/if (${swBurnControl}) /call burn_${Me.Class.ShortName}
+			/if (${isValidTarget} && ${Target.ID} && ${Target.LineOfSight} && ${Target.Distance} <= ${setMobAgro} && (${Target.PctHPs} <= ${setEngagePct} || ${Spawn[PC ID ${Me.TargetOfTarget.ID} Radius 60].ID})) /goto :loop
+			| /if (${isValidTarget} && ${Target.LineOfSight} && ${Target.Distance} <= ${setMobAgro} && (${Target.PctHPs} <= ${setEngagePct} || ${Spawn[PC ID ${Me.TargetOfTarget.ID} Radius 60].ID})) /goto :loop
+			/if (${Bool[${mobList}]}) /call list_delete mobList ${Target2Kill}
+			/return
+			:loop
+			/if (${Spawn[${Target2Kill}].Type.Equal[Corpse]} || !${Target2Kill} || !${Target.ID} || ${Target.Type.Equal[corpse]} || !${Spawn[${Target2Kill}].ID}) /call get_target_ENC
+			/call check_for_adds
+			/if (${addList.Count[|]}) /call mez_adds
+			/call check_for_adds
+			/if (${addList.Count[|]}) /return
+			/if (${mobList.Find[|]}) /call list_update mobList ${Target2Kill}
+			/call check_for_adds
+			/if (${addList.Count[|]}) /return
+			/if (!${addList.Count[|]}) /call check_deBuffs ${Target2Kill}
+			/if (${mobList.Find[|]}) /call list_update mobList ${Target2Kill}
+		}	
+		
+	**|	
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		
 		/if (${isValidTarget}) {
 			/call set_combat ${combat.Upper}
@@ -101,8 +150,10 @@ sub disc_BRD()
 		/return
 	}
 	
-	/if (${swdeBuffSlow} && !${timer_slow_${Target2Kill}}) /call pulse_slow ${Target2Kill}
-	/call pulse_stop 20
+	/if (${swdeBuffSlow}) {
+		/if (!${timer_slow_${Target2Kill}}) /call pulse_slow ${Target2Kill}
+		/call pulse_stop 20
+	}
 
 	/if (${validate_cast[FALSE, alt, "Fierce Eye", ${Me.ID}]}) /call core_cast2 "Fierce Eye" alt 0 FALSE
  	/if (${validate_cast[FALSE, alt, "Bladed Song", ${Me.ID}]}) /call core_cast2 "Bladed Song" alt 0 FALSE
@@ -306,7 +357,7 @@ sub mez_adds_BRD()
 	/declare _tmpID string local
 
 	:loopmezzadds
-	/if (${addList.Count[|]} && ${Me.CurrentMana} >= ${Spell[${spellMez}].Mana}) {
+	/if (${addList.Count[|]}) {
 		/varset _tmpID ${addList.Arg[1,|]}
 		/if (${_tmpID} == ${Target2Kill}) {
 			/call list_delete addList ${_tmpID}
@@ -317,12 +368,12 @@ sub mez_adds_BRD()
 		} else {
 			/squelch /target id ${_tmpID}
 			/delay 5 ${Target.ID} == ${_tmpID}
-			/delay 4s ${check_ready[spell, "${spellpbaeMez}"]}
-			/if (${SpawnCount[npc los radius 30 zradius 15 targetable]} > 3 ) {
+			/delay 4s ${Me.SpellReady[${Spell[${spellpbaeMez}].RankName}]}
+			/if (${SpawnCount[npc los radius 30 zradius 15 targetable]} > 2 ) {
 				VOUT ${sepO} ${cinfo}${SpawnCount[npc radius 30 zradius 15]}\ax ${sepC} Targets in point blank range.
-				/if (${check_ready[spell, "${spellpbaeMez}"]}) {
+				/if (${Me.SpellReady[${Spell[${spellpbaeMez}].RankName}]}) {
 					/if (${Me.Casting.Name.NotEqual[${spellpbaeMez}]}) /call pulse_stop 18
-					/if (${validate_cast[FALSE, pulse, "${spellpbaeMez}", ${Me.ID}]}) /call core_cast2 "${spellMez}" pulse 0 FALSE
+					/if (${validate_cast[FALSE, pulse, "${spellpbaeMez}", ${Me.ID}]}) /call core_cast2 "${spellpbaeMez}" pulse 0 FALSE
 
 				}
 			}

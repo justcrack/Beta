@@ -178,7 +178,7 @@ sub check_heal_group_CLR()
 			/if (${hurtCount} >= ${useGroupHeal}) /break
 		}
 	
-	/next _count  
+	/next _count
   	
 	| Group Regen Heal 
  	/if (${useGroupHoT} && !${hurtCount} && !${SafeZone}) {
@@ -216,7 +216,9 @@ sub check_heal_group_CLR()
 	| requires group roll Main Tank set to function
 	/if (${switchCompleteHeal} && ${Group.Member[${hurtIndex}].ID} == ${Group.MainTank.ID}) { 
 		/if (${Group.MainTank.PctHPs} <= ${${Group.MainTank.Class.ShortName}Point}*.${CompleteHealpct}) {
-			/if (${validate_cast[FALSE, spell, "Complete Heal", ${Group.MainTank.ID}]}) /call core_cast2 "Complete Heal" 0 ${Group.MainTank.ID} FALSE
+			/if (${validate_cast[FALSE, spell, "Complete Heal", ${Group.MainTank.ID}]}) {
+				/call core_cast2 "Complete Heal" 0 ${Group.MainTank.ID}
+			}
 		}
 	}
 
@@ -232,7 +234,9 @@ sub check_heal_group_CLR()
 	| Dichotomic Heal
 	/if (${Me.Song[Gift of Mana].ID}) {
 		/if (${Group.Member[${hurtIndex}].PctHPs} < ${GoMpoint}*.${tmpHealOverride}) { 
-			/call cast_nuke_GoM ${Group.Member[${hurtIndex}].ID}
+			/if (${validate_cast[FALSE, spell, "${GoMNuke}", ${Group.Member[${hurtIndex}].ID}]}) {
+				/call core_cast2 "${GoMNuke}" spell ${Group.Member[${hurtIndex}].ID} FALSE
+			}
 	  }
 	}
   
@@ -241,23 +245,23 @@ sub check_heal_group_CLR()
 	| Panic AA single target heal
   /if (${Group.Member[${hurtIndex}].PctHPs} <= ${PanicPoint}*.${tmpHealOverride}) {
 		/if (${validate_cast[FALSE, alt, "Burst of Life", ${Group.Member[${hurtIndex}].ID}]}) {
-			/call core_cast2 "Burst of Life" alt ${Group.Member[${hurtIndex}].ID} FALSE
+			/call core_cast2 "Burst of Life" alt ${Group.Member[${hurtIndex}].ID}
 		}
   }
 	
 	| panic group heal. AA Beacon of life (3 min use)
   /if ((${hurtCount} >= ${Math.Calc[${Group.Members}/2]}) && ${Group.Members} > 2 && !${SafeZone}) {
 	  /if (${validate_cast[FALSE, alt, "Beacon of Life", ${Me.ID}]}) {
-	  	/call core_cast2 "Beacon of Life" alt 0 FALSE
+	  	/call core_cast2 "Beacon of Life" alt 0
 	  }
 	}		  	
   
 	| AA Rune
 	/if (${Group.Member[${hurtIndex}].PctHPs} < ${PanicPoint}*.${tmpHealOverride} && ${Me.SpellReady[${Spell[${healPanic}].RankName}]}) {
 		/if (${validate_cast[FALSE, spell, "${healPanic}", ${Group.Member[${hurtIndex}].ID}]} && ${Me.Casting.ID}) /stopcast
-		/call core_cast2 "${healPanic}" 0 ${Group.Member[${hurtIndex}].ID} FALSE
+		/call core_cast2 "${healPanic}" 0 ${Group.Member[${hurtIndex}].ID}
 		/if (!${Raid.Members} && ${validate_cast[FALSE, alt, "Divine Guardian", ${Group.Member[${hurtIndex}].ID}]}) {
-			/call core_cast2 "Divine Guardian" alt ${Group.Member[${hurtIndex}].ID} FALSE
+			/call core_cast2 "Divine Guardian" alt ${Group.Member[${hurtIndex}].ID}
 		}
 	}
 
@@ -284,7 +288,9 @@ sub check_heal_group_CLR()
 	
 	| splash heal
 	/if (${swSplash} && (${Group} > 1 || ${Raid})) {
-		if (${validate_cast[FALSE, spell, "${splashHeal}", ${Me.ID}]}) /cast "${Spell[${splashHeal}].RankName}" loc ${Me.X} ${Me.Y} ${Me.Z}
+		/if (${validate_cast[FALSE, spell, "${splashHeal}", ${Me.ID}]}) {
+			/cast ${Spell[${splashHeal}].RankName} loc ${Me.X} ${Me.Y} ${Me.Z}
+		}
 	}
 
 	| check for personal debuffs
@@ -298,7 +304,7 @@ sub check_heal_group_CLR()
 	| heal breastplate
 	/if (${Bool[${BreastplateHeal}]}) {
 		/if (${Me.ItemReady[${BreastplateHeal}]} && ${cast_condition[BreastplateHealCondition]}) {
-			/if (${validate_cast[FALSE, item, "${BreastplateHeal}", ${Group.Member[${hurtIndex}].ID}]}) /call core_cast2 "${BreastplateHeal}" item ${Group.Member[${hurtIndex}].ID} FALSE
+			/if (${validate_cast[FALSE, item, "${BreastplateHeal}", ${Group.Member[${hurtIndex}].ID}]}) /call core_cast2 "${BreastplateHeal}" item ${Group.Member[${hurtIndex}].ID}
 		}
 	}
 	  
@@ -311,14 +317,15 @@ sub check_heal_group_CLR()
  		/if (${Me.SpellReady[${Spell[${healIntervention1}].RankName}]} || ${Me.SpellReady[${Spell[${healIntervention2}].RankName}]} || ${Me.SpellReady[${Spell[${healIntervention3}].RankName}]} || ${Me.SpellReady[${Spell[${healIntervention4}].RankName}]}) /goto :aggressivesort
  	} 
 
+ 	/call check_health_group
  	
  	| Remedy Heals 
   /if (${Group.Member[${hurtIndex}].PctHPs} <= ${${hurtCLS}Point}*.${tmpHealOverride}) {
 		/for _count 1 to 3
 			| /if (!${Me.SpellReady[${Spell[${healRemedy${_count}}].RankName}]} || ${Me.SpellInCooldown}) /continue
 			/if (${validate_cast[FALSE, spell, "${healRemedy${_count}}", ${Group.Member[${hurtIndex}].ID}]}) {
-				/call core_cast2 "${healRemedy${_count}}" 0 ${Group.Member[${hurtIndex}].ID} check_health_group
-				/return
+				/call core_cast2 "${healRemedy${_count}}" 0 ${Group.Member[${hurtIndex}].ID}
+				/break
 			}
 		/next _count 
 	}	
@@ -329,8 +336,8 @@ sub check_heal_group_CLR()
 		/for _count 1 to 4
 			| /if (!${Me.SpellReady[${Spell[${healIntervention${_count}}].RankName}]} || ${Me.SpellInCooldown}) /continue
 			/if (${validate_cast[FALSE, spell, "${healIntervention${_count}}", ${Group.Member[${hurtIndex}].ID}]}) {
-				/call core_cast2 "${healIntervention${_count}}" 0 ${Group.Member[${hurtIndex}].ID} check_health_group
-				/return
+				/call core_cast2 "${healIntervention${_count}}" 0 ${Group.Member[${hurtIndex}].ID}
+				/break
 			}
 		/next _count
 	}
@@ -340,8 +347,8 @@ sub check_heal_group_CLR()
 		/for _count 1 to 3
 			| /if (!${Me.SpellReady[${Spell[${healRenewal${_count}}].RankName}]} || ${Me.SpellInCooldown}) /continue
 			/if (${validate_cast[FALSE, spell, "${healRenewal${_count}}", ${Group.Member[${hurtIndex}].ID}]}) {
-				/call core_cast2 "${healRenewal${_count}}" 0 ${Group.Member[${hurtIndex}].ID} check_health_group
-				/return
+				/call core_cast2 "${healRenewal${_count}}" 0 ${Group.Member[${hurtIndex}].ID}
+				/break
 			}
 		/next _count 
 	}
@@ -355,17 +362,14 @@ sub check_heal_group_CLR()
 			/dquery ${Group.Member[${hurtIndex}].DisplayName} -q "Me.Song[${healHoT}].Duration" -o _has
 			/if (${_stacks} && !${_has}) {
 				/if (${validate_cast[FALSE, spell, "${healHoT}", ${Group.Member[${hurtIndex}].ID}]}) {
-					/call core_cast2 "${healHoT}" ${buffGem} ${Group.Member[${hurtIndex}].ID} check_health_group
-					/return
+					/call core_cast2 "${healHoT}" ${buffGem} ${Group.Member[${hurtIndex}].ID} 
 				}
 			}
 		}
 	}
 
   | check for group debuffs
-	/if (${swHealCure}) {
-		/if (${Bool[${Group.Members}]} && ${hurtCount}) /call cast_cure
-	}
+	/if (${swHealCure} && ${Group.Members}) /call cast_cure
 	
 	UPDATEHUD FALSE
 /return
@@ -388,24 +392,31 @@ sub check_heal_self_CLR()
 	/declare _count int local 0
 
 	| self single target regen
-	/if (${validate_cast[FALSE, spell, "${healHoT}", ${Me.ID}]}) /call core_cast2 "${healHoT}" ${buffGem} ${Me.ID} FALSE
+	/if (${validate_cast[FALSE, spell, "${healHoT}", ${Me.ID}]}) {
+		/call core_cast2 "${healHoT}" ${buffGem} ${Me.ID} 
+	}
 
 	| check for personal debuffs
 	/if (${swHealCure}) {
 		/if (${Debuff.Count}) {
 			| AA Purified Spirits SELF ONLY 0' range 2 min
-			/if (${validate_cast[FALSE, alt, "Purified Spirits", ${Me.ID}]}) /call core_cast2 "Purified Spirits" alt ${Me.ID} FALSE
-		}
-		/if (${Debuff.Count}) {
-			| AA Radient Cure SELF ONLY 100' range 1 min
-			/if (${validate_cast[FALSE, alt, "Radiant Cure", ${Me.ID}]}) /call core_cast2 "Radiant Cure" alt 0 FALSE 
+			/if (${validate_cast[FALSE, alt, "Purified Spirits", ${Me.ID}]}) {
+				/call core_cast2 "Purified Spirits" alt ${Me.ID} 
+				/return
+			}
+			| AA Radient Cure 100' range 1 min
+			/if (${validate_cast[FALSE, alt, "Radiant Cure", ${Me.ID}]}) {
+				/call core_cast2 "Radiant Cure" alt 0  
+			}
 		}
 	}
 	
 	| heal breastplate
 	/if (${Bool[${BreastplateHeal}]} && ${Me.ItemReady[${BreastplateHeal}]}) {
 		/if (${Me.PctHPs} <= ${CLRPoint}*.${tmpHealOverride}*.5 && ${cast_condition[BreastplateHealCondition]}) {
-			/if (${validate_cast[FALSE, item, "${BreastplateHeal}", ${Me.ID}]}) /call core_cast2 "${BreastplateHeal}" item 0 FALSE
+			/if (${validate_cast[FALSE, item, "${BreastplateHeal}", ${Me.ID}]}) {
+				/call core_cast2 "${BreastplateHeal}" item 0 
+			}
 		}
 	}
 	
@@ -413,10 +424,14 @@ sub check_heal_self_CLR()
   /if (${Me.PctHPs} <= ${PanicPoint}*.${tmpHealOverride}) {
   	
   	| aa heal
-		/if (${validate_cast[FALSE, alt, "Burst of Life", ${Me.ID}]}) /call core_cast2 "Burst of Life" alt ${Me.ID} FALSE
+		/if (${validate_cast[FALSE, alt, "Burst of Life", ${Me.ID}]}) {
+			/call core_cast2 "Burst of Life" alt ${Me.ID} 
+		}
 
 		| Panic Rune
-		/if (${validate_cast[FALSE, alt, "Divine Guardian", ${Me.ID}]}) /call core_cast2 "Divine Guardian" alt ${Me.ID} FALSE
+		/if (${validate_cast[FALSE, alt, "Divine Guardian", ${Me.ID}]}) {
+			/call core_cast2 "Divine Guardian" alt ${Me.ID} 
+		}
 	}
 	
  	| agressive healing sort
@@ -427,8 +442,9 @@ sub check_heal_self_CLR()
  	| Remedy Heals 
   /if (${Me.PctHPs} <= ${CLRPoint}*.${tmpHealOverride}) {
 		/for _count 1 to 3
-			/if (${Me.SpellReady[${Spell[${healRemedy${_count}}].RankName}]}) {
-				/if (${validate_cast[FALSE, spell, "${healRemedy${_count}}", ${Me.ID}]}) /call core_cast2 "${healRemedy${_count}}" 0 ${Me.ID} FALSE
+			/if (!${Me.SpellReady[${Spell[${healRemedy${_count}}].RankName}]}) /continue
+			/if (${validate_cast[FALSE, spell, "${healRemedy${_count}}", ${Me.ID}]}) {
+				/call core_cast2 "${healRemedy${_count}}" 0 ${Me.ID} 
 				/break
 			}
 		/next _count 
@@ -438,8 +454,9 @@ sub check_heal_self_CLR()
 	:aggressivesort
   /if (${Me.PctHPs} <= ${CLRPoint}*.${tmpHealOverride}) {
 		/for _count 1 to 4
-			/if (${Me.SpellReady[${Spell[${healContravention${_count}}].RankName}]}) {
-				/if (${validate_cast[FALSE, spell, "${healContravention${_count}}", ${Target2Kill}]}) /call core_cast2 "${healContravention${_count}}" 0 ${Target2Kill} FALSE
+			/if (!${Me.SpellReady[${Spell[${healContravention${_count}}].RankName}]}) /continue
+			/if (${validate_cast[FALSE, spell, "${healContravention${_count}}", ${Target2Kill}]}) {
+				/call core_cast2 "${healContravention${_count}}" 0 ${Target2Kill} FALSE
 				/break
 			}
 		/next _count
@@ -448,16 +465,12 @@ sub check_heal_self_CLR()
 	| Renewal Heals
   /if (${Me.PctHPs} <= ${CLRPoint}*.${tmpHealOverride}) {
 		/for _count 1 to 3
-			/if (${Me.SpellReady[${Spell[${healRenewal${_count}}].RankName}]}) {
-				/if (${validate_cast[FALSE, spell, "${healRenewal${_count}}", ${Me.ID}]}) /call core_cast2 "${healRenewal${_count}}" 0 ${Me.ID} FALSE
+			/if (${Me.SpellReady[${Spell[${healRenewal${_count}}].RankName}]}) /continue
+			/if (${validate_cast[FALSE, spell, "${healRenewal${_count}}", ${Me.ID}]}) {
+			/call core_cast2 "${healRenewal${_count}}" 0 ${Me.ID} FALSE
 				/break
 			}
 		/next _count 
-	}				
-
- 	| issuance AE heal
-	/if (${switchIssuance} && !${SafeZone}) {
-		/if (${SpawnCount[npc radius ${setMobAgro} playerstate 4]} >= ${issuanceMobCount}) /call Bind_issuance
 	}
 
 	UPDATEHUD FALSE
@@ -514,13 +527,17 @@ sub check_heal_XTarget_CLR()
 
 	| AA heal
 	/if (${Me.XTarget[${hurtIndex}].PctHPs} < 45*.${tmpHealOverride} && ${Me.AltAbilityReady[Burst of Life]}) {
-		/if (${validate_cast[FALSE, alt, "Burst of Life", ${Me.XTarget[${hurtIndex}].ID}]}) /call core_cast2 "Burst of Life" alt ${Me.XTarget[${hurtIndex}].ID} FALSE
+		/if (${validate_cast[FALSE, alt, "Burst of Life", ${Me.XTarget[${hurtIndex}].ID}]}) {
+			/call core_cast2 "Burst of Life" alt ${Me.XTarget[${hurtIndex}].ID} FALSE
+		}
 	}
 
 	| panic heal
 	/if (${Me.XTarget[${hurtIndex}].PctHPs} < ${PanicPoint}*.${tmpHealOverride} && ${Me.SpellReady[${Spell[${healPanic}].RankName}]}) {
 		/if (${Me.Casting.ID}) /stopcast
-		/if (${validate_cast[FALSE, spell, "${healPanic}", ${Me.XTarget[${hurtIndex}].ID}]}) /call core_cast2 "${healPanic}" 0 ${Me.XTarget[${hurtIndex}].ID} FALSE
+		/if (${validate_cast[FALSE, spell, "${healPanic}", ${Me.XTarget[${hurtIndex}].ID}]}) {
+			/call core_cast2 "${healPanic}" 0 ${Me.XTarget[${hurtIndex}].ID} FALSE
+		}
 	}
 	
  	| agressive healing sort
@@ -531,9 +548,10 @@ sub check_heal_XTarget_CLR()
 	| Remedy Heals 
   /if (${Me.XTarget[${hurtIndex}].PctHPs} <= ${${hurtCLS}Point}*.${tmpHealOverride}) {
 		/for _count 1 to 3
-			/if (${Me.SpellReady[${Spell[${healRemedy${_count}}].RankName}]}) {
-				/if (${validate_cast[FALSE, spell, "${healRemedy${_count}}", ${Me.XTarget[${hurtIndex}].ID}]}) /call core_cast2 "${healRemedy${_count}}" 0 ${Me.XTarget[${hurtIndex}].ID} check_health_group
-				/break
+			/if (${Me.SpellReady[${Spell[${healRemedy${_count}}].RankName}]}) /continue
+			/if (${validate_cast[FALSE, spell, "${healRemedy${_count}}", ${Me.XTarget[${hurtIndex}].ID}]}) {
+				/call core_cast2 "${healRemedy${_count}}" 0 ${Me.XTarget[${hurtIndex}].ID} check_health_group
+				/return
 			}
 		/next _count
 	}	
@@ -542,9 +560,10 @@ sub check_heal_XTarget_CLR()
 	:aggressivesort
   /if (${Me.XTarget[${hurtIndex}].PctHPs} <= ${${hurtCLS}Point}*.${tmpHealOverride}) {
 		/for _count 1 to 4
-			/if (${Me.SpellReady[${Spell[${healIntervention${_count}}].RankName}]}) {
-				/if (${validate_cast[FALSE, spell, "${healIntervention${_count}}", ${Me.XTarget[${hurtIndex}].ID}]}) /call core_cast2 "${healIntervention${_count}}" 0 ${Me.XTarget[${hurtIndex}].ID} check_health_group
-				/break
+			/if (!${Me.SpellReady[${Spell[${healIntervention${_count}}].RankName}]}) /continue
+			/if (${validate_cast[FALSE, spell, "${healIntervention${_count}}", ${Me.XTarget[${hurtIndex}].ID}]}) {
+				/call core_cast2 "${healIntervention${_count}}" 0 ${Me.XTarget[${hurtIndex}].ID} check_health_group
+				/return
 			}
 		/next _count
 	}	
@@ -552,9 +571,10 @@ sub check_heal_XTarget_CLR()
 	| Renewal Heals
   /if (${Me.XTarget[${hurtIndex}].PctHPs} <= ${${hurtCLS}Point}*.${tmpHealOverride}) {
 		/for _count 1 to 3
-			/if (${Me.SpellReady[${Spell[${healRenewal${_count}}].RankName}]}) {
-				/if (${validate_cast[FALSE, spell, "${healRenewal${_count}}", ${Me.XTarget[${hurtIndex}].ID}]}) /call core_cast2 "${healRenewal${_count}}" 0 ${Me.XTarget[${hurtIndex}].ID} check_health_group
-				/break
+			/if (!${Me.SpellReady[${Spell[${healRenewal${_count}}].RankName}]}) /continue
+			/if (${validate_cast[FALSE, spell, "${healRenewal${_count}}", ${Me.XTarget[${hurtIndex}].ID}]}) {
+				/call core_cast2 "${healRenewal${_count}}" 0 ${Me.XTarget[${hurtIndex}].ID} check_health_group
+				/return
 			}
 		/next _count
 	}	
@@ -587,6 +607,12 @@ sub check_heal_pet_CLR()
   /if (${Group.Member[${hurtIndex}].ID} == ${Me.ID}) {
  		UPDATEHUD FALSE
  		/return
+	}
+
+	| Panic heal
+	/if (${Group.Member[${hurtIndex}].Pet.PctHPs} < .${PanicPoint}*${PetPoint} && ${Me.SpellReady[${Spell[${healPanic}].RankName}]}) {
+		/if (${Me.Casting.ID}) /stopcast
+		/if (${validate_cast[FALSE, spell, "${healPanic}", ${Group.Member[${hurtIndex}].Pet.ID}]}) /call core_cast2 "${healPanic}" 0 ${Group.Member[${hurtIndex}].Pet.ID} FALSE
 	}
 	
  	| agressive healing sort
@@ -625,13 +651,6 @@ sub check_heal_pet_CLR()
 		/next _count 
 	}
 		
-	| Panic heal
-	/if (${Group.Member[${hurtIndex}].Pet.PctHPs} < .${PanicPoint}*${PetPoint} && ${Me.SpellReady[${Spell[${healPanic}].RankName}]}) {
-		/if (${Me.Casting.ID}) /stopcast
-		/if (${validate_cast[FALSE, spell, "${healPanic}", ${Group.Member[${hurtIndex}].Pet.ID}]}) /call core_cast2 "${healPanic}" 0 ${Group.Member[${hurtIndex}].Pet.ID} FALSE
-		/return
-	}
-
 	UPDATEHUD FALSE
 /return
 

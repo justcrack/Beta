@@ -70,15 +70,14 @@ sub pregen_environment()
 	| current assigned target
 	/call setDeclare Target2Kill																				int				outer 0
 
-	| castreturn for mq2cast
-	| /call setDeclare CastReturn 																				string 		outer NULL
-
 	| Base Environment settings
 	/call setDeclare forceINIcheck																			string 		outer TRUE
 	
 	| casting checks
-	/call setDeclare castReturn																					string 		outer NULL
+	/call setDeclare castReturn																					string 		outer
 	/call setDeclare CheckResisted																			int		 		outer 0
+	/call setDeclare castBreak																					bool	 		outer FALSE
+
 		
 	| macro communications channel (group) for DanNet
 	/call setDeclare DanNetMacroChannel																	string 		outer core_communications
@@ -279,7 +278,7 @@ sub pregen_lists()
 	/call sql_staticbuild FALSE lists lstTypesHeal											"|Self|Group|XTarget|Pet|Cure|Override"
 	
 	| combat .. /cc []
-	/call sql_staticbuild FALSE lists lstTypesCC												"|agro|alliance|bandolier|circle|combatdistance|engage|faderest|force|geo|melee|meleedisc|range|nuke|dot|heal|forceassist|nukedelay|offtank|pull|rest|saferadius|smartengage|stopnuke|zradius"
+	/call sql_staticbuild FALSE lists lstTypesCC												"|agro|alliance|bandolier|circle|combatdistance|engage|faderest|force|melee|meleedisc|range|nuke|dot|heal|forceassist|nukedelay|offtank|pull|rest|saferadius|smartengage|stopnuke|zradius"
 
 	| core .. /core []
 	/call sql_staticbuild FALSE lists lstTypesCore											"|auto|checkcash|events|expadjust|expmaintain|explevel|fireworks|takeraidinvite|takegroupinvite|giveraidinvite"

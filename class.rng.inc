@@ -64,42 +64,42 @@ sub disc_RNG()
 	
 	| agro control
 	/if (${swAgro}) {
-		/if (${validate_cast[FALSE, disc, "${DiscEnrage}", ${Target2Kill}]}) /call core_cast2 "${DiscEnrage}" disc ${Target2Kill} FALSE
+		/if (${validate_cast[FALSE, disc, "${DiscEnrage}", ${Target2Kill}]}) /call core_cast2 "${DiscEnrage}" disc ${Target2Kill}
 	} else /if (!${swAgro}) {
-		/if (${validate_cast[FALSE, disc, "${DiscJolt}", ${Target2Kill}]}) /call core_cast2 "${DiscJolt}" disc ${Target2Kill} FALSE
+		/if (${validate_cast[FALSE, disc, "${DiscJolt}", ${Target2Kill}]}) /call core_cast2 "${DiscJolt}" disc ${Target2Kill}
 	}	
 		
 	| defensive	
 	/if (${coreAuto} && ${SpawnCount[npc radius ${setCombatRadius} playerstate 4 targetable]} > 1 && !${Bool[${Me.ActiveDisc}]}) {
-		/if (${validate_cast[FALSE, disc, "${AADefensive1}", ${Me.ID}]} && ${Me.PctHPs} < 60*.${tmpHealOverride}) /call core_cast2 "${AADefensive1}" disc 0 FALSE
-		/if (${validate_cast[FALSE, disc, "${AADefensive2}", ${Me.ID}]} && ${Me.PctHPs} < 40*.${tmpHealOverride}) /call core_cast2 "${AADefensive2}" disc 0 FALSE
-		/if (${validate_cast[FALSE, disc, "${AADefensive3}", ${Me.ID}]} && ${Me.PctHPs} < 20*.${tmpHealOverride}) /call core_cast2 "${AADefensive3}" disc 0 FALSE
+		/if (${validate_cast[FALSE, disc, "${AADefensive1}", ${Me.ID}]} && ${Me.PctHPs} < 60*.${tmpHealOverride}) /call core_cast2 "${AADefensive1}" disc 0
+		/if (${validate_cast[FALSE, disc, "${AADefensive2}", ${Me.ID}]} && ${Me.PctHPs} < 40*.${tmpHealOverride}) /call core_cast2 "${AADefensive2}" disc 0
+		/if (${validate_cast[FALSE, disc, "${AADefensive3}", ${Me.ID}]} && ${Me.PctHPs} < 20*.${tmpHealOverride}) /call core_cast2 "${AADefensive3}" disc 0
 
 		| deflection
-		/if (${validate_cast[FALSE, disc, "Weapon Shield Discipline", ${Me.ID}]} && ${Me.PctHPs} < 10*.${tmpHealOverride}) /call core_cast2 "Weapon Shield Discipline" disc 0 FALSE
+		/if (${validate_cast[FALSE, disc, "Weapon Shield Discipline", ${Me.ID}]} && ${Me.PctHPs} < 10*.${tmpHealOverride}) /call core_cast2 "Weapon Shield Discipline" disc 0
 	}
 
 	| elemental arrows rotation
 	/if (${Me.AltAbilityReady[Elemental Arrow]}) {
 		/if (!${Bool[${Target.Buff[Elemental Arrow]}]} && !${Bool[${Target.Buff[Glacial Arrow]}]} && !${Bool[${Target.Buff[Volatile Arrow]}]}) {
-			/if (${validate_cast[FALSE, alt, "Elemental Arrow", ${Target2Kill}]}) /call core_cast2 "Elemental Arrow" alt ${Target2Kill} FALSE
+			/if (${validate_cast[FALSE, alt, "Elemental Arrow", ${Target2Kill}]}) /call core_cast2 "Elemental Arrow" alt ${Target2Kill}
 		}
 	} else /if (${Me.AltAbilityReady[Glacial Arrow]}) {
 		/if (!${Bool[${Target.Buff[Elemental Arrow]}]} && !${Bool[${Target.Buff[Glacial Arrow]}]}) {
-			/if (${validate_cast[FALSE, alt, "Glacial Arrow", ${Target2Kill}]}) /call core_cast2 "Glacial Arrow" alt ${Target2Kill} FALSE
+			/if (${validate_cast[FALSE, alt, "Glacial Arrow", ${Target2Kill}]}) /call core_cast2 "Glacial Arrow" alt ${Target2Kill}
 		}
 	}	else /if (${Me.AltAbilityReady[Volatile Arrow]}) {
 		/if (!${Bool[${Target.Buff[Elemental Arrow]}]} && !${Bool[${Target.Buff[Volatile Arrow]}]}) {
-			/if (${validate_cast[FALSE, alt, "Volatile Arrow", ${Target2Kill}]}) /call core_cast2 "Volatile Arrow" alt ${Target2Kill} FALSE
+			/if (${validate_cast[FALSE, alt, "Volatile Arrow", ${Target2Kill}]}) /call core_cast2 "Volatile Arrow" alt ${Target2Kill}
 		}
 	}		
 
 	| reverse DS DOT
 	/if (${swCombatDoT}) {
-		/if (${validate_cast[FALSE, spell, "${DoTSwarmDS}", ${Target2Kill}]} && !${Bool[${Spawn[${Target.Buff[${DoTSwarmDSdeBuff}].Caster}].ID}]}) /call core_cast2 "${DoTSwarmDS}" 0 ${Target2Kill} FALSE
+		/if (${validate_cast[FALSE, spell, "${DoTSwarmDS}", ${Target2Kill}]} && !${Bool[${Spawn[${Target.Buff[${DoTSwarmDSdeBuff}].Caster}].ID}]}) /call core_cast2 "${DoTSwarmDS}" 0 ${Target2Kill}
 	}
-	/if (${validate_cast[FALSE, disc, "${BladeStorm}", ${Target2Kill}]}) /call core_cast2 "${BladeStorm}" disc ${Target2Kill} FALSE
-	/if (${validate_cast[FALSE, disc, "${DiscSqual}", ${Target2Kill}]}) /call core_cast2 "${DiscSqual}" disc ${Target2Kill} FALSE
+	/if (${validate_cast[FALSE, disc, "${BladeStorm}", ${Target2Kill}]}) /call core_cast2 "${BladeStorm}" disc ${Target2Kill}
+	/if (${validate_cast[FALSE, disc, "${DiscSqual}", ${Target2Kill}]}) /call core_cast2 "${DiscSqual}" disc ${Target2Kill}
 	
 /return TRUE
 
@@ -116,8 +116,8 @@ sub cast_AA_auspice()
 	CHECKEXIT
 	CHECKINPUTS
 	/if (${Me.AltAbilityReady[Mass Group Buff]} && ${Me.AltAbilityReady[${RNGauspice}]} && !${Bool[${Me.Song[${RNGauspice}]}]}) {
-		/if (${validate_cast[FALSE, alt, "Mass Group Buff", ${Me.ID}]}) /call core_cast2 "Mass Group Buff" alt 0 FALSE
-		/if (${validate_cast[FALSE, alt, "${RNGauspice}", ${Me.ID}]}) /call core_cast2 "${RNGauspice}" alt 0 FALSE
+		/if (${validate_cast[FALSE, alt, "Mass Group Buff", ${Me.ID}]}) /call core_cast2 "Mass Group Buff" alt 0
+		/if (${validate_cast[FALSE, alt, "${RNGauspice}", ${Me.ID}]}) /call core_cast2 "${RNGauspice}" alt 0
 	} else /if (${Bool[${Me.Song[${RNGauspice}]}]}) {
 		VOUT ${cbad}QUIT\ax trying to cast ${csp}Auspice of the Hunter\ax while its running.	
 	}		
@@ -138,17 +138,17 @@ sub check_heal_self_RNG()
 	
 	| heal 1
 	/if (${Me.PctHPs} <= ${RNGPoint}*.${tmpHealOverride}) {
-		/if (${validate_cast[FALSE, spell, "${heal1}", ${Me.ID}]}) /call core_cast2 "${heal1}" 0 ${Me.ID} FALSE
+		/if (${validate_cast[FALSE, spell, "${heal1}", ${Me.ID}]}) /call core_cast2 "${heal1}" 0 ${Me.ID}
 	}
 	
 	| Reflexive Healing Disc
 	/if (${Me.PctHPs} <= ${RNGPoint}*.${tmpHealOverride} || ${SpawnCount[npc ${If[${swOverrideLOS},,los]} radius ${Spell[${DiscHeal}].MyRange} playerstate 4 targetable]} >= 3) {
-		/if (${validate_cast[FALSE, disc, "${DiscHeal}", ${Me.ID}]} && !${Bool[${Me.Song[Bladespur Reflection]}]}) /call core_cast2 "${DiscHeal}" disc ${Me.ID} FALSE
+		/if (${validate_cast[FALSE, disc, "${DiscHeal}", ${Me.ID}]} && !${Bool[${Me.Song[Bladespur Reflection]}]}) /call core_cast2 "${DiscHeal}" disc ${Me.ID}
 	}
 	
 	| heal 2
 	/if (${Me.PctHPs} <= ${RNGPoint}*.${tmpHealOverride}) {
-		/if (${validate_cast[FALSE, spell, "${heal2}", ${Me.ID}]}) /call core_cast2 "${heal2}" 0 ${Me.ID} FALSE
+		/if (${validate_cast[FALSE, spell, "${heal2}", ${Me.ID}]}) /call core_cast2 "${heal2}" 0 ${Me.ID}
 	}
 	
 	/call click_item_heal
@@ -175,7 +175,7 @@ sub click_DPS_RNG()
 	
 	/if (!${Bool[${Me.ActiveDisc}]} && !${Bool[${Me.Song[Empowered Blades]}]} && !${Bool[${Me.Buff[${useGlyph}]}]}) {
 		| epic 2.0
-		/if (${validate_cast[FALSE, epicitem, "2", ${Me.ID}]} && ${Spawn[${Target2Kill}].Distance} <= ${setCombatDistance}) /call core_cast2 "${${Me.Class.ShortName}Epic2}" item 0 FALSE
+		/if (${validate_cast[FALSE, epicitem, "2", ${Me.ID}]} && ${Spawn[${Target2Kill}].Distance} <= ${setCombatDistance}) /call core_cast2 "${${Me.Class.ShortName}Epic2}" item 0
 	}
 	
 /return TRUE
@@ -195,8 +195,11 @@ sub cast_nuke_summer(int _tmpID)
 	CHECKEXIT
 	CHECKINPUTS
 	/call timer_update timer_cast_nuke_summer ${tNuke_Summer}
+	/if (!${cast_condition[NukeSummerCondition]}) /return FALSE
 	
-	/if (${validate_cast[FALSE, spell, "${NukeSummer}", ${_tmpID}]} && ${cast_condition[NukeSummerCondition]}) /call core_cast2 "${NukeSummer}" 0 ${_tmpID} cast_break
+	/if (${validate_cast[FALSE, spell, "${NukeSummer}", ${_tmpID}]}) {
+		/call core_cast2 "${NukeSummer}" 0 ${_tmpID} cast_break
+	}
 /return TRUE
 
 
@@ -242,8 +245,6 @@ sub burn_RNG()
 
 
 	}
-
-	
 	
 	| RANGE
 	/if (${swCombatRange}) {
@@ -254,8 +255,6 @@ sub burn_RNG()
 				/call use_glyph
 			}
 		}
-	
-	
 	
 	}
 	

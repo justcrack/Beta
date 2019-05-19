@@ -960,6 +960,7 @@ sub check_ammo()
 
 	/call timer_update timer_Check_Ammo ${tCheck_Ammo}
 	/declare _count int local 0
+	CLEARCURSOR TRUE
 	
 	| enumerate the |'s
 	/for _count 1 to ${lstRangeItem.Count[|]}
@@ -968,9 +969,7 @@ sub check_ammo()
 		/if (!${Bool[${lstRangeItem.Arg[${_count},|]}]} || !${Bool[${lstRangeItemSummon.Arg[${_count},|]}]}) /continue
 
 		| do we have enough of the summoned item
-		/if (${FindItemCount[=${lstRangeItemSummon.Arg[${_count},|]}]} > ${strRangeItemCount}) /continue
-		
-		CLEARCURSOR TRUE
+		/if (${FindItemCount[${lstRangeItemSummon.Arg[${_count},|]}]} > ${strRangeItemCount}) /continue
 		
 		| sort what type of item we need to get
 		/if (${Select[${Me.Class.ShortName},BRD]} && ${Me.Casting.ID}) /call pulse_stop
@@ -984,6 +983,8 @@ sub check_ammo()
 			/if (${validate_cast[FALSE, disc, "${lstRangeItem.Arg[${_count},|]}", ${Me.ID}]}) /call core_cast2 "${lstRangeItem.Arg[${_count},|]}" disc ${Me.ID} FALSE
 		}
 	/next _count
+	CLEARCURSOR TRUE
+
 /return
 
 
@@ -1052,6 +1053,8 @@ sub do_rest()
 	CHECKREZ
 	/if (${SpawnCount[npc ${If[${swOverrideLOS},,los]} radius ${setMobAgro} playerstate 4]} || !${coreAuto}) {
 		/if (${Me.State.NotEqual[STAND]}) /stand
+		/if (${Me.Class.ShortName.Equal[BRD]}) /stopsong
+	
 		/return
 	}
 
@@ -2259,25 +2262,25 @@ sub use_glyph()
 sub cast_break()
 	AMIDEAD
 	CHECKINPUTS
-	/if (${Me.Zoning}) /stopcast
+	/if (${Me.Zoning}) /varset castBreak CAST_BREAK
 
-	/if (${Spell[${Me.Casting.ID}].Category.Equal[Transport]}) /return TRUE
-	/if (${Spell[${Me.Casting.ID}].Category.Equal[Heal]}) /return TRUE
+	/if (${Spell[${Me.Casting.ID}].Category.Equal[Transport]}) /return FALSE
+	/if (${Spell[${Me.Casting.ID}].Category.Equal[Heal]}) /return FALSE
 	
-	/if (${Target.PctHPs} <= ${Int[${setStopNukePct}]}) /stopcast
+	/if (${Target.PctHPs} <= ${Int[${setStopNukePct}]}) /varset castBreak CAST_BREAK
 	
-	/if (${swAmIDead}) /stopcast
-	/if (${swNeedRez}) /stopcast
+	/if (${swAmIDead}) /varset castBreak CAST_BREAK
+	/if (${swNeedRez}) /varset castBreak CAST_BREAK
 		
 	/if (${Target.Mezzed.ID} || !${Spawn[${Target2Kill}].ID} || !${Bool[${Target2Kill}]}) {
-		/stopcast
+		/varset castBreak CAST_BREAK
 	| } else /if (${Bool[${Me.Song[Gift of Mana (${GoMLevel})]}]} && ${Bool[${combat}]} && (${Bool[${GoMNuke}]} || ${Bool[${GoMNuke2}]})) {
 	} else /if (${Bool[${Me.Song[Gift of Mana]}]} && ${Bool[${combat}]} && (${Bool[${GoMNuke}]} || ${Bool[${GoMNuke2}]})) {
 		/stopcast
 		/call cast_nuke_GoM ${Target2Kill}
 	}
 
-/return
+/return ${castBreak}
 
 
 
@@ -3303,7 +3306,7 @@ sub cast_stamina_recovery()
 
 /return
 
-${Me.CurrentEndurance}
+
 
 |***
  *	DES: corrects the Gem## to simply a #
@@ -3355,6 +3358,8 @@ sub mem_spell(bool _echo, string _spellname, string _spellgem, bool _wait)
 		/if (${Me.SpellReady[${Spell[${_spellname}].RankName}]}) /break
 		/delay 5
 		/varcalc _counter ${_counter}+5
+		| one more check to make sure we mem the spell
+		/if (${_counter} == 300) /if (!${Me.Gem[${Me.Gem[${Spell[${_spellname}].RankName}]}]}) /memspell ${_gem} "${Spell[${_spellname}].RankName}"
 	}
 	
 	| yah we dont wat for no one...
@@ -3474,7 +3479,6 @@ sub check_for_corpse()
 		}
 		
 	}
-		
 
 	/declare _count 						int 		local 0
 	/declare _tmpID 						int 		local 0
@@ -3609,12 +3613,6 @@ sub cast_rez(int _tmpID, string _rez)
 	AMIDEAD
 	CHECKEXIT
 
-	| rethink this.....
-	| delay res a sec if they are not on the safe list.
-	| /if (!${validate_lstSafeNames[${Spawn[pccorpse ${_tmpID}].DisplayName}]} || ${Select[${Me.Class.ShortName},DRU,SHM,PAL,NEC]}) {
-	| 	/delay ${Int[${Math.Calc[${Math.Rand[${RandRezDelay}]}+1]}]}s
-	| }
-
 	| ignore the people we dont like
 	/if (${lstNoRez.Find[${Spawn[pccorpse ${_tmpID}].DisplayName}]}) {
 		/call timer_update timer_corpse_${_tmpID}} 30m
@@ -3625,7 +3623,6 @@ sub cast_rez(int _tmpID, string _rez)
 	/if (${Spawn[pccorpse ${_tmpID}].Distance} > ${setCombatRadius}*2 && ${Spawn[pccorpse ${_tmpID}].Distance} <= ${setMaxRezRange}) {
 		/squelch /corpse
 	}
-
 
 	| can we AA res or token?
 	/if (${Me.AltAbilityReady[${_rez}]} || (${Me.ItemReady[Token of Resurrection]} && ${swRezToken})) {	
@@ -3711,9 +3708,12 @@ sub list_delete(string _listName, string _tmpID)
 	/declare _strRight string local
 	
 	/varcalc _a ${${_listName}.Find[${_tmpID}]}-1
+	| SDEBUG _a::${_a}
 	/varcalc _b ${${_listName}.Length}-${_tmpID.Length}-${_a}
+	| SDEBUG _b::${_b}
+
 	/if (${_a} > 0) /varset _strLeft ${${_listName}.Left[${_a}]}
-	/if (${_a} > 0) /varset _strRight ${If[${Select[${_b},0,NULL,FALSE,""]},,${${_listName}.Right[${_b}]}]} 
+	/if (${_b} > 0) /varset _strRight ${If[${Select[${_b},0,NULL,FALSE,""]},,${${_listName}.Right[${_b}]}]} 
 	
 	/varset ${_listName} ${_strLeft}${_strRight}
 
@@ -3864,6 +3864,7 @@ sub queue_buff_delete(int _buffee, int _buffnumber)
 /return
 
 
+
 |***
  *	DES: Buff on /t requests
  *	USE: uses INI [Buffs] 
@@ -3886,8 +3887,6 @@ sub check_buffs_tell()
 	
 		| queues default to 1 but empty. if empty., go away
 		/if (${queueCount} < 1 || ${queueCount} == 0 || ${queueList[${_count},1]} == 0) /return
-	
-		CHECKCOMBATCAST
 
 		| target dead or not in zone? fuck their request 
 		/if (${Spawn[${queueList[${_count},1]}].Dead} || !${Spawn[${queueList[${_count},1]}].ID}) {
@@ -3895,9 +3894,6 @@ sub check_buffs_tell()
 			/return
 		}
 
-		AMIDEAD
-		CHECKEXIT
-		CHECKINPUTS
 		/varset _tmpID ${queueList[${_count},1]}
 		/varset _tmpVAR ${queueList[${_count},2]}
 		| /if (${_tmpID}) /break
@@ -4069,7 +4065,6 @@ sub do_loot()
 | evil delete code. had to change this. like > 9000 times 
 					:loopfind_advlItem
 					/delay 5
-					| /nomodkey /shift /itemnotify ${FindItem[=${_advlItem}].InvSlot} leftmouseup
 					/nomodkey /shift /itemnotify in Pack${Math.Calc[${FindItem[=${_advlItem}].ItemSlot}-22]} ${Math.Calc[${FindItem[=${_advlItem}].ItemSlot2}+1]} leftmouseup
 					CLEARCURSOR TRUE
 					/if (${Window[ConfirmationDialogBox].Open}) {
@@ -4496,11 +4491,11 @@ sub get_target(bool _debug)
 		} else /if (${Me.AltAbilityReady[${setRangeAA}]}) {
 			/if (${validate_cast[FALSE, alt, "${setRangeAA}", ${Target2Kill}]}) /call core_cast2 "${setRangeAA}" alt ${Target2Kill} FALSE
 
-		| pew pew
+		| pew pew			/echo pew pew
 		} else {
 			/if (${Spawn[ID ${Target2Kill}].Distance} > 31) {
 				/for _count 1 to ${lstRangeItem.Count[|]}
-					/if (!${Bool[${FindItemCount[=${lstRangeItemSummon}]}]} && ${Bool[${lstRangeItemSummon}]}) /call check_ammo
+					/if (!${FindItemCount[${lstRangeItemSummon.Arg[${_count},|]}]} && ${Bool[${lstRangeItemSummon}]}) /call check_ammo
 				/next _count
 				
 				/if (${Bool[${swBandolier}]} && ${Bool[${bandolierRange}]} && ${Bool[${bandolierNormal}]}) {
@@ -5629,6 +5624,7 @@ sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
  *  NOTE: the note above is full of crap... i wouldn't trust a thing it says..!
  ***|
 sub core_cast2(string _spell, string _type, int _tmpID, string _sub)
+	| SDEBUG \atcore_cast2\ax(spell: ${_spell}, type: ${_type}, tar: ${_tmpID}, sub: ${_sub)
 	/if (${Me.Casting.ID} && !${Select[${Me.Class.ShortName},BRD]}) /return
 	AMIDEAD
 	CHECKINPUTS
@@ -5656,6 +5652,19 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub)
 
 	| spell
 	/if (!${Select[${_type},alt,item,disc,pulse,epicitem,activedisc]}) {
+		/declare _castLoop int local 5
+		/varset castReturn CAST_NOTREADY
+		/varset castBreak FALSE
+		
+		|***
+		/if (${Bool[${_sub}]}) {
+			/call ${_sub}
+			/if (!${castBreak}) {
+				/varset castReturn CAST_BREAK
+				/return CAST_BREAK
+			}	
+		}
+		***|
 		
 		| correct the rank
 		/varset _spell ${Spell[${_spell}].RankName}
@@ -5663,21 +5672,61 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub)
 		| mem spell if needed??
 		/if (${_type.Equal[${buffGem}]} && !${Me.Gem[${_spell}]}) /call mem_spell TRUE "${_spell}" ${_type} TRUE
 
+
+		|** set ready delays for casting		
+		/if (${Me.Casting.ID}) {
+			/delay ${Math.Calc[${Spell[${Me.Casting}].MyCastTime.Float}+5]}s !${Me.Casting.ID}
+		} else {
+			/delay 6 !${Me.Casting.ID}
+		}
+		**|
+
 		| cast GOM if song proc?
-		/if (${_tmpID} != 0 && ${Target.ID} && ${Me.Song[Gift of Mana].ID}) {
+		/if (${_tmpID} != 0 && ${Target.ID} && ${Me.Song[Gift of Mana].ID} && ${Select[${Me.Class.ShortName},CLR]}) {
 			/call cast_nuke_GoM ${_tmpID}
 			/return
 		}
-	
-		| echos
-		/if (${_tmpID} == 0) {
-			VSPELL Spell ${sep} ${csp}${_spell}\ax
-		} else /if (${_tmpID} != 0 && ${Target.ID}) {
-			VSPELL Spell ${sep} ${csp}${Spell[${_spell}].RankName}\ax ${sep} [${ctar}${Spawn[id ${_tmpID}].DisplayName}\ax]
-		}
 
-		VBC Spell "${_spell}" ${_tmpID} 0 		
-		/call cast "${_spell}"
+
+		/if (${Me.Gem[${_spell}]}) {
+
+			| echos
+			/if (${_tmpID} == 0) {
+				VSPELL Spell ${sep} ${csp}${_spell}\ax
+			} else /if (${_tmpID} != 0 && ${Target.ID}) {
+				VSPELL Spell ${sep} ${csp}${Spell[${_spell}].RankName}\ax ${sep} [${ctar}${Spawn[id ${_tmpID}].DisplayName}\ax]
+			}
+			VBC Spell "${_spell}" ${_tmpID} 0 		
+
+			/while (${_castLoop}) {
+			
+				/cast ${Me.Gem[${_spell}]}
+	
+				| set delays for casting		
+				/delay ${Math.Calc[${Spell[${_spell}].MyCastTime.Float}+5]}s !${Me.Casting.ID}
+ 
+				/call check_cast_events
+						
+				| good cast
+				/if (${Select[${castReturn},CAST_SUCCESS]}) /break
+				
+				| spell is not ready
+				/if (${Select[${castReturn},CAST_NOTREADY]}) {
+					/varcalc _castLoop ${_castLoop}-1
+					/delay 2
+				}
+				
+			}
+		
+		}
+		
+		| delay for longer casts if there is any, cooldowns or open spell cast windows
+		/while (${Me.Casting.ID} || ${Window[CastingWindow].Open} || ${Me.SpellInCooldown}) {
+			/delay 3
+		}		
+		
+		
+		/return
 
 	| AA
 	} else /if (${Select[${_type},alt]}) {
@@ -5772,7 +5821,7 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub)
 	}
 	
 	/call check_cast_events
-	| SDEBUG ${castReturn}
+	| SDEBUG outside:${castReturn}
 
 	/if (!${Select[${_type},alt,item,disc,pulse,epicitem,activedisc]}) {
 		/delay 2 !${Me.SpellReady[${_spell}]}
@@ -6474,6 +6523,7 @@ sub watch_for_rezbox()
 			/varset swAmIDead FALSE
 			/varset swValidRezFound FALSE
 			/varset setRezWindowPct 0
+			/call set_switch ${chrID} swHomeSet FALSE
 			/return TRUE			
 		} else /if (!${swValidRezFound}) {
 			/nomodkey /notify ConfirmationDialogBox No_Button leftmouseup	
@@ -7493,7 +7543,7 @@ sub control_zone(bool _debug)
 	/sqlite ${dbCore} dummy SELECT ShortName FROM zone WHERE ShortName="${Zone.ShortName.Lower}"
 	/if (!${sqlite.Rows[dummy]}) {
 
-		| zone ios not there
+		| zone is not there
 		VSQL Zone Build ${sep} \awzone\ax::\at${Zone.Name}\ax
 		/sqlite ${dbCore} dummy INSERT INTO zone (ShortName) VALUES ("${Zone.ShortName.Lower}")
 	} 
@@ -8014,10 +8064,11 @@ sub wait_while(string _what, string _time)
  *	USE: 
  *  NOTE: not for public consumption
  ***|
-sub check_cast_events(int _castEventsTimer)
-	/varset _castEventsTimer timer local 2
-	/if (${_castEventsTimer}) /varset _CastCalcTimer ${_castEventsTimer}
-	/while (${_castEventsTimer}) {
+sub check_cast_events(int _checkLoops)
+	
+	/if (!${_checkLoops}) /varset _checkLoops 1
+
+	/while (${_checkLoops} > 0) {
 		/doevents CAST_BEGIN
 		/doevents CAST_CANNOTSEE    
 		/doevents CAST_COLLAPSE
@@ -8034,13 +8085,15 @@ sub check_cast_events(int _castEventsTimer)
 		/doevents CAST_OUTOFMANA  
 		/doevents CAST_OUTOFRANGE
 		/doevents CAST_RECOVER    
-		/varset CheckResisted 1
-		/doevents CAST_RESISTED    
-		/varset CheckResisted 0  
-		/doevents CAST_RESISTEDYOU    
+		| /varset CheckResisted 1
+		| /doevents CAST_RESISTED    
+		| /varset CheckResisted 0  
+		| /doevents CAST_RESISTEDYOU    
 		/doevents CAST_STANDING 
 		/doevents CAST_STUNNED
 		/doevents CAST_TAKEHOLD    
+		| SDEBUG \atcheck_cast_events\ax(#:${_checkLoops}) castResult:${castResult}
+		/varcalc _checkLoops ${_checkLoops}-1
 	}
 	
 /return

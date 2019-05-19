@@ -831,18 +831,27 @@ sub Bind_rez(string _type, string _verbage, bool _silent)
  ***| 
 #bind listControl /lc
 sub Bind_listControl(string _type, string _verbage, bool _silent)
+
 	/declare _bind string local LC
 	/declare _list string local ${sql_return[lstTypes${_bind}]}
+	/declare _zoneList string local ${sql_return[ZoneFileList]}
 	/if (${Bool[${_type}]}) {
 		/varset _type ${list_isoloate[lstTypes${_bind}, ${_type}]}
-		}
+	}
 	/declare _count int local 0
 	/declare _listout string local
 	/declare _sep bool local	
-	
+
+	| SDEBUG TYPE:\aw${_type}\ax :: VERBAGE:\aw${_verbage}\ax :: SILENT:\aw${_silent}\ax
+	| SDEBUG _list: \at${_list}\ax
+	| SDEBUG _zoneList: \at${_zoneList}\ax
+
 	| make sure were on/in the right zone
 	/call validate_zone FALSE FALSE
-	
+
+	| get the zone data
+	/sqlite ${dbCore} curZoneData SELECT * FROM zone WHERE ShortName="${Zone.ShortName.Lower}"
+
 	| safezone toggle
 	/if (${_type.Equal[SafeZone]}) {
 		/if (${SafeZone} || ${_verbage.Equal[FALSE]}) {
@@ -860,34 +869,149 @@ sub Bind_listControl(string _type, string _verbage, bool _silent)
 	} else /if (${SafeZone} && ${_type.NotEqual[SafeZone]}) {
 		VOUT ${onotice} ${sep} /lc is disabled while in a Safe Zone.
 		/return FALSE
-	
 
 	| remove a mob from the current zone
 	} else /if (${_type.Equal[remove]}) {
 		VOUT /${_bind.Lower} ${_type.Lower} ${sep} ${ctar}${Target.DisplayName}\ax
+		/declare _found					bool local
+		/declare _mReturn 			string local FALSE
+		
+		/for _count 1 to ${_zoneList.Count[|]}
+			/if (${_zoneList.Arg[${_count},|].Equal[SafeZone]}) /continue
+
+			/if (${${_zoneList.Arg[${_count},|]}.Find[${Target.DisplayName}]}) {
+				/varset _found TRUE
+				/varset _mReturn ${list_delete[${_zoneList.Arg[${_count},|]}, ${Target.DisplayName}]}
+				/sqlite ${dbCore} dummy UPDATE zone SET ${_zoneList.Arg[${_count},|]}="${_mReturn}" WHERE ShortName="${Zone.ShortName.Lower}"
+			}
+
+		/next _count	
+		/if (${_found}) {
+			/call Bind_admin zonereset
+			/dgexecute /admin zonereset
+		}
+		/return TRUE
+
+	| remaining list adjustments
+	} else /if (${_list.Find[${_type}]}) {
+		
+		/sql ${dbCore} dummy SELECT * FROM zone WHERE ShortName="${Zone.ShortName.Lower}"
+
+		/if (${sqlite.Result[dummy 1 ${_type}List].Find[${Target.DisplayName}]}) {
+			VSQL \awzone\ax::\aw${Zone.ShortName.Lower}\ax::\aw${_type}List\ax::\at${Target.DisplayName}\ax
+			/return TRUE
+
+		} else /if (!${sqlite.Result[dummy 1 ${_type}List].Find[${Target.DisplayName}]}) {
+
+			| add to list
+			/if (${Bool[${sqlite.Result[dummy 1 ${_type}List]}]}) {
+				/sqlite ${dbCore} dummy UPDATE zone SET ${_type}List="${${_type}List}|${Target.DisplayName}" WHERE ShortName="${Zone.ShortName.Lower}"
+
+			| create the list
+			} else /if (!${Bool[${sqlite.Result[dummy 1 ${_type}List]}]}) {
+				/sqlite ${dbCore} dummy UPDATE zone SET ${_type}List="|${Target.DisplayName}" WHERE ShortName="${Zone.ShortName.Lower}"
+			}
+
+			VSQL \awzone\ax::\aw${Zone.ShortName.Lower}\ax::\aw${_type}List\ax::\at${Target.DisplayName}\ax
+			/dgaexecute /admin zonereset
+			/return TRUE
+		}
+	}
+
+	| echo the controls
+	/for _count 1 to ${_list.Count[|]}
+		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${_list.Arg[${_count},|].Lower}\ax		
+		/varset _sep TRUE
+	/next _count
+	VOUT /${_bind.Lower} [${_listout}]
+
+/return 
+ 
+ 
+ 
+|** 
+ 
+#bind listControl2 /lc2
+sub Bind_listControl2(string _type, string _verbage, bool _silent)
+	SDEBUG TYPE:${_type} :: VERBAGE:${_verbage} :: SILENT:${_silent}
+
+	/declare _bind string local LC
+	/declare _list string local ${sql_return[lstTypes${_bind}]}
+	/if (${Bool[${_type}]}) {
+		/varset _type ${list_isoloate[lstTypes${_bind}, ${_type}]}
+	}
+	/declare _count int local 0
+	/declare _listout string local
+	/declare _sep bool local	
+	/declare _zoneList string local ${sql_return[ZoneFileList]}
+		
+/echo ${_list}		
+| get the zone data
+	/sqlite ${dbCore} curZoneData SELECT * FROM zone WHERE ShortName="${Zone.ShortName.Lower}"			
+	/echo ${sqlite.Result[curZoneData 1 Name]}
+
+		
+	| make sure were on/in the right zone
+	/call validate_zone FALSE FALSE
+	
+	| safezone toggle
+	/if (${_type.Equal[SafeZone]}) {
+		SDEBUG SAFEZONE
+		/if (${SafeZone} || ${_verbage.Equal[FALSE]}) {
+			/sqlite ${dbCore} dummy UPDATE zone SET SafeZone="FALSE" WHERE ShortName="${Zone.ShortName.Lower}"
+			/varset SafeZone FALSE
+		} else /if (!${SafeZone} || ${_verbage.Equal[TRUE]}) {
+			/sqlite ${dbCore} dummy UPDATE zone SET SafeZone="TRUE" WHERE ShortName="${Zone.ShortName.Lower}"
+			/varset SafeZone TRUE
+		}
+		VSQL \awzone\ax::\aw${Zone.ShortName.Lower}\ax::\awSafeZone\ax::${If[${SafeZone},${oon},${ooff}]}
+		/dgaexecute /admin zonereset
+		/return TRUE
+	
+	| disable all commands but safezone while in a safezone
+	} else /if (${SafeZone} && ${_type.NotEqual[SafeZone]}) {
+		VOUT ${onotice} ${sep} /lc is disabled while in a Safe Zone.
+		/return FALSE
+	
+	| remove a mob from the current zone
+	} else /if (${_type.Equal[remove]}) {
+				
+		SDEBUG /lc REMOVE
+		
+		
+		VOUT /${_bind.Lower} ${_type.Lower} ${sep} ${ctar}${Target.DisplayName}\ax
+
+
 
 		/declare _mobName 			string local |${Target.DisplayName}
 		/declare _listName 			string local	
-		/declare _INIlist				string local ${ZoneFileList}
+
 		/declare _a 						int local
 		/declare _b 						int local
 		/declare _strLeft 			string local
 		/declare _strRight 			string local
 		/declare _found					bool local
 		
-		/for _count 1 to ${ZoneFileList.Count[|]}
-			/if (${ZoneFileList.Arg[${_count},|].Equal[SafeZone]}) /continue
+		/for _count 1 to ${_zoneList.Count[|]}
+			/if (${_zoneList.Arg[${_count},|].Equal[SafeZone]}) /continue
 			/varset _strLeft FALSE
 			/varset _strRight FALSE
+		
 			
-			/if (${${ZoneFileList.Arg[${_count},|]}.Find[${_mobName}]}) {
+			/echo ${_zoneList.Arg[${_count},|]} :: ${${_list.Arg[${_count},|]}}
+			/continue
+			/if (${${_zoneList.Arg[${_count},|]}.Find[${_mobName}]}) {
 				/varset _found TRUE
-				VSQL \awzone\ax::\aw${Zone.ShortName.Lower}\ax::\aw${ZoneFileList.Arg[${_count},|]}\ax::\ar${Target.DisplayName}\ax
-				/varcalc _a ${${ZoneFileList.Arg[${_count},|]}.Find[${_mobName}]}-1
-				/varcalc _b ${${ZoneFileList.Arg[${_count},|]}.Length}-${_mobName.Length}-${_a}
-				/if (${_a} > 0) /varset _strLeft ${${ZoneFileList.Arg[${_count},|]}.Left[${_a}]}
-				/if (${_a} >= 0) /varset _strRight ${If[${Select[${_b},NULL,FALSE,""]},,${${ZoneFileList.Arg[${_count},|]}.Right[${_b}]}]} 
-				/sqlite ${dbCore} dummy UPDATE zone SET ${ZoneFileList.Arg[${_count},|]}="${If[${Bool[${_strLeft}]},${_strLeft},]}${If[${Bool[${_strRight}]},${_strRight},]}" WHERE ShortName="${Zone.ShortName.Lower}"
+				VSQL \awzone\ax::\aw${Zone.ShortName.Lower}\ax::\aw${_zoneList.Arg[${_count},|]}\ax::\ar${Target.DisplayName}\ax
+				/varcalc _a ${${_list.Arg[${_count},|]}.Find[${_mobName}]}-1
+				/varcalc _b ${${_list.Arg[${_count},|]}.Length}-${_mobName.Length}-${_a}
+				/if (${_a} > 0) /varset _strLeft ${${_list.Arg[${_count},|]}.Left[${_a}]}
+				/if (${_a} >= 0) /varset _strRight ${If[${Select[${_b},NULL,FALSE,""]},,${${_list.Arg[${_count},|]}.Right[${_b}]}]} 
+
+
+				/echo /sqlite ${dbCore} dummy UPDATE zone SET ${_zoneList.Arg[${_count},|]}="${If[${Bool[${_strLeft}]},${_strLeft},]}${If[${Bool[${_strRight}]},${_strRight},]}" WHERE ShortName="${Zone.ShortName.Lower}"
+
+				/sqlite ${dbCore} dummy UPDATE zone SET ${_zoneList.Arg[${_count},|]}="${If[${Bool[${_strLeft}]},${_strLeft},]}${If[${Bool[${_strRight}]},${_strRight},]}" WHERE ShortName="${Zone.ShortName.Lower}"
 			}
 		/next _count	
 		/if (${_found}) {
@@ -895,6 +1019,9 @@ sub Bind_listControl(string _type, string _verbage, bool _silent)
 			/dgexecute /admin zonereset
 		}
 		/return TRUE
+
+
+
 		
 	} else /if (${lstTypes${_bind}.Find[${_type}]}) {
 		
@@ -937,6 +1064,40 @@ sub Bind_listControl(string _type, string _verbage, bool _silent)
 	VOUT /${_bind.Lower} [${_listout}]
 
 /return
+
+
+
+
+
+
+
+			| dont try and delete anything that is not there
+			/if (!${_varData.Find[${_value}]}) /return TRUE
+
+			/varset _value |${_value}
+			/declare _a int local
+			/declare _b int local
+			/declare _strLeft string local
+			/declare _strRight string local
+			
+			| split the data along the | point of the list to be removed.
+			/varcalc _a ${_varData.Find[${_value}]}-1
+			/varcalc _b ${_varData.Length}-${_value.Length}-${_a}
+			/if (${_a} >= 0) /varset _strLeft ${If[${Select[${_a},0,NULL,FALSE,""]},,${_varData.Left[${_a}]}]}
+			/if (${_a} >= 0) /varset _strRight ${If[${Select[${_b},0,NULL,FALSE,""]},,${_varData.Right[${_b}]}]} 
+			
+			| reconnect the two variables w/o the data to be removed
+			/varset _value ${_strLeft}${_strRight}	
+			
+			| if last entity deleted, reset to factory false
+			/if (${_value.Equal[NULL]} || !${Bool[${_value}]}) /varset _value |FALSE
+
+
+
+
+
+
+
 
 
 

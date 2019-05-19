@@ -44,18 +44,7 @@
 	_tmpID							int				the passed/local target ID
 	tmpHealOverride			int				control hp heal reduction percentage. For zones that impose a HP/Mana cap. (no effect on stamina calculations)
 	
-	Common Used Functions:
-	check_exit										returns [TRUE/FALSE] if there is a reason to not do the current sub
-	timer_update									creates a timer. will declare the variable if needed
-	core_cast											"SPELLNAME" [alt|disc|gem#|item|0] [MobID|0] [subname]
-		
 	Tab spaces set to 2 if you care.
-	
-	Credits/Inspiration
-		- cast pre-condition added for nukes, dots and a few other things. inspired by raiddruid.mac
-		- ultraedit v24 wordfile - http://www.macroquest2.com/phpBB3/viewtopic.php?f=46&t=19321&hilit=ultraedit (adapted and updated/maintained to current MQ2)
-		- whoHas.mac [/whohas] - http://www.macroquest2.com/phpBB3/viewtopic.php?f=49&t=20212 (this is a genius idea)
-		- i stole the base forage functions from someone years ago. Thank You Whomever. fish code based off same processes and then promptly adapted. rewritten to use core.loot.ini list.
 
 ***|
 
@@ -91,7 +80,6 @@
 #include tc\declare.inc
 #include tc\pregen.inc
 #include tc\common.inc
-| #include tc\MQ2Cast_Spell_Routines.inc
 #include tc\mode.inc
 #include tc\events.inc
 #include tc\class.ber.inc
@@ -122,7 +110,7 @@
  ***|
 sub main(string _custom, string _startparam)
 	| Current Build
-	/call setDeclare currentBuild 			string outer 0517.01
+	/call setDeclare currentBuild 			string outer 0519.01
 	
 	| set the default character ID
 	/call setDeclare chrID 							string outer ${MacroQuest.Server}_${Me.Class.ShortName}_${Me.DisplayName}
