@@ -77,8 +77,8 @@ sub disc_DRU()
 	CHECKINPUTS
 	/if (${is_target_dead[${Target2Kill}]}) /return
 
-	/if (${validate_cast[FALSE, alt, "Storm Strike", ${Target2Kill}]}) /call core_cast2 "Storm Strike" alt ${Target2Kill} FALSE
 	/if (${validate_cast[FALSE, alt, "Season's Wrath", ${Target2Kill}]}) /call core_cast2 "Season's Wrath" alt ${Target2Kill} FALSE
+	/if (${validate_cast[FALSE, alt, "Storm Strike", ${Target2Kill}]}) /call core_cast2 "Storm Strike" alt ${Target2Kill} FALSE
 	
 	| wolf spirit AAs
 	/if (${AAWolfSpirit.Equal[black]}) {	
@@ -134,7 +134,6 @@ sub cast_AA_ro(int _tmpID)
 	/if (!${Bool[${debuffRo}]} || !${Me.AltAbilityReady[${debuffRo}]}) /return FALSE
 	
 	/if (${validate_cast[FALSE, alt, "${debuffRo}", ${_tmpID}]}) /call core_cast2 "${debuffRo}" alt ${_tmpID} FALSE
-	SDEBUG ${castReturn}
 	
 	/if (${Select[${castReturn},CAST_SUCCESS,CAST_IMMUNE,CAST_RESISTED,CAST_RESIST,CAST_NOHOLD,CAST_TAKEHOLD]}) {
 		/call timer_update timer_ro_${_tmpID} ${Spell[${debuffRo}].Trigger.Duration.TotalSeconds}s
@@ -151,9 +150,11 @@ sub cast_AA_ro(int _tmpID)
  ***|
 sub check_heal_group_DRU()
 	DEBUG check_heal_group_DRU()
+	CHECKTIE
 	AMIDEAD
 	CHECKEXIT
-	CHECKTIE
+	CHECKREZ
+	CHECKFADE
 
 	UPDATEHUD "HEAL Group"
 
@@ -164,10 +165,24 @@ sub check_heal_group_DRU()
 	/varset hurtCount 0
 
 	| Do group members need healing? 
-  /call check_health_group
+	/for _count 0 to ${Group}
+		/if (${Group.Member[${_count}].PctHPs} > ${${Group.Member[${_count}].Class.ShortName}Point}*.${tmpHealOverride}) /continue
+		/if (${Group.Member[${_count}].PctHPs} > ${hurtPctHP}) /continue
+		/if (${Group.Member[${_count}].Distance} > ${setMobAgro}) /continue
+		/if (!${Group.Member[${_count}].Present} || ${Group.Member[${_count}].Dead}) /continue
+		/if (${Group.Member[${_count}].DisplayName.Equal[${RampageTank}]}) /continue
+		/if (${lstNoHeal.Find[${Group.Member[${_count}].DisplayName}]}) /continue
+
+		| we found a slacker
+		/varset hurtPctHP ${Group.Member[${_count}].PctHPs}
+		/varset hurtIndex ${_count}
+		/varset hurtCLS ${Group.Member[${_count}].Class.ShortName}
+		/varcalc hurtCount ${hurtCount}+1
+		/if (${useGroupHeal}) {
+			/if (${hurtCount} >= ${useGroupHeal}) /break
+		}
 	
-	CHECKREZ
-	/if (${switchAAFade} && ${Me.PctHPs} <= ${useAAFadePct}) /call cast_AA_fade
+	/next _count
 	
 	
 	| if no one is hurt. back to the start
@@ -183,52 +198,101 @@ sub check_heal_group_DRU()
 	| Panic heal
 	/if (${Group.Member[${hurtIndex}].PctHPs} < ${PanicPoint}*.${tmpHealOverride}) {
 		/if (${Me.Casting.ID}) /stopcast
-		/if (${validate_cast[FALSE, spell, "${healPanic}", ${Group.Member[${hurtIndex}].ID}]}) /call core_cast2 "${healPanic}" 0 ${Group.Member[${hurtIndex}].ID} FALSE
+		/if (${validate_cast[FALSE, spell, "${healPanic}", ${Group.Member[${hurtIndex}].ID}]}) {
+			/call core_cast2 "${healPanic}" 0 ${Group.Member[${hurtIndex}].ID} FALSE
+		}
 	}
-	
+
 	
 	| single AA heals
-	/if (${Group.Member[${hurtIndex}].PctHPs} < ${${hurtCLS}Point}*.6*.${tmpHealOverride} && ${Me.AltAbilityReady[peaceful Convergence of Spirits]}) {
-		/if (${validate_cast[FALSE, alt, "Convergence of Spirits", ${Group.Member[${hurtIndex}].ID}]}) /call core_cast2 "Convergence of Spirits" alt ${Group.Member[${hurtIndex}].ID} FALSE
+	
+	| 2 min
+	/if (${Group.Member[${hurtIndex}].PctHPs} < ${${hurtCLS}Point}*.${tmpHealOverride}) {
+		/if (${validate_cast[FALSE, alt, "Wrath of the Wild", ${Group.Member[${hurtIndex}].ID}]}) {
+			/call core_cast2 "Wrath of the Wild" alt ${Group.Member[${hurtIndex}].ID} FALSE
+		}
+	}	
+	
+	| 3 min
+	/if (${Group.Member[${hurtIndex}].PctHPs} < ${${hurtCLS}Point}*.${tmpHealOverride}) {
+		/if (${validate_cast[FALSE, alt, "Wildtender's Survival", ${Group.Member[${hurtIndex}].ID}]}) {
+			/call core_cast2 "Wildtender's Survival" alt ${Group.Member[${hurtIndex}].ID} FALSE
+		}
+	}	
+	| 5 min
+	/if (${Group.Member[${hurtIndex}].PctHPs} < ${${hurtCLS}Point}*.7*.${tmpHealOverride}) {
+		/if (${validate_cast[FALSE, alt, "Swarm of Fireflies", ${Me.ID}]}) {
+			/call core_cast2 "Swarm of Fireflies" alt 0 FALSE
+		}
 	}
-	/if (${Group.Member[${hurtIndex}].PctHPs} < ${${hurtCLS}Point}*.5*.${tmpHealOverride} && ${Me.AltAbilityReady[Convergence of Spirits]}) {
-		/if (${validate_cast[FALSE, alt, "Peaceful Convergence of Spirits", ${Group.Member[${hurtIndex}].ID}]}) /call core_cast2 "Peaceful Convergence of Spirits" alt ${Group.Member[${hurtIndex}].ID} FALSE
+	
+	| 8 min
+	/if (${Group.Member[${hurtIndex}].PctHPs} < ${${hurtCLS}Point}*.6*.${tmpHealOverride}) {
+		/if (${validate_cast[FALSE, alt, "Convergence of Spirits", ${Group.Member[${hurtIndex}].ID}]}) {
+			/call core_cast2 "Convergence of Spirits" alt ${Group.Member[${hurtIndex}].ID} FALSE
+		}
 	}
+	
+	| 8 min (same timer)
+	| /if (${Group.Member[${hurtIndex}].PctHPs} < ${${hurtCLS}Point}*.5*.${tmpHealOverride}) {
+	| 	/if (${validate_cast[FALSE, alt, "Peaceful Convergence of Spirits", ${Group.Member[${hurtIndex}].ID}]}) {
+	| 		/call core_cast2 "Peaceful Convergence of Spirits" alt ${Group.Member[${hurtIndex}].ID} FALSE
+	| 	}
+	| }
+  
+  
   
 	| Group Heals
 	CHECKINPUTS
-	/if (${useGroupHeal}) {
 
-	  /if (${hurtCount} && !${SafeZone}) {
+  | Group Heal
+  /if (${useGroupHeal}) {
+	  /if (${hurtCount} >= ${useGroupHeal}) {
 	  	
-	  	/if (${hurtCount} > 3 && ${Me.SpellReady[${Spell[${healWholeGroup}].RankName}]}) {
-	  		/if (${validate_cast[FALSE, spell, "${healWholeGroup}", ${Me.ID}]}) /call core_cast2 "${healWholeGroup}" 0 ${Me.ID} FALSE
-	  	} 	
+	  	| AA group heals
+		  /if (!${SafeZone}) {
+		  	| 9 min
+		  	/if (${validate_cast[FALSE, alt, "Peaceful Spirit of the Wood", ${Me.ID}]}) {
+		  		/call core_cast2 "Peaceful Spirit of the Wood" alt ${Me.ID} FALSE
+		  		/return
+		  	}
+				| 5 min
+			 	/if (${validate_cast[FALSE, alt, "Blessing of Tunare", ${Me.ID}]}) {
+			 		/call core_cast2 "Blessing of Tunare" alt 0 FALSE
+			 		/return
+			 	}
+			}			  	
 	  	
-		  /if (${hurtCount} == 1) {
-		  } else /if (${hurtCount} == 2) {
-		  } else /if (${hurtCount} == 3) {
-		  	/if (${validate_cast[FALSE, alt, "Peaceful Spirit of the Wood", ${Me.ID}]}) /call core_cast2 "Peaceful Spirit of the Wood" alt ${Me.ID} FALSE
-
-		  } else /if (${hurtCount} == 4) {
-		  } else /if (${hurtCount} == 5) {
-			 	/if (${validate_cast[FALSE, alt, "Swarm of Fireflies", ${Me.ID}]}) /call core_cast2 "Swarm of Fireflies" alt 0 FALSE
-			} else /if (${hurtCount} == 6) {
-			 	/if (${validate_cast[FALSE, alt, "Blessing of Tunare", ${Me.ID}]}) /call core_cast2 "Blessing of Tunare" alt 0 FALSE
-			}			
-	  }	
-	
+	  	| group heal
+	    /if (${validate_cast[FALSE, spell, "${healWholeGroup}", ${Me.ID}]}) {
+	    	/call core_cast2 "${healWholeGroup}" 0 0 check_health_group
+	    	/return
+	    }
+	  } 
 	}
-	
+
 	| single target heals
   	/if (${Me.SpellReady[${Spell[${healRejuvilation}].RankName}]}) {
-     /if (${validate_cast[FALSE, spell, "${healRejuvilation}", ${Group.Member[${hurtIndex}].ID}]}) /call core_cast2 "${healRejuvilation}" 0 ${Group.Member[${hurtIndex}].ID} FALSE
-    } else /if (${Me.SpellReady[${Spell[${healSanavida}].RankName}]}) {
-      /if (${validate_cast[FALSE, spell, "${healSanavida}", ${Group.Member[${hurtIndex}].ID}]}) /call core_cast2 "${healSanavida}" 0 ${Group.Member[${hurtIndex}].ID} FALSE
-    } else /if (${Me.SpellReady[${Spell[${healAdrenaline}].RankName}]}) {
-      /if (${validate_cast[FALSE, spell, "${healAdrenaline}", ${Group.Member[${hurtIndex}].ID}]}) /call core_cast2 "${healAdrenaline}" 0 ${Group.Member[${hurtIndex}].ID} FALSE
+			/if (${validate_cast[FALSE, spell, "${healRejuvilation}", ${Group.Member[${hurtIndex}].ID}]}) {
+				/call core_cast2 "${healRejuvilation}" 0 ${Group.Member[${hurtIndex}].ID} FALSE
+				/return
+			}
+    }
+    
+    /if (${Me.SpellReady[${Spell[${healAdrenaline}].RankName}]}) {
+      /if (${validate_cast[FALSE, spell, "${healAdrenaline}", ${Group.Member[${hurtIndex}].ID}]}) {
+      	/call core_cast2 "${healAdrenaline}" 0 ${Group.Member[${hurtIndex}].ID} FALSE
+      	/return
+      }
     } 
-	
+
+    /if (${Me.SpellReady[${Spell[${healSanavida}].RankName}]}) {
+      /if (${validate_cast[FALSE, spell, "${healSanavida}", ${Group.Member[${hurtIndex}].ID}]}) {
+      	/call core_cast2 "${healSanavida}" 0 ${Group.Member[${hurtIndex}].ID} FALSE
+      	/return
+      }
+    }
+    
 	UPDATEHUD FALSE
 /return
 
@@ -260,21 +324,40 @@ sub check_heal_self_DRU()
 
 	
 	| single AA heals
-	/if (${Me.PctHPs} < ${${hurtCLS}Point}*.6*.${tmpHealOverride} && ${Me.AltAbilityReady[peaceful Convergence of Spirits]}) {
-		/if (${validate_cast[FALSE, alt, "Convergence of Spirits", ${Me.ID}]}) /call core_cast2 "Convergence of Spirits" alt ${Me.ID} FALSE
+	
+	| 2 min
+	/if (${Me.PctHPs} < ${DRUPoint}*.${tmpHealOverride}) {
+		/if (${validate_cast[FALSE, alt, "Wrath of the Wild", ${Me.ID}]}) 
+			/call core_cast2 "Wrath of the Wild" alt ${Me.ID} FALSE
+		}
+	}	
+	| 3 min
+	/if (${Me.PctHPs} < ${DRUPoint}*.${tmpHealOverride}) {
+		/if (${validate_cast[FALSE, alt, "Wildtender's Survival", ${Me.ID}]}) 
+			/call core_cast2 "Wildtender's Survival" alt ${Me.ID} FALSE
+		}
+	}	
+	| 5 min
+	/if (${Me.PctHPs} < ${DRUPoint}*.${tmpHealOverride}) {
+		/if (${validate_cast[FALSE, alt, "Swarm of Fireflies", ${Me.ID}]}) {
+			/call core_cast2 "Swarm of Fireflies" alt 0 FALSE
+		}
 	}
-	/if (${Me.PctHPs} < ${${hurtCLS}Point}*.5*.${tmpHealOverride} && ${Me.AltAbilityReady[Convergence of Spirits]}) {
-		/if (${validate_cast[FALSE, alt, "Peaceful Convergence of Spirits", ${Me.ID}]}) /call core_cast2 "Peaceful Convergence of Spirits" alt ${Me.ID} FALSE
-	}
-  
+	
+	| 8 min
+	/if (${Me.PctHPs} < ${DRUPoint}*.${tmpHealOverride}) {
+		/if (${validate_cast[FALSE, alt, "Convergence of Spirits", ${Me.ID}]}) {
+			/call core_cast2 "Convergence of Spirits" alt ${Me.ID} FALSE
+		}
+	}	
 	
 	| single target heals
 	/if (${Me.SpellReady[${Spell[${healRejuvilation}].RankName}]}) {
    /if (${validate_cast[FALSE, spell, "${healRejuvilation}", ${Me.ID}]}) /call core_cast2 "${healRejuvilation}" 0 ${Me.ID} FALSE
-  } else /if (${Me.SpellReady[${Spell[${healSanavida}].RankName}]}) {
-    /if (${validate_cast[FALSE, spell, "${healSanavida}", ${Me.ID}]}) /call core_cast2 "${healSanavida}" 0 ${Me.ID} FALSE
   } else /if (${Me.SpellReady[${Spell[${healAdrenaline}].RankName}]}) {
     /if (${validate_cast[FALSE, spell, "${healAdrenaline}", ${Me.ID}]}) /call core_cast2 "${healAdrenaline}" 0 ${Me.ID} FALSE
+  } else /if (${Me.SpellReady[${Spell[${healSanavida}].RankName}]}) {
+    /if (${validate_cast[FALSE, spell, "${healSanavida}", ${Me.ID}]}) /call core_cast2 "${healSanavida}" 0 ${Me.ID} FALSE
   } 	
 
 /return
@@ -402,7 +485,10 @@ sub burn_DRU()
 	CHECKINPUTS
 	
 	| swarm pets
-	/if (${validate_cast[FALSE, alt, "Natures Guardian", ${Target2Kill}]}) /call core_cast2 "Natures Guardian" alt ${Target2Kill} FALSE
+	/if (${swSwarm}) {
+		/if (${validate_cast[FALSE, alt, "Nature's Guardian", ${Target2Kill}]}) /call core_cast2 "Nature's Guardian" alt ${Target2Kill} FALSE
+		
+	}
 	
 	| defense
 	/if (${validate_cast[FALSE, alt, "Protection of Direwood", ${Me.ID}]}) /call core_cast2 "Protection of Direwood" alt 0 FALSE
@@ -449,12 +535,20 @@ sub Bind_setDRU(string _type, string _verbage)
 
 	| use group Heals
 	} else /if (${_type.Equal[groupheal]}) {
-		/call set_switch ${chrID} useGroupHeal ${_verbage} 	
+		/call set_character_groupheal FALSE ${_verbage}
 
 	| use grow temp buff
 	} else /if (${_type.Equal[grow]}) {
 		/call set_switch ${chrID} switchGrowth Spells ${_verbage} 	
 
+	| set rampage tank toon
+	} else /if (${_type.Equal[rampage]}) {
+		/if (${Bool[${_verbage}]}) {
+			/call sql_update FALSE ${chrID} RampageTank ${_verbage.Left[1].Upper}${_verbage.Right[-1].Lower}
+		} else /if (!${Bool[${_verbage}]}) {
+			/call sql_update FALSE ${chrID} RampageTank FALSE
+		}
+		
 	| wolf spirit AAs
 	} else /if (${_type.Equal[wolf]}) {
 		/declare _wolflist string local |FALSE|black|white
@@ -492,15 +586,7 @@ sub Bind_setDRU(string _type, string _verbage)
 			VOUT /${_bind} xttime [${cinfo}${tXHeal}m\ax] allowable range ${sep} ${cinfo}1 - 5 min\ax
 			/return
 		}	
-
-	| set rampage tank toon
-	} else /if (${_type.Equal[rampage]}) {
-		/if (${Bool[${_verbage}]}) {
-			/call sql_update FALSE ${chrID} RampageTank ${_verbage.Left[1].Upper}${_verbage.Right[-1].Lower}
-		} else /if (!${Bool[${_verbage}]}) {
-			/call sql_update FALSE ${chrID} RampageTank FALSE
-		}
-
+		
 	| spire control
 	} else /if (${_type.Equal[spiregroup]} || ${_type.Equal[spireraid]}) {
 		/call set_character_spire FALSE ${_type} ${_verbage}
@@ -510,7 +596,7 @@ sub Bind_setDRU(string _type, string _verbage)
 	/for _count 1 to ${_lstClass.Count[|]}
 		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${_lstClass.Arg[${_count},|]}\ax
 		/if (${_lstClass.Arg[${_count},|].Equal[fade]}) /varset _listout ${_listout}:${If[${switchAAFade},${cnum}${useAAFadePct}\ax,${cbad}${useAAFadePct}\ax]}
-		/if (${_lstClass.Arg[${_count},|].Equal[groupheal]}) /varset _listout ${_listout}:${If[${useGroupHeal},${oon},${ooff}]}
+		/if (${_lstClass.Arg[${_count},|].Equal[groupheal]}) /varset _listout ${_listout}:${If[${useGroupHeal},${cnum}${useGroupHeal}\ax,${ooff}]}
 		/if (${_lstClass.Arg[${_count},|].Equal[grow]}) /varset _listout ${_listout}:${If[${switchGrowth},${oon},${ooff}]}
 		/if (${_lstClass.Arg[${_count},|].Equal[healpoint]}) /varset _listout ${_listout}:${cnum}->\ax
 		/if (${_lstClass.Arg[${_count},|].Equal[rampage]}) /varset _listout ${_listout}:${If[${Bool[${RampageTank}]},${cnum}${RampageTank}\ax,${ooff}]}

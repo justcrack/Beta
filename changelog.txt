@@ -23,6 +23,21 @@ Plugins Required: MQ2Exchange, MQ2MoveUtils, MQ2Debuffs, MQ2DanNet, MQ2SQLite, M
     -- script: files use to aid database or character generation. these files are fair game, i will be overwriting them if i need
 
 
+BETA 0526.01
+- code prepared for an advanced pull function (soon my pretties)
+- setting a toon as puller will disalbe all of its assists. setting an assist will disable puller.
+- casting
+  -- some more timer corrections for discs and items
+- /hc
+  -- fixed the list output
+- /port item [lamp] will work again
+- cast_yaulp()
+  -- fixed the rank name check for the yaulp spells
+- class.dru.inc
+	-- lot of druid changes to bring healing line line with cleric
+- /movement gather[all] will summon all your toons to you. in your gorup or otherwise
+
+
 BETA 0519.01
 - some more alterations to casting events 
 - /lc controls are working again

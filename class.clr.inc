@@ -128,13 +128,15 @@ sub cast_sum_weapon()
 	CHECKEXIT
 	CHECKINPUTS
 	/if (!${Bool[${FindItem[${sumWeaponItem}]}]}) {
-		/if (${validate_cast[FALSE, spell, "${sumWeaponSpell}", ${Me.ID}]}) /call core_cast2 "${sumWeaponSpell}" ${buffGem} ${Me.ID} FALSE
+		/if (${validate_cast[FALSE, spell, "${sumWeaponSpell}", ${Me.ID}]}) {
+			/call core_cast2 "${sumWeaponSpell}" ${buffGem} ${Me.ID} FALSE
+			/delay 5
+			/delay 8s !${Me.Casting.ID}
+			/call sort_cursor TRUE
+			/call Bind_swap "${sumWeaponItem}" 13 
+		}
 	}
-	/if (${Bool[${Cursor.ID}]}) {
-		/call sort_cursor TRUE
-	} else {
-		/exchange "${sumWeaponItem}" mainhand 
-	}
+
 /return
 
 
@@ -523,7 +525,7 @@ sub check_heal_XTarget_CLR()
 		/return	
 	}
 
-	/call check_no_cast_buff
+	| /call check_no_cast_buff
 
 	| AA heal
 	/if (${Me.XTarget[${hurtIndex}].PctHPs} < 45*.${tmpHealOverride} && ${Me.AltAbilityReady[Burst of Life]}) {
@@ -548,10 +550,10 @@ sub check_heal_XTarget_CLR()
 	| Remedy Heals 
   /if (${Me.XTarget[${hurtIndex}].PctHPs} <= ${${hurtCLS}Point}*.${tmpHealOverride}) {
 		/for _count 1 to 3
-			/if (${Me.SpellReady[${Spell[${healRemedy${_count}}].RankName}]}) /continue
+			| /if (${Me.SpellReady[${Spell[${healRemedy${_count}}].RankName}]}) /continue
 			/if (${validate_cast[FALSE, spell, "${healRemedy${_count}}", ${Me.XTarget[${hurtIndex}].ID}]}) {
 				/call core_cast2 "${healRemedy${_count}}" 0 ${Me.XTarget[${hurtIndex}].ID} check_health_group
-				/return
+				/break
 			}
 		/next _count
 	}	
@@ -560,10 +562,10 @@ sub check_heal_XTarget_CLR()
 	:aggressivesort
   /if (${Me.XTarget[${hurtIndex}].PctHPs} <= ${${hurtCLS}Point}*.${tmpHealOverride}) {
 		/for _count 1 to 4
-			/if (!${Me.SpellReady[${Spell[${healIntervention${_count}}].RankName}]}) /continue
+			| /if (!${Me.SpellReady[${Spell[${healIntervention${_count}}].RankName}]}) /continue
 			/if (${validate_cast[FALSE, spell, "${healIntervention${_count}}", ${Me.XTarget[${hurtIndex}].ID}]}) {
 				/call core_cast2 "${healIntervention${_count}}" 0 ${Me.XTarget[${hurtIndex}].ID} check_health_group
-				/return
+				/break
 			}
 		/next _count
 	}	
@@ -571,10 +573,10 @@ sub check_heal_XTarget_CLR()
 	| Renewal Heals
   /if (${Me.XTarget[${hurtIndex}].PctHPs} <= ${${hurtCLS}Point}*.${tmpHealOverride}) {
 		/for _count 1 to 3
-			/if (!${Me.SpellReady[${Spell[${healRenewal${_count}}].RankName}]}) /continue
+			| /if (!${Me.SpellReady[${Spell[${healRenewal${_count}}].RankName}]}) /continue
 			/if (${validate_cast[FALSE, spell, "${healRenewal${_count}}", ${Me.XTarget[${hurtIndex}].ID}]}) {
 				/call core_cast2 "${healRenewal${_count}}" 0 ${Me.XTarget[${hurtIndex}].ID} check_health_group
-				/return
+				/break
 			}
 		/next _count
 	}	

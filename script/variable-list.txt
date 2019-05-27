@@ -629,6 +629,8 @@ Nuke#Condition						    [set] (1-8) nuke# condition
 DoT#											    [set] (1-8) dot to cast
 DoT#chk										    [set] (1-8) dot on target to watch for
 DoT#Condition							    [set] (1-8) dot# condition
+spellTerror						 				[set] Nights endless terror spell you want to use
+lstTerrorToon               	[list] List of toons to use spellTerror on
 
 
 ;MAG

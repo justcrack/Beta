@@ -4,7 +4,7 @@
 	exspes007
 	paypal.me/exspes
 	
-	"Someone once told me it takes a lot of skill and preperation to be effectively lazy."
+	"Someone once told me it takes a lot of skill and preparation to be effectively lazy."
 	-- unknown
 	
 	GitHub: https://github.com/exspes007
@@ -75,7 +75,7 @@
 #define TESTFUNCTION "/call test_function"
 #define CHECKCOMBATCAST "/if (${coreAuto} && !${swBuffCombat} && ${SpawnCount[npc radius ${setCombatRadius} playerstate 4 targetable]}) /return TRUE"
 #define CHECKINPUTS "/call check_inputs"
-#define CHECKFADE "/if (${switchAAFade} && ${Me.PctHPs} <= ${useAAFadePct}) /call cast_AA_fade"
+#define CHECKFADE "/if (${switchAAFade} && ${Me.PctHPs} <= ${useAAFadePct} && !${Me.Dead}) /call cast_AA_fade"
 
 #include tc\declare.inc
 #include tc\pregen.inc
@@ -110,7 +110,7 @@
  ***|
 sub main(string _custom, string _startparam)
 	| Current Build
-	/call setDeclare currentBuild 			string outer 0519.01
+	/call setDeclare currentBuild 			string outer 0526.01
 	
 	| set the default character ID
 	/call setDeclare chrID 							string outer ${MacroQuest.Server}_${Me.Class.ShortName}_${Me.DisplayName}
@@ -242,8 +242,10 @@ sub main(string _custom, string _startparam)
 			/if (!${Me.Invis} || (${coreAuto} && ${Select[${Me.Class.ShortName},ROG]} && ${swSoS})) {	
 				/if (!${swPull} || ${swOffTank}) {
 					/call get_assist_target	
-				} else /if (${swPull} && !${Target2Kill} && !${swOffTank}) {	
+				} else /if (${swPull} && !${Target2Kill} && !${swOffTank}) {
 					/call get_target FALSE
+				} else /if (${swAdvPull} && !${Target2Kill}) {
+					/call get_target_advanced FALSE
 				}
 			}
 		}

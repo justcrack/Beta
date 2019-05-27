@@ -274,11 +274,11 @@ sub mez_adds()
 				/delay 2.25s ${Me.SpellReady[${Spell[${spellpbaeMez}].RankName}]}
 				
 				/if (${Me.SpellReady[${Spell[${spellpbaeMez}].RankName}]}) {
-					/if (${Me.Casting.Name.NotEqual[${Spell[${spellpbaeMez}].RankName}]}) /call interrupt
+					/if (${Me.Casting.Name.NotEqual[${Spell[${spellpbaeMez}].RankName}]}) /stopcast
 					/if (${validate_cast[FALSE, spell, "${spellpbaeMez}", ${Me.ID}]}) /call core_cast2 "${spellpbaeMez}" 0 0 check_for_adds
 				}
 				/if (${Me.SpellReady[${Spell[${spellStun}].RankName}]}) {
-					/if (${Me.Casting.Name.NotEqual[${Spell[${spellStun}].RankName}]}) /call interrupt
+					/if (${Me.Casting.Name.NotEqual[${Spell[${spellStun}].RankName}]}) /stopcast
 					/if (${validate_cast[FALSE, spell, "${spellStun}", ${Me.ID}]}) /call core_cast2 "${spellStun}" 0 0 check_for_adds
 				}
 			}
@@ -287,7 +287,7 @@ sub mez_adds()
 			/if (${switchAABeamofSlumber}) {
 				/if (${Spawn[${_tmpID}].NearestSpawn[3,npc radius 30].ID} && ${Spawn[${_tmpID}].Distance3D} <= 200 && ${Spawn[${_tmpID}].Distance3D} >= ${setMobAgro}*.5) {
 					/if (${Me.AltAbilityReady[Beam of Slumber]}) {
-						/if (${Me.Casting.ID}) /call interrupt
+						/if (${Me.Casting.ID}) /stopcast
 						/face ID ${_tmpID} ${If[${swFaceFast},fast,]}
 						/if (${validate_cast[FALSE, alt, "Beam of Slumber", ${Me.ID}]}) /call core_cast2 "Beam of Slumber" alt 0 FALSE
 					} 

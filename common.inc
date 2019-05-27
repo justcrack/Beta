@@ -303,7 +303,7 @@ sub check_pet()
  *	USE: 
  *  NOTE: MAG,ENG,BST,NEC
  ***|
-sub cast_summon_weapons()
+sub cast_summon_weapons(int _tmpID)
 	CHECKTIE
 	AMIDEAD
 	CHECKINPUTS
@@ -311,28 +311,29 @@ sub cast_summon_weapons()
 	/declare _count int local 0
 	
 	/if (!${Me.Pet.ID}) /return
-	/if (${Select[${Me.Class.ShortName},MAG]} && !${FindItem[${setMAGClosedBag}].ID} && !${FindItem[${setMAGPetWepName}].ID}) {
-		/if (${validate_cast[FALSE, spell, "${setMAGWepSpell}", ${Me.ID}]}) /call core_cast2 "${setMAGWepSpell}" ${buffGem} ${Me.ID} FALSE
-		/delay 20s !${Me.Casting.ID}
-		/delay 5
-		CLEARCURSOR TRUE
-	}
+ 	/if (${Select[${Me.Class.ShortName},MAG]} && !${FindItem[${setMAGClosedBag}].ID} && !${FindItem[${setMAGPetWepName}].ID}) {
+ 		/if (${validate_cast[FALSE, spell, "${setMAGWepSpell}", ${Me.ID}]}) /call core_cast2 "${setMAGWepSpell}" ${buffGem} ${Me.ID} FALSE
+ 		/delay 20s !${Me.Casting.ID}
+ 		/delay 5
+ 		CLEARCURSOR TRUE
+ 	}
+	
 	/delay 5
 	
-	/if (${Bool[${FindItem[${setMAGClosedBag}]}]}) {
+	/if (${FindItem[${setMAGClosedBag}].ID}) {
 		AMIDEAD
 		/while (${Cursor.ID}) {
 			/autoinventory
 			/delay 1s !${Cursor.ID}
 		}
+		| /call Bind_swap "${FindItem[${setMAGClosedBag}].ID}" ${setPetBagSlot}
 		/squelch /exchange ${FindItem[${setMAGClosedBag}].ID} pack${setPetBagSlot}
 		CLEARCURSOR TRUE
 		/delay 2s !${Cursor.ID}
 		/delay 5
 		/if (${validate_cast[FALSE, item, "${setMAGClosedBag}", ${Me.ID}]}) /call core_cast2 "${setMAGClosedBag}" item 0 FALSE
-		/delay 3s !${Me.Casting.ID}
 		/delay 5
-		/delay 2s
+		/delay 5s !${Me.Casting.ID}
 		CLEARCURSOR TRUE		
 		/delay 5
 
@@ -964,13 +965,13 @@ sub check_ammo()
 	
 	| enumerate the |'s
 	/for _count 1 to ${lstRangeItem.Count[|]}
+		| do we have enough of the summoned item
+		| /if (${FindItemCount[${lstRangeItemSummon.Arg[${_count},|]}]} > ${strRangeItemCount}) /continue
+		/if (${FindItemCount[${lstRangeItemSummon.Arg[${_count},|]}]}) /continue
 
 		| is there an entry for this loop?
 		/if (!${Bool[${lstRangeItem.Arg[${_count},|]}]} || !${Bool[${lstRangeItemSummon.Arg[${_count},|]}]}) /continue
 
-		| do we have enough of the summoned item
-		/if (${FindItemCount[${lstRangeItemSummon.Arg[${_count},|]}]} > ${strRangeItemCount}) /continue
-		
 		| sort what type of item we need to get
 		/if (${Select[${Me.Class.ShortName},BRD]} && ${Me.Casting.ID}) /call pulse_stop
 		/if (${Me.Book[${lstRangeItem.Arg[${_count},|]}]}) {
@@ -1001,9 +1002,13 @@ sub check_shrink()
 
 	/if (${Me.Height} > 2.04) {
 		/if (${Me.Book[${setShrinkItem}]}) {
-			/if (${validate_cast[FALSE, spell, "${setShrinkItem}", ${Me.ID}]}) /call core_cast2 "${setShrinkItem}" ${buffGem} ${Me.ID} FALSE
+			/if (${validate_cast[FALSE, spell, "${setShrinkItem}", ${Me.ID}]}) {
+				/call core_cast2 "${setShrinkItem}" ${buffGem} ${Me.ID} FALSE
+			}
 		} else /if (${Me.ItemReady[${setShrinkItem}]}) {
-			/if (${validate_cast[FALSE, item, "${setShrinkItem}", ${Me.ID}]}) /call core_cast2 "${setShrinkItem}" item ${Me.ID} FALSE
+			/if (${validate_cast[FALSE, item, "${setShrinkItem}", ${Me.ID}]}) {
+				/call core_cast2 "${setShrinkItem}" item ${Me.ID} FALSE
+			}
 		}
 	}
 /return
@@ -1040,7 +1045,6 @@ sub do_rest()
 
 	/if (${swHomeSet} && !${Bool[${combat}]} && !${SpawnCount[npc radius ${setCombatDistance}*2 playerstate 4 targetable]} && ((${Me.Y} != ${MakeCamp.AnchorY}) && (${Me.X} != ${MakeCamp.AnchorX}))) {
 		/if (${swPull}) /squelch /makecamp unpause
-		| /squelch /makecamp return
 		/nav locxyz ${MakeCamp.AnchorX} ${MakeCamp.AnchorY} ${Me.Z} log=off
 		/delay 3s ((${Me.Y} == ${MakeCamp.AnchorY}) && (${Me.X} == ${MakeCamp.AnchorX}))
 	}
@@ -1052,9 +1056,13 @@ sub do_rest()
 	/varset _needrest FALSE
 	CHECKREZ
 	/if (${SpawnCount[npc ${If[${swOverrideLOS},,los]} radius ${setMobAgro} playerstate 4]} || !${coreAuto}) {
+		/varset _needrest FALSE
 		/if (${Me.State.NotEqual[STAND]}) /stand
-		/if (${Me.Class.ShortName.Equal[BRD]}) /stopsong
-	
+		/if (${Me.Casting.ID} || ${Me.BardSongPlaying} || ${Window[CastingWindow].Open}) {
+			/stopsong
+			/stopcast
+			/delay 10 !${Me.Casting.ID}						
+		}
 		/return
 	}
 
@@ -1074,16 +1082,18 @@ sub do_rest()
 	
 	| bard rest song
 	/if (${Me.Class.ShortName.Equal[BRD]}) {
-		/if (${switchRestSong} && !${Bool[${Me.Song[${spellRestSong}]}]} && (${Me.Casting.ID} != ${Spell[${Spell[${spellRestSong}].RankName}].ID})) {
-			OUT Singing ${sep} ${csp}${Spell[${spellRestSong}].RankName}\ax
+		/if (${switchRestSong} && !${Me.Song[${spellRestSong}].ID}) {
+			OUT Lullaby ${sep} ${csp}${Spell[${spellRestSong}].RankName}\ax
 			/call mem_spell FALSE "${spellRestSong}" ${buffGem} TRUE
 			/cast ${Me.Gem[${Spell[${spellRestSong}].RankName}]}
-			/delay 1s ${Me.Casting.ID}
-			/delay 3.5s !${Me.Casting.ID}
+			/delay 5
+			/while (${Window[CastingWindow].Open}) {
+				/delay 5
+			}	
 		}
 	}	
 			
-	/if (${Bool[${setRestPct}]} && !${Me.Moving} && !${SpawnCount[npc ${If[${swOverrideLOS},,los]} radius ${setMobAgro} playerstate 4]}) {
+	/if (${setRestPct} && !${Me.Moving} && !${SpawnCount[npc ${If[${swOverrideLOS},,los]} radius ${setMobAgro} playerstate 4]}) {
 			
 		| Hybrid: RNG,SHD,BST,PAL,BRD
 		/if ((${lstClassMelee.Find[${Me.Class.ShortName}]} && ${lstClassCast.Find[${Me.Class.ShortName}]}) || ${Me.Class.ShortName.Equal[BRD]}) {
@@ -1099,7 +1109,7 @@ sub do_rest()
 
 			| bards suck...
 			/if (${Me.Class.ShortName.Equal[BRD]}) {
-				/call cast_AA_Rallying
+				| /call cast_AA_Rallying
 				/if (${swModRod} && ${swRestModRod}) /call use_mod_rod
 				/if (${Me.PctEndurance} < ${setRestPct}*.${tmpHealOverride}) /varset _needrest TRUE
 				/if (${Me.PctMana} < ${setRestPct}*.${tmpHealOverride}) /varset _needrest TRUE
@@ -1174,9 +1184,9 @@ sub do_rest()
 		
 	/if (${_needrest}) {
 		UPDATEHUD "Rest"
-		/if (${Me.State.NotEqual[SIT]} && !${Bool[${Me.Mount.ID}]}) /sit
+		/if (${Me.State.NotEqual[SIT]} && !${Me.Mount.ID}) /sit
 		/varset _resting TRUE
-		/delay 1
+		/delay 2
 		CHECKTIE
 		AMIDEAD
 		CHECKINPUTS
@@ -1271,7 +1281,9 @@ sub click_item()
 		AMIDEAD
 		CHECKTIE
 		CHECKINPUTS
-		/if (${validate_cast[FALSE, item, "${clickItem${_count}}", ${Me.ID}]}) /call core_cast2 "${clickItem${_count}}" item 0 FALSE
+		/if (${validate_cast[FALSE, item, "${clickItem${_count}}", ${Me.ID}]}) {
+			/call core_cast2 "${clickItem${_count}}" item 0 FALSE
+		}
 	/next _count
 /return
 
@@ -1299,7 +1311,9 @@ sub click_item_swarm(int _tmpID)
 		AMIDEAD
 		CHECKTIE
 		CHECKINPUTS
-		/if (${validate_cast[FALSE, item, "${clickItemSwarm${_count}}", ${_tmpID}]}) /call core_cast2 "${clickItemSwarm${_count}}" item ${_tmpID} FALSE
+		/if (${validate_cast[FALSE, item, "${clickItemSwarm${_count}}", ${_tmpID}]}) {
+			/call core_cast2 "${clickItemSwarm${_count}}" item ${_tmpID} FALSE
+		}
 	/next _count
 /return
 
@@ -1789,6 +1803,10 @@ sub clear_timer(int _tmpID)
 	/if (${Defined[timer_ro_${_tmpID}]}) /deletevar timer_ro_${_tmpID}
 	| stick to mobs ass check
 	/if (${Defined[timer_snap_recheckID_${_tmpID}]}) /deletevar timer_snap_recheckID_${_tmpID}
+	| druid ro timer
+	/if (${Defined[timer_ro_${_tmpID}]}) /deletevar timer_ro_${_tmpID}
+
+
 /return
 
 
@@ -2583,9 +2601,8 @@ sub cast_nuke_servant()
  ***|
 sub set_combat(str _mode)
 
-	|  SDEBUG set_combat(\at${_mode}\ax)
-	AMIDEAD
-	CHECKINPUTS
+	| SDEBUG set_combat(\at${_mode}\ax)
+	| AMIDEAD
 	/if (${is_target_dead[${Target2Kill}]}) /return	
 	
 	| out of range?
@@ -3235,8 +3252,8 @@ sub cast_yaulp()
 	SIMPLEEXIT
 	
 	| use spell Yaulp
-	/if (${Bool[${spellYaulp}]} && ${Me.Gem[${spellYaulp}]}) {
-		/if (${Spell[${spellYaulp}].NewStacks}) {
+	/if (${Bool[${spellYaulp}]} && ${Me.Gem[${Spell[${spellYaulp}].RankName}]}) {
+		/if (${Spell[${Spell[${spellYaulp}].RankName}].NewStacks}) {
 			/if (${validate_cast[FALSE, spell, "${spellYaulp}", ${Me.ID}]}) /call core_cast2 "${spellYaulp}" 0 0 FALSE
 		}
 	
@@ -3793,7 +3810,6 @@ sub check_for_adds()
 				/if (${Macro.Return.Equal[1]}) {
 					| VOUT ${owarning} ADD ${sep} [${ctar}${Spawn[${_tmpID}].DisplayName}\ax] ${sep} [${ctar}${_tmpID}\ax]
 					/if (${Me.Casting.Name.NotEqual[${Spell[${spellMez}].RankName}]} && ${Me.Casting.ID}) {
-						/call Interrupt
 						/stopcast
 					}
 					/if (${NoMezzList.Find[${Spawn[${_tmpID}].DisplayName}]}) {
@@ -4323,13 +4339,34 @@ sub check_disc_now()
 
 
 |***
+ *	DES: 
+ *	USE: /call get_target_advanced
+ *  NOTE: 
+ ***|
+sub get_target_advanced(bool _debug)
+	/if (!${swAdvPull} || !${coreAuto} || ${swPull}) /return
+	AMIDEAD
+	CHECKINPUTS
+	CHECKTIE
+
+
+
+	| Advanced pull code here
+
+
+
+/return
+
+
+
+|***
  *	DES: last mob is dedded we need a new thing(s) to kill
  *	USE: /call get_target
  *  NOTE: got lost hunting for bitches. have your people call my people.
  *	SERIOUS: this will find a valid target to kill within the pullers defined agro range. bring it to the group and start teaching the gospel.
  ***|
 sub get_target(bool _debug)
-	/if (!${swPull} || !${coreAuto}) /return
+	/if (!${swPull} || !${coreAuto} || ${swAdvPull}) /return
 	AMIDEAD
 	CHECKINPUTS
 	CHECKTIE
@@ -4794,12 +4831,12 @@ sub prep_combat()
 
 			} else /if (${isValidTarget} && ${Spawn[${Target2Kill}].ID}) {
 				/if (!${SafeZone} && !${swOverrideSafeZone}) /call set_base_target_timers ${Target2Kill}
+				/if (${Me.Class.ShortName.Equal[BRD]}) {
+					/if (${Me.Song[${spellRestSong}].ID}) /stopsong
+				}
 				/varset combat COMBAT
 				/if (${is_burn_time[]}) /varset swBurnControl TRUE
 				| /if (${Me.MercID}) /call merc_control
-				/if (${Me.Class.ShortName.Equal[BRD]}) {
-					/if (${Me.Casting.ID} == ${Spell]${Spell[${spellRestSong}].RankName}].ID}) /stopsong
-				}
 				/return TRUE
 				
 			}
@@ -5496,8 +5533,6 @@ sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 			
 			/if (!${_pass}) /return FALSE
 		}
-
-
 		
 		| check cast range
 		/if (${Spell[${_spell}].Range}) {
@@ -5627,7 +5662,7 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub)
 	| SDEBUG \atcore_cast2\ax(spell: ${_spell}, type: ${_type}, tar: ${_tmpID}, sub: ${_sub)
 	/if (${Me.Casting.ID} && !${Select[${Me.Class.ShortName},BRD]}) /return
 	AMIDEAD
-	CHECKINPUTS
+	| CHECKINPUTS
 	
 	| make sure we have our target 
 	/if (${Bool[${_tmpID}]}) {
@@ -5656,15 +5691,15 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub)
 		/varset castReturn CAST_NOTREADY
 		/varset castBreak FALSE
 		
-		|***
+		| check any subs? yes.. no.. maybe??
 		/if (${Bool[${_sub}]}) {
+			| SDEBUG /call ${_sub}
 			/call ${_sub}
-			/if (!${castBreak}) {
+			/if (${castBreak}) {
 				/varset castReturn CAST_BREAK
 				/return CAST_BREAK
-			}	
+			}
 		}
-		***|
 		
 		| correct the rank
 		/varset _spell ${Spell[${_spell}].RankName}
@@ -5673,21 +5708,13 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub)
 		/if (${_type.Equal[${buffGem}]} && !${Me.Gem[${_spell}]}) /call mem_spell TRUE "${_spell}" ${_type} TRUE
 
 
-		|** set ready delays for casting		
-		/if (${Me.Casting.ID}) {
-			/delay ${Math.Calc[${Spell[${Me.Casting}].MyCastTime.Float}+5]}s !${Me.Casting.ID}
-		} else {
-			/delay 6 !${Me.Casting.ID}
-		}
-		**|
-
 		| cast GOM if song proc?
-		/if (${_tmpID} != 0 && ${Target.ID} && ${Me.Song[Gift of Mana].ID} && ${Select[${Me.Class.ShortName},CLR]}) {
+		/if (${_tmpID} != 0 && ${Target.ID} && ${Me.Song[Gift of Mana].ID} && !${Select[${Me.Class.ShortName},CLR]}) {
 			/call cast_nuke_GoM ${_tmpID}
 			/return
 		}
 
-
+		| is the spell memed
 		/if (${Me.Gem[${_spell}]}) {
 
 			| echos
@@ -5700,11 +5727,13 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub)
 
 			/while (${_castLoop}) {
 			
+				| can we san no MQ2Cast ???
 				/cast ${Me.Gem[${_spell}]}
 	
-				| set delays for casting		
+				| set delays for casting. GTFO out of this as fast as possible
 				/delay ${Math.Calc[${Spell[${_spell}].MyCastTime.Float}+5]}s !${Me.Casting.ID}
- 
+ 				
+ 				| how did i do coach?
 				/call check_cast_events
 						
 				| good cast
@@ -5715,16 +5744,15 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub)
 					/varcalc _castLoop ${_castLoop}-1
 					/delay 2
 				}
-				
+
 			}
-		
+
 		}
-		
+
 		| delay for longer casts if there is any, cooldowns or open spell cast windows
 		/while (${Me.Casting.ID} || ${Window[CastingWindow].Open} || ${Me.SpellInCooldown}) {
 			/delay 3
-		}		
-		
+		}
 		
 		/return
 
@@ -5743,7 +5771,11 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub)
 		/if (${_tmpID} != 0 && ${Target.ID}) VALT AA ${sep} ${csp}${_spell}\ax ${sep} [${ctar}${Spawn[id ${_tmpID}].DisplayName}\ax]
 		/alt act ${Me.AltAbility[${_spell}].ID}
 		VBC Alt "${_spell}" ${_tmpID} 0 
+
+		| delay for aa casting
+		/delay ${Math.Calc[${Spell[${_spell}].MyCastTime.Float}+5]}s !${Me.Casting.ID}
 		/delay 5
+
 		/while (${Me.Casting.ID} || ${Window[CastingWindow].Open}) {
 			/delay 5
 		}		
@@ -6143,6 +6175,10 @@ sub set_base_target_timers(int _tmpID)
 	
 	/if (${swdeBuffCripple}) {
 		/if (!${Defined[timer_cripple_${_tmpID}]}) /call timer_update timer_cripple_${_tmpID} 1
+
+		/if (${Me.Class.ShortName.Equal[DRU]}) {
+			/if (!${Defined[timer_ro_${_tmpID}]}) /call timer_update timer_ro_${_tmpID} 1
+		}		
 	}
 	
 	/if (${swdeBuffMezz}) {
@@ -6155,6 +6191,9 @@ sub set_base_target_timers(int _tmpID)
 	/if (${swdeBuffMalo}) {
 		/if (!${Defined[timer_malo_${_tmpID}]}) /call timer_update timer_malo_${_tmpID} 1
 	}
+	
+
+	
 
 /return 
  
@@ -6657,8 +6696,19 @@ sub validate_assist(string _echo, string _assist, string _name)
 	/declare _listout string local
 	/declare _sep bool local FALSE
 
+
+	| disable all assists
+	/if (${_assist.Equal[x]}) {
+		OUT Setting Assissts ${sep} ${ooff}
+ 		/call sql_update FALSE ${chrID} swAssist1 FALSE
+ 		/call sql_update FALSE ${chrID} swAssist2 FALSE
+ 		/call sql_update FALSE ${chrID} swAssist3 FALSE
+		/call sql_update FALSE ${chrID} swAssistG FALSE
+		/call sql_update FALSE ${chrID} swAssistF FALSE
+		/xtarget set 1 Autohater
+
 	| group assist
-	/if (${_assist.Equal[g]}) {
+	} else /if (${_assist.Equal[g]}) {
  		/call sql_update FALSE ${chrID} swAssist1 FALSE
  		/call sql_update FALSE ${chrID} swAssist2 FALSE
  		/call sql_update FALSE ${chrID} swAssist3 FALSE
@@ -6669,6 +6719,7 @@ sub validate_assist(string _echo, string _assist, string _name)
 		} else {
 			/xtarget set 1 Autohater
 		}
+		/if (${swAssistG} && ${swPull}) /call set_switch ${chrID} swPull FALSE
 
 	| raid assist 1
 	} else /if (${_assist.Equal[1]}) {
@@ -6682,6 +6733,7 @@ sub validate_assist(string _echo, string _assist, string _name)
 		} else {
 			/xtarget set 1 Autohater
 		}
+		/if (${swAssist1} && ${swPull}) /call set_switch ${chrID} swPull FALSE
 
 	| raid assist 2
 	} else /if (${_assist.Equal[2]}) {
@@ -6695,6 +6747,7 @@ sub validate_assist(string _echo, string _assist, string _name)
 		} else {
 			/xtarget set 1 Autohater
 		}
+		/if (${swAssist2} && ${swPull}) /call set_switch ${chrID} swPull FALSE
 
 	| raid assist 3
 	} else /if (${_assist.Equal[3]}) {
@@ -6707,7 +6760,8 @@ sub validate_assist(string _echo, string _assist, string _name)
 			/xtarget set 1 raidassist3target
 		} else {
 			/xtarget set 1 Autohater
-		}				
+		}
+		/if (${swAssist3} && ${swPull}) /call set_switch ${chrID} swPull FALSE
 
 	| set assist to forced from driver
 	} else /if (${_assist.Equal[f]}) {
@@ -6719,6 +6773,7 @@ sub validate_assist(string _echo, string _assist, string _name)
 		/call sql_update FALSE ${chrID} swAssistG FALSE
 		/call set_switch ${chrID} swAssistF ${_name}
 		/xtarget set 1 Autohater
+		/if (${swAssistF} && ${swPull}) /call set_switch ${chrID} swPull FALSE
 
 	| set assist to setMA1
 	} else /if (${_assist.Equal[MA1]}) {
@@ -6728,6 +6783,7 @@ sub validate_assist(string _echo, string _assist, string _name)
 			/call sql_update FALSE ${chrID} setMA1 FALSE
 		} 				
 		/xtarget set 1 Autohater
+		/if (${setMA1} && ${swPull}) /call set_switch ${chrID} swPull FALSE
 		
 	| set assist to setMA2
 	} else /if (${_assist.Equal[MA2]}) {
@@ -6737,6 +6793,7 @@ sub validate_assist(string _echo, string _assist, string _name)
 			/call sql_update FALSE ${chrID} setMA2 FALSE
 		} 				
 		/xtarget set 1 Autohater
+		/if (${setMA2} && ${swPull}) /call set_switch ${chrID} swPull FALSE
 	} 
 
 	/if (${_echo.Equal[NOECHO]}) /return
@@ -8100,5 +8157,50 @@ sub check_cast_events(int _checkLoops)
 
 
 
+|***
+ *	DES: swap items. cause fuck MQ2Exchange
+ *	USE: /swap "Item Name" slot or /call Bind_swap "Item Name" slot
+ *  NOTE: 
+ ***|
+#Bind swap /swap
+sub Bind_swap(string _item, int _toslot)
+   
+    /declare _swapslot string local NULL
+    /declare _pack int local 0
+    /declare _slot int local 0
+
+		| in a bag
+		/if (${InvSlot[pack${Select[${FindItem[=${_item}].ItemSlot},23,24,25,26,27,28,29,30,31,32]}].Item.Container}) {
+			/varset _pack ${Int[${Math.Calc[${FindItem[=${_item}].ItemSlot}-22]}]}
+			/varset _slot ${Int[${Math.Calc[${FindItem[=${_item}].ItemSlot2}+1]}]}
+			/varset  _swapslot |inbag|pack${_pack}|${_slot}
+			/squelch /nomodkey /itemnotify in pack${_pack} ${_slot} leftmouseup
+		
+		| in a top slot
+		} else /if (${FindItem[=${_item}].InvSlot}) {
+			/varset _slot ${FindItem[=${_item}].InvSlot}
+			/varset  _swapslot |topslot|${_slot}
+			/squelch /nomodkey /itemnotify ${_slot} leftmouseup
+
+		| in your ass
+		} else /if (!${FindItem[=${_item}].InvSlot}) {
+			VOUT ${onotice} Cannot Find ${sep} ${citem}${_item}\ax.
+			/return FALSE
+		}
+
+    /delay 1s ${Cursor.ID}
+    
+    | put item in slot
+    /nomodkey /shiftkey /itemnotify ${_toslot} leftmouseup
+
+    /delay 1s ${Cursor.ID}
+
+		| place the swaped item back where you found the other one
+		/if (${_swapslot.Arg[1,|].Equal[topslot]}) {
+			/nomodkey /shiftkey /itemnotify ${_swapslot.Arg[2,|]} leftmouseup
+		} else /if (${_swapslot.Arg[1,|].Equal[inbag]}) {
+			/nomodkey /shiftkey /itemnotify in ${_swapslot.Arg[2,|]} ${_swapslot.Arg[3,|]} leftmouseup
+		}
+/return TRUE
 
 

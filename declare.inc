@@ -292,6 +292,12 @@ sub Event_Talk(string line, string _sender, string _chatText)
 
 	CHECKSAFELIST
 
+	| Tells for pettoys?
+	/if (${swBuffTell} && ${Me.Class.ShortName.Equal[MAG]} && ${_chatText.Find[weapons]}) {
+		/call cast_summon_weapons ${Spawn[pc ${_sender}].ID}
+		/return
+	}
+
 	| Tells for buffs.
 	/if (${swBuffTell} && ${Spawn[${_sender}].ID} && ${_sender.NotEqual[${Me.DisplayName}]}) {
     /call cast_buffs_queue "${_sender}" "${_chatText}"
@@ -1696,8 +1702,21 @@ sub Bind_setCombatControl(string _type, string _verbage, bool _silent)
 	} else /if (${_type.Equal[pull]}) {
 		/call set_switch ${chrID} swPull ${_verbage}
 		VOUT /${_bind.Lower} pull ${sep} ${If[${swPull},${oenabled},${odisabled}]}
-		/if (${swPull}) /call validate_assist NOECHO x
+		/if (${swPull}) {
+			/call validate_assist NOECHO x
+			/call set_switch ${chrID} swAdvPull FALSE
+		}		
 		/return
+		
+	| set Advanced Pulling
+	} else /if (${_type.Equal[advpull]}) {
+		/call set_switch ${chrID} swAdvPull ${_verbage}
+		VOUT /${_bind.Lower} advpull ${sep} ${If[${swAdvPull},${oenabled},${odisabled}]}
+		/if (${swAdvPull}) {
+			/call validate_assist NOECHO x
+			/call set_switch ${chrID} swPull FALSE
+		}		
+		/return		
 		
 	| set Off Tank
 	} else /if (${_type.Equal[offtank]}) {
@@ -1879,6 +1898,7 @@ sub Bind_setCombatControl(string _type, string _verbage, bool _silent)
 		/if (${_list.Arg[${_count},|].Equal[circle]}) /varset _listout ${_listout}:${cnum}${useCircle}\ax
 		/if (${_list.Arg[${_count},|].Equal[alliance]}) /varset _listout ${_listout}:${If[${swAlliance},${oon}\ax,${ooff}]}
 		/if (${_list.Arg[${_count},|].Equal[pull]}) /varset _listout ${_listout}:${If[${swPull},${oon},${ooff}]}
+		/if (${_list.Arg[${_count},|].Equal[advpull]}) /varset _listout ${_listout}:${If[${swAdvPull},${oon},${ooff}]}
 		/if (${_list.Arg[${_count},|].Equal[rest]}) /varset _listout ${_listout}:${If[${setRestPct},${cnum}${setRestPct}\ax,${ooff}]}
 		/if (${_list.Arg[${_count},|].Equal[setMA1]}) /varset _listout ${_listout}:${If[${Bool[${setMA1}]},${cnum}${setMA1}\ax,${ooff}]}
 		/if (${_list.Arg[${_count},|].Equal[setMA2]}) /varset _listout ${_listout}:${If[${Bool[${setMA2}]},${cnum}${setMA2}\ax,${ooff}]}
@@ -1972,8 +1992,12 @@ sub Bind_setMovementControls(string _type, string _verbage, bool _silent)
 	| gather your crew
 	} else /if (${_type.Equal[gather]}) {
 
-		/sqlite ${dbCore} dummy SELECT lstCrew${_verbage} FROM environment WHERE currentBuild="${currentBuild}"
-		/declare _clist string local ${sqlite.Result[dummy 1 lstCrew${_verbage}]}	
+		/if (${_verbage.Equal[all]}) {
+			/declare _clist string local ${DanNet[${DanNetMacroChannel}].Peers}
+		} else {
+			/sqlite ${dbCore} dummy SELECT lstCrew${_verbage} FROM environment WHERE currentBuild="${currentBuild}"
+			/declare _clist string local ${sqlite.Result[dummy 1 lstCrew${_verbage}]}	
+		}
 
 		/for _count 1 to ${_clist.Count[|]}
 			/if (${_clist.Arg[${_count},|].Equal[${Me.DisplayName}]}) /continue
@@ -2234,9 +2258,9 @@ sub Bind_click_window_option()
 	/if (${Window[LargeDialogWindow].Child[LDW_TextBox].Text.Find["Would you like to travel"]}) /nomodkey /notify LargeDialogWindow LDW_YesButton leftmouseup 
 
 	| take taskadds/missions/HA
+	/if (${Window[LargeDialogWindow].Child[LDW_TextBox].Text.Find["You have a heroic adventure"]}) /nomodkey /notify LargeDialogWindow LDW_YesButton leftmouseup
 	/if (${Window[LargeDialogWindow].Child[LDW_TextBox].Text.Find["Would you like to take on the challenge"]}) /nomodkey /notify LargeDialogWindow LDW_YesButton leftmouseup 
 	/if (${Window[ConfirmationDialogBox].Child[CD_TextOutPut].Text.Find["Join the expedition"]}) /nomodkey /notify ConfirmationDialogBox Yes_Button leftmouseup 
-	/if (${Window[LargeDialogWindow].Child[LDW_TextBox].Text.Find["You have a heroic adventure"]}) /nomodkey /notify LargeDialogWindow LDW_YesButton leftmouseup
 	/if (${Window[ConfirmationDialogbox].Child[CD_TextOutPut].Text.Find["has asked you to join the shared task"]}) /nomodkey /notify ConfirmationDialogBox Yes_Button leftmouseup
 	
 	| trade window
@@ -2851,8 +2875,6 @@ sub Bind_sql_edit(string _variable, string _value, string _add_delete, bool _sil
 	/declare _table string local
 	/declare _found bool local FALSE
 	/declare _db string local ${dbCore}
-
-
 	
 	
 	| error instructions
@@ -2860,6 +2882,12 @@ sub Bind_sql_edit(string _variable, string _value, string _add_delete, bool _sil
 		OUT ${cinfo}/edit\ax [${cnum}${If[${Bool[${_variable}]},${_variable},variable]}\ax] [${cnum}"value"\ax] [${cnum}add\ax|${cnum}delete\ax](for lists)
 		/return FALSE
 	} 
+	
+	| /echo _value ${_value}
+	| /echo ${Parse[1,${${_value}}]}
+	| /return
+	
+	
 
 	| find the table that holds the data we need to adjust
 	/for _count 1 to ${sqlTablesCount}
@@ -3209,6 +3237,7 @@ sub Bind_hud(string _type, string _verbage, bool _silent)
 	/declare _listout string local
 	/declare _count int local 0
 	/declare _bind string local HUD	
+	/declare _list string local ${sql_return[lstTypes${_bind}]}
 
 	| adjust hud clock
 	/if (${_type.Equal[time]}) {
@@ -3248,6 +3277,8 @@ sub Bind_hud(string _type, string _verbage, bool _silent)
 	VOUT /${_bind.Lower} [${_listout}]
 	
 /return
+
+
 
 
 
@@ -3781,7 +3812,7 @@ sub Bind_port_list(string _class, string _location, string _sublocation)
 
 		| TBL port lamp
 		} else /if (${_location.Equal[lamp]}) {
-			/if (!${FindItem[Wishing Lamp:]}) OUT ${onotice} ${sep} no wishing lamp. sorry, not sorry..
+			/if (!${FindItem[Wishing Lamp:].ID}) OUT ${onotice} ${sep} no wishing lamp. sorry, not sorry..
 			
 			/if (!${Bool[${_sublocation}]}) {
 				/declare _sublist string local |zephyr|palace|stone
@@ -3837,7 +3868,7 @@ sub Bind_port_list(string _class, string _location, string _sublocation)
 
 		| zueria slide
 		} else /if (${_location.Equal[slide]}) {
-			/if (!${FindItem[Zueria Slide:]}) OUT ${onotice} ${sep} no slide. sorry, not sorry..
+			/if (!${FindItem[Zueria Slide:].ID}) OUT ${onotice} ${sep} no slide. sorry, not sorry..
 
 			/if (!${Bool[${_sublocation}]}) {
 				/declare _sublist string local |stonebrunt|greatdivide|ro|nektulos|dreadlands|skyfire
@@ -4061,3 +4092,46 @@ sub Bind_int_pull()
 /return TRUE
 
 
+
+|***
+ *	DES: swap items. cause fuck MQ2Exchange
+ *	USE: /swap "Item Name" slot or /call Bind_swap "Item Name" slot
+ *  NOTE: 
+ ***|
+#Bind swap /swap
+sub Bind_swap(string _item, int _toslot)
+   
+  /declare _swapslot string local NULL
+  /declare _pack int local 0
+  /declare _slot int local 0
+
+	| in a bag
+	/if (${InvSlot[pack${Select[${FindItem[=${_item}].ItemSlot},23,24,25,26,27,28,29,30,31,32]}].Item.Container}) {
+		/varset _pack ${Int[${Math.Calc[${FindItem[=${_item}].ItemSlot}-22]}]}
+		/varset _slot ${Int[${Math.Calc[${FindItem[=${_item}].ItemSlot2}+1]}]}
+		/varset _swapslot |TRUE|pack${_pack}|${_slot}
+	
+	| in a top slot
+	} else /if (${FindItem[=${_item}].InvSlot}) {
+		/varset _slot ${FindItem[=${_item}].InvSlot}
+		/varset  _swapslot |FALSE|${_slot}
+
+	| this is G7s fault
+	} else /if (!${FindItem[=${_item}].InvSlot}) {
+		/echo  Cannot Find ${_item}
+		/return FALSE
+	}
+
+	/squelch /nomodkey /itemnotify ${If[${_swapslot.Arg[1,|]},pack${_pack} ${_slot},${_slot}]} leftmouseup
+	/delay 1s ${Cursor.ID}
+
+	| put item in slot
+	/nomodkey /shiftkey /itemnotify ${_toslot} leftmouseup
+	/delay 1s ${Cursor.ID}
+
+	| place the swaped item back where you found the other one
+	/if (${Cursor.ID}) {
+		/squelch /nomodkey /itemnotify ${If[${_swapslot.Arg[1,|]},in ${_swapslot.Arg[2,|]} ${_swapslot.Arg[3,|]},${_swapslot.Arg[2,|]}]} leftmouseup
+	}
+	
+/return TRUE

@@ -32,13 +32,13 @@ sub core_BRD()
 		/if (${exit_class_loop[]}) /return FALSE
 	
 		/if (${coreAuto} && ${swdeBuffMezz}) {
+			/if (${Me.Song[${spellRestSong}].ID}) /stopsong
 			/call get_assist_target
 			/if (${isValidTarget} && ${Target.ID} && ${Target.LineOfSight} && ${Target.Distance} <= ${setMobAgro} && (${Target.PctHPs} <= ${setEngagePct} || ${Spawn[PC ID ${Me.TargetOfTarget.ID} Radius 60].ID})) /goto :loop
 			/if (${Defined[timer_mez_${Target2Kill}]}) /deletevar timer_mez_${Target2Kill}
 			/call list_delete mobList ${Target2Kill}
 			/return
 			:loop
-			/echo :loop
 			/if (${Spawn[${Target2Kill}].Type.Equal[Corpse]}  || !${Target2Kill} || !${Target.ID} || ${Target.Type.Equal[corpse]} || !${Spawn[${Target2Kill}].ID}) /call get_assist_target
 			/call check_for_adds
 			/if (${addList.Count[|]}) /call mez_adds_BRD
@@ -51,53 +51,8 @@ sub core_BRD()
 			/if (${mobList.Find[|]}) /call list_update mobList ${Target2Kill}
 		}
 		
-		
-|**		
-		/if (${coreAuto} && ${swdeBuffMezz}) {
-			/call get_target_ENC
-			/if (${swBurnControl}) /call burn_${Me.Class.ShortName}
-			/if (${isValidTarget} && ${Target.ID} && ${Target.LineOfSight} && ${Target.Distance} <= ${setMobAgro} && (${Target.PctHPs} <= ${setEngagePct} || ${Spawn[PC ID ${Me.TargetOfTarget.ID} Radius 60].ID})) /goto :loop
-			| /if (${isValidTarget} && ${Target.LineOfSight} && ${Target.Distance} <= ${setMobAgro} && (${Target.PctHPs} <= ${setEngagePct} || ${Spawn[PC ID ${Me.TargetOfTarget.ID} Radius 60].ID})) /goto :loop
-			/if (${Bool[${mobList}]}) /call list_delete mobList ${Target2Kill}
-			/return
-			:loop
-			/if (${Spawn[${Target2Kill}].Type.Equal[Corpse]} || !${Target2Kill} || !${Target.ID} || ${Target.Type.Equal[corpse]} || !${Spawn[${Target2Kill}].ID}) /call get_target_ENC
-			/call check_for_adds
-			/if (${addList.Count[|]}) /call mez_adds
-			/call check_for_adds
-			/if (${addList.Count[|]}) /return
-			/if (${mobList.Find[|]}) /call list_update mobList ${Target2Kill}
-			/call check_for_adds
-			/if (${addList.Count[|]}) /return
-			/if (!${addList.Count[|]}) /call check_deBuffs ${Target2Kill}
-			/if (${mobList.Find[|]}) /call list_update mobList ${Target2Kill}
-		}	
-		
-	**|	
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
 		/if (${isValidTarget}) {
+			/if (${Me.Song[${spellRestSong}].ID}) /stopsong
 			/call set_combat ${combat.Upper}
 			/if (${swBurnControl}) /call burn_${Me.Class.ShortName}
 			/if (${swSwarm} || ${swPet}) /call send_pet
@@ -129,6 +84,7 @@ sub core_BRD()
 			}
 		} 
 	}
+	
 /return TRUE
 
 
@@ -438,6 +394,14 @@ sub cast_AA_Rallying()
  	/if (${SafeZone} && !${swOverrideSafeZone} || !${Me.AltAbilityReady[Rallying Solo]}) /return
 	AMIDEAD
 	CHECKINPUTS
+
+	/if (${Me.Casting.ID} || ${Me.BardSongPlaying} || ${Window[CastingWindow].Open}) {
+		/stopsong
+		/stopcast
+		/delay 10 !${Me.Casting.ID}						
+	}
+	
+
  	/declare _endurancePoint int local 30
  	/declare _manaPoint int local 30
 

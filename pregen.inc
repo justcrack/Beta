@@ -35,7 +35,6 @@ sub pregen_data_arrays()
 		}
 	/next _count
 	
-	
 	| Invisibilities
 	/if (!${Defined[lstIV]}) /declare lstIV[2] 													string 	outer
 	/if (!${Defined[lstIVU]}) /declare lstIVU[1]												string 	outer
@@ -251,6 +250,12 @@ sub pregen_environment()
 /return
 
 
+
+|***
+ *	DES: static lists
+ *	USE: 
+ *  NOTE: 
+ ***|
 sub pregen_lists()
 	| lists for .. you know..lists and stuff. cause we like lists.                 
 	/call setDeclare lstClassAll																				string 		outer "|WAR|PAL|SHD|BRD|RNG|BST|BER|MNK|ROG|WIZ|MAG|ENC|NEC|CLR|DRU|SHM"
@@ -278,7 +283,7 @@ sub pregen_lists()
 	/call sql_staticbuild FALSE lists lstTypesHeal											"|Self|Group|XTarget|Pet|Cure|Override"
 	
 	| combat .. /cc []
-	/call sql_staticbuild FALSE lists lstTypesCC												"|agro|alliance|bandolier|circle|combatdistance|engage|faderest|force|melee|meleedisc|range|nuke|dot|heal|forceassist|nukedelay|offtank|pull|rest|saferadius|smartengage|stopnuke|zradius"
+	/call sql_staticbuild FALSE lists lstTypesCC												"|agro|alliance|bandolier|circle|combatdistance|engage|faderest|force|melee|meleedisc|range|nuke|dot|heal|forceassist|nukedelay|offtank|pull|advpull|rest|saferadius|smartengage|stopnuke|zradius"
 
 	| core .. /core []
 	/call sql_staticbuild FALSE lists lstTypesCore											"|auto|checkcash|events|expadjust|expmaintain|explevel|fireworks|takeraidinvite|takegroupinvite|giveraidinvite"
@@ -336,13 +341,16 @@ sub pregen_lists()
 
 
 
-
-
-
+|***
+ *	DES: the smart ass response system
+ *	USE: 
+ *  NOTE: 
+ ***|
 sub pregen_bitch()
 
-	| please take a number and have a seat.
-	/call setDeclare bitchcount																					string 		outer 36
+	| please take a number and have a fucking seat.
+	/call setDeclare bitchcount																					string 		outer 37
+
 	/call sql_staticbuild FALSE bitch bitch1														"Seriously... Again..."
 	/call sql_staticbuild FALSE bitch bitch2														"Did your parents ever ask you to run away from home?"
 	/call sql_staticbuild FALSE bitch bitch3														"How do you have the energy to talk so much?"
@@ -379,15 +387,16 @@ sub pregen_bitch()
 	/call sql_staticbuild FALSE bitch bitch34														"Cows are like women, the crazy ones taste the best."
 	/call sql_staticbuild FALSE bitch bitch35														"I think the real problem is someone made a stupid decision."
 	/call sql_staticbuild FALSE bitch bitch36														"no one plays like you cause you are dumb"
+	/call sql_staticbuild FALSE bitch bitch37														"When you're dead, you dont know you're dead. The pain is only felt by others. The same thing happens when you're stipid."
 /return
 
 
 
-
-
-
-
-
+|***
+ *	DES: expansion listing
+ *	USE: 
+ *  NOTE: 
+ ***|
 sub pregen_expansions()
 	/call sql_staticbuild FALSE expansions xpac1												"The Ruins of Kunark"
 	/call sql_staticbuild FALSE expansions xpac2												"The Scars of Velious"
@@ -418,8 +427,6 @@ sub pregen_expansions()
 
 
 
-
-
 |***
  *	DES: generates the characters environment
  *	USE: 
@@ -435,49 +442,48 @@ sub pregen_character()
 	/call setDeclare mobList																						string		outer
 	/call setDeclare addList 																						string 		outer	
 
-	/call sql_control FALSE ${chrID} coreAuto				 									bool			outer FALSE
+	/call sql_control FALSE ${chrID} coreAuto				 										bool			outer FALSE
 	/call sql_control FALSE ${chrID} lstNoCastWith											string		outer "|FALSE"
-	/call sql_control FALSE ${chrID} lstNoMeleeWith										string		outer "|FALSE"
-	/call sql_control FALSE ${chrID} setShrinkItem 										string 		outer FALSE
+	/call sql_control FALSE ${chrID} lstNoMeleeWith											string		outer "|FALSE"
+	/call sql_control FALSE ${chrID} setShrinkItem 											string 		outer FALSE
 	/call sql_control FALSE ${chrID} setIllusionItem										string		outer FALSE
 	/call sql_control FALSE ${chrID} setIllusionBuff										string		outer FALSE
 	/call sql_control FALSE ${chrID} setGTFO														string		outer FALSE
-	/call sql_control FALSE ${chrID} lstRangeItem											string		outer "|FALSE"
-	/call sql_control FALSE ${chrID} lstRangeItemSummon								string		outer "|FALSE"
+	/call sql_control FALSE ${chrID} lstRangeItem												string		outer "|FALSE"
+	/call sql_control FALSE ${chrID} lstRangeItemSummon									string		outer "|FALSE"
 	/call sql_control FALSE ${chrID} strRangeItemCount									int				outer 5
 	/call sql_control FALSE ${chrID} strRangeSpell											string		outer FALSE
 	/call sql_control FALSE ${chrID} setRangeClickItem									string		outer FALSE
-	/call sql_control FALSE ${chrID} setRangeDisc											string		outer FALSE
-	/call sql_control FALSE ${chrID} setRangeAA												string		outer FALSE
+	/call sql_control FALSE ${chrID} setRangeDisc												string		outer FALSE
+	/call sql_control FALSE ${chrID} setRangeAA													string		outer FALSE
 	/call sql_control FALSE ${chrID} autoInventoryItem									string		outer "|FALSE"
-	/call sql_control FALSE ${chrID} stoponDS													bool			outer FALSE		
-	/call sql_control FALSE ${chrID} useGlyph													string		outer FALSE
+	/call sql_control FALSE ${chrID} stoponDS														bool			outer FALSE		
+	/call sql_control FALSE ${chrID} useGlyph														string		outer FALSE
 	/call sql_control FALSE ${chrID} swSoS															bool			outer FALSE
 	/call sql_control FALSE ${chrID} setRestPct 												int 			outer 90
 	/call sql_control FALSE ${chrID} swCorrectEXPAA 										bool 			outer TRUE
-	/call sql_control FALSE ${chrID} setLvlPct   											int 			outer 99
+	/call sql_control FALSE ${chrID} setLvlPct   												int 			outer 99
 	/call sql_control FALSE ${chrID} setLvlMax      										int 			outer 110
 	/call sql_control FALSE ${chrID} swEventsInc  											bool 			outer TRUE
 	/call sql_control FALSE ${chrID} swAAFireworks											bool 			outer FALSE
 	/call sql_control FALSE ${chrID} swTakeGroupInvite									bool 			outer FALSE
-	/call sql_control FALSE ${chrID} swTakeRaidInvite									bool 			outer FALSE
-	/call sql_control FALSE ${chrID} swGiveRaidInvite									bool 			outer FALSE
-	/call sql_control FALSE ${chrID} lstBlockedSpells									string		outer FALSE
-	/call sql_control FALSE ${chrID} setBufftoWatch										string		outer FALSE
+	/call sql_control FALSE ${chrID} swTakeRaidInvite										bool 			outer FALSE
+	/call sql_control FALSE ${chrID} swGiveRaidInvite										bool 			outer FALSE
+	/call sql_control FALSE ${chrID} lstBlockedSpells										string		outer FALSE
+	/call sql_control FALSE ${chrID} setBufftoWatch											string		outer FALSE
 	
 	| burns
 	/call sql_control FALSE ${chrID} swBurnControl											bool			outer FALSE
 	/call sql_control FALSE ${chrID} swBurnForce												bool			outer FALSE
-	/call sql_control FALSE ${chrID} swBurnAuto												bool			outer FALSE
-	/call sql_control FALSE ${chrID} setBurnPct												int				outer 99
-	/call sql_control FALSE ${chrID} setBurnCount											int				outer 5
-	/call sql_control FALSE ${chrID} swBurnRaid												bool			outer TRUE
-	
+	/call sql_control FALSE ${chrID} swBurnAuto													bool			outer FALSE
+	/call sql_control FALSE ${chrID} setBurnPct													int				outer 99
+	/call sql_control FALSE ${chrID} setBurnCount												int				outer 5
+	/call sql_control FALSE ${chrID} swBurnRaid													bool			outer TRUE
 
 	| combat controls (assist)
-	/call sql_control FALSE ${chrID} setMA1			 											string 		outer FALSE
-	/call sql_control FALSE ${chrID} setMA2			 											string 		outer FALSE
-	/call sql_control FALSE ${chrID} setMobAgro												int 			outer 60
+	/call sql_control FALSE ${chrID} setMA1			 												string 		outer FALSE
+	/call sql_control FALSE ${chrID} setMA2			 												string 		outer FALSE
+	/call sql_control FALSE ${chrID} setMobAgro													int 			outer 60
 	/call sql_control FALSE ${chrID} setEngageMAPct 										int 			outer 98
 	/call sql_control FALSE ${chrID} setEngagePct 											int 			outer 98
 	/call sql_control FALSE ${chrID} swAssistG													bool			outer FALSE
@@ -485,47 +491,47 @@ sub pregen_character()
 	/call sql_control FALSE ${chrID} swAssist2													bool			outer FALSE
 	/call sql_control FALSE ${chrID} swAssist3													bool			outer FALSE
 	/call sql_control FALSE ${chrID} swAssistF													bool			outer FALSE
-	/call sql_control FALSE ${chrID} swAgro														bool			outer FALSE 
-	/call sql_control FALSE ${chrID} swPull														bool			outer FALSE
+	/call sql_control FALSE ${chrID} swAgro															bool			outer FALSE 
+	/call sql_control FALSE ${chrID} swPull															bool			outer FALSE
+	/call sql_control FALSE ${chrID} swAdvPull													bool			outer FALSE
 	/call sql_control FALSE ${chrID} swOffTank													bool			outer FALSE
 	/call sql_control FALSE ${chrID} setCombatDistance									int				outer 15
 	/call sql_control FALSE ${chrID} setCombatRadius										string		outer 30
-	/call sql_control FALSE ${chrID} setzradius												int				outer 60	
+	/call sql_control FALSE ${chrID} setzradius													int				outer 60	
 	/call sql_control FALSE ${chrID} swBandolier												bool			outer FALSE
 	/call sql_control FALSE ${chrID} setStopNukePct 										int 			outer 0
-	/call sql_control FALSE ${chrID} swAlliance												bool			outer FALSE
-	/call sql_control FALSE ${chrID} setAllianceTrigger								string		outer FALSE
+	/call sql_control FALSE ${chrID} swAlliance													bool			outer FALSE
+	/call sql_control FALSE ${chrID} setAllianceTrigger									string		outer FALSE
 	/call sql_control FALSE ${chrID} swForceFadeRest										bool			outer FALSE
 	/call sql_control FALSE ${chrID} swCombatMelee											bool			outer FALSE
 	/call sql_control FALSE ${chrID} swCombatRange											bool			outer FALSE
-	/call sql_control FALSE ${chrID} swCombatNuke											bool			outer FALSE
+	/call sql_control FALSE ${chrID} swCombatNuke												bool			outer FALSE
 	/call sql_control FALSE ${chrID} swCombatDoT												bool			outer FALSE
-	/call sql_control FALSE ${chrID} swCombatHeal											bool			outer FALSE
-
+	/call sql_control FALSE ${chrID} swCombatHeal												bool			outer FALSE
 
 	| rez	control
 	/call setDeclare swValidRezFound 																		bool	 		outer FALSE
 	/call setDeclare setRezWindowPct 																		int 			outer 0
 	/call setDeclare swRezPct																						bool			outer FALSE
 	/call setDeclare swRezRange																					bool			outer FALSE
-	/call sql_control FALSE ${chrID} swRezTake 												bool 			outer TRUE 
-	/call sql_control FALSE ${chrID} swRezToken												bool			outer FALSE
+	/call sql_control FALSE ${chrID} swRezTake 													bool 			outer TRUE 
+	/call sql_control FALSE ${chrID} swRezToken													bool			outer FALSE
 	/call sql_control FALSE ${chrID} lstRezToken												string		outer FALSE
-	/call sql_control FALSE ${chrID} setMinRezPct											int				outer 90
-	/call sql_control FALSE ${chrID} setMaxRezRange				 						int 			outer 60 
+	/call sql_control FALSE ${chrID} setMinRezPct												int				outer 90
+	/call sql_control FALSE ${chrID} setMaxRezRange				 							int 			outer 60 
 	/call sql_control FALSE ${chrID} swRezGive	 												bool 			outer FALSE 
-	/call sql_control FALSE ${chrID} swRezCombat 											bool 			outer FALSE 
-	/call sql_control FALSE ${chrID} swRezEveryone 										bool 			outer FALSE 
+	/call sql_control FALSE ${chrID} swRezCombat 												bool 			outer FALSE 
+	/call sql_control FALSE ${chrID} swRezEveryone 											bool 			outer FALSE 
 
 	| spire control
 	/call setDeclare ${Me.Class.ShortName}spire0												int				outer 0
 	/call sql_control FALSE ${chrID} spireRaid													int 			outer 0
-	/call sql_control FALSE ${chrID} spireGroup												int 			outer 0
+	/call sql_control FALSE ${chrID} spireGroup													int 			outer 0
 
 	| watchspawn stuff
 	/call setDeclare hudwatchspawn																			string		outer FALSE
 	/call setDeclare watchSpawnCount																		int				outer	FALSE
-	/call sql_control FALSE ${chrID} watchSpawn												string		outer FALSE
+	/call sql_control FALSE ${chrID} watchSpawn													string		outer FALSE
 
  	| Movement control
 	| /call setDeclare swHomeSet																					bool			outer FALSE
@@ -549,65 +555,66 @@ sub pregen_character()
 	
 	| debuff switches	
 	/call sql_control FALSE ${chrID} swdeBuffCripple										bool			outer FALSE
-	/call sql_control FALSE ${chrID} swdeBuffMezz											bool			outer FALSE
-	/call sql_control FALSE ${chrID} swdeBuffMalo											bool			outer FALSE
-	/call sql_control FALSE ${chrID} swdeBuffTash											bool			outer FALSE
-	/call sql_control FALSE ${chrID} swdeBuffSlow											bool			outer FALSE
+	/call sql_control FALSE ${chrID} swdeBuffMezz												bool			outer FALSE
+	/call sql_control FALSE ${chrID} swdeBuffMalo												bool			outer FALSE
+	/call sql_control FALSE ${chrID} swdeBuffTash												bool			outer FALSE
+	/call sql_control FALSE ${chrID} swdeBuffSlow												bool			outer FALSE
 	/call sql_control FALSE ${chrID} swdeBuffEradicate									bool			outer FALSE
 	/call sql_control FALSE ${chrID} swdeBuffSnare											bool			outer FALSE
 
 	| overrides
-	/call sql_control FALSE ${chrID} swOverride												bool			outer FALSE
+	/call sql_control FALSE ${chrID} swOverride													bool			outer FALSE
   /call sql_control FALSE ${chrID} swOverrideLOS											bool			outer FALSE
-  /call sql_control FALSE ${chrID} swOverrideSafeZone								bool			outer FALSE
+  /call sql_control FALSE ${chrID} swOverrideSafeZone									bool			outer FALSE
   /call sql_control FALSE ${chrID} swOverrideExclude									bool			outer FALSE
-  /call sql_control FALSE ${chrID} swOverrideName										bool			outer FALSE
+  /call sql_control FALSE ${chrID} swOverrideName											bool			outer FALSE
   /call sql_control FALSE ${chrID} swOverrideEngagePct								bool			outer FALSE
   /call sql_control FALSE ${chrID} swOverrideRange										bool			outer FALSE
   /call sql_control FALSE ${chrID} swOverrideMelee										bool			outer FALSE
-  /call sql_control FALSE ${chrID} swOverrideLoot										bool			outer FALSE
+  /call sql_control FALSE ${chrID} swOverrideLoot											bool			outer FALSE
   /call sql_control FALSE ${chrID} swOverrideSafeNames								bool			outer FALSE
-  /call sql_control FALSE ${chrID} swOverrideTrainSpell							bool			outer FALSE
+  /call sql_control FALSE ${chrID} swOverrideTrainSpell								bool			outer FALSE
 
 	| buffs
-	/call sql_control FALSE ${chrID} lstBuffRemove													string		outer "|FALSE"
+	/call sql_control FALSE ${chrID} lstBuffRemove											string		outer "|FALSE"
 	/call setDeclare swBuff																							bool			outer FALSE
-	/call sql_control FALSE ${chrID} swBuffItem	 														bool			outer FALSE
-	/call sql_control FALSE ${chrID} swBuffCombat 													bool			outer FALSE
-	/call sql_control FALSE ${chrID} swBuffPet 															bool 			outer FALSE
-	/call sql_control FALSE ${chrID} swBuffSelf	 														bool			outer FALSE
-	/call sql_control FALSE ${chrID} swBuffBC																bool			outer FALSE
-	/call sql_control FALSE ${chrID} swBuffRaid															bool			outer FALSE
-	/call sql_control FALSE ${chrID} swBuffTell															bool			outer FALSE
-	/call sql_control FALSE ${chrID} swBuffMerc															bool			outer FALSE
-	/call sql_control FALSE ${chrID} swBuffOther														bool			outer FALSE
-	/call sql_control FALSE ${chrID} swBuffMGB															bool			outer FALSE
+	/call sql_control FALSE ${chrID} swBuffItem	 												bool			outer FALSE
+	/call sql_control FALSE ${chrID} swBuffCombat 											bool			outer FALSE
+	/call sql_control FALSE ${chrID} swBuffPet 													bool 			outer FALSE
+	/call sql_control FALSE ${chrID} swBuffSelf	 												bool			outer FALSE
+	/call sql_control FALSE ${chrID} swBuffBC														bool			outer FALSE
+	/call sql_control FALSE ${chrID} swBuffRaid													bool			outer FALSE
+	/call sql_control FALSE ${chrID} swBuffTell													bool			outer FALSE
+	/call sql_control FALSE ${chrID} swBuffMerc													bool			outer FALSE
+	/call sql_control FALSE ${chrID} swBuffOther												bool			outer FALSE
+	/call sql_control FALSE ${chrID} swBuffMGB													bool			outer FALSE
 
 	| cursor                                                      			
-	/call sql_control FALSE ${chrID} swAutoCursor											bool			outer FALSE	
+	/call sql_control FALSE ${chrID} swAutoCursor												bool			outer FALSE	
                                                                 			
 	| heals                                                       			
 	/call sql_control FALSE ${chrID} setHealOverride										int				outer 0
 	/call setDeclare tmpHealOverride																		float			outer 99.99	
-	/call sql_control FALSE ${chrID} swHealSelf												bool 			outer FALSE
+	/call sql_control FALSE ${chrID} swHealSelf													bool 			outer FALSE
 	/call sql_control FALSE ${chrID} swHealGroup												bool 			outer FALSE
 	/call sql_control FALSE ${chrID} swHealXTarget											bool 			outer FALSE
 	/call sql_control FALSE ${chrID} swHealPet													bool 			outer FALSE
-	/call sql_control FALSE ${chrID} swHealCure												bool 			outer FALSE
+	/call sql_control FALSE ${chrID} swHealCure													bool 			outer FALSE
 	/call sql_control FALSE ${chrID} cureCurseItem											string 		outer FALSE
 	/call sql_control FALSE ${chrID} curePoisonItem 										string 		outer FALSE
 	/call sql_control FALSE ${chrID} cureDiseaseItem										string 		outer FALSE
 	/call sql_control FALSE ${chrID} cureCorruptItem										string 		outer FALSE
-	/call sql_control FALSE ${chrID} noCureList	 											string 		outer "|FALSE"
+	/call sql_control FALSE ${chrID} noCureList	 												string 		outer "|FALSE"
 	/call sql_control FALSE ${chrID} clickHealItem											string 		outer "|FALSE"
 
 	
 	/call sql_control FALSE ${chrID} echoChannel												string		outer FALSE
-	/call sql_control FALSE ${chrID} relayTells												string		outer FALSE
-	/call sql_control FALSE ${chrID} ClassChannel											int				outer FALSE
+	/call sql_control FALSE ${chrID} relayTells													string		outer FALSE
+	/call sql_control FALSE ${chrID} ClassChannel												int				outer FALSE
 
 	| mode control
 	/call setDeclare setMode																						bool			outer FALSE
+	/call setDeclare swModeFALSE																				bool			outer FALSE
 	/call setDeclare swModeStop																					bool			outer FALSE
 	/call setDeclare swModeAgro																					bool			outer FALSE
 	/call setDeclare setModeType																				string		outer FALSE
@@ -630,249 +637,246 @@ sub pregen_character()
 	/call setDeclare swModeCollect																			bool			outer FALSE	
 	/call setDeclare swModeSummon																				bool			outer FALSE	
 	
-	/call sql_control FALSE ${chrID} setModeAgro														int				outer FALSE 
-	/call sql_control FALSE ${chrID} setModeHarvestCount										int				outer 999
+	/call sql_control FALSE ${chrID} setModeAgro												int				outer FALSE 
+	/call sql_control FALSE ${chrID} setModeHarvestCount								int				outer 999
 
 	| general settings for mode item usage
-	/call sql_control FALSE ${chrID} modeDrinkofChoice											string		outer FALSE
-	/call sql_control FALSE ${chrID} modeOpenItem														string		outer FALSE
+	/call sql_control FALSE ${chrID} modeDrinkofChoice									string		outer FALSE
+	/call sql_control FALSE ${chrID} modeOpenItem												string		outer FALSE
 
 	| pet crap
-	/call sql_control FALSE ${chrID} setPetEngagePct													int				outer 99
-	/call sql_control FALSE ${chrID} setPetType															string		outer FALSE
-	/call sql_control FALSE ${chrID} swPet																		bool 			outer FALSE
-	/call sql_control FALSE ${chrID} swSwarm																	bool 			outer FALSE	
-	/call sql_control FALSE ${chrID} setSwarmEngagePct												int				outer 99
-	/call sql_control FALSE ${chrID} swNoSwarmonDS														bool	 		outer FALSE
+	/call sql_control FALSE ${chrID} setPetEngagePct										int				outer 99
+	/call sql_control FALSE ${chrID} setPetType													string		outer FALSE
+	/call sql_control FALSE ${chrID} swPet															bool 			outer FALSE
+	/call sql_control FALSE ${chrID} swSwarm														bool 			outer FALSE	
+	/call sql_control FALSE ${chrID} setSwarmEngagePct									int				outer 99
+	/call sql_control FALSE ${chrID} swNoSwarmonDS											bool	 		outer FALSE
 		
 	| familiars
 	/for _count 1 to 3
-		/call sql_control FALSE ${chrID} setFam${_count}												string		outer FALSE
-		/call sql_control FALSE ${chrID} setFam${_count}Buff										string		outer FALSE
-		/call sql_control FALSE ${chrID} swFam${_count}Leave										bool			outer FALSE	
+		/call sql_control FALSE ${chrID} setFam${_count}									string		outer FALSE
+		/call sql_control FALSE ${chrID} setFam${_count}Buff							string		outer FALSE
+		/call sql_control FALSE ${chrID} swFam${_count}Leave							bool			outer FALSE	
 	/next _count
 
 	
 	/if (${Me.Class.PetClass} || ${Select[${Me.Class.ShortName},ENC,DRU,SHM,SHD,NEC]}) {
-		/call sql_control FALSE ${chrID} swPetTank 														bool 			outer FALSE
-		/call sql_control FALSE ${chrID} swMAGWep 															bool 			outer TRUE
-		/call sql_control FALSE ${chrID} setPetEpicClick 											string 		outer FALSE
-		/call sql_control FALSE ${chrID} setPetEpicBuff 												string 		outer FALSE
-		/call sql_control FALSE ${chrID} setMAGWepSpell 												string 		outer FALSE
-		/call sql_control FALSE ${chrID} setMAGClosedBag 											string 		outer FALSE
-		/call sql_control FALSE ${chrID} setMAGPetWepName											string 		outer FALSE
-		/call sql_control FALSE ${chrID} setPetShrink 													string 		outer	FALSE
-		/call sql_control FALSE ${chrID} setPetHealSpell 											string 		outer FALSE
-		/call sql_control FALSE ${chrID} setPetRenewalSpell 										string 		outer FALSE
-		/call sql_control FALSE ${chrID} setPetIllusion		 										string 		outer FALSE
-		/call sql_control FALSE ${chrID} setPetIllusionBuff										string 		outer FALSE
-		/call sql_control FALSE ${chrID} setPetAAHeal													string 		outer FALSE
-		/call sql_control FALSE ${chrID} setPetBagSlot													int 			outer 8
-		/call sql_control FALSE ${chrID} lstPetBlockedSpells										string		outer FALSE
+		/call sql_control FALSE ${chrID} swPetTank 												bool 			outer FALSE
+		/call sql_control FALSE ${chrID} swMAGWep 												bool 			outer TRUE
+		/call sql_control FALSE ${chrID} setPetEpicClick 									string 		outer FALSE
+		/call sql_control FALSE ${chrID} setPetEpicBuff 									string 		outer FALSE
+		/call sql_control FALSE ${chrID} setMAGWepSpell 									string 		outer FALSE
+		/call sql_control FALSE ${chrID} setMAGClosedBag 									string 		outer FALSE
+		/call sql_control FALSE ${chrID} setMAGPetWepName									string 		outer FALSE
+		/call sql_control FALSE ${chrID} setPetShrink 										string 		outer	FALSE
+		/call sql_control FALSE ${chrID} setPetHealSpell 									string 		outer FALSE
+		/call sql_control FALSE ${chrID} setPetRenewalSpell 							string 		outer FALSE
+		/call sql_control FALSE ${chrID} setPetIllusion		 								string 		outer FALSE
+		/call sql_control FALSE ${chrID} setPetIllusionBuff								string 		outer FALSE
+		/call sql_control FALSE ${chrID} setPetAAHeal											string 		outer FALSE
+		/call sql_control FALSE ${chrID} setPetBagSlot										int 			outer 8
+		/call sql_control FALSE ${chrID} lstPetBlockedSpells							string		outer FALSE
 			                                                            			
 		| 10 pet buffs
 		/for _count 1 to 10
-			/call sql_control FALSE ${chrID} PetBuff${_count} 										string 		outer FALSE
-			/call sql_control FALSE ${chrID} PetBuff${_count}chk									string 		outer FALSE
+			/call sql_control FALSE ${chrID} PetBuff${_count} 							string 		outer FALSE
+			/call sql_control FALSE ${chrID} PetBuff${_count}chk						string 		outer FALSE
 		/next _count
 	}	
 
 	| click Buffs                                               				
 	/for _count 1 to 6
-		/call sql_control FALSE ${chrID} clickItemBuff${_count}								string		outer FALSE
+		/call sql_control FALSE ${chrID} clickItemBuff${_count}						string		outer FALSE
 	/next _count	
 
  	| unity buffs
 	/for _count 1 to 7
-		/call sql_control FALSE ${chrID} BuffAAUnity${_count}									string		outer FALSE
+		/call sql_control FALSE ${chrID} BuffAAUnity${_count}							string		outer FALSE
 	/next _count
 
 	| clickie DPS things
 	/for _count 1 to 6
-		/call sql_control FALSE ${chrID} clickItem${_count}										string		outer FALSE
+		/call sql_control FALSE ${chrID} clickItem${_count}								string		outer FALSE
 	/next _count
 		           
 	| click DPS Burn                                               				
 	/for _count 1 to 6
-		/call sql_control FALSE ${chrID} clickItemBurn${_count}								string		outer FALSE
+		/call sql_control FALSE ${chrID} clickItemBurn${_count}						string		outer FALSE
 	/next _count
 	
 	| bp clicky stacking
 	/for _count 1 to 2
-		/call sql_control FALSE ${chrID} Breastplate${_count}			 						string		outer FALSE
-		/call sql_control FALSE ${chrID} Breastplate${_count}Condition				string		outer FALSE
-		/call sql_control FALSE ${chrID} Breastplate${_count}effect						string		outer FALSE
+		/call sql_control FALSE ${chrID} Breastplate${_count}			 				string		outer FALSE
+		/call sql_control FALSE ${chrID} Breastplate${_count}Condition		string		outer FALSE
+		/call sql_control FALSE ${chrID} Breastplate${_count}effect				string		outer FALSE
 	/next _count
 	                                                              			
-	/call sql_control FALSE ${chrID} useCircle															string		outer FALSE
-	/call sql_control FALSE ${chrID} CircleofPower													string		outer FALSE
-	/call sql_control FALSE ${chrID} CircleofLife														string		outer FALSE
-	/call sql_control FALSE ${chrID} CircleofMana														string		outer FALSE
+	/call sql_control FALSE ${chrID} useCircle													string		outer FALSE
+	/call sql_control FALSE ${chrID} CircleofPower											string		outer FALSE
+	/call sql_control FALSE ${chrID} CircleofLife												string		outer FALSE
+	/call sql_control FALSE ${chrID} CircleofMana												string		outer FALSE
                                                                 			
 	/for _count 1 to 6
-		/call sql_control FALSE ${chrID} clickItemSwarm${_count}							string		outer FALSE
+		/call sql_control FALSE ${chrID} clickItemSwarm${_count}					string		outer FALSE
 	/next _count
 
 	| clickie odd items
 	/for _count 1 to 4
-		/call sql_control FALSE ${chrID} clickOddItem${_count}								string		outer FALSE
+		/call sql_control FALSE ${chrID} clickOddItem${_count}						string		outer FALSE
 	/next _count
 		
 	| AAs that you want to always keep going
-	/call sql_control FALSE ${chrID} AANow1								string		outer FALSE
-	/call sql_control FALSE ${chrID} AANow2								string		outer FALSE
+	/call sql_control FALSE ${chrID} AANow1															string		outer FALSE
+	/call sql_control FALSE ${chrID} AANow2															string		outer FALSE
 
 	| discs that you want to always keep going
-	/call sql_control FALSE ${chrID} DiscNow1							string		outer FALSE
-	/call sql_control FALSE ${chrID} DiscNow2							string		outer FALSE
+	/call sql_control FALSE ${chrID} DiscNow1														string		outer FALSE
+	/call sql_control FALSE ${chrID} DiscNow2														string		outer FALSE
  
 	| items that you want to always keep going
-	/call sql_control FALSE ${chrID} ItemNow1							string		outer FALSE
-	/call sql_control FALSE ${chrID} ItemNow2							string		outer FALSE
-
-
+	/call sql_control FALSE ${chrID} ItemNow1														string		outer FALSE
+	/call sql_control FALSE ${chrID} ItemNow2														string		outer FALSE
 
 	| General class combat skills
-	/call sql_control FALSE ${chrID} kick									bool			outer FALSE
-	/call sql_control FALSE ${chrID} bash									bool			outer FALSE
-	/call sql_control FALSE ${chrID} taunt									bool			outer FALSE
-	/call sql_control FALSE ${chrID} disarm								bool			outer FALSE
-	/call sql_control FALSE ${chrID} bandolierNormal				string  	outer FALSE
+	/call sql_control FALSE ${chrID} kick																bool			outer FALSE
+	/call sql_control FALSE ${chrID} bash																bool			outer FALSE
+	/call sql_control FALSE ${chrID} taunt															bool			outer FALSE
+	/call sql_control FALSE ${chrID} disarm															bool			outer FALSE
+	/call sql_control FALSE ${chrID} bandolierNormal										string  	outer FALSE
 	/call setDeclare bandolierSwap																			string 		outer ${bandolierNormal}
-	/call sql_control FALSE ${chrID} bandolierBash					string		outer FALSE
-	/call sql_control FALSE ${chrID} bandolierBurn					string		outer FALSE
-	/call sql_control FALSE ${chrID} bandolierRange				string		outer FALSE
-
+	/call sql_control FALSE ${chrID} bandolierBash											string		outer FALSE
+	/call sql_control FALSE ${chrID} bandolierBurn											string		outer FALSE
+	/call sql_control FALSE ${chrID} bandolierRange											string		outer FALSE
 	
 	/if (${Select[${Me.Class.ShortName},BER]}) {
-		/call sql_control FALSE ${chrID} frenzy							bool			outer FALSE
+		/call sql_control FALSE ${chrID} frenzy														bool			outer FALSE
 	}
 	/if (${Select[${Me.Class.ShortName},ROG]}) {
 		/declare flagSoS																									bool			outer FALSE
-		/call sql_control FALSE ${chrID} backstab						bool			outer FALSE
+		/call sql_control FALSE ${chrID} backstab													bool			outer FALSE
 	}
 	/if (${Select[${Me.Class.ShortName},BRD,BER,MNK,ROG]}) {
-		/call sql_control FALSE ${chrID} intimidation				bool			outer FALSE
+		/call sql_control FALSE ${chrID} intimidation											bool			outer FALSE
 	}
 	/if (${Select[${Me.Class.ShortName},MNK,BST]}) {
-		/call sql_control FALSE ${chrID} dragonpunch					bool			outer FALSE
-		/call sql_control FALSE ${chrID} eaglestrike					bool			outer FALSE
-		/call sql_control FALSE ${chrID} tigerclaw						bool			outer FALSE
-		/call sql_control FALSE ${chrID} flyingkick					bool			outer FALSE
-		/call sql_control FALSE ${chrID} roundkick						bool			outer FALSE
+		/call sql_control FALSE ${chrID} dragonpunch											bool			outer FALSE
+		/call sql_control FALSE ${chrID} eaglestrike											bool			outer FALSE
+		/call sql_control FALSE ${chrID} tigerclaw												bool			outer FALSE
+		/call sql_control FALSE ${chrID} flyingkick												bool			outer FALSE
+		/call sql_control FALSE ${chrID} roundkick												bool			outer FALSE
 	}
 
 	| food/drink
-	/call sql_control FALSE ${chrID} Food																		string 		outer FALSE
-	/call sql_control FALSE ${chrID} FoodDispenser													string 		outer FALSE
-	/call sql_control FALSE ${chrID} FoodCount															int			 	outer 0
-	/call sql_control FALSE ${chrID} Drink																	string 		outer FALSE
-	/call sql_control FALSE ${chrID} DrinkDispenser													string 		outer FALSE
-	/call sql_control FALSE ${chrID} DrinkCount															int			 	outer 0
-	/call sql_control FALSE ${chrID} tFoodDrink															string		outer 10m
+	/call sql_control FALSE ${chrID} Food																string 		outer FALSE
+	/call sql_control FALSE ${chrID} FoodDispenser											string 		outer FALSE
+	/call sql_control FALSE ${chrID} FoodCount													int			 	outer 0
+	/call sql_control FALSE ${chrID} Drink															string 		outer FALSE
+	/call sql_control FALSE ${chrID} DrinkDispenser											string 		outer FALSE
+	/call sql_control FALSE ${chrID} DrinkCount													int			 	outer 0
+	/call sql_control FALSE ${chrID} tFoodDrink													string		outer 10m
 	/call timer_update timer_meal 1
 
 	/if (${Select[${Me.Class.ShortName},MAG,ENC,CLR,NEC,WIZ,SHM,DRU]}) {
-		/call sql_control FALSE ${chrID} TwincastSpell 			string 		outer FALSE
-		/call sql_control FALSE ${chrID} GatherSpell 				string 		outer FALSE
-		/call sql_control FALSE ${chrID} SilentCast	 				string		outer FALSE
+		/call sql_control FALSE ${chrID} TwincastSpell 										string 		outer FALSE
+		/call sql_control FALSE ${chrID} GatherSpell 											string 		outer FALSE
+		/call sql_control FALSE ${chrID} SilentCast	 											string		outer FALSE
 	}
 	
 	/if (!${Select[${Me.Class.ShortName},MNK,BER,WAR]}) {
-		/call sql_control FALSE ${chrID} switchNukeDelay			bool			outer FALSE
+		/call sql_control FALSE ${chrID} switchNukeDelay									bool			outer FALSE
 	}	
 	
 	/if (${Me.Class.CanCast} || ${Select[${Me.Class.ShortName},ROG]}) {
-		/call sql_control FALSE ${chrID} buffGem 															string 		outer "gem8"
+		/call sql_control FALSE ${chrID} buffGem 													string 		outer "gem8"
 		/call fix_gem_id "${buffGem}"
 		/call setDeclare buffNum																					int 			local ${Macro.Return}
 		
-		/call sql_control FALSE ${chrID} GoMNuke							string		outer FALSE
-		/call sql_control FALSE ${chrID} GoMNukeCondition		string		outer FALSE
-		/call sql_control FALSE ${chrID} GoMNuke2						string		outer FALSE
-		/call sql_control FALSE ${chrID} GoMNuke2Condition		string		outer FALSE
+		/call sql_control FALSE ${chrID} GoMNuke													string		outer FALSE
+		/call sql_control FALSE ${chrID} GoMNukeCondition									string		outer FALSE
+		/call sql_control FALSE ${chrID} GoMNuke2													string		outer FALSE
+		/call sql_control FALSE ${chrID} GoMNuke2Condition								string		outer FALSE
 	}
 	
 	| bc/tell buffs
 	/call setDeclare Buff0 																							string 		outer FALSE
 	/for _count 1 to ${setMaxBuffCount}                        			
-		/call sql_control FALSE ${chrID} Buff${_count}												string 		outer FALSE
-		/call sql_control FALSE ${chrID} Buff${_count}self										string 		outer FALSE
-		/call sql_control FALSE ${chrID} Buff${_count}selfCondition						string 		outer FALSE
-		/call sql_control FALSE ${chrID} Buff${_count}Alias										string 		outer "|FALSE" 
-		/call sql_control FALSE ${chrID} BCBuff${_count}Class									string 		outer "${lstClassAll}"
-		/call sql_control FALSE ${chrID} RaidBuff${_count}Class								string 		outer "${lstClassAll}"
-		/call sql_control FALSE ${chrID} ManualBuff${_count}Class							string 		outer "${lstClassAll}"
-		/call sql_control FALSE ${chrID} ManualBuff${_count}Check							string 		outer FALSE
-		/call sql_control FALSE ${chrID} Buff${_count}noBCinRaid							bool	 		outer FALSE
+		/call sql_control FALSE ${chrID} Buff${_count}										string 		outer FALSE
+		/call sql_control FALSE ${chrID} Buff${_count}self								string 		outer FALSE
+		/call sql_control FALSE ${chrID} Buff${_count}selfCondition				string 		outer FALSE
+		/call sql_control FALSE ${chrID} Buff${_count}Alias								string 		outer "|FALSE" 
+		/call sql_control FALSE ${chrID} BCBuff${_count}Class							string 		outer "${lstClassAll}"
+		/call sql_control FALSE ${chrID} RaidBuff${_count}Class						string 		outer "${lstClassAll}"
+		/call sql_control FALSE ${chrID} ManualBuff${_count}Class					string 		outer "${lstClassAll}"
+		/call sql_control FALSE ${chrID} ManualBuff${_count}Check					string 		outer FALSE
+		/call sql_control FALSE ${chrID} Buff${_count}noBCinRaid					bool	 		outer FALSE
 	/next _count
 	
 	| MGB buff
 	/if (${validate_class[FALSE, ${lstClassCast}]}) {	
-		/call sql_control FALSE ${chrID} BuffMGBname													string 		outer FALSE	
-		/call sql_control FALSE ${chrID} BuffMGBchk														string 		outer FALSE	
-		/call sql_control FALSE ${chrID} BuffMGBalias													string 		outer "|FALSE"
-		/call sql_control FALSE ${chrID} BuffMGBcount													int		 		outer 18
-		/call sql_control FALSE ${chrID} BuffMGBmana													int		 		outer 40
+		/call sql_control FALSE ${chrID} BuffMGBname											string 		outer FALSE	
+		/call sql_control FALSE ${chrID} BuffMGBchk												string 		outer FALSE	
+		/call sql_control FALSE ${chrID} BuffMGBalias											string 		outer "|FALSE"
+		/call sql_control FALSE ${chrID} BuffMGBcount											int		 		outer 18
+		/call sql_control FALSE ${chrID} BuffMGBmana											int		 		outer 40
 	}                                                             			
 
 	| auras
-	/call sql_control FALSE ${chrID} Aura1Spell 														string 		outer FALSE
-	/call sql_control FALSE ${chrID} Aura1Buff 															string 		outer FALSE
-	/call sql_control FALSE ${chrID} Aura2Spell 														string 		outer FALSE
-	/call sql_control FALSE ${chrID} Aura2Buff 															string 		outer FALSE
+	/call sql_control FALSE ${chrID} Aura1Spell 												string 		outer FALSE
+	/call sql_control FALSE ${chrID} Aura1Buff 													string 		outer FALSE
+	/call sql_control FALSE ${chrID} Aura2Spell 												string 		outer FALSE
+	/call sql_control FALSE ${chrID} Aura2Buff 													string 		outer FALSE
 	
 	/if (${Select[${Me.Class.ShortName},CLR,DRU,SHM,PAL]}) {
 		/call setDeclare callID																						int 			outer 0
 		/call setDeclare NULLPoint																				int 			outer 0
 		/call sql_control FALSE ${chrID} PetPoint 												int				outer 80
-		/call sql_control FALSE ${chrID} CLRPoint		 				int 			outer 80
-		/call sql_control FALSE ${chrID} DRUPoint 						int 			outer 70
-		/call sql_control FALSE ${chrID} SHMPoint 						int 			outer 60
-		/call sql_control FALSE ${chrID} WIZPoint 						int 			outer 75
-		/call sql_control FALSE ${chrID} MAGPoint 						int 			outer 75
-		/call sql_control FALSE ${chrID} ENCPoint 						int 			outer 80
-		/call sql_control FALSE ${chrID} NECPoint 						int 			outer 75
-		/call sql_control FALSE ${chrID} WARPoint 						int 			outer 70
-		/call sql_control FALSE ${chrID} MNKPoint 						int 			outer 60
-		/call sql_control FALSE ${chrID} ROGPoint 						int 			outer 60
-		/call sql_control FALSE ${chrID} RNGPoint 						int 			outer 90
-		/call sql_control FALSE ${chrID} BSTPoint 						int 			outer 70
-		/call sql_control FALSE ${chrID} SHDPoint 						int 			outer 90
-		/call sql_control FALSE ${chrID} BRDPoint 						int 			outer 65
-		/call sql_control FALSE ${chrID} BERPoint 						int 			outer 70
-		/call sql_control FALSE ${chrID} PALPoint 						int 			outer 90
-		/call sql_control FALSE ${chrID} GoMpoint 						int 			outer 80	
-		/call sql_control FALSE ${chrID} PanicPoint 					int 			outer 40	
-		/call sql_control FALSE ${chrID} XHealClass					string		outer "${lstClassAll}"
+		/call sql_control FALSE ${chrID} CLRPoint		 											int 			outer 80
+		/call sql_control FALSE ${chrID} DRUPoint 												int 			outer 70
+		/call sql_control FALSE ${chrID} SHMPoint 												int 			outer 60
+		/call sql_control FALSE ${chrID} WIZPoint 												int 			outer 75
+		/call sql_control FALSE ${chrID} MAGPoint 												int 			outer 75
+		/call sql_control FALSE ${chrID} ENCPoint 												int 			outer 80
+		/call sql_control FALSE ${chrID} NECPoint 												int 			outer 75
+		/call sql_control FALSE ${chrID} WARPoint 												int 			outer 70
+		/call sql_control FALSE ${chrID} MNKPoint 												int 			outer 60
+		/call sql_control FALSE ${chrID} ROGPoint 												int 			outer 60
+		/call sql_control FALSE ${chrID} RNGPoint 												int 			outer 90
+		/call sql_control FALSE ${chrID} BSTPoint 												int 			outer 70
+		/call sql_control FALSE ${chrID} SHDPoint 												int 			outer 90
+		/call sql_control FALSE ${chrID} BRDPoint 												int 			outer 65
+		/call sql_control FALSE ${chrID} BERPoint 												int 			outer 70
+		/call sql_control FALSE ${chrID} PALPoint 												int 			outer 90
+		/call sql_control FALSE ${chrID} GoMpoint 												int 			outer 80	
+		/call sql_control FALSE ${chrID} PanicPoint 											int 			outer 40	
+		/call sql_control FALSE ${chrID} XHealClass												string		outer "${lstClassAll}"
 		/call timer_set FALSE tXHeal																			string		outer 3m 		timer_set_xtarget
 	}
 
 	/if (${Select[${Me.Class.ShortName},CLR,DRU,SHM,BST,PAL,RNG]}) {
- 		/call sql_control FALSE ${chrID} cureCurse 					string 		outer FALSE
-		/call sql_control FALSE ${chrID} curePoison 					string 		outer FALSE
-		/call sql_control FALSE ${chrID} cureDisease 				string 		outer FALSE
-		/call sql_control FALSE ${chrID} cureCorrupt 				string 		outer FALSE
+ 		/call sql_control FALSE ${chrID} cureCurse 												string 		outer FALSE
+		/call sql_control FALSE ${chrID} curePoison 											string 		outer FALSE
+		/call sql_control FALSE ${chrID} cureDisease 											string 		outer FALSE
+		/call sql_control FALSE ${chrID} cureCorrupt 											string 		outer FALSE
 	}                                                             			
 
 	| onoff types
-	/call sql_control FALSE ${chrID} switchShrink														bool			outer FALSE
-	/call sql_control FALSE ${chrID} switchHorn															bool			outer FALSE
+	/call sql_control FALSE ${chrID} switchShrink												bool			outer FALSE
+	/call sql_control FALSE ${chrID} switchHorn													bool			outer FALSE
                                                                 			
 	                                                              			
 	| Mode stuffs                                                 			
 	| Train Spell spells                                          			
 	/if (${Bool[${Me.Class.CanCast}]}) {                          			
-		/call sql_control FALSE ${chrID} abjuration														string 		outer FALSE
-		/call sql_control FALSE ${chrID} alteration														string 		outer FALSE
-		/call sql_control FALSE ${chrID} conjuration													string 		outer FALSE
-		/call sql_control FALSE ${chrID} divination														string 		outer FALSE
-		/call sql_control FALSE ${chrID} evocation														string 		outer FALSE
+		/call sql_control FALSE ${chrID} abjuration												string 		outer FALSE
+		/call sql_control FALSE ${chrID} alteration												string 		outer FALSE
+		/call sql_control FALSE ${chrID} conjuration											string 		outer FALSE
+		/call sql_control FALSE ${chrID} divination												string 		outer FALSE
+		/call sql_control FALSE ${chrID} evocation												string 		outer FALSE
 	}
 
 	| forced delay for mez target
 	/if (${Select[${Me.Class.ShortName},ENC,BRD,NEC]}) {
- 		/call sql_control FALSE ${chrID} setMezDelay					int 			outer 0
+ 		/call sql_control FALSE ${chrID} setMezDelay											int 			outer 0
 	}                                                             			
 
 
@@ -1068,101 +1072,101 @@ sub pregen_BER()
 	/call setDeclare BEREpic1																						string		outer "Kerasian Axe of Ire"
 	/call setDeclare BEREpic15																					string		outer "Raging Taelosian Alloy Axe"
 	/call setDeclare BEREpic2																						string		outer "Vengeful Taelosian Blood Axe"
-	/call sql_control FALSE ${chrID} BERAlliance															string		outer "Demolisher's Alliance"
+	/call sql_control FALSE ${chrID} BERAlliance												string		outer "Demolisher's Alliance"
 	/call setDeclare BERAAUnity																					string		outer FALSE
 	/call setDeclare BERAAFade																					string		outer "Self Preservation"
 	                                                              			
-	/call sql_control FALSE ${chrID} switchAAFade														bool			outer FALSE
-	/call sql_control FALSE ${chrID} useAAFadePct														int				outer 50
+	/call sql_control FALSE ${chrID} switchAAFade												bool			outer FALSE
+	/call sql_control FALSE ${chrID} useAAFadePct												int				outer 50
                                                                 			
-	/call sql_control FALSE ${chrID} AEMelee					 												bool	 		outer FALSE
-	/call sql_control FALSE ${chrID} DiscSnare 															string 		outer FALSE
-	/call sql_control FALSE ${chrID} SnareAxe 																string 		outer FALSE
+	/call sql_control FALSE ${chrID} AEMelee					 									bool	 		outer FALSE
+	/call sql_control FALSE ${chrID} DiscSnare 													string 		outer FALSE
+	/call sql_control FALSE ${chrID} SnareAxe 													string 		outer FALSE
 
 	| Volley Line
-	/call sql_control FALSE ${chrID} DiscVolley 															string 		outer PREGENDATA
+	/call sql_control FALSE ${chrID} DiscVolley 												string 		outer PREGENDATA
 	
-	/call sql_control FALSE ${chrID} CryOfChaos 															string 		outer "Ancient: Cry of Chaos"
+	/call sql_control FALSE ${chrID} CryOfChaos 												string 		outer "Ancient: Cry of Chaos"
 	
 	| Berserking Line
-	/call sql_control FALSE ${chrID} DiscBerserking													string 		outer PREGENDATA
+	/call sql_control FALSE ${chrID} DiscBerserking											string 		outer PREGENDATA
 	| rest disc
-	/call sql_control FALSE ${chrID} DiscRest		 														string		outer PREGENDATA
+	/call sql_control FALSE ${chrID} DiscRest		 												string		outer PREGENDATA
 
 	| Combat Frenzy
-	/call sql_control FALSE ${chrID} DiscCombatFrenzy 												string 		outer PREGENDATA
+	/call sql_control FALSE ${chrID} DiscCombatFrenzy 									string 		outer PREGENDATA
                                                                 			
 	| Disc Scream                                                 			
-	/call sql_control FALSE ${chrID} DiscScream 															string 		outer PREGENDATA
+	/call sql_control FALSE ${chrID} DiscScream 												string 		outer PREGENDATA
 
 	| Axe Throw
-	/call sql_control FALSE ${chrID} ThrowingAxe 														string 		outer PREGENDATA
+	/call sql_control FALSE ${chrID} ThrowingAxe 												string 		outer PREGENDATA
 
 	| Jolt Line
-	/call sql_control FALSE ${chrID} DiscJolt 																string 		outer PREGENDATA
+	/call sql_control FALSE ${chrID} DiscJolt 													string 		outer PREGENDATA
 	
 	| Bloodlust
-	/call sql_control FALSE ${chrID} SharedBloodLust 												string 		outer PREGENDATA
-	/call sql_control FALSE ${chrID} SharedBloodLustRecourse									string 		outer PREGENDATA
+	/call sql_control FALSE ${chrID} SharedBloodLust 										string 		outer PREGENDATA
+	/call sql_control FALSE ${chrID} SharedBloodLustRecourse						string 		outer PREGENDATA
 	
 	| Overwhelming Frenzy Line
-	/call sql_control FALSE ${chrID} DiscOverwhelmingFrenzy									string 		outer PREGENDATA
+	/call sql_control FALSE ${chrID} DiscOverwhelmingFrenzy							string 		outer PREGENDATA
 
 	| Cleaving Anger Line
-	/call sql_control FALSE ${chrID} DiscCleavingAnger												string 		outer PREGENDATA
+	/call sql_control FALSE ${chrID} DiscCleavingAnger									string 		outer PREGENDATA
                                                                 			
 	| Opening Attack Line                                         			
-	/call sql_control FALSE ${chrID} DiscSlapintheFace												string 		outer PREGENDATA
+	/call sql_control FALSE ${chrID} DiscSlapintheFace									string 		outer PREGENDATA
                                                                 			
 	| Axe of Line                                                 			
-	/call sql_control FALSE ${chrID} DiscAxeofRallos													string 		outer PREGENDATA
+	/call sql_control FALSE ${chrID} DiscAxeofRallos										string 		outer PREGENDATA
 
 	| Flurry Line
-	/call sql_control FALSE ${chrID} DiscVengeful														string 		outer PREGENDATA
+	/call sql_control FALSE ${chrID} DiscVengeful												string 		outer PREGENDATA
                                                                 			
 	| Flurry Line
-	/call sql_control FALSE ${chrID} DiscVengeful														string 		outer PREGENDATA
+	/call sql_control FALSE ${chrID} DiscVengeful												string 		outer PREGENDATA
 
 	| AE Spiral Line                                                   			
-	/call sql_control FALSE ${chrID} DiscAESpiral														string 		outer PREGENDATA
+	/call sql_control FALSE ${chrID} DiscAESpiral												string 		outer PREGENDATA
                                                                 			
 	| Cry Havoc Line                                              			
-	/call sql_control FALSE ${chrID} DiscCryHavoc														string 		outer PREGENDATA
+	/call sql_control FALSE ${chrID} DiscCryHavoc												string 		outer PREGENDATA
                                                                 			
 	| Augmented Frenzy Line                                       			
-	/call sql_control FALSE ${chrID} DiscAugmentedFrenzy											string 		outer PREGENDATA
-	/call sql_control FALSE ${chrID} AugmentedFrenzyEffect 									string 		outer PREGENDATA
+	/call sql_control FALSE ${chrID} DiscAugmentedFrenzy								string 		outer PREGENDATA
+	/call sql_control FALSE ${chrID} AugmentedFrenzyEffect 							string 		outer PREGENDATA
 
 	| Festering line
-	/call sql_control FALSE ${chrID} DiscFesteringRage 											string 		outer PREGENDATA
+	/call sql_control FALSE ${chrID} DiscFesteringRage 									string 		outer PREGENDATA
 
 	| Frenzied Line
-	/call sql_control FALSE ${chrID} DiscFrenzyResolve												string 		outer PREGENDATA
+	/call sql_control FALSE ${chrID} DiscFrenzyResolve									string 		outer PREGENDATA
 	                                                              			
-	/call sql_control FALSE ${chrID} UntamedgRage														string 		outer "Untamed Rage"
-	/call sql_control FALSE ${chrID} RecklessAbandon													string 		outer "Reckless Abandon"
- 	/call sql_control FALSE ${chrID} frenzy																	bool			outer FALSE
+	/call sql_control FALSE ${chrID} UntamedgRage												string 		outer "Untamed Rage"
+	/call sql_control FALSE ${chrID} RecklessAbandon										string 		outer "Reckless Abandon"
+ 	/call sql_control FALSE ${chrID} frenzy															bool			outer FALSE
                                                                 			
  	| Dichotomic Line                                             			
-	/call sql_control FALSE ${chrID} DiscDicho																string 		outer PREGENDATA
+	/call sql_control FALSE ${chrID} DiscDicho													string 		outer PREGENDATA
                                                                 			
 	| Disconcerting Line                                          			
-	/call sql_control FALSE ${chrID} DiscDisconcert													string 		outer PREGENDATA
+	/call sql_control FALSE ${chrID} DiscDisconcert											string 		outer PREGENDATA
                                                                 			
 	| Endurance Tap Line                                          			
-	/call sql_control FALSE ${chrID} DiscEnduranceTap												string 		outer PREGENDATA
+	/call sql_control FALSE ${chrID} DiscEnduranceTap										string 		outer PREGENDATA
                                                                 			
 	| Pet Line                                                    			
-	/call sql_control FALSE ${chrID} DiscPet																	string 		outer PREGENDATA
+	/call sql_control FALSE ${chrID} DiscPet														string 		outer PREGENDATA
                                                                 			
-	/call sql_control FALSE ${chrID} BERPoint 																int 			outer 60
+	/call sql_control FALSE ${chrID} BERPoint 													int 			outer 60
 
 	| Open Wound Line
-	/call sql_control FALSE ${chrID} DiscOpenWound														string 		outer PREGENDATA
-	/call sql_control FALSE ${chrID} OpenWoundEffect													string 		outer PREGENDATA
+	/call sql_control FALSE ${chrID} DiscOpenWound											string 		outer PREGENDATA
+	/call sql_control FALSE ${chrID} OpenWoundEffect										string 		outer PREGENDATA
                                                                 			
-	/call sql_control FALSE ${chrID} buffGem 																string 		outer FALSE
-	/call sql_control FALSE ${chrID} spellCripple 														string 		outer FALSE
+	/call sql_control FALSE ${chrID} buffGem 														string 		outer FALSE
+	/call sql_control FALSE ${chrID} spellCripple 											string 		outer FALSE
 
 /return		                                        		
 
@@ -1180,59 +1184,59 @@ sub pregen_BRD()
 	/call setDeclare BRDsynergyAA																				string		outer "Troubadour's Synergy"
 	/call setDeclare BRDEpic1																						string		outer "Singing Short Sword"
 	/call setDeclare BRDEpic15																					string		outer "Prismatic Dragon Blade"
-	/call setDeclare BRDEpic2																						string		outer "Prismatic Dragon Blade"
-	/call sql_control FALSE ${chrID} BRDAlliance															string		outer PREGENDATA
+	/call setDeclare BRDEpic2																						string		outer "Blade of Vesagran"
+	/call sql_control FALSE ${chrID} BRDAlliance												string		outer PREGENDATA
 	/call setDeclare BRDAAUnity																					string		outer FALSE
 	/call setDeclare BRDAAFade																					string		outer "Fading Memories"
 
-	/call sql_control FALSE ${chrID} switchAAFade														bool			outer FALSE
-	/call sql_control FALSE ${chrID} useAAFadePct														int				outer 50
+	/call sql_control FALSE ${chrID} switchAAFade												bool			outer FALSE
+	/call sql_control FALSE ${chrID} useAAFadePct												int				outer 50
 
 	| Servant Nuke AA1
-	/call sql_control FALSE ${chrID} ServantNukeAA1 													string 		outer PREGENDATA
+	/call sql_control FALSE ${chrID} ServantNukeAA1 										string 		outer PREGENDATA
 	
 	| Servant Nuke AA2				
-	/call sql_control FALSE ${chrID} ServantNukeAA2 													string 		outer PREGENDATA
+	/call sql_control FALSE ${chrID} ServantNukeAA2 										string 		outer PREGENDATA
 	
 	| Servant Nuke song
-	/call sql_control FALSE ${chrID} songServantNuke													string 		outer PREGENDATA
+	/call sql_control FALSE ${chrID} songServantNuke										string 		outer PREGENDATA
 	                                          		
 	/call setDeclare lineType																						string		outer |caster|melee|mix|other|tank
-	/call sql_control FALSE ${chrID} lineCurrent															string 		outer FALSE
-	/call sql_control FALSE ${chrID} lineTank																string		outer FALSE
-	/call sql_control FALSE ${chrID} lineCaster															string		outer FALSE
-	/call sql_control FALSE ${chrID} lineMelee																string		outer FALSE
-	/call sql_control FALSE ${chrID} lineMix																	string		outer FALSE
-	/call sql_control FALSE ${chrID} lineOther																string		outer FALSE
+	/call sql_control FALSE ${chrID} lineCurrent												string 		outer FALSE
+	/call sql_control FALSE ${chrID} lineTank														string		outer FALSE
+	/call sql_control FALSE ${chrID} lineCaster													string		outer FALSE
+	/call sql_control FALSE ${chrID} lineMelee													string		outer FALSE
+	/call sql_control FALSE ${chrID} lineMix														string		outer FALSE
+	/call sql_control FALSE ${chrID} lineOther													string		outer FALSE
 
 	| Single Mez song
-	/call sql_control FALSE ${chrID} spellMez																string 		outer PREGENDATA
+	/call sql_control FALSE ${chrID} spellMez														string 		outer PREGENDATA
 
 	| AE Mez song
-	/call sql_control FALSE ${chrID} spellpbaeMez														string 		outer PREGENDATA
+	/call sql_control FALSE ${chrID} spellpbaeMez												string 		outer PREGENDATA
 
 	| single target slow
-	/call sql_control FALSE ${chrID} spellSlow																string		outer PREGENDATA
+	/call sql_control FALSE ${chrID} spellSlow													string		outer PREGENDATA
 	
-	/call sql_control FALSE ${chrID} switchRestSong													bool			outer FALSE
-	/call sql_control FALSE ${chrID} spellRestSong														string		outer FALSE
-	/call sql_control FALSE ${chrID} spellCripple 														string 		outer FALSE
-	/call sql_control FALSE ${chrID} BRDPoint		 														int 			outer 80
+	/call sql_control FALSE ${chrID} switchRestSong											bool			outer FALSE
+	/call sql_control FALSE ${chrID} spellRestSong											string		outer FALSE
+	/call sql_control FALSE ${chrID} spellCripple 											string 		outer FALSE
+	/call sql_control FALSE ${chrID} BRDPoint		 												int 			outer 80
 	                                          		  										
-	/call sql_control FALSE ${chrID} switchIntimidKick 											bool	 		outer FALSE
-	/call sql_control FALSE ${chrID} swModRod																bool	 		outer TRUE
+	/call sql_control FALSE ${chrID} switchIntimidKick 									bool	 		outer FALSE
+	/call sql_control FALSE ${chrID} swModRod														bool	 		outer TRUE
 
 	| Nukes
 	/for _count 1 to 8
-		/call sql_control FALSE ${chrID} Nuke${_count}													string		outer FALSE
-		/call sql_control FALSE ${chrID} Nuke${_count}Condition								string		outer FALSE
+		/call sql_control FALSE ${chrID} Nuke${_count}										string		outer FALSE
+		/call sql_control FALSE ${chrID} Nuke${_count}Condition						string		outer FALSE
 	/next _count	
 	
 	| DoTs
 	/for _count 1 to 8
-		/call sql_control FALSE ${chrID} DoT${_count}													string		outer FALSE
-		/call sql_control FALSE ${chrID} DoT${_count}chk												string		outer FALSE
-		/call sql_control FALSE ${chrID} DoT${_count}Condition									string		outer FALSE
+		/call sql_control FALSE ${chrID} DoT${_count}											string		outer FALSE
+		/call sql_control FALSE ${chrID} DoT${_count}chk									string		outer FALSE
+		/call sql_control FALSE ${chrID} DoT${_count}Condition						string		outer FALSE
 	/next _count
 	
 
@@ -1485,6 +1489,7 @@ sub pregen_DRU()
                                                                 			
 	/call sql_control FALSE ${chrID} swModRod																bool	 		outer FALSE
 	                                                              			
+
 	/call sql_control FALSE ${chrID} debuffRo			 													string		outer "Blessing of Ro"	
 	/call sql_control FALSE ${chrID} WoodTXT																	string		outer "SoWood cast."
                                         		                    			
@@ -1502,7 +1507,7 @@ sub pregen_DRU()
 	/call sql_control FALSE ${chrID} ProtectOutsideGroup											string		outer "|FALSE"
 	/call sql_control FALSE ${chrID} ProtectInsideRaid												string		outer "|FALSE"
 	/call sql_control FALSE ${chrID} ProtectNPCList													string		outer "|FALSE"
-	/call sql_control FALSE ${chrID} useGroupHeal 														bool			outer TRUE
+	/call sql_control FALSE ${chrID} useGroupHeal 														int			outer 2
 	/call sql_control FALSE ${chrID} useGroupHoT															bool			outer TRUE
                                            	
 	/call sql_control FALSE ${chrID} healPanic			 													string  	outer "Survival of the Serendipitous"
