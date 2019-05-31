@@ -43,6 +43,7 @@ sub core_MAG()
 			/if (${swAlliance}) /call trigger_alliance ${Target2Kill}
 			/call check_deBuffs ${Target2Kill}
 			/if (${swCombatNuke}) {
+				/call click_DPS_${Me.Class.ShortName}
 				/if (${switchForceTwincast}) /call force_twincast_${Me.Class.ShortName}
 				/if (${swPet}) /call cast_nuke_salvo
 				/call cast_nuke_line
@@ -51,7 +52,6 @@ sub core_MAG()
 			/call click_BP
 			/call click_item
 			/if (${swSwarm}) /call click_item_swarm ${Target2Kill}
-			/call click_DPS_${Me.Class.ShortName}
 		}
 
 		/if (${coreAuto}) {	
@@ -178,38 +178,58 @@ sub burn_MAG()
 	DEBUG burn_MAG()
 	CHECKEXIT
 	CHECKTIE
-	/if (${validate_cast[FALSE, alt, "Elemental Ward", ${Me.ID}]}) /call core_cast2 "Elemental Ward" alt 0 FALSE
+	/if (${validate_cast[FALSE, alt, "Elemental Ward", ${Me.ID}]}) {
+		/call core_cast2 "Elemental Ward" alt 0 FALSE
+	}
 	
 	/if (${Target.PctHPs} > 20) {
-		/if (${validate_cast[FALSE, alt, "Focus of Arcanum", ${Me.ID}]}) /call core_cast2 "Focus of Arcanum" alt 0 FALSE
+		/if (${validate_cast[FALSE, alt, "Focus of Arcanum", ${Me.ID}]}) {
+			/call core_cast2 "Focus of Arcanum" alt 0 FALSE
+		}
 	}
 	
 	| direct damage bonus
 	/if (${Target.PctHPs} > 10) {
 		/if (${Bool[${Me.Buff[Elemental Union]}]}) {
-			/if (${validate_cast[FALSE, alt, "Heart of Flames", ${Me.ID}]}) /call core_cast2 "Heart of Flames" alt 0 FALSE
+			/if (${validate_cast[FALSE, alt, "Heart of Flames", ${Me.ID}]}) {
+				/call core_cast2 "Heart of Flames" alt 0 FALSE
+			}
 		} else /if (!${Bool[${Me.Buff[Heart of Flames]}]} && !${Me.AltAbilityReady[Heart of Flames]}) {
-			/if (${validate_cast[FALSE, alt, "Elemental Union", ${Me.ID}]}) /call core_cast2 "Elemental Union" alt 0 FALSE
+			/if (${validate_cast[FALSE, alt, "Elemental Union", ${Me.ID}]}) {
+				/call core_cast2 "Elemental Union" alt 0 FALSE
+			}
 		} else /if (!${Me.AltAbilityReady[Heart of Flames]} && !${Bool[${Me.Buff[Heart of Flames]}]} && !${Me.AltAbilityReady[Elemental Union]} && !${Bool[${Me.Buff[Elemental Union]}]}) {
 			/call use_glyph
 		}
 	}
 
 	/call cast_AA_spire
-	/if (${validate_cast[FALSE, alt, "${SilentCast}", ${Me.ID}]}) /call core_cast2 "${SilentCast}" alt 0 FALSE
-	/if (${validate_cast[FALSE, alt, "Heart of Stone", ${Me.ID}]}) /call core_cast2 "Heart of Stone" alt 0 FALSE
+	/if (${validate_cast[FALSE, alt, "${SilentCast}", ${Me.ID}]}) {
+		/call core_cast2 "${SilentCast}" alt 0 FALSE
+	}
+	/if (${validate_cast[FALSE, alt, "Heart of Stone", ${Me.ID}]}) {
+		/call core_cast2 "Heart of Stone" alt 0 FALSE
+	}
 
 	| pet AAs
 	/if (${swPet}) {
-		/if (${validate_cast[FALSE, alt, "Servant of Ro", ${Target2Kill}]}) /call core_cast2 "Servant of Ro" alt ${Target2Kill} FALSE
-		/if (${validate_cast[FALSE, alt, "Companion's Fury", ${Me.Pet.ID}]}) /call core_cast2 "Companion's Fury" alt ${Me.Pet.ID} FALSE
+		/if (${validate_cast[FALSE, alt, "Servant of Ro", ${Target2Kill}]}) {
+			/call core_cast2 "Servant of Ro" alt ${Target2Kill} FALSE
+		}
+		/if (${validate_cast[FALSE, alt, "Companion's Fury", ${Me.Pet.ID}]}) {
+			/call core_cast2 "Companion's Fury" alt ${Me.Pet.ID} FALSE
+		}
 	}
 	/if (${swSwarm}) {
-		/if (${validate_cast[FALSE, alt, "Host of the Elements", ${Target2Kill}]}) /call core_cast2 "Host of the Elements" alt ${Target2Kill} FALSE
+		/if (${validate_cast[FALSE, alt, "Host of the Elements", ${Target2Kill}]}) {
+			/call core_cast2 "Host of the Elements" alt ${Target2Kill} FALSE
+		}
 	}
 
 	| epic 2.0
-	/if (${validate_cast[FALSE, epicitem, "2", ${Me.ID}]}) /call core_cast2 "${${Me.Class.ShortName}Epic2}" item ${Me.Pet.ID} FALSE
+	/if (${validate_cast[FALSE, epicitem, "2", ${Me.ID}]}) {
+		/call core_cast2 "${${Me.Class.ShortName}Epic2}" item ${Me.Pet.ID} FALSE
+	}
 
 	/call click_burn_circle
 	/call click_item_burn
@@ -231,11 +251,15 @@ sub force_twincast_MAG()
 	CHECKINPUTS
 	/if (!${timer_force_twincast}) /call timer_update timer_force_twincast ${tForce_Twincast}
 	/if (!${Me.Buff[Improved Twincast].ID} && !${Me.Buff[Twincast].ID}) {
-		/if (${validate_cast[FALSE, spell, "${TwincastSpell}", ${Me.ID}]}) /call core_cast2 "${TwincastSpell}" 0 0 FALSE
+		/if (${validate_cast[FALSE, spell, "${TwincastSpell}", ${Me.ID}]}) {
+			/call core_cast2 "${TwincastSpell}" 0 0 FALSE
+		}
 		/return
 	} else /if (!${Me.Buff[Improved Twincast].ID} && !${Me.Buff[${TwincastSpell}].ID} && !${Me.Buff[Twincast].ID}) {
 		/if (!${cast_condition[NukeTwincastCondition]}) /return
-		/if (${validate_cast[FALSE, spell, "${NukeTwincast${lineCurrent}}", ${Target2Kill}]}) /call core_cast2 "${NukeTwincast${lineCurrent}}" 0 ${Target2Kill} FALSE
+		/if (${validate_cast[FALSE, spell, "${NukeTwincast${lineCurrent}}", ${Target2Kill}]}) {
+			/call core_cast2 "${NukeTwincast${lineCurrent}}" 0 ${Target2Kill} FALSE
+		}
 	}	
 /return
 
@@ -256,15 +280,21 @@ sub check_gather()
 
 	| pet consumption for manna		
 	/if (${Me.Pet.ID}) {
-		/if (${Me.PctMana} <= 19 && ${validate_cast[FALSE, alt, "Elemental Conversion", ${Me.ID}]}) /call core_cast2 "Elemental Conversion" alt 0 FALSE
+		/if (${Me.PctMana} <= 19 && ${validate_cast[FALSE, alt, "Elemental Conversion", ${Me.ID}]}) {
+			/call core_cast2 "Elemental Conversion" alt 0 FALSE
+		}
 	}
 	
 	| rods
 	/if (${Bool[${SelfRodName}]}) {
-		/if (${validate_cast[FALSE, item, "${SelfRodName}", ${Me.ID}]}) /call core_cast2 "${SelfRodName}" item 0 FALSE
+		/if (${validate_cast[FALSE, item, "${SelfRodName}", ${Me.ID}]}) {
+			/call core_cast2 "${SelfRodName}" item 0 FALSE
+		}
 	}
 	/if (${Bool[${ModRodName}]}) {
-		/if (${validate_cast[FALSE, item, "${ModRodName}", ${Me.ID}]}) /call core_cast2 "${ModRodName}" item 0 FALSE
+		/if (${validate_cast[FALSE, item, "${ModRodName}", ${Me.ID}]}) {
+			/call core_cast2 "${ModRodName}" item 0 FALSE
+		}
 	}
 	
 	| stop here to save time is nothing else is available
@@ -272,12 +302,15 @@ sub check_gather()
 		
 	| force rejuv if we can proc gather spell again
 	/if (!${Me.SpellReady[${Spell[${GatherSpell}].RankName}]}) {
-		/if (${validate_cast[FALSE, alt, "Forceful Rejuvenation", ${Me.ID}]}) /call core_cast2 "Forceful Rejuvenation" alt 0 FALSE
-		/delay 1s
+		/if (${validate_cast[FALSE, alt, "Forceful Rejuvenation", ${Me.ID}]}) {
+			/call core_cast2 "Forceful Rejuvenation" alt 0 FALSE
+		}
 	}
 
 	/if (${Me.SpellReady[${Spell[${GatherSpell}].RankName}]}) {
-		/if (${validate_cast[FALSE, spell, "${GatherSpell}", ${Me.ID}]}) /call core_cast2 "${GatherSpell}" 0 0 FALSE
+		/if (${validate_cast[FALSE, spell, "${GatherSpell}", ${Me.ID}]}) {
+			/call core_cast2 "${GatherSpell}" 0 0 FALSE
+		}
 	}
 
 /return
@@ -296,12 +329,16 @@ sub Bind_call_of_the_hero(string _sender, string _verbage)
   	/call mem_spell TRUE "${MAGAAGroupCOH}" ${buffGem} TRUE
 	  /if (${Me.Invis}) /makemevisible
 	  ECHOCHANNEL Calling ... Group
- 		/if (${validate_cast[FALSE, spell, "${MAGAAGroupCOH}", ${Me.ID}]}) /call core_cast2 "${MAGAAGroupCOH}" ${buffGem} 0 FALSE
+ 		/if (${validate_cast[FALSE, spell, "${MAGAAGroupCOH}", ${Me.ID}]}) {
+ 			/call core_cast2 "${MAGAAGroupCOH}" ${buffGem} 0 FALSE
+ 		}
   } else {
 		/delay 15s ${Me.AltAbilityReady[Call of the Hero]}
 	  /if (${Me.Invis}) /makemevisible
 	  ECHOCHANNEL Calling ... ${_sender}
- 		/if (${validate_cast[FALSE, alt, "Call of the Hero", ${Spawn[pc ${_sender}].ID}]}) /call core_cast2 "Call of the Hero" alt ${Spawn[pc ${_sender}].ID} FALSE
+ 		/if (${validate_cast[FALSE, alt, "Call of the Hero", ${Spawn[pc ${_sender}].ID}]}) {
+ 			/call core_cast2 "Call of the Hero" alt ${Spawn[pc ${_sender}].ID} FALSE
+ 		}
   }
 /return
 
@@ -347,7 +384,7 @@ sub Bind_setMAG(string _type, string _verbage)
 
 	| get rods.. cause things and stuff
 	} else /if (${_type.Equal[rods]}) {
-|***
+
 		| self mod rod
 		/if (${Bool[${SelfRodName}]}) {
 			/if (!${FindItem[${SelfRodName}].ID}) {
@@ -380,7 +417,7 @@ sub Bind_setMAG(string _type, string _verbage)
 			/call sort_cursor TRUE
 		}
 		/return
-***|
+
 	| spire control
 	} else /if (${_type.Equal[spiregroup]} || ${_type.Equal[spireraid]}) {
 		/call set_character_spire FALSE ${_type} ${_verbage}
@@ -391,7 +428,7 @@ sub Bind_setMAG(string _type, string _verbage)
 		/return
 		
 	| spell line. not quite done with this. 
-	} else /if (${_classType.Equal[line]}) {
+	} else /if (${_type.Equal[line]}) {
 		| mem a line of spells.
 		/if (${Bool[${lineType.Find[${_verbage.Lower}]}]}) {
 			/call sql_update FALSE ${chrID} lineCurrent ${_verbage.Left[1].Upper}${_verbage.Right[-1].Lower}

@@ -49,11 +49,13 @@ sub set_alias()
  ***|
 #bind broadcast_off /broadcast_off
 sub Bind_broadcast_off()
+	DEBUG Bind_broadcast_off()
+	
 	/declare _count int local 0
 	/declare _toonName string local FALSE
 	
-	/for _count 1 to ${DanNet.PeerCount}
-		/varset _toonName ${DanNet.Peers.Arg[${_count},|].Left[1].Upper}${DanNet.Peers.Arg[${_count},|].Right[-1]}
+	/for _count 1 to ${DanNet[${DanNetMacroChannel}].PeerCount}
+		/varset _toonName ${DanNet.Peers[${DanNetMacroChannel}].Arg[${_count},|].Left[1].Upper}${DanNet.Peers[${DanNetMacroChannel}].Arg[${_count},|].Right[-1]}
 		/if (${_toonName.Equal[${Me.DisplayName}]}) /continue
 		/if (!${Spawn[pc ${_toonName}].ID}) /continue
 		/sqlite ${chrDBID} onoff UPDATE ${chrID} SET coreAuto="FALSE" WHERE currentBuild="${currentBuild}"
@@ -61,6 +63,7 @@ sub Bind_broadcast_off()
 		/dexecute ${_toonName} VOUT /core auto ${odisabled}
 		/dexecute ${_toonName} /squelch /target clear
 	/next _count
+	
 /return
 
 
@@ -72,17 +75,20 @@ sub Bind_broadcast_off()
  ***|
 #bind broadcast_on /broadcast_on
 sub Bind_broadcast_on()
+	DEBUG Bind_broadcast_on()
+	
 	/declare _count int local 0
 	/declare _toonName string local FALSE
 	
-	/for _count 1 to ${DanNet.PeerCount}
-		/varset _toonName ${DanNet.Peers.Arg[${_count},|].Left[1].Upper}${DanNet.Peers.Arg[${_count},|].Right[-1]}
+	/for _count 1 to ${DanNet[${DanNetMacroChannel}].PeerCount}
+		/varset _toonName ${DanNet.Peers[${DanNetMacroChannel}].Arg[${_count},|].Left[1].Upper}${DanNet.Peers[${DanNetMacroChannel}].Arg[${_count},|].Right[-1]}
 		/if (${_toonName.Equal[${Me.DisplayName}]}) /continue
 		/if (!${Spawn[pc ${_toonName}].ID}) /continue
 		/sqlite ${chrDBID} onoff UPDATE ${chrID} SET coreAuto="TRUE" WHERE WHERE currentBuild="${currentBuild}"
 		/dexecute ${_toonName} /varset coreAuto TRUE
 		/dexecute ${_toonName} VOUT /core auto ${oenabled}
 	/next _count
+	
 /return
 
 
@@ -435,6 +441,7 @@ sub Bind_itembuffs()
  ***| 	
 #bind selfbuffs /sb
 sub Bind_selfbuffs()
+	DEBUG Bind_selfbuffs()
 
 	/if (${swBuffGemHold}) {
 		/declare _tmpSpell string local FALSE
@@ -480,6 +487,8 @@ sub Bind_setstop()
  ***| 
 #bind watchspawn /watchspawn
 sub Bind_watchspawn(string _spawn)
+	DEBUG Bind_watchspawn(${_spawn})
+	
 	/if (${Bool[${_spawn}]}) {
 		/call sql_update FALSE ${chrID} watchSpawn "${_spawn}"
 	} else /if (!${Bool[${_spawn}]} && ${Target.ID}) {
@@ -491,6 +500,7 @@ sub Bind_watchspawn(string _spawn)
 	}
 	
 	/if (${_spawn.Equal[FALSE]}) /mapshow reset
+	
 /return
   
   
@@ -502,6 +512,8 @@ sub Bind_watchspawn(string _spawn)
  ***|
 #bind override /override
 sub Bind_override(string _type, string _verbage, bool _silent)
+	DEBUG Bind_override(${_type}, ${_verbage}, ${_silent})
+	
 	/declare _bind string local Override
 	/declare _list string local ${sql_return[lstTypes${_bind}]}
 	/if (${Bool[${_type}]}) {
@@ -519,6 +531,8 @@ sub Bind_override(string _type, string _verbage, bool _silent)
 	/next _count
 	
 	| spit out the results
+	
+	
 	/if (${_silent}) /return
 	/if (${swMQClear}) /mqclear
 	/for _count 1 to ${_list.Count[|]}
@@ -526,6 +540,7 @@ sub Bind_override(string _type, string _verbage, bool _silent)
 		/varset _sep TRUE
 	/next _count
 	VOUT /${_bind.Lower} [${_listout}]	
+	
 /return  
 
 
@@ -537,6 +552,8 @@ sub Bind_override(string _type, string _verbage, bool _silent)
  ***| 	
 #bind deBuff /debuff
 sub Bind_deBuff(string _type, string _verbage, bool _silent)
+	DEBUG Bind_deBuff(${_type}, ${_verbage}, ${_silent})
+	
 	/declare _bind string local deBuff
 	/declare _list string local ${sql_return[lstTypes${_bind}]}
 	/if (${Bool[${_type}]}) {
@@ -583,6 +600,7 @@ sub Bind_deBuff(string _type, string _verbage, bool _silent)
 		/call sql_update FALSE ${chrID} swStickBehind FALSE
 		VOUT /${_bind.Lower} behind ${sep} ${swStickBehind}
 	}	
+	
 /return  
 
 
@@ -594,6 +612,8 @@ sub Bind_deBuff(string _type, string _verbage, bool _silent)
  ***| 	
 #bind heal /heal
 sub Bind_heal(string _type, string _verbage, bool _silent)
+	DEBUG Bind_heal(${_type}, ${_verbage}, ${_silent})
+	
 	/declare _bind string local Heal
 	/declare _list string local ${sql_return[lstTypes${_bind}]}
 	/if (${Bool[${_type}]}) {
@@ -654,7 +674,8 @@ sub Bind_heal(string _type, string _verbage, bool _silent)
 		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${If[${sw${_bind}${_list.Arg[${_count},|]}},${cgood},${cinfo}]}${_list.Arg[${_count},|].Lower}\ax
 		/varset _sep TRUE
 	/next _count
-	VOUT /${_bind.Lower} [${_listout}]			
+	VOUT /${_bind.Lower} [${_listout}]		
+		
 /return
 	
 
@@ -666,6 +687,8 @@ sub Bind_heal(string _type, string _verbage, bool _silent)
  ***| 	
 #bind buff /buff
 sub Bind_buff(string _type, string _verbage, bool _silent)
+	DEBUG Bind_buff(${_type}, ${_verbage}, ${_silent})
+	
 	/declare _bind string local Buff
 	/declare _list string local ${sql_return[lstTypes${_bind}]}
 	/if (${Bool[${_type}]}) {
@@ -691,6 +714,7 @@ sub Bind_buff(string _type, string _verbage, bool _silent)
 		/varset _sep TRUE
 	/next _count
 	VOUT /${_bind.Lower} [${_listout}]
+
 /return
 
 
@@ -702,6 +726,8 @@ sub Bind_buff(string _type, string _verbage, bool _silent)
  ***| 
 #bind cursor /cursor
 sub Bind_cursor(string _type, string _verbage)
+	DEBUG Bind_cursor(${_type}, ${_verbage})
+	
 	/declare _bind string local Cursor
 	/declare _list string local ${sql_return[lstTypes${_bind}]}
 	/if (${Bool[${_type}]}) {
@@ -775,6 +801,8 @@ sub Bind_cursor(string _type, string _verbage)
  ***| 	
 #bind rez /rez
 sub Bind_rez(string _type, string _verbage, bool _silent)
+	DEBUG Bind_rez(${_type}, ${_verbage}, ${_silent})
+	
 	/declare _bind string local Rez
 	/declare _list string local ${sql_return[lstTypes${_bind}]}
 	/if (${Bool[${_type}]}) {
@@ -837,6 +865,7 @@ sub Bind_rez(string _type, string _verbage, bool _silent)
  ***| 
 #bind listControl /lc
 sub Bind_listControl(string _type, string _verbage, bool _silent)
+	DEBUG Bind_listControl(${_type}, ${_verbage}, ${_silent})
 
 	/declare _bind string local LC
 	/declare _list string local ${sql_return[lstTypes${_bind}]}
@@ -1114,6 +1143,8 @@ sub Bind_listControl2(string _type, string _verbage, bool _silent)
  ***|
 #bind petControl /pc
 sub Bind_petControl(string _type, string _verbage, bool _silent)
+	DEBUG Bind_petControl(${_type}, ${_verbage}, ${_silent})
+	
 	/declare _bind string local PC
 	/declare _list string local ${sql_return[lstTypes${_bind}]}
 	/if (${Bool[${_type}]}) {
@@ -1217,6 +1248,7 @@ sub Bind_petControl(string _type, string _verbage, bool _silent)
  ***| 
 #bind setTieControl /tc
 sub Bind_setTieControl(string _type, string _verbage, bool _silent)
+	DEBUG Bind_setTieControl(${_type}, ${_verbage}, ${_silent})
 	/declare _bind string local TC
 	/declare _list string local ${sql_return[lstTypes${_bind}]}
 	/if (${Bool[${_type}]}) {
@@ -1298,6 +1330,7 @@ sub Bind_setTieControl(string _type, string _verbage, bool _silent)
  ***| 	
 #bind setTie /tie
 sub Bind_setTie(string _type)
+	DEBUG Bind_setTie(${_type})
 
 	| tie toon not in zone?
 	/if (!${Bool[${Spawn[pc ${setTieToon}].ID}]}) {
@@ -1328,6 +1361,8 @@ sub Bind_setTie(string _type)
  ***| 	
 #bind burn /burn
 sub Bind_burn(string _type, string _verbage, bool _silent)
+	DEBUG Bind_burn(${_type}, ${_verbage}, ${_silent})
+	
 	/declare _bind string local Burn
 	/declare _list string local ${sql_return[lstTypes${_bind}]}
 	/if (${Bool[${_type}]}) {
@@ -1393,6 +1428,8 @@ sub Bind_burn(string _type, string _verbage, bool _silent)
  ***|
 #bind Core /core
 sub Bind_Core(string _type, string _verbage, string _verbage2, bool _silent)
+	DEBUG Bind_Core(${_type}, ${_verbage}, ${_verbage2}, ${_silent})
+	
 	/declare _bind string local Core
 	/declare _list string local ${sql_return[lstTypes${_bind}]}
 	/if (${Bool[${_type}]}) {
@@ -1498,6 +1535,8 @@ sub Bind_Core(string _type, string _verbage, string _verbage2, bool _silent)
  ***|
 #bind onoff /onoff
 sub Bind_onoff(string _type, string _verbage, bool _silent)
+	DEBUG Bind_onoff(${_type}, ${_verbage}, ${_silent})
+	
 	/declare _bind string local OnOff
 	/declare _list string local ${sql_return[lstTypes${_bind}]}
 	/if (${Bool[${_type}]}) {
@@ -1535,6 +1574,8 @@ sub Bind_onoff(string _type, string _verbage, bool _silent)
  ***|
 #bind ts /ts
 sub Bind_ts(string _tsType)
+	DEBUG Bind_ts(${_tsType})
+	
 	/declare _bind string local ts
 	/declare _list string local ${sql_return[lstTypes${_bind}]}
 	/if (${Bool[${_type}]}) {
@@ -1619,6 +1660,8 @@ sub Bind_setAssist(string _verbage, string _name)
  ***|
 #bind setCombatControl /cc
 sub Bind_setCombatControl(string _type, string _verbage, bool _silent)
+	DEBUG Bind_setCombatControl(${_type}, ${_verbage}, ${_silent})
+	
 	/declare _bind string local CC
 	/declare _list string local ${sql_return[lstTypes${_bind}]}
 	/if (${Bool[${_type}]}) {
@@ -1937,6 +1980,8 @@ sub Bind_setMobAgro(int _setMobAgro)
  ***|
 #bind setMovementControls /movement
 sub Bind_setMovementControls(string _type, string _verbage, bool _silent)
+	DEBUG Bind_setMovementControls(${_type}, ${_verbage}, ${_silent})
+	
 	/declare _bind string local Movement
 	/declare _list string local ${sql_return[lstTypes${_bind}]}
 	/if (${Bool[${_type}]}) {
@@ -1988,12 +2033,11 @@ sub Bind_setMovementControls(string _type, string _verbage, bool _silent)
 			/return
 		}
 		
-		
 	| gather your crew
 	} else /if (${_type.Equal[gather]}) {
 
 		/if (${_verbage.Equal[all]}) {
-			/declare _clist string local ${DanNet[${DanNetMacroChannel}].Peers}
+			/declare _clist string local ${DanNet.Peers[${DanNetMacroChannel}]}
 		} else {
 			/sqlite ${dbCore} dummy SELECT lstCrew${_verbage} FROM environment WHERE currentBuild="${currentBuild}"
 			/declare _clist string local ${sqlite.Result[dummy 1 lstCrew${_verbage}]}	
@@ -2084,6 +2128,8 @@ sub Bind_setMovementControls(string _type, string _verbage, bool _silent)
  ***|
 #bind crew /crew
 sub Bind_crew(int _crew)
+	DEBUG Bind_crew(${_crew})
+	
 	| bail if now crey type listed
 	/if (!${Bool[${_crew}]}) /return
 	
@@ -2200,6 +2246,7 @@ sub Bind_lesson()
  ***|
 #bind grab /grab
 sub Bind_grab(string _name)
+	DEBUG Bind_grab(${_name})
 
 	| typed something wrong
 	/if (${_name.Equal[NULL]} || !${Bool[${_name}]} || ${_name.Equal[info]} ) {
@@ -2251,6 +2298,7 @@ sub Bind_broadcast_take()
  ***|
 #bind click_window_option /click_window_option
 sub Bind_click_window_option()
+	DEBUG Bind_click_window_option()
 
 	| take ports
 	/if (${Window[ConfirmationDialogbox].Child[CD_TextOutPut].Text.Find[${Spawn[${Me}].Guild}]} || ${Window[ConfirmationDialogbox].Child[CD_TextOutPut].Text.Find["Guild Hall"]}) /nomodkey /notify ConfirmationDialogBox Yes_Button leftmouseup
@@ -2289,18 +2337,17 @@ sub Bind_broadcast_invis()
  ***| 
 #bind cast_AA_invis /cast_AA_invis
 sub Bind_cast_AA_invis()
+	DEBUG Bind_cast_AA_invis()
 
 	| fucking bards
 	/if (${Me.AltAbilityReady[Shauri's Sonorous Clouding]} && ${Select[${Me.Class.ShortName},BRD]}) {
 		/call pulse_stop
-		| /call MQ2Cast "Shauri's Sonorous Clouding" alt -targetid|${Me.ID}
 		/call core_cast2 "Shauri's Sonorous Clouding" alt 0 FALSE
 		ECHOCHANNEL AA: Shauri's Sonorous Clouding
 		/return
 		
 	| Invis vs Normies  casters	
 	} else /if (${Me.AltAbilityReady[Group Perfected Invisibility]} && ${Select[${Me.Class.ShortName},WIZ,MAG,ENC]}) {
-		| /call MQ2Cast "Group Perfected Invisibility" alt
 		/call core_cast2 "Group Perfected Invisibility" alt 0 FALSE
 		ECHOCHANNEL AA: Group Perfected Invisibility
 		/return
@@ -2308,7 +2355,6 @@ sub Bind_cast_AA_invis()
 	| Invis Vs undead casters
 	} else /if (${Me.AltAbilityReady[Group Perfected Invisibility to Undead]} && ${Select[${Me.Class.ShortName},CLR,SHD,NEC,PAL]}) {
 		/delay 3
-		| /call MQ2Cast "Group Perfected Invisibility to Undead" alt
 		/call core_cast2 "Group Perfected Invisibility to Undead" alt 0 FALSE
 		ECHOCHANNEL AA: Group Perfected Invisibility to Undead
 		/return
@@ -2316,7 +2362,6 @@ sub Bind_cast_AA_invis()
 	| shaman	
 	} else /if (${Me.AltAbilityReady[Group Silent Presence]} && ${Select[${Me.Class.ShortName},SHM]}) {
 		/delay 5
-		| /call MQ2Cast "Group Silent Presence" alt -targetid|${Me.ID}
 		/call core_cast2 "Group Silent Presence" alt ${Me.ID} FALSE
 		ECHOCHANNEL AA: Group Silent Presence
 		/return
@@ -2325,7 +2370,6 @@ sub Bind_cast_AA_invis()
 	}	else /if (${Me.AltAbilityReady[Shared Camouflage]} && ${Select[${Me.Class.ShortName},RNG,DRU]}) {
 		/return
 		/delay 15
-		| /call MQ2Cast "Shared Camouflage" alt -targetid|${Me.ID}
 		/call core_cast2 "Shared Camouflage" alt 0 FALSE
 		ECHOCHANNEL AA: Shared Camouflage
 		/return
@@ -2355,6 +2399,7 @@ sub Bind_broadcast_door()
  ***|
 #bind click_door /click_door
 sub Bind_click_door()
+	DEBUG Bind_click_door()
 
 	/call timer_update timer_try_door 4s
 
@@ -2421,6 +2466,8 @@ sub Bind_broadcast_here()
  ***|
 #bind set_combat_here /set_combat_here 
 sub Bind_set_combat_here()
+	DEBUG Bind_set_combat_here()
+	
  	AMIDEAD
 	UPDATEHUD "Combat Now"
 
@@ -2511,6 +2558,8 @@ sub Bind_set_combat_here()
  ***|
 #bind killmob /killmob
 sub Bind_killmob()
+	DEBUG Bind_killmob()
+	
 	/call Bind_override engagepct
 	/if (${swBCKillMob}) {
 		/dgexecute /override engagepct
@@ -2542,14 +2591,15 @@ sub Bind_checkvar()
  ***|
 #bind imincharge /imincharge
 sub Bind_imincharge()
+	DEBUG Bind_imincharge()
 
 	/declare _count int local 0
 	/declare _toonName string local FALSE
 	
 	| cycle all the toons you are boxing
 	/for _count 1 to ${DanNet[${DanNetMacroChannel}].PeerCount}
-		| /echo ${DanNet[${DanNetMacroChannel}].Peers.Arg[${_count},|].Left[1].Upper}${DanNet[${DanNetMacroChannel}].Peers.Arg[${_count},|].Right[-1]}
-		/varset _toonName ${DanNet[${DanNetMacroChannel}].Peers.Arg[${_count},|].Left[1].Upper}${DanNet[${DanNetMacroChannel}].Peers.Arg[${_count},|].Right[-1]}
+		| /echo ${DanNet.Peers[${DanNetMacroChannel}].Arg[${_count},|].Left[1].Upper}${DanNet.Peers[${DanNetMacroChannel}].Arg[${_count},|].Right[-1]}
+		/varset _toonName ${DanNet.Peers[${DanNetMacroChannel}].Arg[${_count},|].Left[1].Upper}${DanNet.Peers[${DanNetMacroChannel}].Arg[${_count},|].Right[-1]}
 		
 		| if i'm issuing the command. turn off tie and move along
 		/if (${_toonName.Equal[${Me.DisplayName}]}) {
@@ -2580,7 +2630,7 @@ sub Bind_imincharge()
  ***|
 #bind bcsay /bcsay
 sub Bind_bcsay(string _verbage, string _sender, int _tmpID)
-	| SDEBUG bcsay v:"${_verbage}" s:${_sender} id:${_tmpID}
+	DEBUG Bind_bcsay(${_verbage}, ${_sender}, ${_tmpID})
 	
 	/if (${Me.Invis}) /makemevisible
 	
@@ -2652,11 +2702,9 @@ sub Bind_get_the_fuck_out()
  ***|
 #bind campfire /campfire
 sub Bind_campfire(string _verbage)
+	DEBUG Bind_campfire(${_verbage})
+
 	/declare _bind string local campfire
-	| /declare _list string local ${sql_return[lstTypes${_bind}]}
-	| /if (${Bool[${_type}]}) {
-	| 	/varset _type ${list_isoloate[lstTypes${_bind}, ${_type}]}
-	| 	}
 	/declare _count int local 0
 	/declare _listout string local
 	/declare _sep bool local		
@@ -2715,6 +2763,8 @@ sub Bind_campfire(string _verbage)
  ***|
 #bind request_coh /coh
 sub Bind_request_coh(string _verbage)
+	DEBUG Bind_request_coh(${_verbage})
+	
 	/if (${_verbage.Equal[group]}) {
 		/dex ${get_resident[mage, 99999]} /call_of_the_hero "${Me.DisplayName}" "${_verbage}"
 		/return
@@ -2734,6 +2784,7 @@ sub Bind_request_coh(string _verbage)
  ***|
 #bind gem_control /gc
 sub Bind_gem_control(string _verbage, string _name)
+	DEBUG Bind_gem_control(${_verbage}, ${_name})
 
 	/if (${Select[${Me.Class.ShortName},ROG,WAR,MON]}) /return FALSE
 
@@ -2869,7 +2920,8 @@ sub Bind_gem_control(string _verbage, string _name)
  ***|
 #bind sql_edit /edit
 sub Bind_sql_edit(string _variable, string _value, string _add_delete, bool _silent)
-	| SDEBUG Bind_sql_edit(variable:\at${_variable}\ax value:\at${_value}\ax a/d:\at${_add_delete}\ax)
+	DEBUG Bind_sql_edit(${_variable}, ${_value}, ${_add_delete})
+	
 	/declare _count int local 0
 	/declare _countArray int local 
 	/declare _table string local
@@ -2882,12 +2934,6 @@ sub Bind_sql_edit(string _variable, string _value, string _add_delete, bool _sil
 		OUT ${cinfo}/edit\ax [${cnum}${If[${Bool[${_variable}]},${_variable},variable]}\ax] [${cnum}"value"\ax] [${cnum}add\ax|${cnum}delete\ax](for lists)
 		/return FALSE
 	} 
-	
-	| /echo _value ${_value}
-	| /echo ${Parse[1,${${_value}}]}
-	| /return
-	
-	
 
 	| find the table that holds the data we need to adjust
 	/for _count 1 to ${sqlTablesCount}
@@ -2969,71 +3015,19 @@ sub Bind_sql_edit(string _variable, string _value, string _add_delete, bool _sil
 
 
 |***
- *	DES: i dunno... information maybe?
- *	USE: /info
- *  NOTE: list all switches for help
- ***|
-#bind core_info /info
-sub Bind_core_info(string _type, string _verbage)
-
-	| force clear screen shit takes up space
-	/mqclear
-
-	/declare _listout string local
-	/declare _sep bool local
-	/declare _count int local 0
-	/declare _lstCMDS string local |admin|buff|burn|campfire|cc|core|cursor|debuff|hc|heal|lc|mode|movement|onoff|override|pc|rez|setassist|tc|ts
-	
-	| default commands
-	/if (!${Bool[${_type}]}) {
-
-		/if (${swDispInfo}) {
-			/call echos wiki 0 0 0 0
-			VOUT /info ${cinfo}command\ax for details
-		}
-
-		/for _count 1 to ${_lstCMDS.Count[|]}
-			/varset _listout ${_listout} ${If[${_sep},${sep},]} ${_lstCMDS.Arg[${_count},|].Lower}
-			/varset _sep TRUE
-		/next _count
-		VOUT ${_listout} ${If[${_sep},${sep},]} ${Me.Class.ShortName.Lower}
-		/return
-
-	| class help
-	} else /if (${_type.Equal[${Me.Class.ShortName}]}) {
-		
-		/for _count 1 to ${Math.Calc[${Ini[${INIInfo},${Me.Class.ShortName}].Count[|]}-1]}
-			VOUT /${Me.Class.ShortName.Lower} ${cinfo}${Ini[${INIInfo},${Me.Class.ShortName}].Arg[${_count},|]}\ax ${sep} ${Ini[${INIInfo},${Me.Class.ShortName},${Ini[${INIInfo},${Me.Class.ShortName}].Arg[${_count},|]}]}
-		/next _count
-		/return			
-
-	| command list
-	} else /if (${_lstCMDS.Find[${_type}]}) {
-		/for _count 1 to ${Math.Calc[${Ini[${INIInfo},${_type}].Count[|]}-1]}
-			VOUT /${_type.Lower} ${cinfo}${Ini[${INIInfo},${_type}].Arg[${_count},|].Lower}\ax ${sep} ${Ini[${INIInfo},${_type.Lower},${Ini[${INIInfo},${_type.Lower}].Arg[${_count},|]}]}
-		/next _count
-		/return
-	}
-	
-/return 
-
-
-
-|***
  *	DES: environment settings
  *	USE: /environment []
  *  NOTE: 
  ***|
 #bind Core_environment /environment
 sub Bind_Core_environment(string _type, string _verbage, bool _silent)
+	DEBUG Bind_Core_environment(${_type}, ${_verbage}, ${_silent})
+	
 	/declare _count int local 0
 	/declare _countArray int local 0
 	/declare _bind string local Environment
 	/declare _listout string local
 	/declare _sep bool local FALSE
-	
-
-	
 	
 
 	| set mob minimum lvl for attacking
@@ -3057,8 +3051,8 @@ sub Bind_Core_environment(string _type, string _verbage, bool _silent)
 		/call set_switch ${_bind.Lower} swNukeLoop ${_verbage}
 
 	| display /info
-	} else /if (${_type.Equal[dispinfo]}) {
-		/call set_switch ${_bind.Lower} swDispInfo ${_verbage}
+	| } else /if (${_type.Equal[dispinfo]}) {
+	| 	/call set_switch ${_bind.Lower} swDispInfo ${_verbage}
 
 	| display build ##
 	} else /if (${_type.Equal[dispbuild]}) {
@@ -3164,10 +3158,6 @@ sub Bind_Core_environment(string _type, string _verbage, bool _silent)
 		/call set_switch ${_bind.Lower} swEchosSQL ${_verbage}
 
 	}
-	
-	| /if (${_type.Find[echosql]}) {
-	| 	
-	| }
 
 	/if (${swMQClear}) /mqclear
 	| VOUT /${_bind.Lower} 
@@ -3232,6 +3222,7 @@ sub Bind_Core_environment(string _type, string _verbage, bool _silent)
  ***| 
 #bind hud /hc
 sub Bind_hud(string _type, string _verbage, bool _silent)
+	DEBUG Bind_hud(${_type}, ${_verbage}, ${_silent})
 
 	/declare _sep bool local
 	/declare _listout string local
@@ -3289,6 +3280,8 @@ sub Bind_hud(string _type, string _verbage, bool _silent)
  ***| 
 #bind admin /admin
 sub Bind_admin(string _type, string _verbage, string _verbage2, bool _silent)
+	DEBUG Bind_admin(${_type}, ${_verbage}, ${_verbage2}, ${_silent})
+	
 	/declare _bind string local Admin
 	/declare _list string local ${sql_return[lstTypes${_bind}]}
 	/if (${Bool[${_type}]}) {
@@ -3639,6 +3632,8 @@ sub Bind_admin(string _type, string _verbage, string _verbage2, bool _silent)
  ***| 
 #bind port_list /port
 sub Bind_port_list(string _class, string _location, string _sublocation)
+	DEBUG  Bind_port_list(${_class}, ${_location}, ${_sublocation})
+	
 	/declare _listout 				string 	local
 	/declare _listouttype			string 	local
 	/declare _sep 						bool 		local FALSE
@@ -3734,7 +3729,7 @@ sub Bind_port_list(string _class, string _location, string _sublocation)
 		/if (${Bool[${_tmpItem}]}) {	
 			| /squelch /itemtarget "${_tmpItem}"
 			/invoke ${Ground[${_tmpItem}].DoTarget}
-			/click right item
+			| /click right item
 			/squelch /click right item
 			/delay 1s
 			/squelch /notify "${_tmpLocation}" menuselect
@@ -3742,8 +3737,9 @@ sub Bind_port_list(string _class, string _location, string _sublocation)
 		}		
 		
 		/if (${swMQClear}) /mqclear
-		/for _count 1 to ${lstTypesPortGuildHall.Count[|]}
-			/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${lstTypesPortGuildHall.Arg[${_count},|].Lower}\ax
+		/declare _list string local ${sql_return[lstTypesPortGuildHall]}
+		/for _count 1 to ${_list.Count[|]}
+			/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${_list.Arg[${_count},|].Lower}\ax
 			/varset _sep TRUE
 		/next _count
 		VOUT /port guild [${_listout}]		
@@ -3822,7 +3818,7 @@ sub Bind_port_list(string _class, string _location, string _sublocation)
 					/varset _sublistout ${_sublistout} ${If[${_sep},${sep},]} ${cinfo}${_sublist.Arg[${_count},|]}\ax
 					/varset _sep TRUE
 				/next _count
-				VOUT /port item slide [${_sublistout}]
+				VOUT /port item lamp [${_sublistout}]
 				/return FALSE
 			}			
 			
@@ -3969,12 +3965,18 @@ sub Bind_port_list(string _class, string _location, string _sublocation)
 			/return
 		}
 		
+		|**
 		/if (${swMQClear}) /mqclear
-		/for _count 1 to ${lstTypesPortItem.Count[|]}
-			/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${lstTypesPortItem.Arg[${_count},|].Lower}\ax
+		/declare _list string local ${sql_return[lstTypesPortItem]}
+		/for _count 1 to ${_list.Count[|]}
+			/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${_list.Arg[${_count},|].Lower}\ax
 			/varset _sep TRUE
 		/next _count
 		VOUT /port item [${_listout}]		
+		**|
+		
+		/call out_drilldown "port item" lstTypesPortItem
+		
 		/return
 	}
 
@@ -4051,6 +4053,8 @@ sub Bind_port_list(string _class, string _location, string _sublocation)
  ***|
 #bind ae_splash /splash
 sub Bind_ae_splash()
+	DEBUG Bind_ae_splash()
+	
 	/if (!${validate_class[TRUE, |PAL|CLR]}) /return FALSE
 
 	| splash
@@ -4085,6 +4089,8 @@ sub Bind_ae_splash()
  ***|
 #bind int_pull /intpull
 sub Bind_int_pull()
+	DEBUG Bind_int_pull()
+	
 	/if (!${Target.ID}) /return FALSE
 
 	/dex ${get_resident[cleric, 150]}	/intervention ${Me.ID}
@@ -4100,6 +4106,7 @@ sub Bind_int_pull()
  ***|
 #Bind swap /swap
 sub Bind_swap(string _item, int _toslot)
+	DEBUG Bind_swap(${_item}, ${_toslot})
    
   /declare _swapslot string local NULL
   /declare _pack int local 0

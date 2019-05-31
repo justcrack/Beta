@@ -121,10 +121,13 @@ sub disc_BRD()
 		}
 	}
 	
-	| this is a weapon from Sebilis Hardcore Heratige
+	|** this is a weapon from Sebilis Hardcore Heratige
 	/if (!${Me.Song[Doben's Spry Sonata].ID}) {
-		/if (${validate_cast[FALSE, item, "Darkened Breath of Harmony", ${Me.ID}]}) /call core_cast2 "Darkened Breath of Harmony" item 0 FALSE
+		/if (${validate_cast[FALSE, item, "Darkened Breath of Harmony", ${Me.ID}]}) {
+			/call core_cast2 "Darkened Breath of Harmony" item 0 FALSE
+		}
 	}
+	**|
 	
 	/if (${validate_cast[FALSE, alt, "Cacophony", ${Target2Kill}]}) /call core_cast2 "Cacophony" alt ${Target2Kill} FALSE
 	/if (${Spawn[${Target2Kill}].PctHPs} > 50) {
@@ -249,35 +252,32 @@ sub mem_song_line(string _line)
  ***|
 sub pulse()
 	/if (${is_target_dead[${Target2Kill}]}) {
-		/call pulse_stop 24
+		/call pulse_stop pulse_line_start
 		/return
 	}
 
-	/declare _pulseSong			bool local FALSE
 	/declare _count 				int local
 	/declare _index 				int local	
-	/declare _list[1] 			string ${line${lineCurrent.Left[1].Upper}${lineCurrent.Right[-1].Lower}}
+	/declare _pulseline			string ${line${lineCurrent.Left[1].Upper}${lineCurrent.Right[-1].Lower}}
 
 	UPDATEHUD "PULSE Song"
 	
-	/for _count 1 to ${_list.Size}
-		/for _index 1 to ${_list[${_count}].Count[|]}
+		/for _count 1 to ${_pulseline.Count[|]}
 			/if (${is_target_dead[${Target2Kill}]} || !${coreAuto}) {
 				/call clear_combat
 				/return
 			}
 
-			| stick to the damn mob
-			/if (${coreAuto} && (${swCombatMelee} || ${swCombatRange})) {
-				/if (!${Range.Between[0,${setFaceArc}:${Math.Abs[${Math.Calc[${Target.HeadingTo.Degrees}-${Me.Heading.Degrees}]}]}]}) /squelch /face ID ${Target2Kill} nolook ${If[${swFaceFast},fast,]}
-				/call stick_to_target ${Target2Kill}
-			}
 			AMIDEAD
 			CHECKINPUTS
-						
-			/if (${validate_cast[FALSE, pulse, "${Spell[${_list[${_count}].Arg[${_index},|]}].RankName}", ${Me.ID}]}) /call core_cast2 "${Spell[${_list[${_count}].Arg[${_index},|]}].RankName}" pulse 0 FALSE
-		/next _index	
-	/next _count	
+			
+			| /echo here 2 ${_pulseline.Arg[${_count},|]}
+
+			/if (${validate_cast[FALSE, pulse, ${_pulseline.Arg[${_count},|]}, ${Me.ID}]}) {
+				| /echo here 3 ${Spell[${_pulseline.Arg[${_count},|]}].RankName}
+				/call core_cast2 "${_pulseline.Arg[${_count},|]}" pulse 0 FALSE
+			}
+		/next _count	
 
 	UPDATEHUD FALSE
 /return TRUE
@@ -289,10 +289,11 @@ sub pulse()
  *	USE: 
  *  NOTE: 
  ***|
-sub pulse_stop(int _marker)
+sub pulse_stop(string _marker)
 	| SDEBUG \atpulse_stop\ax(marker:\aw${_marker}\aw)
-	/if ((${Me.Casting.ID} == ${Spell[${Spell[${spellRestSong}].RankName}].ID}) && !${SpawnCount[npc radius ${setMobAgro} playerstate 4 targetable]}) /return FALSE
+	| /if ((${Me.Casting.ID} == ${Spell[${Spell[${spellRestSong}].RankName}].ID}) && !${SpawnCount[npc radius ${setMobAgro} playerstate 4 targetable]}) /return FALSE
 	/if ((${Me.Casting.ID} || ${Me.BardSongPlaying})) {
+		/varset castReturn CAST_NOTREADY
 		/stopsong
 		/stopcast
 		/delay 10 !${Me.Casting.ID}

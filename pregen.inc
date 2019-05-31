@@ -64,7 +64,7 @@ sub pregen_environment()
 	/call setDeclare bindTrigger 																				bool 			outer FALSE
 
 	| holder for the current sub for debugging purposes       	
-	/call setDeclare currentdebugsub 																		bool 			outer FALSE
+	/call setDeclare currentdebugsub 																		string 			outer
 
 	| current assigned target
 	/call setDeclare Target2Kill																				int				outer 0
@@ -923,7 +923,7 @@ sub pregen_timers()
 	/call timer_set FALSE tOther_buff																		string		outer 5m	 	timer_check_buffs_other
 	/call timer_set FALSE tTell_Buff																		string		outer	10s 	timer_check_buffs_tell
 	/call timer_set FALSE tMGB_Buff																			string		outer	5m 		timer_check_buffs_mgb                                   										
-	/call timer_set FALSE tBlocked_Buff																	string		outer	10m		timer_check_buffs_blocked                                   										
+	/call timer_set FALSE tBlocked_Buff																	string		outer	30m		timer_check_buffs_blocked                                   										
 	/call timer_set FALSE tCheck_Aura																		string		outer 3m 		timer_check_aura
 	/call timer_set FALSE tCheck_Ammo																		string		outer	5s 		timer_Check_Ammo
 	/call timer_set FALSE tHunt_delay																		string		outer	30s 	timer_wait_for_mob_to_kill
@@ -1811,50 +1811,54 @@ sub pregen_MNK()
 	/call setDeclare MNKEpic1																						string		outer "Celestial Fists"
 	/call setDeclare MNKEpic15																					string		outer "Fistwraps of Celestial Discipline"
 	/call setDeclare MNKEpic2																						string		outer "Transcended Fistwraps of Immortality"
-	/call sql_control FALSE ${chrID} MNKAlliance															string		outer "Doomwalker's Alliance"
+	/call sql_control FALSE ${chrID} MNKAlliance												string		outer "Doomwalker's Alliance"
 	/call setDeclare MNKAAUnity																					string		outer FALSE
 	/call setDeclare MNKAAFade																					string		outer "Imitate Death"
 	
-	/call sql_control FALSE ${chrID} spellCripple 														string 		outer FALSE
-	/call sql_control FALSE ${chrID} switchMNKTrainMelee											bool			outer FALSE
-	/call sql_control FALSE ${chrID} buffGem 																string 		outer "gem8"
+	/call sql_control FALSE ${chrID} spellCripple 											string 		outer FALSE
+	/call sql_control FALSE ${chrID} switchMNKTrainMelee								bool			outer FALSE
+	/call sql_control FALSE ${chrID} buffGem 														string 		outer "gem8"
 
-	/call sql_control FALSE ${chrID} setFDAgroPct														int				outer FALSE
-	/call sql_control FALSE ${chrID} setAgroPct															int				outer 95
-	/call sql_control FALSE ${chrID} setFDPct																int				outer 25
- 	/call sql_control FALSE ${chrID} DiscRest																string		outer PREGENDATA
+	/call sql_control FALSE ${chrID} setFDAgroPct												int				outer FALSE
+	/call sql_control FALSE ${chrID} setAgroPct													int				outer 95
+	/call sql_control FALSE ${chrID} setFDPct														int				outer 25
+ 	/call sql_control FALSE ${chrID} DiscRest														string		outer PREGENDATA
  	
-	/call sql_control FALSE ${chrID} AEMelee					 												bool	 		outer FALSE
+	/call sql_control FALSE ${chrID} AEMelee					 									bool	 		outer FALSE
 	
-	/call sql_control FALSE ${chrID} DiscDicho																string		outer "Dichotomic Form"
-	/call sql_control FALSE ${chrID} DiscBalance															string		outer "Tiger's Poise"
-	/call sql_control FALSE ${chrID} DiscMonkey															string		outer "Drunken Monkey Style"
-	/call sql_control FALSE ${chrID} DiscHeel																string		outer "Heel of Zagali"
-	/call sql_control FALSE ${chrID} DiscAshenhand														string		outer "Ironfist Discipline"
-	/call sql_control FALSE ${chrID} DiscCrane																string		outer "Crane Stance"
-	/call sql_control FALSE ${chrID} DiscDoubleAttack												string		outer "Fists of Wu"
-	/call sql_control FALSE ${chrID} DiscFists																string		outer "Firestorm of Fists"
-	/call sql_control FALSE ${chrID} DiscSynergy															string		outer "Firewalker's Synergy"
-	/call sql_control FALSE ${chrID} DiscFang																string		outer "Hoshkar's Fang"
-	/call sql_control FALSE ${chrID} DiscCurse																string		outer "Curse of the Thirteen Fingers"
-	/call sql_control FALSE ${chrID} DiscThrowing														string		outer "Doomwalker's Precision Strike"
-	/call sql_control FALSE ${chrID} DiscShuriken														string		outer "Vigorous Shuriken"
-	/call sql_control FALSE ${chrID} DiscStorm																string		outer "Eye of the Storm"
-	/call sql_control FALSE ${chrID} DiscRest																string		outer "Breather"
-	/call sql_control FALSE ${chrID} DiscDelayDeath													string		outer "Refuse Death"
-	/call sql_control FALSE ${chrID} DiscWu																	string		outer PREGENDATA
+	/call sql_control FALSE ${chrID} DiscDicho													string		outer 
+	/call sql_control FALSE ${chrID} DiscBalance												string		outer PREGENDATA
+	/call sql_control FALSE ${chrID} DiscMonkey													string		outer PREGENDATA
+	/call sql_control FALSE ${chrID} DiscHeel														string		outer PREGENDATA
+	/call sql_control FALSE ${chrID} DiscAshenhand											string		outer PREGENDATA
+	/call sql_control FALSE ${chrID} DiscCrane													string		outer PREGENDATA
+	| /call sql_control FALSE ${chrID} DiscDoubleAttack										string		outer PREGENDATA
+	/call sql_control FALSE ${chrID} DiscFists													string		outer PREGENDATA
+	/call sql_control FALSE ${chrID} DiscSynergy												string		outer PREGENDATA
+	/call sql_control FALSE ${chrID} DiscFang														string		outer PREGENDATA
+	/call sql_control FALSE ${chrID} DiscCurse													string		outer PREGENDATA
+	/call sql_control FALSE ${chrID} DiscThrowing												string		outer PREGENDATA
+	/call sql_control FALSE ${chrID} DiscShuriken												string		outer PREGENDATA
+	/call sql_control FALSE ${chrID} DiscStorm													string		outer PREGENDATA
+	/call sql_control FALSE ${chrID} DiscRest														string		outer PREGENDATA
+	/call sql_control FALSE ${chrID} DiscDelayDeath											string		outer PREGENDATA
+	/call sql_control FALSE ${chrID} DiscWu															string		outer PREGENDATA
 	
-	/call sql_control FALSE ${chrID} AASilent																string		outer "Silent Strikes"
-	/call sql_control FALSE ${chrID} AAThunder																string		outer "Infusion of Thunder"
-	/call sql_control FALSE ${chrID} AAFocus																	string		outer "Focused Destructive Force"
-	/call sql_control FALSE ${chrID} AATwinStrike														string		outer "Five Point Palm"
-	/call sql_control FALSE ${chrID} AAChant																	string		outer "Swift Tail's Chant"
-	/call sql_control FALSE ${chrID} AAZanFi																	string		outer "Zan Fi's Whistle"
-	/call sql_control FALSE ${chrID} AAWasp																	string		outer "Two-Finger Wasp Touch"
+	/call sql_control FALSE ${chrID} AASilent														string		outer "Silent Strikes"
+	/call sql_control FALSE ${chrID} AAThunder													string		outer "Infusion of Thunder"
+	/call sql_control FALSE ${chrID} AAFocus														string		outer "Focused Destructive Force"
+	/call sql_control FALSE ${chrID} AATwinStrike												string		outer "Five Point Palm"
+	/call sql_control FALSE ${chrID} AAChant														string		outer "Swift Tail's Chant"
+	/call sql_control FALSE ${chrID} AAZanFi														string		outer "Zan Fi's Whistle"
+	/call sql_control FALSE ${chrID} AAWasp															string		outer "Two-Finger Wasp Touch"
 	
-	/call sql_control FALSE ${chrID} MNKPoint 																int 			outer 80
+	/call sql_control FALSE ${chrID} MNKPoint 													int 			outer 80
 
 /return		                                        		
+
+
+
+
 
 
 |***
@@ -3354,9 +3358,9 @@ sub hud_control(string _verbage)
 		| timer - Clear Cursor
 		HUDPATH "Debug" "debug.tCC1" "3,120,170,255,255,255,tCC"
 		HUDPATH "Debug" "debug.tCC2" "19,145,170,100,149,237,${timer_clear_cursor}"
-		| timer - broadcast status
-		HUDPATH "Debug" "debug.tBS1" "3,120,180,255,255,255,tHB"
-		HUDPATH "Debug" "debug.tBS2" "19,145,180,100,149,237,${timer_check_status}"
+		| timer - Blocked Buffs
+		HUDPATH "Debug" "debug.tBB1" "3,120,180,255,255,255,tBB"
+		HUDPATH "Debug" "debug.tBB2" "19,145,180,100,149,237,${timer_check_buffs_blocked}"
 		
 			
 		| --- row 4
@@ -3369,7 +3373,7 @@ sub hud_control(string _verbage)
 		| timer - buff broadcast
 		HUDPATH "Debug" "debug.tBB1" "3,170,170,255,255,255,tBB"
 		HUDPATH "Debug" "debug.tBB2" "19,195,170,100,149,237,${timer_check_buffs_BC}"
-		| timer - buff broadcast
+		| timer - buff raid
 		HUDPATH "Debug" "debug.tBR1" "3,170,180,255,255,255,tBR"
 		HUDPATH "Debug" "debug.tBR2" "19,195,180,100,149,237,${timer_check_buffs_raid}"
 		
@@ -3387,18 +3391,21 @@ sub hud_control(string _verbage)
 		| timer - buff group
 		HUDPATH "Debug" "debug.tBG1" "3,220,180,255,255,255,tBG"
 		HUDPATH "Debug" "debug.tBG2" "19,245,180,100,149,237,${timer_check_buffs_other}"
+
+
+		| --- row 6
+		| timer - buff tell
+		HUDPATH "Debug" "debug.cR1" "3,270,150,255,255,255,cR"
+		HUDPATH "Debug" "debug.cr2" "19,295,150,100,149,237,${castReturn}"
+		| zone
+		HUDPATH "Debug" "debug.tBG2" "19,270,180,100,149,237,${Zone.ShortName}"
 		
 
-		| --- bottom row
-
+		| --- bottom line
 		| curent sub
 		HUDPATH "Debug" "debug.sub1" "19,5,197,100,149,237,${currentdebugsub}"
-		| zone
-		HUDPATH "Debug" "debug.zone" "3,310,197,100,149,237,${Zone.ShortName}"
-
 
 	}
-	
 
 /return
 

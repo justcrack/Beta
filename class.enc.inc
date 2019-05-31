@@ -189,9 +189,11 @@ sub check_crystals()
 		| AA manna crystal
 		/if (${Bool[${mannaCrystal}]}) {
 			/if (${Me.PctMana} < ${GatherPercent}*.${tmpHealOverride} && ${Me.ItemReady[${mannaCrystal}]}) {
-				/if (${validate_cast[FALSE, alt , "${mannaCrystal}", ${Me.ID}]}) /call core_cast2 "${mannaCrystal}" item 0 FALSE
+				| /if (${validate_cast[FALSE, alt , "${mannaCrystal}", ${Me.ID}]}) {
+					/call core_cast2 "${mannaCrystal}" item 0 FALSE
+				| }
 			}
-		}	
+		}
 
 		| aa Gather Mana 
 		/if (${Me.PctMana} < ${GatherPercent}*.${tmpHealOverride}) {

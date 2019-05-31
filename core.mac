@@ -1,17 +1,11 @@
 |*** 
 	core.mac
 	Core Macro
+	https://core.exspes.com
 	exspes007
 	paypal.me/exspes
 	
-	"Someone once told me it takes a lot of skill and preparation to be effectively lazy."
-	-- unknown
-	
-	GitHub: https://github.com/exspes007
-	GitHub Code: https://github.com/exspes007/core
-	GitHub Wiki: https://github.com/exspes007/core/wiki
-	
-	Plugins Required: MQ2Exchange, MQ2MoveUtils, MQ2Debuffs, MQ2DanNet, MQ2SQLite, MQ2Nav
+	Plugins Required: MQ2MoveUtils, MQ2Debuffs, MQ2DanNet, MQ2SQLite, MQ2Nav
 		
 	Files:
 	- class.???.inc							One include for each class [WIZ|NEC|MAG|ENC|WAR|PAL|SHD|BST|BER|BRD|RNG|ROG|CLR|DRU|SHM|MNK]
@@ -20,6 +14,7 @@
 	- declare.inc								forced event, watched commands, alias, binds
 	- events.inc								Contains responses to EQ generated changes (environment/emotes).
 	- mode.inc									All Non-Standard Mode controlls
+	- custom.inc								custom file. do what you want in it.
 	- pregen.inc								environment variables for database generation 
 	- data/dbCore.db						core data repository
 	- data/pregen.ini						stored spell names/level for new class generation
@@ -110,7 +105,7 @@
  ***|
 sub main(string _custom, string _startparam)
 	| Current Build
-	/call setDeclare currentBuild 			string outer 0526.01
+	/call setDeclare currentBuild 			string outer 0530.04
 	
 	| set the default character ID
 	/call setDeclare chrID 							string outer ${MacroQuest.Server}_${Me.Class.ShortName}_${Me.DisplayName}
@@ -148,6 +143,7 @@ sub main(string _custom, string _startparam)
 	
 	| normal Core operations loop
 	/while (!${swMaintenance}) {
+		DEBUG Main Loop: non maintenance start
 		/if (${Me.Zoning}) /call Event_Zone
 	  CHECKINPUTS
 	  UPDATEHUD FALSE
@@ -240,7 +236,7 @@ sub main(string _custom, string _startparam)
 		| do we pull or assist	
 		/if (${coreAuto} && (!${SafeZone} || ${swOverrideSafeZone})) {
 			/if (!${Me.Invis} || (${coreAuto} && ${Select[${Me.Class.ShortName},ROG]} && ${swSoS})) {	
-				/if (!${swPull} || ${swOffTank}) {
+				/if ((!${swPull} && !${swAdvPull}) || ${swOffTank}) {
 					/call get_assist_target	
 				} else /if (${swPull} && !${Target2Kill} && !${swOffTank}) {
 					/call get_target FALSE
@@ -309,8 +305,8 @@ sub initialize_core(string _custom)
 	/varset INIGemControl tc\data\gemcontrol.ini		
 
 	| /info INI
-	/if (!${Defined[INIInfo]}) /declare INIInfo string outer 
-	/varset INIInfo tc\script\info.ini		
+	| /if (!${Defined[INIInfo]}) /declare INIInfo string outer 
+	| /varset INIInfo tc\script\info.ini		
 	
 	| SQLite Core Database
 	/if (!${Defined[dbCore]}) /declare dbCore string outer 
@@ -376,7 +372,7 @@ sub initialize_core(string _custom)
  *  NOTE: 
  ***|
 sub base_preperation()
-	/varset currentdebugsub base_preperation()
+	| /varset currentdebugsub base_preperation()
 
 	| set peer communications options
 	/squelch /dnet localecho FALSE

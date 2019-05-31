@@ -76,11 +76,13 @@ sub core_CLR()
  ***|
 sub click_DPS_CLR()
 	DEBUG click_DPS_CLR()
+	
 	AMIDEAD
 	CHECKEXIT
 	/if (${is_target_dead[${Target2Kill}]}) /return
 	/call click_horn_of_unity 	
 	/if (${swSwarm}) /call click_item_swarm ${Target2Kill}
+	
 /return
 
 
@@ -92,6 +94,7 @@ sub click_DPS_CLR()
  ***|
 sub disc_CLR()
 	DEBUG disc_CLR()
+	
 	CHECKTIE
 	AMIDEAD
 	CHECKEXIT
@@ -111,6 +114,7 @@ sub disc_CLR()
 	/if (${Target.Body.Name.Equal[Undead]}) {
 		/if (${validate_cast[FALSE, alt, "Turn Undead", ${Target2Kill}]}) /call core_cast2 "Turn Undead" alt ${Target2Kill} FALSE
 	}	
+	
 /return
 
 
@@ -122,6 +126,7 @@ sub disc_CLR()
  ***|
 sub cast_sum_weapon()
 	DEBUG cast_sum_weapon()
+	
 	/if (${Me.Primary}) /return
 	CHECKTIE
 	AMIDEAD
@@ -148,6 +153,7 @@ sub cast_sum_weapon()
  ***|
 sub check_heal_group_CLR()
 	DEBUG check_heal_group_CLR()
+	
 	CHECKTIE
 	AMIDEAD
 	CHECKEXIT
@@ -324,10 +330,9 @@ sub check_heal_group_CLR()
  	| Remedy Heals 
   /if (${Group.Member[${hurtIndex}].PctHPs} <= ${${hurtCLS}Point}*.${tmpHealOverride}) {
 		/for _count 1 to 3
-			| /if (!${Me.SpellReady[${Spell[${healRemedy${_count}}].RankName}]} || ${Me.SpellInCooldown}) /continue
 			/if (${validate_cast[FALSE, spell, "${healRemedy${_count}}", ${Group.Member[${hurtIndex}].ID}]}) {
 				/call core_cast2 "${healRemedy${_count}}" 0 ${Group.Member[${hurtIndex}].ID}
-				/break
+				/return
 			}
 		/next _count 
 	}	
@@ -336,10 +341,9 @@ sub check_heal_group_CLR()
 	:aggressivesort
   /if (${Group.Member[${hurtIndex}].PctHPs} <= ${${hurtCLS}Point}*.${tmpHealOverride}) {
 		/for _count 1 to 4
-			| /if (!${Me.SpellReady[${Spell[${healIntervention${_count}}].RankName}]} || ${Me.SpellInCooldown}) /continue
 			/if (${validate_cast[FALSE, spell, "${healIntervention${_count}}", ${Group.Member[${hurtIndex}].ID}]}) {
 				/call core_cast2 "${healIntervention${_count}}" 0 ${Group.Member[${hurtIndex}].ID}
-				/break
+				/return
 			}
 		/next _count
 	}
@@ -347,10 +351,9 @@ sub check_heal_group_CLR()
 	| Renewal Heals
   /if (${Group.Member[${hurtIndex}].PctHPs} <= ${${hurtCLS}Point}*.${tmpHealOverride}) {
 		/for _count 1 to 3
-			| /if (!${Me.SpellReady[${Spell[${healRenewal${_count}}].RankName}]} || ${Me.SpellInCooldown}) /continue
 			/if (${validate_cast[FALSE, spell, "${healRenewal${_count}}", ${Group.Member[${hurtIndex}].ID}]}) {
 				/call core_cast2 "${healRenewal${_count}}" 0 ${Group.Member[${hurtIndex}].ID}
-				/break
+				/return
 			}
 		/next _count 
 	}
@@ -374,6 +377,7 @@ sub check_heal_group_CLR()
 	/if (${swHealCure} && ${Group.Members}) /call cast_cure
 	
 	UPDATEHUD FALSE
+	
 /return
 
 
@@ -385,6 +389,7 @@ sub check_heal_group_CLR()
  ***|
 sub check_heal_self_CLR()
 	DEBUG check_heal_self_CLR()
+	
 	CHECKTIE
 	AMIDEAD
 	CHECKEXIT
@@ -476,6 +481,7 @@ sub check_heal_self_CLR()
 	}
 
 	UPDATEHUD FALSE
+	
 /return
 
 
@@ -487,6 +493,7 @@ sub check_heal_self_CLR()
  ***|
 sub check_heal_XTarget_CLR()
 	DEBUG check_heal_XTarget_CLR()
+	
 	/if (!${validate_expansion[FALSE, |16]}) /return
 	CHECKTIE
 	CHECKREZ
@@ -582,6 +589,7 @@ sub check_heal_XTarget_CLR()
 	}	
 	
 	UPDATEHUD FALSE
+	
 /return
 
 
@@ -593,6 +601,7 @@ sub check_heal_XTarget_CLR()
  ***|
 sub check_heal_pet_CLR()
 	DEBUG check_pet_heal_CLR()
+	
 	CHECKTIE
 	AMIDEAD
 	SIMPLEEXIT
@@ -654,6 +663,7 @@ sub check_heal_pet_CLR()
 	}
 		
 	UPDATEHUD FALSE
+	
 /return
 
 
@@ -665,6 +675,7 @@ sub check_heal_pet_CLR()
  ***|
 sub cast_divine_arbitration()
 	DEBUG cast_divine_arbitration()
+	
 	AMIDEAD
 	SIMPLEEXIT
 	
@@ -684,6 +695,7 @@ sub cast_divine_arbitration()
 	/if (${setDivinetoGroupHeal} && ${useGroupHeal}) {
 		/if (${validate_cast[FALSE, spell, "${healWholeGroup}", ${Me.ID}]}) /call core_cast2 "${healWholeGroup}" 0 0 FALSE
 	}
+	
 /return
 
 
@@ -696,6 +708,7 @@ sub cast_divine_arbitration()
  ***|
 Sub cast_AA_celest_regen()
 	DEBUG cast_AA_celest_regen()
+	
 	AMIDEAD
 	SIMPLEEXIT
 	CHECKINPUTS
@@ -706,6 +719,7 @@ Sub cast_AA_celest_regen()
 		VOUT ${cbad}QUIT\ax trying to cast Celestial Regeneration while its running.	
 	}		
 	CHECKFADE
+	
 /return
 
 
@@ -717,11 +731,12 @@ Sub cast_AA_celest_regen()
  ***|
 #bind issuance /issuance
 sub Bind_issuance()
+	DEBUG Bind_issuance()
+	
 	/if (!${Select[${Me.Class.ShortName},CLR]}) /return FALSE
 	AMIDEAD
 	SIMPLEEXIT
 	
-	DEBUG Bind_issuance()
 	/if (!${Me.SpellReady[${Spell[${healIssuance}].RankName}]}) {
 		/delay 2.5s ${Me.SpellReady[${Spell[${healIssuance}].RankName}]}
 	}
@@ -753,6 +768,7 @@ sub Bind_issuance()
  ***|
 sub check_heal_ward()
 	DEBUG check_heal_ward()
+	
 	AMIDEAD
 	SIMPLEEXIT
 	CHECKINPUTS
@@ -811,6 +827,7 @@ sub check_heal_ward()
  ***| 
 sub burn_CLR()
 	DEBUG burn_CLR()
+	
 	CHECKTIE
 	AMIDEAD
 	SIMPLEEXIT
@@ -883,6 +900,8 @@ sub burn_CLR()
  ***|
 #bind clr_intervention /intervention
 sub Bind_clr_intervention(int _tmpID)
+	DEBUG Bind_clr_intervention(${_tmpID})
+	
 	/if (!${Bool[${_tmpID}]}) /return FALSE
 
 	/declare _count int local 0
@@ -905,6 +924,8 @@ sub Bind_clr_intervention(int _tmpID)
  ***|
 #bind setCLR /clr
 sub Bind_setCLR(string _type, string _verbage, bool _silent)
+	DEBUG Bind_setCLR(${_type}, ${_verbage}, ${_silent})
+	
 	/if (!${validate_class[TRUE, |CLR]}) /return
 
 	/declare _sep bool local
