@@ -11,7 +11,7 @@
 |***
  *	DES: echos misc stuff to the MQ Window
  *	USE: /call echos [type] "desc text" [VARIABLE] [Target ID] ["text2"]
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub echos(string _type, string _verbage, string _tmpVariable, int _tmpID, string _verbage2)
 	DEBUG echos()
@@ -124,7 +124,7 @@ sub echos(string _type, string _verbage, string _tmpVariable, int _tmpID, string
 |***
  *	DES: Check to see if toon is engaged in any way.
  *	USE: /call check_engaged
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub check_engaged()
 	DEBUG check_engaged()
@@ -169,7 +169,7 @@ sub check_engaged()
 |***
  *	DES: give weapons to pet
  *	USE: /call give_to_pet
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub give_to_pet()
 	DEBUG give_to_pet()
@@ -199,7 +199,7 @@ sub give_to_pet()
 |***
  *	DES: Summon pet. I mean, it won't summon cheeze
  *	USE: /call cast_summon_pet
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub cast_summon_pet()
 	DEBUG cast_summon_pet()
@@ -226,7 +226,7 @@ sub cast_summon_pet()
 			OUT Shutting pets off 'till you go buy some.
 			OUT Don't forget to turn back on.
 			/call set_switch pet swPet FALSE
-			/return
+			/return FALSE
 		}
 	}
 
@@ -257,7 +257,7 @@ sub cast_summon_pet()
 |***
  *	DES: Shrinks pet.. wtf did you expect..
  *	USE: /call cast_shrink_pet
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub cast_shrink_pet()
 	DEBUG cast_shrink_pet()
@@ -284,7 +284,7 @@ sub cast_shrink_pet()
 |***
  *	DES: fixes pet for.. umm.. pet stuff.. yah that..
  *	USE: /call check_pet
- *  NOTE: chanter pets sword ID=10855
+ *	NOTE: chanter pets sword ID=10855
  ***|
 sub check_pet()
 	DEBUG check_pet()
@@ -316,7 +316,7 @@ sub check_pet()
 |***
  *	DES: Summon and equip pet weapons
  *	USE: 
- *  NOTE: MAG,ENG,BST,NEC
+ *	NOTE: MAG,ENG,BST,NEC
  ***|
 sub cast_summon_weapons(int _tmpID)
 	DEBUG cast_summon_weapons(${_tmpID})
@@ -330,41 +330,41 @@ sub cast_summon_weapons(int _tmpID)
 	/if (!${Me.Pet.ID}) /return
  	/if (${Select[${Me.Class.ShortName},MAG]} && !${FindItem[${setMAGClosedBag}].ID} && !${FindItem[${setMAGPetWepName}].ID}) {
  		/if (${validate_cast[FALSE, spell, "${setMAGWepSpell}", ${Me.ID}]}) /call core_cast2 "${setMAGWepSpell}" ${buffGem} ${Me.ID} FALSE
- 		/delay 20s !${Me.Casting.ID}
- 		/delay 5
- 		CLEARCURSOR TRUE
  	}
 	
-	/delay 5
-	
-	/if (${FindItem[${setMAGClosedBag}].ID}) {
-		AMIDEAD
-		/while (${Cursor.ID}) {
-			/autoinventory
-			/delay 1s !${Cursor.ID}
+	/call sort_cursor TRUE
+				
+	| do we have the corpse?
+	/if (${FindItem[=${setMAGClosedBag}].ID}) {
+		
+		| is the corpse on the table. if not. why not?
+		/if (!${Select[${FindItem[=${setMAGClosedBag}].InvSlot},23,24,25,26,27,28,29,30,31,32]}) {
+			/call Bind_swap "${setMAGClosedBag}" ${setPetBagSlot}
 		}
-		| /call Bind_swap "${FindItem[${setMAGClosedBag}].ID}" ${setPetBagSlot}
-		/squelch /exchange ${FindItem[${setMAGClosedBag}].ID} pack${setPetBagSlot}
-		CLEARCURSOR TRUE
-		/delay 2s !${Cursor.ID}
-		/delay 5
-		/if (${validate_cast[FALSE, item, "${setMAGClosedBag}", ${Me.ID}]}) /call core_cast2 "${setMAGClosedBag}" item 0 FALSE
-		/delay 5
-		/delay 5s !${Me.Casting.ID}
-		CLEARCURSOR TRUE		
-		/delay 5
 
-		/if (${Bool[${FindItem[Pouch of Quellious]}]}) {
+		| make sure to wash the blood off of your hands when this is over!..
+		/call sort_cursor TRUE
+
+		| viniger works best for blood. it does smell tho.
+		/if (${validate_cast[FALSE, item, "${setMAGClosedBag}", ${Me.ID}]}) {
+			/call core_cast2 "${setMAGClosedBag}" item 0 FALSE
+		}
+		
+		| first cut should be along the length of the sternum
+		/call sort_cursor TRUE
+
+		| incision should go from breastbone to navel
+		/if (${FindItem[=Pouch of Quellious].ID}) {
 			AMIDEAD
-			/nomodkey /itemnotify ${FindItem[Pouch of Quellious].InvSlot} rightmouseup
+			/nomodkey /itemnotify ${FindItem[=Pouch of Quellious].InvSlot} rightmouseup
 			/delay 1s
 			/for _count 1 to 2
-				/if (${Bool[${FindItem[${setMAGPetWepName}]}]}) {
+				/if (${FindItem[=${setMAGPetWepName}].ID}) {
 					/nomodkey /itemnotify ${FindItem[${setMAGPetWepName}].InvSlot} leftmouseup
-					/delay 3s ${Bool[${Cursor.ID}]}
+					/delay 3s ${Cursor.ID}
 					/delay 1s
 					/call give_to_pet
-					/delay 3s !${Bool[${Cursor.ID}]}
+					/delay 3s !${Cursor.ID}
 					/delay 1s
 					/if (${Select[${Me.Class.ShortName},DRU]}) /break
 				}
@@ -375,7 +375,8 @@ sub cast_summon_weapons(int _tmpID)
 				/keypress ESC
 			}
 
-			/while (${Bool[${FindItem[Pouch of Quellious]}]}) {
+			| remove all organs to be sold
+			/while (${FindItem[Pouch of Quellious].ID}) {
 				/delay 1s
 				/nomodkey /itemnotify ${FindItem[=Pouch of Quellious].InvSlot} leftmouseup
 				/delay 1s ${Cursor.Name.Equal["Pouch of Quellious"]}
@@ -384,7 +385,7 @@ sub cast_summon_weapons(int _tmpID)
 			}
 		}
 		
-		| cose the window
+		| disppose of the corspse once organs are removed
 		/while (${Window[InventoryWindow].Open}) {
 			AMIDEAD
 			/nomodkey /keypress inventory
@@ -392,6 +393,7 @@ sub cast_summon_weapons(int _tmpID)
 		}
 
 	}
+	
 /return
 
 
@@ -399,7 +401,7 @@ sub cast_summon_weapons(int _tmpID)
 |***
  *	DES: keep exp at a specified level then max aa
  *	USE: 
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub auto_adjust_EXP()
 	DEBUG auto_adjust_EXP()
@@ -423,6 +425,7 @@ sub auto_adjust_EXP()
 	} else /if (${Me.Level} == ${setLvlMax} && ${Me.PctExp} >= ${setLvlPct} && (${Me.AAPoints} == ${Float[${Math.Calc[${Me.Level}*2]}].Int})) {
 		/alternateadv off
 	}
+	
 /return
 
 
@@ -430,7 +433,7 @@ sub auto_adjust_EXP()
 |***
  *	DES: Check for running auras, If they are duped, remove the second one
  *	USE: /call check_aura
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub check_aura()
 	DEBUG check_aura()
@@ -463,6 +466,7 @@ sub check_aura()
 	}
 
 	| everyone else...
+	| why is this so fucking difficult?
 	/declare _count int local 0
 	/declare _aura int local 0
 	/declare _found bool FALSE
@@ -496,6 +500,7 @@ sub check_aura()
 	/next _aura
 	
 	UPDATEHUD FALSE
+	
 /return
 
 
@@ -503,7 +508,7 @@ sub check_aura()
 |***
  *	DES: Checks current item buffs. if one is missing. fix it.
  *	USE: /ib and auto
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub check_buffs_item()
 	DEBUG check_buffs_item()
@@ -516,10 +521,12 @@ sub check_buffs_item()
 	
 	| check clickItemBuff
 	/for _count 1 to 6
-		/if (${validate_cast[FALSE, item, "${clickItemBuff${_count}}", ${Me.ID}]}) /call core_cast2 "${clickItemBuff${_count}}" item 0 FALSE
+		/if (${validate_cast[FALSE, item, "${clickItemBuff${_count}}", ${Me.ID}]}) {
+			/call core_cast2 "${clickItemBuff${_count}}" item 0 FALSE
+		}
 	/next _count
 	
-  /if (${Me.ItemReady[${setIllusionItem}]} && !${Bool[${Me.Buff[${setIllusionBuff}]}]} && ${Spell[${setIllusionBuff}].NewStacks}) {
+  /if (${Me.ItemReady[${setIllusionItem}]} && !${Me.Buff[${setIllusionBuff}].ID} && ${Spell[${setIllusionBuff}].NewStacks}) {
   	/if (${validate_cast[FALSE, item, "${setIllusionItem}", ${Me.ID}]}) {
   		/call core_cast2 "${setIllusionItem}" item 0 FALSE
   	}
@@ -546,7 +553,7 @@ sub check_buffs_item()
 |***
  *	DES: Checks current buffs. NOT SONGS. IF one is found to match the INI listing per character, it is removed.
  *	USE: /call remove_unwanted_buffs
- *  NOTE: 
+ *	NOTE: 
 ***|
 sub remove_unwanted_buffs()
 	DEBUG remove_unwanted_buffs()
@@ -577,7 +584,7 @@ sub remove_unwanted_buffs()
 |***
  *	DES: Checks pets buffs. If somethings missing, mem and cast it.
  *	USE: /pb and/or auto
- *  NOTE: this will do AA or Spell
+ *	NOTE: this will do AA or Spell
  ***|
 sub check_buffs_pet()
 	DEBUG check_buffs_pet()
@@ -622,7 +629,6 @@ sub check_buffs_pet()
 	
 	| chekck for pet illusion
 	/if (${Bool[${setPetIllusion}]} && !${Bool[${Me.Pet.Buff[${setPetIllusionBuff}]}]} && ${Me.Pet.Distance} < 100 && ${Spell[${setPetIllusionBuff}].NewStacks}) {
-		| /call MQ2Cast "${setPetIllusion}" item -targetid|${Me.Pet.ID}
 		/call core_cast2 "${setPetIllusion}" item ${Me.Pet.ID} FALSE
 	}
 
@@ -643,7 +649,7 @@ sub check_buffs_pet()
 |***
  *	DES: Chekcs self buffs. If somethings missing, mem and cast it.
  *	USE: /sb and/or auto
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub check_buffs_self()
 	DEBUG check_buffs_self()
@@ -771,7 +777,7 @@ sub check_buffs_self()
 |***
  *	DES: checks your toon for buffs that should stop casting for some reason
  *	USE: /call check_no_cast_buff
- *  NOTE: this is by toon.
+ *	NOTE: this is by toon.
  ***|
 sub check_no_cast_buff()
 	DEBUG check_no_cast_buff()
@@ -795,7 +801,7 @@ sub check_no_cast_buff()
 |***
  *	DES: checks your toon for buffs that should stop melee for some reason
  *	USE: /call check_no_melee_buff
- *  NOTE: this is by toon.
+ *	NOTE: this is by toon.
  ***|
 sub check_no_melee_buff()
 	DEBUG check_no_melee_buff()
@@ -819,7 +825,7 @@ sub check_no_melee_buff()
 |***
  *	DES: checks your toon and target for buffs that should prevent a thing
  *	USE: /call check_no_do_a_thing_buff
- *  NOTE: we assume return FALSE, as in no buffs found. if we find a buff, return TRUE
+ *	NOTE: we assume return FALSE, as in no buffs found. if we find a buff, return TRUE
  ***|
 sub check_no_do_a_thing_buff(string _type)
 	DEBUG check_no_do_a_thing_buff(${_type})
@@ -848,7 +854,7 @@ sub check_no_do_a_thing_buff(string _type)
 |***
  *	DES: checks and clicks minature horn of unity
  *	USE: /horn or /onoff horn
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub click_horn_of_unity()
 	DEBUG click_horn_of_unity()
@@ -868,7 +874,7 @@ sub click_horn_of_unity()
 |***
  *	DES: Broadcasted Buff Routines
  *	USE: automatic any peers
- *  NOTE: 
+ *	NOTE: 
   ***|
 sub check_buffs_BC()
 	DEBUG check_buffs_BC()
@@ -888,7 +894,7 @@ sub check_buffs_BC()
 	/declare _found bool
 	
 	| each toon
-	/while (${_toon} <= ${DanNet[${DanNetMacroChannel}].PeerCount}) {
+	/while (${_toon} <= ${DanNet.PeerCount[${DanNetMacroChannel}]}) {
 		
 		| get the name to something usable
 		/varset _toonName ${DanNet.Peers[${DanNetMacroChannel}].Arg[${_toon},|]}
@@ -952,7 +958,7 @@ sub check_buffs_BC()
 				/for _i 1 to ${Spell[${Buff${_count}}].NumEffects}
 					| skip any secondary procs with no duration
 					/if (!${Bool[${Spell[${Spell[${Buff${_count}}].Base2[${_i}]}].Duration}]}) /continue
-					/if (!${_found}) /continue
+					| /if (!${_found}) /continue
 					
 					| parsing issues: set the name of the secondary spell before passing the request to the other toon. should not need to do this.
 					/varset _base2 ${Spell[${Spell[${Buff${_count}}].Base2[${_i}]}].Name}
@@ -1015,7 +1021,7 @@ sub check_buffs_BC()
 |***
  *	DES: make sure you have ammo
  *	USE: /call check_ammo
- *  NOTE:
+ *	NOTE:
  ***|
 sub check_ammo()
 	DEBUG check_ammo()
@@ -1039,13 +1045,13 @@ sub check_ammo()
 
 		| sort what type of item we need to get
 		/if (${Select[${Me.Class.ShortName},BRD]} && ${Me.Casting.ID}) /call pulse_stop
-		/if (${Me.Book[${lstRangeItem.Arg[${_count},|]}]}) {
+		/if (${Me.Book[${Spell[${lstRangeItem.Arg[${_count},|]}].RankName}]}) {
 			/if (${validate_cast[FALSE, spell, "${lstRangeItem.Arg[${_count},|]}", ${Me.ID}]}) /call core_cast2 "${lstRangeItem.Arg[${_count},|]}" ${buffGem} ${Me.ID} FALSE
 		} else /if (${Me.ItemReady[${lstRangeItem.Arg[${_count},|]}]}) {
 			/if (${validate_cast[FALSE, item, "${lstRangeItem.Arg[${_count},|]}", ${Me.ID}]}) /call core_cast2 "${lstRangeItem.Arg[${_count},|]}" item 0 FALSE
 		} else /if (${Me.AltAbilityReady[${lstRangeItem.Arg[${_count},|]}]}) {
 			/if (${validate_cast[FALSE, alt, "${lstRangeItem.Arg[${_count},|]}", ${Me.ID}]}) /call core_cast2 "${lstRangeItem.Arg[${_count},|]}" alt ${Me.ID} FALSE
-		} else /if (${Me.CombatAbilityReady[${lstRangeItem.Arg[${_count},|]}]} || ${Select[${Me.Class.ShortName},BER]}) {
+		} else /if (${Me.CombatAbilityReady[${Spell[${lstRangeItem.Arg[${_count},|]}].RankName}]} || ${Select[${Me.Class.ShortName},BER]}) {
 			/if (${validate_cast[FALSE, disc, "${lstRangeItem.Arg[${_count},|]}", ${Me.ID}]}) /call core_cast2 "${lstRangeItem.Arg[${_count},|]}" disc ${Me.ID} FALSE
 		}
 	/next _count
@@ -1058,7 +1064,7 @@ sub check_ammo()
 |***
  *	DES: Baby got back.
  *	USE: /call check_Shrink
- *  NOTE: no, i don't know why the mage will not shrink.
+ *	NOTE: no, i don't know why the mage will not shrink.
  ***|
 sub check_shrink()
 	DEBUG check_shrink()
@@ -1087,7 +1093,7 @@ sub check_shrink()
 |***
  *	DES: update a timer
  *	USE: /call timer_update [TIMER VARIABLE NAME] [DURATION]
- *  NOTE: This will update existing timers..
+ *	NOTE: This will update existing timers..
  ***|
 sub timer_update(string _my_timer, string _my_duration)
 	DEBUG timer_update(${_my_timer}, ${_my_duration})
@@ -1102,7 +1108,7 @@ sub timer_update(string _my_timer, string _my_duration)
 |***
  *	DES: rest/not rest routines.
  *	USE: /call do_rest
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub do_rest()
 	DEBUG do_rest()
@@ -1284,7 +1290,7 @@ sub do_rest()
 |***
  *	DES: set Home camp spot
  *	USE: /call set_home
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub set_home()
 	DEBUG set_home()
@@ -1306,7 +1312,7 @@ sub set_home()
 |***
  *	DES: stops follow and re-establishes camp if needed. This stops everything.. seriously.. everything.
  *	USE: /stop or /alto or /squelch stop or /call set_stop [NOECHO]
- *  NOTE: just because you stop something, does not mean you will not start it right back up again.
+ *	NOTE: just because you stop something, does not mean you will not start it right back up again.
  ****|
 sub set_stop(string _echo)
 	DEBUG set_stop(${_echo})
@@ -1355,7 +1361,7 @@ sub set_stop(string _echo)
 |***
  *	DES: Clicks usefull 1 off items
  *	USE: /call click_item 
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub click_item()
 	DEBUG click_item()
@@ -1380,7 +1386,7 @@ sub click_item()
 |***
  *	DES: Clicks swarmpet items
  *	USE: /call click_item_swarm [TARGETID]
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub click_item_swarm(int _tmpID)
 	DEBUG click_item_swarm(${_tmpID})
@@ -1412,7 +1418,7 @@ sub click_item_swarm(int _tmpID)
 |***
  *	DES: how to handle cursor items
  *	USE: /call sort_cursor || CLEARCURSOR
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub sort_cursor(bool _ignoreTimer)
 	DEBUG sort_cursor(${_ignoreTimer})
@@ -1473,7 +1479,7 @@ sub sort_cursor(bool _ignoreTimer)
 |***
  *	DES: XTARGET controls
  *	USE: its in the toons INI
- *  NOTE: for healers its /heal xtarget
+ *	NOTE: for healers its /heal xtarget
  ***|
 sub set_xtarget()
 	DEBUG set_xtarget()
@@ -1582,7 +1588,7 @@ sub set_xtarget()
 |***
  *	DES: Sticks you to the target
  *	USE: /call stick_to_target [target ID]
- *  NOTE: for the love of whatever you find important, don't touch this ever again...
+ *	NOTE: for the love of whatever you find important, don't touch this ever again...
  ***|
 sub stick_to_target()
 	DEBUG stick_to_target()
@@ -1644,7 +1650,7 @@ sub stick_to_target()
 |***
  *	DES: Acquire target, get bitches. This will establish ${Target2Kill} for everyone.
  *	USE: /call get_assist_target
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub get_assist_target()
 	DEBUG get_assist_target()
@@ -1801,7 +1807,7 @@ sub get_assist_target()
 |***
  *	DES: Seriously, do you need to ask?
  *	USE: mob dead = win!
- *  NOTE: ass.U.ME the mob is alive until, it is not.
+ *	NOTE: ass.U.ME the mob is alive until, it is not.
  ***|
 sub is_target_dead(int _tmpID)
 	DEBUG is_target_dead(${_tmpID})
@@ -1851,7 +1857,7 @@ sub is_target_dead(int _tmpID)
 |***
  *	DES: Clear all combat variables
  *	USE: /call clear_combat
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub clear_combat()
 	DEBUG clear_combat()
@@ -1882,7 +1888,7 @@ sub clear_combat()
 |***
  *	DES: Clears all defined timers for a specific ID
  *	USE: /call clear_timer [TARGETID]
- *  NOTE: timers that need clearing when the target is deaded
+ *	NOTE: timers that need clearing when the target is deaded
  ***|
 sub clear_timer(int _tmpID)
 	DEBUG clear_timer(${_tmpID})
@@ -1917,7 +1923,7 @@ sub clear_timer(int _tmpID)
 |***
  *	DES: conditions to check for each cast
  *	USE: /if (!${cast_condition[CONDITION]}) /return ??
- *  NOTE: DO NOT PASS VARIABLE CONTAINER. JUST PASS ITS' 
+ *	NOTE: DO NOT PASS VARIABLE CONTAINER. JUST PASS ITS' 
  ***|
 sub cast_condition(str _condition)
 	DEBUG cast_condition(${_condition})
@@ -1942,7 +1948,7 @@ sub cast_condition(str _condition)
 |***
  *	DES: Cast nukes
  *	USE: /call cast_nuke
- *  NOTE: "I say we take off and nuke the entire site from orbit." --Ripley
+ *	NOTE: "I say we take off and nuke the entire site from orbit." --Ripley
  ***|
 sub cast_nuke()
 	DEBUG cast_nuke()
@@ -1991,10 +1997,10 @@ sub cast_nuke()
 |***
  *	DES: Cast nuke Lines
  *	USE: /call cast_nuke
- *  NOTE: "The only good bug is a dead bug" -- Would you like to know more?
+ *	NOTE: "The only good bug is a dead bug" -- Would you like to know more?
  ***|
 sub cast_nuke_line()
-	DEBUG cast_nuke_line()
+	SDEBUG cast_nuke_line()
 	
 	/if (${lineCurrent.Equal[off]}) /return
 	/if (${timer_Nuke_Delay}) /return	
@@ -2003,21 +2009,24 @@ sub cast_nuke_line()
 	/declare _list string local ${line${lineCurrent}}
 	
 	/for _count 1 to ${_list.Count[|]}
-		/if (!${Range.Between[1,${_list.Count[|]}:${Int[${_count}]}]}) /continue
+		| /if (!${Range.Between[1,${_list.Count[|]}:${Int[${_count}]}]}) /continue
 		AMIDEAD
 		CHECKEXIT
 		CHECKINPUTS
 		
 		/if (${is_target_dead[${Target2Kill}]}) /return
-		/if (${Me.CurrentMana} < ${Spell[${_list.Arg[${_count},|]}].Mana} || ${Me.PctMana} < 2) /break 
-		/if (!${cast_condition[line${lineCurrent}Condition${_count}]}) /continue 
-		/if (!${Me.SpellReady[${Spell[${_list.Arg[${_count},|]}].RankName}]}) /continue
+		/if (${Me.PctMana} < 2) /break 
+		| /if (!${cast_condition[line${lineCurrent}Condition${_count}]}) /continue 
+		| /if (!${Me.SpellReady[${Spell[${_list.Arg[${_count},|]}].RankName}]}) /continue
 		
-		/if (${validate_cast[FALSE, spell, "${Spell[${_list.Arg[${_count},|]}].RankName}", ${Target2Kill}]}) /call core_cast2 "${Spell[${_list.Arg[${_count},|]}].RankName}" 0 ${Target2Kill} cast_break
+		/if (${validate_cast[FALSE, spell, "${Spell[${_list.Arg[${_count},|]}].RankName}", ${Target2Kill}]}) {
+			/call core_cast2 "${Spell[${_list.Arg[${_count},|]}].RankName}" 0 ${Target2Kill} cast_break
+		}
+		
 		| SDEBUG cast return for: ${Spell[${_list.Arg[${_count},|]}].RankName} .. ${castReturn}
-		/call timer_update timer_Nuke_Delay ${tNuke_Delay}
+		/if (${tNuke_Delay}) /call timer_update timer_Nuke_Delay ${tNuke_Delay}
 
-		| toons ini switch. maintain the loop of nuked till all are cycled.
+		| maintain the loop of nuked till all are cycled.  (TLP throwback)
 		/if (${swNukeLoop}) {
 			/delay 10s !${Me.Casting.ID}
 			/delay 2.5s
@@ -2030,7 +2039,7 @@ sub cast_nuke_line()
 |***
  *	DES: memorize spell line
  *	USE: /call mem_nuke_line [] 
- *  NOTE:
+ *	NOTE:
  ***|
 sub mem_nuke_line(string _line)
 	DEBUG mem_nuke_line(${_line})
@@ -2059,7 +2068,7 @@ sub mem_nuke_line(string _line)
 |***
  *	DES: Cast DoT's
  *	USE: /call cast_DOT
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub cast_DOT()
 	DEBUG  cast_DOT()
@@ -2099,7 +2108,7 @@ sub cast_DOT()
 |***
  *	DES: casts AE Rain spells. Magician mostly...
  *	USE: /call cast_nuke_rain | /userain [TRUE|FALSE]
- *  NOTE: I'd suggest not using this. though it is kind of fun to watch
+ *	NOTE: I'd suggest not using this. though it is kind of fun to watch
  ***|
 sub cast_nuke_rain()
 	DEBUG cast_nuke_rain()
@@ -2127,7 +2136,7 @@ sub cast_nuke_rain()
 |***
  *	DES: Returns the toons target to the intended kill ID.
  *	USE: /call get_target_2kill
- *  NOTE: sometimes people need focus.
+ *	NOTE: sometimes people need focus.
 ***|
 sub get_target_2kill()
 	DEBUG get_target_2kill()
@@ -2148,7 +2157,7 @@ sub get_target_2kill()
 |***
  *	DES: Uses Entropy of Nature/EradicateMagic/Whatever on target. only once every 60 seconds.
  *	USE: /call cast_AA_eradicate_magic [target ID] & /debuff eradicate
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub cast_AA_eradicate_magic(int _tmpID)
 	DEBUG cast_AA_eradicate_magic({_tmpID})
@@ -2179,7 +2188,7 @@ sub cast_AA_eradicate_magic(int _tmpID)
 |***
  *	DES: Uses class specific AA snares
  *	USE: /call cast_AA_snare [target ID] & /debuff snare
- *  NOTE: did I mention this is for classes with AA snares..
+ *	NOTE: did I mention this is for classes with AA snares..
  ***|
 sub cast_AA_snare(int _tmpID)
 	DEBUG cast_AA_snare(${_tmpID})
@@ -2252,7 +2261,7 @@ sub cast_AA_snare(int _tmpID)
 |***
  *	DES: Users class specific Breastplates. Will alternate 2 if you have both. 
  *	USE: /call click_BP
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub click_BP()
 	DEBUG click_BP()
@@ -2288,7 +2297,7 @@ sub click_BP()
 |***
  *	DES: Uses a mod rod if you have one in your inventory
  *	USE: /call use_mod_rod
- *  NOTE: listed all i could think of. dont want to keep up with this in an INI.
+ *	NOTE: listed all i could think of. dont want to keep up with this in an INI.
  ***|
 sub use_mod_rod()
 	DEBUG use_mod_rod()
@@ -2351,7 +2360,7 @@ sub use_mod_rod()
 |***
  *	DES: Send Pet to attack
  *	USE: /call send_pet
- *  NOTE: 
+ *	NOTE: 
  ***| 
 sub send_pet(int _tmpID)
 	DEBUG send_pet(${_tmpID})
@@ -2387,7 +2396,7 @@ sub send_pet(int _tmpID)
 |***
  *	DES: Will use a glyph and buy it if able.
  *	USE: /call use_glyph
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub use_glyph()
 	DEBUG use_glyph()
@@ -2406,10 +2415,11 @@ sub use_glyph()
 |***
  *	DES: will halt spell casting and force Gift of Manna nukes if setup
  *	USE: 
- *  NOTE: this is checked on most spell casts. prevents doing stupid shit.
+ *	NOTE: this is checked on most spell casts. prevents doing stupid shit.
  ***|
 sub cast_break()
 	DEBUG cast_break()
+	/varset castBreak FALSE
 	
 	AMIDEAD
 	CHECKINPUTS
@@ -2425,10 +2435,7 @@ sub cast_break()
 		
 	/if (${Target.Mezzed.ID} || !${Spawn[${Target2Kill}].ID} || !${Bool[${Target2Kill}]}) {
 		/varset castBreak CAST_BREAK
-	} else /if (${Bool[${Me.Song[Gift of Mana]}]} && ${Bool[${combat}]} && (${Bool[${GoMNuke}]} || ${Bool[${GoMNuke2}]})) {
-		/stopcast
-		/call cast_nuke_GoM ${Target2Kill}
-	}
+	} 
 
 /return ${castBreak}
 
@@ -2437,7 +2444,7 @@ sub cast_break()
 |***
  *	DES: Cures/removes debuffs, we hope...
  *	USE: 
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub cast_cure()
 	DEBUG cast_cure()
@@ -2495,7 +2502,7 @@ sub cast_cure()
 	/declare _DNqout string local
 	
 	| each toon
-	/for _count 1 to ${DanNet[${DanNetMacroChannel}].PeerCount}
+	/for _count 1 to ${DanNet.PeerCount[${DanNetMacroChannel}]}
 		AMIDEAD
 		CHECKINPUTS
 		
@@ -2574,7 +2581,7 @@ sub cast_cure()
 |***
  *	DES:targets and casts a free targeting area spell.
  *	USE: /call cast_free_target [SPELL] [TARGET ID]
- *  NOTE: i could never get this to work right...
+ *	NOTE: i could never get this to work right...
 sub cast_free_target(string _tmpSpell, int _tmpID)
 	/if (${validate_cast[FALSE, spell, "${_tmpSpell}", ${_tmpID}) /call core_cast2 "${_tmpSpell}" 0 ${_tmpID} FALSE
 	/squelch /face ID ${_tmpID} ${If[${swFaceFast},fast,]}
@@ -2590,7 +2597,7 @@ sub cast_free_target(string _tmpSpell, int _tmpID)
 |***
  *	DES: use base melee discs
  *	USE: /call use_skill_melee TARGET
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub use_skill_melee(int _tmpID)
 	DEBUG use_skill_melee(${_tmpID})
@@ -2715,7 +2722,7 @@ sub use_skill_melee(int _tmpID)
  |***
  *	DES: single swarm pet
  *	USE: /call cast_nuke_servant
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub cast_nuke_servant()
 	DEBUG cast_nuke_servant()
@@ -2734,7 +2741,7 @@ sub cast_nuke_servant()
 |***
  *	DES: preps toon for combat modes
  *	USE: /call set_combat []
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub set_combat(str _mode)
 	DEBUG set_combat(${_mode})
@@ -2835,44 +2842,40 @@ sub set_combat(str _mode)
 |***
  *	DES: Gift of Manna Nuke
  *	USE: /call cast_nuke_GoM
- *  NOTE: 
- ***|
+ *	NOTE: 
+
 sub cast_nuke_GoM(int _tmpID)
-DEBUG cast_nuke_GoM(${_tmpID})
+	DEBUG cast_nuke_GoM(${_tmpID})
+
+	/if ( ${Me.PctMana} < 2) /return FALSE
 
 	CHECKEXIT
 	CHECKINPUTS
 
 	| nuke 1
-	/if (${Me.SpellReady[${GoMNuke}]}) {
-		/if (${Me.CurrentMana} < ${Spell[${GoMNuke}].Mana} || ${Me.CurrentMana} < 2) /return 
-
+	/if (${Me.SpellReady[${sort_rank[${GoMNuke}]}]}) {
 		/squelch /target ID ${_tmpID}
-		/if (!${cast_condition[GoMNukeCondition]}) /return
+		| /if (!${cast_condition[GoMNukeCondition]}) /return
 		VSPELL GoM ${sep} ${csp}${GoMNuke}\ax ${sep} [${ctar}${Spawn[id ${_tmpID}].DisplayName}\ax]
-		/call cast "${Spell[${GoMNuke}].RankName}"
-		/call check_cast_events 2
-		/return
 
 	| nuke 2
-	} else /if (${Me.SpellReady[${GoMNuke2}]}) {
-		/if (${Me.CurrentMana} < ${Spell[${GoMNuke2}].Mana} || ${Me.CurrentMana} < 2) /return 
+	} else /if (${Me.SpellReady[${sort_rank[${GoMNuke2}]}]}) {
 		/squelch /target ID ${_tmpID}
-		/if (!${cast_condition[GoMNuke2Condition]}) /return
+		| /if (!${cast_condition[GoMNuke2Condition]}) /return
 		VSPELL GoM Backup ${sep} ${csp}${GoMNuke2}\ax ${sep} [${ctar}${Spawn[id ${_tmpID}].DisplayName}\ax]
-		/call cast "${Spell[${GoMNuke2}].RankName}"
-		/call check_cast_events 2
-		/return
+		/call core_cast2 "${GoMNuke2}" ${buffGem} ${_tmpID} FALSE
 	}
 
-/return
+	/call check_cast_events 1
 
+/return
+***|
 
 
 |***
  *	DES: buffs mercs in your group
  *	USE: /call check_buffs_manual [mercenary|raid]
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub check_buffs_manual(string _type)
 	DEBUG check_buffs_manual(${_type})	
@@ -2975,7 +2978,7 @@ sub check_buffs_manual(string _type)
 |***
  *	DES: preps the queue with target toon
  *	USE: /call cast_buffs_queue [toon name] [buff word]
- *  NOTE:
+ *	NOTE:
  ***|
 sub cast_buffs_queue(string _sender, string _verbage)
 	DEBUG cast_buffs_queue(${_sender}, ${_verbage})
@@ -3001,7 +3004,7 @@ sub cast_buffs_queue(string _sender, string _verbage)
  |***
  *	DES: will loosly tie to a specific toon. will moove close to the toon when it moves. set to timer [Timers] -> CheckTieTime
  *	USE: /tie [on/off toggle] requires /tc name [NAME] and /tc distance ##
- *  NOTE: 
+ *	NOTE: 
  **|
 sub set_tie()
 	DEBUG set_tie()
@@ -3105,10 +3108,10 @@ sub set_tie()
 
 
 
- |***
+|***
  *	DES: Will sort out your familiar
  *	USE: auto
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub sort_familiar()
 	DEBUG sort_familiar()
@@ -3156,10 +3159,10 @@ sub sort_familiar()
 
 
 |***
-*	DES: check and claim Free Station Cash
-*	USE: manual
-* NOTE: Credit: v1.0 - Initial release on Macroquest VIP forums - Dewey2461 on 7-7-2014 [butchered by me]
-***|
+ *	DES: check and claim Free Station Cash
+ *	USE: manual
+ * NOTE: Credit: v1.0 - Initial release on Macroquest VIP forums - Dewey2461 on 7-7-2014 [butchered by me]
+ ***|
 sub check_free_ingame_cash()
 	DEBUG check_free_ingame_cash()
 	
@@ -3191,10 +3194,10 @@ sub check_free_ingame_cash()
 
 
 |***
-*	DES: will click items and autoinventory the result on a timer.
-*	USE: /call odds_and_ends
-* NOTE: good for poisons, whatevers.
-***|
+ *	DES: will click items and autoinventory the result on a timer.
+ *	USE: /call odds_and_ends
+ * NOTE: good for poisons, whatevers.
+ ***|
 sub odds_and_ends()
 	DEBUG odds_and_ends()
 	
@@ -3216,7 +3219,7 @@ sub odds_and_ends()
 |***
  *	DES: If the followng criteria are met, the calling function will be skipped.
  *	USE: /call check_exit [TRUE|NULL] 
- *  NOTE: All reasons to not attack a target..
+ *	NOTE: All reasons to not attack a target..
  ***|
 sub check_exit()
 	DEBUG check_exit()
@@ -3279,7 +3282,7 @@ sub check_exit()
 |***
  *	DES: Updates Notice sction of HUD.
  *	USE: auto
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub update_HUD_notices(string _mode)
 	DEBUG update_HUD_notices(${_mode})
@@ -3392,7 +3395,7 @@ sub update_HUD_notices(string _mode)
 |***
  *	DES: will cast Temp pet
  *	USE: /call cast_temp_pet [MOBID] [Temp Spell Name]
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub cast_temp_pet(int _tmpID, string _tmpSpell)
 	DEBUG cast_temp_pet(${_tmpID}, ${_tmpSpell})
@@ -3411,8 +3414,8 @@ sub cast_temp_pet(int _tmpID, string _tmpSpell)
 |***
  *	DES: Cleric/Paladin AA Yaulp
  *	USE: /call cast_yaulp
- *  NOTE: if doYaulp is TRUE, will use at 98% manna or less.
- *	NOTE: Pallys keep that shit up ALL the time
+ *	NOTE: if doYaulp is TRUE, will use at 98% manna or less.
+ *	NOTE: keep that shit up ALL the time in combat
  ***|
 sub cast_yaulp()
 	DEBUG cast_yaulp()
@@ -3448,7 +3451,7 @@ sub cast_yaulp()
 |***
  *	DES: uses melee rest disc
  *	USE: /call cast_stamina_recovery
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub cast_stamina_recovery()
 	DEBUG cast_stamina_recovery()
@@ -3502,7 +3505,7 @@ sub cast_stamina_recovery()
 |***
  *	DES: corrects the Gem## to simply a #
  *	USE: /call fix_gem_id [gem##] | ${fix_gem[gem##]}
- *  NOTE:
+ *	NOTE:
  ***|
 sub fix_gem_id(string _spellGem)
 	DEBUG fix_gem_id(${_spellGem})
@@ -3521,7 +3524,7 @@ sub fix_gem_id(string _spellGem)
 |***
  *	DES: Memorize a spell/song
  *	USE: /call mem_spell [T|F echo memming] [spell name] [gem to mem it in] [TRUE|FALSE wait for recycle to cast]
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub mem_spell(bool _echo, string _spellname, string _spellgem, bool _wait)
 	DEBUG mem_spell(${_echo}, ${_spellname}, ${_spellgem}, ${_wait})
@@ -3574,7 +3577,7 @@ sub mem_spell(bool _echo, string _spellname, string _spellgem, bool _wait)
 |***
  *	DES: sends a tell to the mages in the lstResidentMage for shit you need.
  *	USE: /call tell_resident_mage [shard|weapons]
- *  NOTE: This will send the same tell to all mages in the list. welcome to ignore
+ *	NOTE: This will send the same tell to all mages in the list. welcome to ignore
  ***|
 sub tell_resident_mage(string _request)
 	DEBUG tell_resident_mage(${_request})
@@ -3612,7 +3615,7 @@ sub tell_resident_mage(string _request)
 |***
  *	DES: Res routines for the healer slobs.
  *	USE: /call check_for_corpse
- *  NOTE: looks for corpses.. rez them
+ *	NOTE: looks for corpses.. rez them
  ***|
 sub check_for_corpse()
 	/if (${Me.State.Equal[HOVER]} || ${Me.Hovering} || ${Me.Dead}) /return FALSE
@@ -3807,7 +3810,7 @@ sub check_for_corpse()
 |***
  *	DES: rez/call casting code.
  *	USE: /call cast_rez [ID] [rez aa|token]
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub cast_rez(int _tmpID, string _rez)
 	/if (${Me.Dead}) /return FALSE
@@ -3879,7 +3882,7 @@ sub cast_rez(int _tmpID, string _rez)
 |***
  *	DES: add to a list
  *	USE: /call list_add [mobList|addList] [ID]
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub list_add(string _listName, string _tmpID)
 	/if (${${_listName}.Find[${_tmpID}]}) {
@@ -3897,7 +3900,7 @@ sub list_add(string _listName, string _tmpID)
 |***
  *	DES: delete from a list
  *	USE: /call list_delete [LISTNAME] [ID|MOBNAME]
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub list_delete(string _listName, string _tmpID)
 	/if (${Bool[${${_listName}.Equal[NULL]}]}) /return
@@ -3926,7 +3929,7 @@ sub list_delete(string _listName, string _tmpID)
 |***
  *	DES: pulls proper case from an existing list control
  *	USE: /varset ${list_isoloate[listname, variable to isolate]}
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub list_isoloate(string _list, string _tmpID)
 	| get the variable data to parse
@@ -3942,7 +3945,7 @@ sub list_isoloate(string _list, string _tmpID)
 |***
  *	DES: update a list
  *	USE: /call list_update [mobList|addList] [ID]
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub list_update(string _listName, string _tmpID)
 	/declare _remove bool local FALSE 
@@ -3974,7 +3977,7 @@ sub list_update(string _listName, string _tmpID)
 |***
  *	DES: checks for adds in the local area, calls updates to the needed lists.
  *	USE: /call check_for_adds
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub check_for_adds()
 	/declare _tmpID string local
@@ -4017,7 +4020,7 @@ sub check_for_adds()
 |***
  *	DES: adds /t for buffs from queue
  *	USE: uses INI [Buffs] 
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub queue_buff_add(int _buffee, int _buffnumber)
   /declare _count				int local
@@ -4050,7 +4053,7 @@ sub queue_buff_add(int _buffee, int _buffnumber)
 |***
  *	DES: removes /t for buffs from queue
  *	USE: uses INI [Buffs] 
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub queue_buff_delete(int _buffee, int _buffnumber)
 	/declare _count 			int local
@@ -4069,7 +4072,7 @@ sub queue_buff_delete(int _buffee, int _buffnumber)
 |***
  *	DES: Buff on /t requests
  *	USE: uses INI [Buffs] 
- *  NOTE: queue counts start at 1, but they are empty.
+ *	NOTE: queue counts start at 1, but they are empty.
  ***|
 sub check_buffs_tell()
 	CHECKINPUTS
@@ -4137,7 +4140,7 @@ sub check_buffs_tell()
 |***
  *	DES: advanced loot routine(s)
  *	USE: auto
- *  NOTE: set a person in the group as master looter. Or, as the raid master looter.
+ *	NOTE: set a person in the group as master looter. Or, as the raid master looter.
  *	NOTE2: The event in this sectction is designed to handle lore items the toon already posseses. as of this, MQ has no property .Member value for LORE in ${AdvLoot
  ***|
 #Event forcedloreleave "#*#already has #1# and it is lore#*#"
@@ -4303,7 +4306,7 @@ sub do_loot()
 |***
  *	DES: buy items from a vendor
  *	USE: 
- *  NOTE: you have to open the merchants window. this works on the loyalty vendor in PoK as well.
+ *	NOTE: you have to open the merchants window. this works on the loyalty vendor in PoK as well.
  ***|
 sub vendor_buy(string _itemtoBuy, int _buyAmount)
 	/if (!${Select[${Target.Type},npc,pet]} || !${Target.ID} || ${Target.Type.Equal[pet]} && !${Target.DisplayName.Find[familiar]}) /return
@@ -4382,7 +4385,7 @@ sub vendor_buy(string _itemtoBuy, int _buyAmount)
 |***
  *	DES: finds the items to sell to a vendor
  *	USE: 
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub vendor_sell(string _itemtoSell)
 	/declare _pack 					int local
@@ -4429,7 +4432,7 @@ sub vendor_sell(string _itemtoSell)
 |***
  *	DES: sells the actual item to the vendor
  *	USE: 
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub vendor_sell_item(string _itemtoSell)
   /if (!${Window[MerchantWnd].Open}) {
@@ -4459,7 +4462,7 @@ sub vendor_sell_item(string _itemtoSell)
 |***
  *	DES: Make sure the AA is up all the time
  *	USE: /call check_AA_now
- *  NOTE: This is hardcoded for only 2 skills. suck it up.
+ *	NOTE: This is hardcoded for only 2 skills. suck it up.
  ***|
 sub check_AA_now()
 	SIMPLEEXIT
@@ -4478,7 +4481,7 @@ sub check_AA_now()
 |***
  *	DES: Make sure the Item Effect is up all the time
  *	USE: /call check_item_now
- *  NOTE:
+ *	NOTE:
  ***|
 sub check_item_now()
 	SIMPLEEXIT
@@ -4498,21 +4501,21 @@ sub check_item_now()
 |***
  *	DES: Make sure the Disc is up all the time
  *	USE: /call check_disc_now
- *  NOTE: This is hardcoded for only 2 skills.
+ *	NOTE: This is hardcoded for only 2 skills.
  ***|
 sub check_disc_now()
 	SIMPLEEXIT
 	AMIDEAD
 
 	| nowDisc1
-	/if (${Bool[${DiscNow1}]} && ${Me.CombatAbilityReady[${DiscNow1}]} && ${Spell[${DiscNow1}].NewStacks}) {
+	/if (${Bool[${DiscNow1}]} && ${Me.CombatAbilityReady[${Spell[${DiscNow1}].RankName}]} && ${Spell[${DiscNow1}].NewStacks}) {
 		/if (${Select[${Me.Class.ShortName},BRD]} && ${Me.Casting.ID}) /call pulse_stop 7
 		/if (!${Bool[${Me.Buff[${DiscNow1.Left[-7]}]}]} && !${Bool[${Me.Song[${DiscNow1.Left[-7]}]}]}) {
 			/if (${validate_cast[FALSE, disc, "${DiscNow1}", ${Me.ID}]}) /call core_cast2 "${DiscNow1}" disc 0 FALSE
 		}
 	}
 	| nowDisc2
-	/if (${Bool[${DiscNow2}]} && ${Me.CombatAbilityReady[${DiscNow2}]} && ${Spell[${DiscNow2}].NewStacks}) {
+	/if (${Bool[${DiscNow2}]} && ${Me.CombatAbilityReady[${Spell[${DiscNow2}].RankName}]} && ${Spell[${DiscNow2}].NewStacks}) {
 		/if (${Select[${Me.Class.ShortName},BRD]} && ${Me.Casting.ID}) /call pulse_stop 8
 		/if (!${Bool[${Me.Buff[${DiscNow2.Left[-7]}]}]} && !${Bool[${Me.Song[${DiscNow2.Left[-7]}]}]}) {
 			/if (${validate_cast[FALSE, disc, "${DiscNow2}", ${Me.ID}]}) /call core_cast2 "${DiscNow2}" disc 0 FALSE
@@ -4526,7 +4529,7 @@ sub check_disc_now()
 |***
  *	DES: 
  *	USE: /call get_target_advanced
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub get_target_advanced(bool _debug)
 	/if (!${swAdvPull} || !${coreAuto} || ${swPull}) /return
@@ -4547,7 +4550,7 @@ sub get_target_advanced(bool _debug)
 |***
  *	DES: last mob is dedded we need a new thing(s) to kill
  *	USE: /call get_target
- *  NOTE: got lost hunting for bitches. have your people call my people.
+ *	NOTE: got lost hunting for bitches. have your people call my people.
  *	SERIOUS: this will find a valid target to kill within the pullers defined agro range. bring it to the group and start teaching the gospel.
  ***|
 sub get_target(bool _debug)
@@ -4706,7 +4709,7 @@ sub get_target(bool _debug)
 			/if (${validate_cast[FALSE, item, "${setRangeClickItem}", ${Target2Kill}]}) /call core_cast2 "${setRangeClickItem}" item ${Target2Kill} FALSE
 
 		| disc pull mob
-		} else /if (${Me.CombatAbilityReady[${setRangeDisc}]}) {
+		} else /if (${Me.CombatAbilityReady[${Spell[${setRangeDisc}].RankName}]}) {
 			/if (${validate_cast[FALSE, disc, "${setRangeDisc}", ${Target2Kill}]}) /call core_cast2 "${setRangeDisc}" disc ${Target2Kill} FALSE
 
 		| AA pull mob
@@ -4761,7 +4764,7 @@ sub get_target(bool _debug)
 |***
  *	DES: tells your BC people to hand in up to 4 items to your target. includes command giver
  *	USE: /bc handin |item1|item2|item3|item4
- *  NOTE: THIS HAS NOT BEEN TESTED!! you could be handing in your soul and not even know it.
+ *	NOTE: THIS HAS NOT BEEN TESTED!! you could be handing in your soul and not even know it.
  ***|
 sub hand_in(string _sender, string _verbage)
 	/if (${Spawn[pc ${_sender}].ID}) /assist ${_sender}
@@ -4817,7 +4820,7 @@ sub hand_in(string _sender, string _verbage)
 |***
  *	DES: will dump all worn or invnetory augments into an INI.
  *	USE: /echoaugments
- *  NOTE: recursive of augments in items in bags.
+ *	NOTE: recursive of augments in items in bags.
  ***|
 sub echo_augments()
 	/declare _slot 			int local
@@ -4872,7 +4875,7 @@ sub echo_augments()
 |***
  *	DES: will watch for a spawn in the zone
  *	USE: /watchspawn [NAME]
- *  NOTE: resets on start
+ *	NOTE: resets on start
  ***|
 sub check_watch_spawn()
 	/declare _correctWatchCount int local ${SpawnCount[npc ${watchSpawn}]}
@@ -4893,7 +4896,7 @@ sub check_watch_spawn()
 |***
  *	DES: Simply gives cash to an NPC. 
  *	USE: /givecoin [ammount] [stacks] [plat|gold|copper|silver]
- *  NOTE: It's not dumb if it works.
+ *	NOTE: It's not dumb if it works.
  ***|
 sub give_coin(int _ammount, int _stacks, string _coin)
 	/declare _count 			int local 
@@ -4946,7 +4949,7 @@ sub give_coin(int _ammount, int _stacks, string _coin)
 |***
  *	DES: keeps SK/PAL harmonious up.. always..
  *	USE: /call check_harmonious
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub check_harmonious()
 	/if (!${switchHarmonious}) /return
@@ -4964,7 +4967,7 @@ sub check_harmonious()
 |***
  *	DES: prep sub for all calsses to decide if they are going to be in combat and if its time to burn
  *	USE: /call prep_combat
- *  NOTE:
+ *	NOTE:
  **|
 sub prep_combat()
 	/if (${Me.Zoning}) /return FALSE
@@ -5035,7 +5038,7 @@ sub prep_combat()
 |***
  *	DES: do we want to exit the class while loop
  *	USE: ${exit_class_loop[]}
- *  NOTE: assume no exit (FALSE)
+ *	NOTE: assume no exit (FALSE)
  ***|
 sub exit_class_loop()
 	/if (${coreAuto}) {	
@@ -5063,7 +5066,7 @@ sub exit_class_loop()
  |***
  *	DES: Check if we need to engage burn routines. /combat heal/dual are treated differently
  *	USE: auto
- *  NOTE: we work off established assist target for non healers only.
+ *	NOTE: we work off established assist target for non healers only.
  ***|
 sub is_burn_time()
 
@@ -5120,7 +5123,7 @@ sub is_burn_time()
 |***
  *	DES: Designed to check for the one-off crap.
  *	USE: /call check1offBuffs
- *  NOTE: THIS NEEDS TO BE WORKED OUT OF THE CODE.. MOVE TO check_exit...
+ *	NOTE: THIS NEEDS TO BE WORKED OUT OF THE CODE.. MOVE TO check_exit...
  ***|
 sub check1offBuffs()
 	| AMIDEAD
@@ -5136,7 +5139,7 @@ sub check1offBuffs()
 |***
  *	DES: food coma time
  *	USE: /call last_supper 
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub last_supper()
 	CHECKEXIT
@@ -5176,7 +5179,7 @@ sub last_supper()
 |***
  *	DES: check all buff routines
  *	USE: /call check_buff_routines [TRUE|FALSE] TRUE forces the check even when in manual
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub check_buff_routines(bool _force)
 	/if (!${coreAuto} && !${_force}) /return
@@ -5255,7 +5258,7 @@ sub check_buff_routines(bool _force)
 |***
  *	DES: finds an item
  *	USE: /call check_for_item "ITEM NAME"  .. use quotes
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub check_for_item(string _verbage)
 	/declare _slot 			int local
@@ -5361,7 +5364,7 @@ sub check_for_item(string _verbage)
 |***
  *	DES: one line echo bitch
  *	USE: /call echo_bitch [MQWindow|ECHO|Say]
- *  NOTE:
+ *	NOTE:
  ***| 	
 sub echo_bitch(string _out)
 	/declare _bitch					string local 
@@ -5389,7 +5392,7 @@ sub echo_bitch(string _out)
 |***
  *	DES: cast classes AA fade
  *	USE: /call cast_AA_fade
- *  NOTE:
+ *	NOTE:
  ***|
 sub cast_AA_fade()
 	AMIDEAD
@@ -5413,7 +5416,7 @@ sub cast_AA_fade()
 |***
  *	DES: keeps Paladin/Shadowknight Stance running
  *	USE: /call check_Stance
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub check_stance()
 	AMIDEAD
@@ -5466,7 +5469,7 @@ sub click_burn_circle()
 |***
  *	DES: Clicks usefull 1 off items during a Burn
  *	USE: 
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub click_item_burn()
 	/declare _count int local 0
@@ -5485,7 +5488,7 @@ sub click_item_burn()
 |***
  *	DES: cast whatever spire you set for burns
  *	USE: /call cast_AA_spire
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub cast_AA_spire()
 	AMIDEAD
@@ -5508,7 +5511,7 @@ sub cast_AA_spire()
 |***
  *	DES: memorize spell lines
  *	USE: /call mem_spell_line []
- *  NOTE:
+ *	NOTE:
  ***|
 sub mem_spell_line(string _line)
 	AMIDEAD
@@ -5535,7 +5538,7 @@ sub mem_spell_line(string _line)
 |***
  *	DES: passive toggle AA Agro switches
  *	USE: 
- *  NOTE:
+ *	NOTE:
  ***|
 sub check_AA_agro()
 	AMIDEAD
@@ -5624,7 +5627,7 @@ sub check_AA_agro()
 |***
  *	DES: Challenge Spells for paladin/shadowknight
  *	USE: /call cast_challenge TARGET
- *  NOTE:
+ *	NOTE:
  ***|
 sub cast_challenge(int _tmpID)
 	/if (${Target.Buff[${ChallengeSpell}].ID}) /return
@@ -5640,7 +5643,7 @@ sub cast_challenge(int _tmpID)
 |***
  *	DES: validates casting of "things on a target
  *	USE: /call ${validate_cast[[TRUE|FALSE], [spell|alt|disc|item|pulse|FIND], name, targetID, ForceTarget]
- *  Note: This is designed tomake sure whatever we are attempting to cast, is castable. be it a disc, item, spell, booger flick.. whatever.. IS IT READY TO BE USED?
+ *	NOTE: This is designed tomake sure whatever we are attempting to cast, is castable. be it a disc, item, spell, booger flick.. whatever.. IS IT READY TO BE USED?
  ***|
 sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 	DEBUG validate_cast(${_debug}, ${_type}, ${_spell}, ${_tmpID})
@@ -5670,11 +5673,11 @@ sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 	
 	| what type is it?
 	/if (${_type.Equal[FIND]}) {
-		/if (${Me.Book[${_spell}]}) {
+		/if (${Me.Book[${Spell[${_spell}].RankName}]}) {
 			/varset _type spell
 		} else /if (${Me.AltAbilityReady[${_spell}]}) {	
 			/varset _type alt
-		} else /if (${Me.CombatAbilityReady[${_spell}]}) {
+		} else /if (${Me.CombatAbilityReady[${Spell[${_spell}].RankName}]}) {
 			/varset _type disc
 		} else /if (${Me.ItemReady[${_spell}]}) {
 			/varset _type item
@@ -5769,7 +5772,7 @@ sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 	} else /if (${_type.Equal[disc]}) {
 		/varset _spell ${Spell[${_spell}].RankName}
 		/if (!${Bool[${_spell}]}) /return FALSE
-		/if (!${Me.CombatAbilityReady[${_spell}]}) /return FALSE
+		/if (!${Me.CombatAbilityReady[${Spell[${_spell}].RankName}]}) /return FALSE
 		/if (${Me.CurrentEndurance} < ${Spell[${_spell}].EnduranceCost}) /return FALSE
 		/if (${Spell[${_spell}].Range}) {
 			/if (${Spawn[${_tmpID}].Distance} > ${Spell[${_spell}].MyRange}) /return FALSE
@@ -5788,7 +5791,7 @@ sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 		/if (${_debug}) OUT ${cbug}validate_cast(error:${_debug}, type:${_type}, name:${_spell}, RunningDisc:${Bool[${Me.ActiveDisc}]})\ax
 		/if (!${Bool[${_spell}]}) /return FALSE
 		/if (${Bool[${Me.ActiveDisc}]}) /return FALSE
-		/if (!${Me.CombatAbilityReady[${_spell}]}) /return FALSE
+		/if (!${Me.CombatAbilityReady[${Spell[${_spell}].RankName}]}) /return FALSE
 		/if (${Me.CurrentEndurance} < ${Spell[${_spell}].EnduranceCost}) /return FALSE
 
 	| check item
@@ -5840,7 +5843,7 @@ sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 |***
  *	DES: spell/disc/aa/item cast wrapper
  *	USE: /call core_cast2 "SPELLNAME" [alt|activedisc|disc|gem#|item|epicitem|pulse] [TargetID|0 (for castless skills)] [subname|FALSE]
- *  NOTE: MQ2Cast ["spell name"|"item name"|"AA name"|"AA#"] [[item|slotname]|alt|gem#] [give up time][s|m] [custom subroutine name] [-targetid|###] [-maxtries|#] [-recast|#] [-setin|setname] [-bandolier|setname]
+ *	NOTE: MQ2Cast ["spell name"|"item name"|"AA name"|"AA#"] [[item|slotname]|alt|gem#] [give up time][s|m] [custom subroutine name] [-targetid|###] [-maxtries|#] [-recast|#] [-setin|setname] [-bandolier|setname]
  *  NOTE2: the note above is full of crap... i wouldn't trust a thing it says..!
  ***|
 sub core_cast2(string _spell, string _type, int _tmpID, string _sub)
@@ -5852,7 +5855,7 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub)
 	/if (${Me.Invis}) /retun FALSE
 
 	| close the damn book if its open
-	/if (${Window[SpellBookWnd].Open}) /windowstate spellbookwnd close
+	/if (${Window[SpellBookWnd].Open}) /squelch /windowstate spellbookwnd close
 	
 	| make sure we have our target 
 	/if (${Bool[${_tmpID}]}) {
@@ -5864,16 +5867,17 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub)
 	
 	| what type is it?
 	/if (${_type.Equal[FIND]}) {
-		/if (${Me.Book[${Spell[${_spell}].RankName}]}) {
-			/varset _type ${buffGem}
-		} else /if (${Me.AltAbilityReady[${_spell}]}) {	
+		/if (${Me.AltAbilityReady[${_spell}]}) {	
 			/varset _type alt
-		} else /if (${Me.CombatAbilityReady[${_spell}]}) {
+		} else /if (${Me.Book[${Spell[${_spell}].RankName}]}) {
+			/varset _type ${buffGem}
+		} else /if (${Me.CombatAbilityReady[${Spell[${_spell}].RankName}]}) {
 			/varset _type disc
 		} else /if (${Me.ItemReady[${Spell[${_spell}]}]}) {
 			/varset _type item
 		}
 	} 	
+
 
 	| spell
 	/if (!${Select[${_type},alt,item,disc,pulse,epicitem,activedisc]}) {
@@ -5899,18 +5903,25 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub)
 				/return CAST_BREAK
 			}
 		}
-		
-		| correct the rank
-		/varset _spell ${sort_rank[${_spell}]}
-
-		| mem spell if needed??
-		/if (${_type.Equal[${buffGem}]} && !${Me.Gem[${_spell}]}) /call mem_spell TRUE "${_spell}" ${_type} TRUE
 
 		| cast GOM if song proc?
 		/if (${_tmpID} != 0 && ${Target.ID} && ${Me.Song[Gift of Mana].ID} && !${Select[${Me.Class.ShortName},CLR]}) {
-			/call cast_nuke_GoM ${_tmpID}
-			/return
+		
+			| nuke 1
+			/if (${Me.SpellReady[${Spell[${GoMNuke}].RankName}]}) {
+				/varset _spell ${GoMNuke}
+
+			| nuke 2
+			} else /if (${Me.SpellReady[${Spell[${GoMNuke2}].RankName}]}) {
+				/varset _spell ${GoMNuke2}
+			}	
 		}
+				
+		| correct the rank
+		/varset _spell ${Spell[${_spell}].RankName}
+
+		| mem spell if needed??
+		/if (${_type.Equal[${buffGem}]} && !${Me.Gem[${_spell}]}) /call mem_spell TRUE "${_spell}" ${_type} TRUE
 
 		| is the spell memed
 		/if (${Me.Gem[${_spell}]}) {
@@ -5954,15 +5965,14 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub)
 		}
 		/return
 
+
 	| AA
 	} else /if (${Select[${_type},alt]}) {
 		DEBUG core_cast2(alt)
 		
-		/declare _castLoop int local 2
+		/declare _castLoop int local 1
 		/varset castReturn CAST_NOTREADY
 		/varset castBreak FALSE
-		
-		
 		
 		/if (${Select[${Me.Class.ShortName},BRD]}) {
 			| /if (${Me.BardSongPlaying}) /call pulse_stop 9
@@ -5974,7 +5984,6 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub)
 		
 		| delay for aa casting
 		/delay ${Math.Calc[${Spell[${_spell}].MyCastTime.Float}+5]}s !${Me.Casting.ID}
-
 		
 		| .AltAbility .AltAbilityReady .AltAbilityTimer .AltCurrency .AltTimer .AltTimerReady
 		
@@ -6022,7 +6031,7 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub)
 	| item
 	} else /if (${Select[${_type},item,epicitem]}) {
 		DEBUG core_cast2(item,epicitem)
-		/declare _castLoop int local 2
+		/declare _castLoop int local 1
 		/varset castReturn CAST_NOTREADY
 
 		/if (${Select[${Me.Class.ShortName},BRD]}) {
@@ -6080,7 +6089,7 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub)
 	| disc
 	} else /if (${Select[${_type},disc,activedisc]}) {
 		DEBUG core_cast2(disc,activedisc)
-		/varset _spell ${sort_rank[${_spell}]}
+		/varset _spell ${Spell[${_spell}].RankName}
 
 		/if (${Select[${Me.Class.ShortName},BRD]}) {
 			| /if (${Me.BardSongPlaying}) /call pulse_stop 9
@@ -6105,9 +6114,9 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub)
 	} else /if (${Select[${_type},pulse]}) {
 		DEBUG core_cast2(pulse)
 
-		/declare _castLoop int local 2
+		/declare _castLoop int local 1
 		/varset castReturn CAST_NOTREADY
-		/varset _spell ${sort_rank[${_spell}]}
+		/varset _spell ${Spell[${_spell}].RankName}
 		
 		/if (${Me.BardSongPlaying}) /call pulse_stop core_cast_pulsestop
 		/if (${coreAuto} && (${swCombatMelee} || ${swCombatRange}) && ${Target2Kill}) {
@@ -6326,7 +6335,7 @@ sub validate_plugin(bool _error, string _plugin)
 |***
  *	DES: slows the target
  *	USE: /call cast_slow [ID] | /debuff slow
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub cast_slow(int _tmpID)
 	DEBUG cast_slow(${_tmpID})
@@ -6396,7 +6405,7 @@ sub cast_slow(int _tmpID)
 |***
  *	DES: casts Malo or Tash depending on the class
  *	USE:  /call cast_malo [target ID]
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub cast_malo(int _tmpID)
 	DEBUG cast_malo(${_tmpID})
@@ -6459,7 +6468,7 @@ sub cast_malo(int _tmpID)
 |***
  *	DES: cripples the target
  *	USE: /call cast_cripple [ID] | /debuff cripple
- *  NOTE: not for wizards.
+ *	NOTE: not for wizards.
  ***|
 sub cast_cripple(int _tmpID)
 	DEBUG cast_cripple(${_tmpID})
@@ -6521,7 +6530,7 @@ sub cast_cripple(int _tmpID)
 |***
  *	DES: sets a base line for all target2kill timers
  *	USE: /call set_base_target_timers
- *  NOTE: we use this to prevent undeclared variables since targets change .. a lot.
+ *	NOTE: we use this to prevent undeclared variables since targets change .. a lot.
  ***|
 sub set_base_target_timers(int _tmpID)
 	DEBUG set_base_target_timers(${_tmpID})
@@ -6575,7 +6584,7 @@ sub set_base_target_timers(int _tmpID)
 |***
  *	DES: cycles all debuff routines.
  *	USE: check_deBuffs
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub check_deBuffs(int _tmpID)
 	DEBUG check_deBuffs(${_tmpID})
@@ -6667,7 +6676,7 @@ sub check_deBuffs(int _tmpID)
 |***
  *	DES: swaps the bandolier if needed
  *	USE: /call bandolier_swap BANDTYPE
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub bandolier_swap(string _band)
 	DEBUG bandolier_swap(${_band})
@@ -6687,7 +6696,7 @@ sub bandolier_swap(string _band)
 |***
  *	DES: check to see that you have a specific expansion
  *	USE: /if (!${validate_expansion[TRUE/FALSE, |#|#|#]}) /return
- *  NOTE: check for any FALSE returns. if even one, bail as bad.
+ *	NOTE: check for any FALSE returns. if even one, bail as bad.
  *  
  *  1	The Ruins of Kunark												2	The Scars of Velious
  *  3	The Shadows of Luclin											4	The Planes of Power
@@ -6726,7 +6735,7 @@ sub validate_expansion(bool _error, string _exp)
 |***
  *	DES: check and adjust the debuff switches
  *	USE: /call validate_debufs [T|F echo error] [debuff switch|NULL]
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub validate_debuff(bool _error, string _deBuffType)
 	DEBUG validate_debuff(${_error}, ${_deBuffType})
@@ -6794,7 +6803,7 @@ sub validate_debuff(bool _error, string _deBuffType)
 |***
  *	DES: watches to see if you are deaded. if so.. theres a couple things we need to do.
  *	USE: /if (${watch_for_death[]}) /do a thing
- *  NOTE: returns swAmIDead TRUE if you died
+ *	NOTE: returns swAmIDead TRUE if you died
  ***|
 sub watch_for_death()
 	DEBUG watch_for_death()
@@ -6838,7 +6847,7 @@ sub watch_for_death()
 |***
  *	DES: watches for the rez box if we have bben marked as dead or called.
  *	USE: /call  watch_for_rezbox()
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub watch_for_rezbox()
 	DEBUG watch_for_rezbox()
@@ -6964,7 +6973,7 @@ sub watch_for_rezbox()
 |***
  *	DES: this is for waisting AAs. it does nothing more. if you expect it to do more, go away.
  *	USE: /call cast_AA_fireworks()
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub cast_AA_fireworks()
 	DEBUG cast_AA_fireworks()
@@ -6991,7 +7000,7 @@ sub cast_AA_fireworks()
 |***
  *	DES: click self healing items
  *	USE: /call click_item_heal
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub click_item_heal()
 	DEBUG click_item_heal()
@@ -7015,7 +7024,7 @@ sub click_item_heal()
 |***
  *	DES: make sure you have the correct zone INI info loaded
  *	USE: /call validate_zone True|False True|False
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub validate_zone(bool _error, bool _force)
 	DEBUG validate_zone(${_error}, ${_force})
@@ -7058,7 +7067,7 @@ sub validate_zone(bool _error, bool _force)
 |***
  *	DES: Buys an AA
  *	USE: /call buy_AA "AA NAME"
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub buy_AA(string _name)
 	DEBUG buy_AA(${_name})
@@ -7079,7 +7088,7 @@ sub buy_AA(string _name)
 |***
  *	DES: asssit controlls
  *	USE: /call validate_assist [ECHO] [x|g|1|2|3|f|MA1|MA2] [NAME]
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub validate_assist(string _echo, string _assist, string _name)
 	DEBUG validate_assist(${_echo}, ${_assist}, ${_name})
@@ -7213,7 +7222,7 @@ sub validate_assist(string _echo, string _assist, string _name)
 |***
  *	DES: cast or trigger alliance on target
  *	USE: /call trigger_alliance TARGETID
- *  NOTE:
+ *	NOTE:
  ***|
 sub trigger_alliance(int _tmpID)
 	DEBUG trigger_alliance(${_tmpID})
@@ -7282,7 +7291,7 @@ sub trigger_alliance(int _tmpID)
 |***
  *	DES: sets an outer variable
  *	USE: /call setDeclare [variable Name] [bool|int|string|float|soon] [local|outer|global] [value]
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub setDeclare(string _name, string _type, string _scope, string _value)
 	| define the variable if it does not exist
@@ -7298,7 +7307,7 @@ sub setDeclare(string _name, string _type, string _scope, string _value)
 |***
  *	DES: creates timers
  *	USE: /call timer_set [NAME] [INT|BOOL|STRING|FLOAT] [INISECTION] [value] [timer_check_blah_blah]
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub timer_set(bool _debug, string _name, string _type, string _scope, string _value, string _my_timer)
 	DEBUG timer_set(${_debug}, ${_name}, ${_type}, ${_scope}, ${_value}, ${_my_timer})
@@ -7317,7 +7326,7 @@ sub timer_set(bool _debug, string _name, string _type, string _scope, string _va
 |***
  *	DES: active AA Shield Flash when HP reach a specific %
  *	USE: /if (${useShieldFlash}) /call cast_AA_shield_flash
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub cast_AA_shield_flash()
 	DEBUG cast_AA_shield_flash()
@@ -7336,7 +7345,7 @@ sub cast_AA_shield_flash()
 |***
  *	DES: checks senders anme or guild status to the lstSafeNames ins core.ini
  *	USE: ${validate_lstSafeNames[${_sender}]}
- *  NOTE: we assume no one is trustable
+ *	NOTE: we assume no one is trustable
  ***|
 sub validate_lstSafeNames(string _sender)
 	DEBUG validate_lstSafeNames(${_sender})
@@ -7359,7 +7368,7 @@ sub validate_lstSafeNames(string _sender)
 |***
  *	DES: Make sure that what ever we are targeting is something we want to kill.
  *	USE: /if (${validate_target[FALSE, target ID]}
- *  NOTE: in manual mode. anything is a valid target.
+ *	NOTE: in manual mode. anything is a valid target.
 **|
 sub validate_target(bool _error, int _tmpID)
 	DEBUG validate_target(${_error}, ${_tmpID})
@@ -7414,7 +7423,7 @@ sub validate_target(bool _error, int _tmpID)
 |***
  *	DES: zephyr/TL requesting toon
  *	USE: this is built by the /port bind request
- *  NOTE: 
+ *	NOTE: 
  ***|
 #bind taxi_service /taxi_service
 sub Bind_taxi_service(string _sender, string _location)
@@ -7440,7 +7449,7 @@ sub Bind_taxi_service(string _sender, string _location)
 |***
  *	DES: returns a valid resident toon name if there is one
  *	USE: ${get_resident[|mage|wizard|druid|cleric, 100]}
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub get_resident(string _class, int _distance)
 	DEBUG get_resident(${_class}, ${_distance})
@@ -7466,7 +7475,7 @@ sub get_resident(string _class, int _distance)
 |***
  *	DES: Checks external inputs: #events and forces bind checks
  *	USE: CHECKINPUTS
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub check_inputs()
 	| set a non-use variable to force bind checks. better this then an echo
@@ -7482,7 +7491,7 @@ sub check_inputs()
 |***
  *	DES: the the mass group buff
  *	USE: CHECKINPUTS
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub check_buffs_mgb()
 	
@@ -7518,7 +7527,7 @@ sub check_buffs_mgb()
 |***
  *	DES: checks and casts short term temp buffs that have a toon list.
  *	USE: /call check_buffs_tmp_list "${spellvariable}" "${toonlistvariable}"
- *  NOTE:
+ *	NOTE:
  ***|
 sub check_buffs_tmp_list(string _spell, string _toonList)
 	CHECKCOMBATCAST
@@ -7530,7 +7539,7 @@ sub check_buffs_tmp_list(string _spell, string _toonList)
 	/declare _count int local
 	/declare _buffToon string local
 	/declare _DNqout string local
-	/varset _spell ${sort_rank[${_spell}]}
+	/varset _spell ${Spell[${_spell}].RankName}
 
 	/for _count 1 to ${_toonList.Count[|]}
 		/if (!${Bool[${_toonList.Arg[${_count},|]}]}) /continue
@@ -7578,7 +7587,7 @@ sub check_buffs_tmp_list(string _spell, string _toonList)
 |***
  *	DES: blanket value return for a variable
  *	USE: /varset var ${sql_return[FIELDNAME]}
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub sql_return(string _variable)
 	/declare _count int local 0
@@ -7608,7 +7617,7 @@ sub sql_return(string _variable)
 |***
  *	DES: delete colums from tables
  *	USE: 
- *  NOTE: attention span of a fucking gnat...
+ *	NOTE: attention span of a fucking gnat...
  ***|
 sub sql_delete(string _table, string _variable)
 
@@ -7619,7 +7628,7 @@ sub sql_delete(string _table, string _variable)
 |***
  *	DES: build the sql database and tables.
  *	USE: NA
- *  NOTE: this will build the database and initial build fields for each table.
+ *	NOTE: this will build the database and initial build fields for each table.
  ***|
 sub sql_schema(bool _debug)
 		
@@ -7691,7 +7700,7 @@ sub sql_schema(bool _debug)
 |***
  *	DES: gets a list of a tables colum names
  *	USE: 
- *  NOTE:
+ *	NOTE:
  ***|
 sub sql_getcolums(bool _debug, string _table)
 	/declare _count int local 0
@@ -7723,7 +7732,7 @@ sub sql_getcolums(bool _debug, string _table)
 |***
  *	DES: sql data controler
  *	USE: see below
- *  NOTE: theres a lot
+ *	NOTE: theres a lot
  *  _debug - echo shit....
  *  _table - table the field is stored in
  *  _field - the table field MUST MATCH MQ VARIABLE NAME
@@ -7732,7 +7741,7 @@ sub sql_getcolums(bool _debug, string _table)
  *  _value - value of the data you wish to change
  ***|
 sub sql_control(bool _debug, string _table, string _field, string _type, string _scope, string _value, bool _spell)
-	/if (${_debug}) /echo \awsql_update\ax(table:\at${_table}\ax field:\at${_field}\ax type:\at${_type}\ax scope:\at${_scope}\ax value:\at${_value}\ax)
+	| /if (${_debug}) /echo \awsql_update\ax(table:\at${_table}\ax field:\at${_field}\ax type:\at${_type}\ax scope:\at${_scope}\ax value:\at${_value}\ax)
 	/declare _count int local 0 
 	/declare _tmpVar string local
 	/declare _db string local ${dbCore}
@@ -7808,7 +7817,7 @@ sub sql_control(bool _debug, string _table, string _field, string _type, string 
   /if (!${_spell}) /return
 
 	| adjust rank names for spells
-  /varset ${_field} ${sort_rank[${${_field}}]}
+  /varset ${_field} ${Spell[${_spell}].RankName}
   /if (${_debug}) SDEBUG \aw${_table}\ax::\aw${_field}\ax::\ag${${_field}}\ax
   /delay 3    
 /return TRUE
@@ -7818,7 +7827,7 @@ sub sql_control(bool _debug, string _table, string _field, string _type, string 
 |***
  *	DES: sql data adder
  *	USE: adds tables/fields at mac start time. nothing else.
- *  NOTE: theres a lot
+ *	NOTE: theres a lot
  *  _debug - echo shit....
  *  _table - table the field is stored in
  *  _field - the table field MUST MATCH MQ VARIABLE NAME
@@ -7853,7 +7862,7 @@ sub sql_staticbuild(bool _debug, string _table, string _field, string _value)
 |***
  *	DES: adds ranknames to spells 
  *	USE:/call rank_add [debug] [name] / ${rank_add[FALSE, "name"]}
- *  NOTE: 
+ *	NOTE: 
 
 sub rank_add(bool _debug, string _spell)
 	/if (${_debug}) /echo Start Name:\at${_spell}\ax
@@ -7893,7 +7902,7 @@ sub rank_add(bool _debug, string _spell)
 |***
  *	DES: sql data updater
  *	USE: 
- *  NOTE:
+ *	NOTE:
  *  _debug - echo shit....
  *  _table - table the field is stored in
  *  _field - the table field MUST MATCH MQ VARIABLE NAME
@@ -7934,7 +7943,7 @@ sub sql_update(bool _debug, string _table, string _field, string _value)
 |***
  *	DES: basic 3-way switch control
  *	USE: /call set_switch [dbTable] [switchname] [set type] || ${set_switch[dbTable, switchname, value]}
- *  NOTE:
+ *	NOTE:
  ***|
 sub set_switch(string _table, string _switch, string _verbage) 
 	DEBUG set_switch(${_table}, ${_switch}, ${_verbage}) 
@@ -7962,7 +7971,7 @@ sub set_switch(string _table, string _switch, string _verbage)
 |***
  *	DES: This will clear all store alises that core has created in your MacroQuest2.INI file. or those with matching names.
  *	USE: /core whitewash [NOECHO]
- *  NOTE: IF you instance/sandbox MQ/EQ it is best you run this on all toons at the same time.
+ *	NOTE: IF you instance/sandbox MQ/EQ it is best you run this on all toons at the same time.
  ***|
 sub whitewash(string _echo)
 	DEBUG whitewash($_echo})
@@ -7995,7 +8004,7 @@ sub whitewash(string _echo)
 |***
  *	DES: controls for the current zone
  *	USE: /call control_zone
- *  NOTE: 
+ *	NOTE: 
  ***| 
 sub control_zone(bool _debug)
 	DEBUG control_zone(${_debug})
@@ -8029,7 +8038,7 @@ sub control_zone(bool _debug)
 |***
  *	DES: removes rank names from spells
  *	USE: /call rank_remove [debug] [name] / ${rank_remove[FALSE, "name"]}
- *  NOTE: 
+ *	NOTE: 
 
 sub rank_remove(bool _debug, string _spell)
 	/if (${_debug}) /echo Start Name:\at${_spell}\ax
@@ -8055,7 +8064,7 @@ sub rank_remove(bool _debug, string _spell)
 |***
  *	DES: sets the spires a character will use
  *	USE: /call set_character_spire [debug] [spiregroup|spireraid] [0|1|2|3]
- *  NOTE: 0 is off / default
+ *	NOTE: 0 is off / default
  ***|
 sub set_character_spire(bool _debug, string _type, int _verbage)
 	DEBUG tset_character_spire(${_debug}, ${_type}, ${_verbage})
@@ -8086,7 +8095,7 @@ sub set_character_spire(bool _debug, string _type, int _verbage)
 |***
  *	DES: sets the spires a character will use
  *	USE: /call set_character_fade [debug] [spiregroup|spireraid] [0|1|2|3]
- *  NOTE: 0 is off / default
+ *	NOTE: 0 is off / default
  ***|
 sub set_character_fade(bool _debug, int _verbage)
 	DEBUG set_character_fade(${_debug}, ${_verbage})
@@ -8111,7 +8120,7 @@ sub set_character_fade(bool _debug, int _verbage)
 |***
  *	DES: sets the XTarget Heal classes a character will use
  *	USE: /call set_character_XTHealClass [debug] [class short name]
- *  NOTE:
+ *	NOTE:
  ***|
 sub set_character_xthealclass(bool _debug, string _verbage)
 	DEBUG set_character_xthealclass(${_debug}, ${_verbage})
@@ -8152,7 +8161,7 @@ sub set_character_xthealclass(bool _debug, string _verbage)
 |***
  *	DES: sets the healpoints for healing a class
  *	USE: /call set_character_healpoint [debug] [%## heal at]
- *  NOTE: these damn people gethurt too much
+ *	NOTE: these damn people gethurt too much
  ***|
 sub set_character_healpoint(bool _debug, int _verbage, bool _silent)
 	DEBUG set_character_healpoint(${_debug}, ${_verbage}, ${_silent})
@@ -8198,7 +8207,7 @@ sub set_character_healpoint(bool _debug, int _verbage, bool _silent)
 |***
  *	DES: control for heal classes groupheal switch
  *	USE: /call set_character_healgroup [debug] [0-6]
- *  NOTE:
+ *	NOTE:
  ***|
 sub set_character_groupheal(bool _debug, int _verbage)
 	DEBUG set_character_groupheal(${_debug}, ${_verbage})
@@ -8217,7 +8226,7 @@ sub set_character_groupheal(bool _debug, int _verbage)
 |***
  *	DES: clear a sql query from memory
  *	USE: /call sql_clear DEBUG QUERYNAME
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub sql_clear(bool _debug, string _query)
 	/if (!${sqlite.Clear[${_query}]})  {
@@ -8230,7 +8239,7 @@ sub sql_clear(bool _debug, string _query)
 |***
  *	DES: check group health
  *	USE: 
- *  NOTE: shared by PAL,DRU,CLR,SHM
+ *	NOTE: shared by PAL,DRU,CLR,SHM
  ***|
 sub check_health_group()
 	DEBUG check_health_group()
@@ -8262,7 +8271,7 @@ sub check_health_group()
 |***
  *	DES: check XTarget health
  *	USE: 
- *  NOTE: shared by PAL,DRU,CLR,SHM
+ *	NOTE: shared by PAL,DRU,CLR,SHM
  ***|
 sub check_health_xtarget()
 	DEBUG check_health_xtarget()
@@ -8292,7 +8301,7 @@ sub check_health_xtarget()
 |***
  *	DES: check pet health
  *	USE: 
- *  NOTE: shared by PAL,DRU,CLR,SHM
+ *	NOTE: shared by PAL,DRU,CLR,SHM
  ***|
 sub check_health_pet()
 	DEBUG check_health_pet()
@@ -8315,7 +8324,7 @@ sub check_health_pet()
 |***
  *	DES: just clears the xtarget list
  *	USE: 
- *  NOTE: really thats all it does
+ *	NOTE: really thats all it does
  ***| 
 sub clear_xtarget()
 	DEBUG clear_xtarget()
@@ -8332,7 +8341,7 @@ sub clear_xtarget()
 |***
  *  DES: Engages a merc based off curent control scructure
  *  USE: /call merc_control
- *  NOTE: 
+ *	NOTE: 
  
  ${Mercenary.State}'s
  SUSPENDED (ID:1)
@@ -8415,7 +8424,7 @@ sub merc_control()
 |***
  *	DES: generates a list of blocked buffs to be used as a reference for other bc buffers
  *	USE: whenever i suppose
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub check_buffs_blocked(bool _debuf, bool _silent)
 	DEBUG check_buffs_blocked(${_debuf}, ${_silent})
@@ -8448,7 +8457,7 @@ sub check_buffs_blocked(bool _debuf, bool _silent)
 |***
  *	DES: moves the toon to a valid/LoS location of a target id with a given distance
  *	USE: /call moveto_range [ID] [DISTANCE]
- *  NOTE: requires MQ2nav, ${cos[]}/${sin[]} are evaluated at start of mac in pregen.inc
+ *	NOTE: requires MQ2nav, ${cos[]}/${sin[]} are evaluated at start of mac in pregen.inc
  ***|
 sub moveto_range(int _tmpID, int _range)
 	DEBUG moveto_range(${_tmpID}, ${_range})
@@ -8497,7 +8506,7 @@ sub moveto_range(int _tmpID, int _range)
 |***
  *	DES: waits for something to get done
  *	USE: /call wait_while [thing.to.wait.for] [duration]
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub wait_while(string _what, string _time)
 	/while (${${_what}}) {
@@ -8511,7 +8520,7 @@ sub wait_while(string _what, string _time)
 |***
  *	DES: process casting results from core_ cast2()
  *	USE: 
- *  NOTE: not for public consumption
+ *	NOTE: not for public consumption
  ***|
 sub check_cast_events(int _checkLoops)
 	DEBUG check_cast_events(${_checkLoops})
@@ -8553,7 +8562,7 @@ sub check_cast_events(int _checkLoops)
 |***
  *	DES: outputs a basic drilldown list
  *	USE: /call out_drilldown "name" variable
- *  NOTE: not for use with complex returns/outputs
+ *	NOTE: not for use with complex returns/outputs
  ***|
 sub out_drilldown(string _name, string _variable, bool _silent)
 	DEBUG out_drilldown(${_name})

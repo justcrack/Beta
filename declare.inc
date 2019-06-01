@@ -13,7 +13,7 @@
 |***
  *	DES: stuf we do cause we are lazy.
  *	USE: 
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub set_alias()
 
@@ -45,7 +45,7 @@ sub set_alias()
 |***
  *	DES: turns everyone off
  *	USE: /off  
- *  NOTE: this will show those whiney bastards
+ *	NOTE: this will show those whiney bastards
  ***|
 #bind broadcast_off /broadcast_off
 sub Bind_broadcast_off()
@@ -54,7 +54,7 @@ sub Bind_broadcast_off()
 	/declare _count int local 0
 	/declare _toonName string local FALSE
 	
-	/for _count 1 to ${DanNet[${DanNetMacroChannel}].PeerCount}
+	/for _count 1 to ${DanNet.PeerCount[${DanNetMacroChannel}]}
 		/varset _toonName ${DanNet.Peers[${DanNetMacroChannel}].Arg[${_count},|].Left[1].Upper}${DanNet.Peers[${DanNetMacroChannel}].Arg[${_count},|].Right[-1]}
 		/if (${_toonName.Equal[${Me.DisplayName}]}) /continue
 		/if (!${Spawn[pc ${_toonName}].ID}) /continue
@@ -71,7 +71,7 @@ sub Bind_broadcast_off()
 |***
  *	DES: turns everyone on.. 
  *	USE: /on  
- *  NOTE: never judge anothers kink.. never know what you may like??!
+ *	NOTE: never judge anothers kink.. never know what you may like??!
  ***|
 #bind broadcast_on /broadcast_on
 sub Bind_broadcast_on()
@@ -80,7 +80,7 @@ sub Bind_broadcast_on()
 	/declare _count int local 0
 	/declare _toonName string local FALSE
 	
-	/for _count 1 to ${DanNet[${DanNetMacroChannel}].PeerCount}
+	/for _count 1 to ${DanNet.PeerCount[${DanNetMacroChannel}]}
 		/varset _toonName ${DanNet.Peers[${DanNetMacroChannel}].Arg[${_count},|].Left[1].Upper}${DanNet.Peers[${DanNetMacroChannel}].Arg[${_count},|].Right[-1]}
 		/if (${_toonName.Equal[${Me.DisplayName}]}) /continue
 		/if (!${Spawn[pc ${_toonName}].ID}) /continue
@@ -96,7 +96,7 @@ sub Bind_broadcast_on()
 |***
  *	DES: raid and group invite accept controls
  *	USE: EVENTS
- *  NOTE:
+ *	NOTE:
  ***| 
 #event Join "#1# invites you to join a #2#.#*#"
 sub Event_Join(string line, string _sender, string _groupraid)
@@ -138,7 +138,7 @@ sub Event_Join(string line, string _sender, string _groupraid)
 |***
  *	DES: contains the various BC commands witn NO variables passed
  *	USE: /bc SOMETHINGORANOTHER
- *  NOTE: works off tells or broadcasts
+ *	NOTE: works off tells or broadcasts
  ***| 
 #event broadcast_command "<#1#> #2#"
 #event broadcast_command "[#1#(msg)] #2#"
@@ -232,7 +232,7 @@ sub Event_raidinvite(string line, string _sender)
 |***
  *	DES: khajiit has wares
  *	USE: gives coins to a NPC..
- *  NOTE: 
+ *	NOTE: 
  ***| 	
 #event bribetime "[MQ2] - Bribe Time: #1# #2# #3#"
 sub Event_bribetime(string line, int _amount, int _stacks, string _coin)
@@ -286,7 +286,7 @@ sub Event_bribetime(string line, int _amount, int _stacks, string _coin)
 |***
  *	DES: Tells for specific things.. i guess?
  *	USE: /t uselesstoon IwantThisBuff
- *  NOTE:
+ *	NOTE:
  ***| 	
 #event Talk "#1# tells you,#*# '#2#'"
 
@@ -298,19 +298,13 @@ sub Event_Talk(string line, string _sender, string _chatText)
 
 	CHECKSAFELIST
 
-	| Tells for pettoys?
-	/if (${swBuffTell} && ${Me.Class.ShortName.Equal[MAG]} && ${_chatText.Find[weapons]}) {
-		/call cast_summon_weapons ${Spawn[pc ${_sender}].ID}
-		/return
-	}
-
 	| Tells for buffs.
 	/if (${swBuffTell} && ${Spawn[${_sender}].ID} && ${_sender.NotEqual[${Me.DisplayName}]}) {
     /call cast_buffs_queue "${_sender}" "${_chatText}"
     /return
   }
   
-	| Remote kill execution. CHANGE THE CORE.INI
+	| Remote kill execution.
   /if (${Bool[${remoteKillKey}]} && ${_chatText.Equal[${remoteKillKey}]}) {
   	/call set_stop FALSE
   	/call clear_combat
@@ -336,7 +330,7 @@ sub Event_Talk(string line, string _sender, string _chatText)
 |***
  *	DES: This is a cover all for the null slot issue when swapping gear.
  *	USE: NA
- *  NOTE: 
+ *	NOTE: 
  ***| 	
 #event NullSlot "#*#Invalid item slot 'null#*#"
 sub Event_NullSlot
@@ -350,7 +344,7 @@ sub Event_NullSlot
 |***
  *	DES: catch when a zone happens
  *	USE: 
- *  NOTE: 
+ *	NOTE: 
  ***| 
 | #event Zone "You have entered #*#" 
 #event Zone "LOADING, PLEASE WAIT..."
@@ -375,7 +369,7 @@ sub Event_Zone(string _line)
 |***
  *	DES: Buy things from vendors
  *	USE: /echo Buy: 'itemname' ##
- *  NOTE: single quotes
+ *	NOTE: single quotes
  ***| 
 #event buystuff	"[MQ2] Buy: '#1#' #2#"
 sub Event_buystuff(string line, string _itemtoBuy, int _buyAmount)
@@ -393,7 +387,7 @@ sub Event_buystuff(string line, string _itemtoBuy, int _buyAmount)
 |***
  *	DES: Buy things from vendors
  *	USE: /echo Sell: 'itemname' or loot
- *  NOTE: single quotes.. yes, the item name has to be in single quotes
+ *	NOTE: single quotes.. yes, the item name has to be in single quotes
  ***| 
 #event sellstuff	"[MQ2] Sell: '#1#'"
 sub Event_sellstuff(string line, string _itemtoSell)
@@ -405,7 +399,7 @@ sub Event_sellstuff(string line, string _itemtoSell)
 |***
  *	DES: rez emote
  *	USE: 
- *  NOTE: 
+ *	NOTE: 
  ***| 	
 #event resurrection_exp_gain "You regain some experience from resurrection."
 sub Event_resurrection_exp_gain()
@@ -423,7 +417,7 @@ sub Event_resurrection_exp_gain()
 |***
  *	DES: force self item buffing
  *	USE: /ib
- *  NOTE:
+ *	NOTE:
  ***| 	
 #bind itembuffs /ib
 sub Bind_itembuffs()
@@ -437,7 +431,7 @@ sub Bind_itembuffs()
 |***
  *	DES: force self spell buffing
  *	USE: /sb
- *  NOTE:
+ *	NOTE:
  ***| 	
 #bind selfbuffs /sb
 sub Bind_selfbuffs()
@@ -470,7 +464,7 @@ sub Bind_selfbuffs()
 |***
  *	DES: alternate to /bc stop. self only
  *	USE: /alto
- *  NOTE:
+ *	NOTE:
  ***| 	
 #bind setstop /alto
 sub Bind_setstop()
@@ -483,7 +477,7 @@ sub Bind_setstop()
 |***
  *	DES: keeps an eye out for a mob
  *	USE: /watchspawn
- *  NOTE:
+ *	NOTE:
  ***| 
 #bind watchspawn /watchspawn
 sub Bind_watchspawn(string _spawn)
@@ -508,7 +502,7 @@ sub Bind_watchspawn(string _spawn)
 |***
  *	DES: enable override
  *	USE: /override []
- *  NOTE: starts/ends overrides
+ *	NOTE: starts/ends overrides
  ***|
 #bind override /override
 sub Bind_override(string _type, string _verbage, bool _silent)
@@ -548,7 +542,7 @@ sub Bind_override(string _type, string _verbage, bool _silent)
 |***
  *	DES: set various debuff things
  *	USE: /debuff []
- *  NOTE:
+ *	NOTE:
  ***| 	
 #bind deBuff /debuff
 sub Bind_deBuff(string _type, string _verbage, bool _silent)
@@ -608,7 +602,7 @@ sub Bind_deBuff(string _type, string _verbage, bool _silent)
 |***
  *	DES: set various heal switches
  *	USE: /heal []
- *  NOTE:
+ *	NOTE:
  ***| 	
 #bind heal /heal
 sub Bind_heal(string _type, string _verbage, bool _silent)
@@ -683,7 +677,7 @@ sub Bind_heal(string _type, string _verbage, bool _silent)
 |***
  *	DES: set various buff switches
  *	USE: /buff []
- *  NOTE:
+ *	NOTE:
  ***| 	
 #bind buff /buff
 sub Bind_buff(string _type, string _verbage, bool _silent)
@@ -722,7 +716,7 @@ sub Bind_buff(string _type, string _verbage, bool _silent)
 |***
  *	DES: cursor control
  *	USE: /cursor []
- *  NOTE: 
+ *	NOTE: 
  ***| 
 #bind cursor /cursor
 sub Bind_cursor(string _type, string _verbage)
@@ -772,14 +766,16 @@ sub Bind_cursor(string _type, string _verbage)
 		/return TRUE
 
 	| remainder of the commands
-	} else /if (${Cursor.ID} && ${lstTypes${_bind}.Find[${_type}]}) {
+	} else /if (${Cursor.ID} && ${_list.Find[${_type}]}) {
 		/varset _properType ${_type.Left[1].Upper}${_type.Right[-1].Lower}
+		
 		/if (${Bool[${Ini[${INILoot},${Cursor.Name.Left[1]},${Cursor.Name}].Arg[2,|]}]}) {
 			/varset _passto ${Ini[${INILoot},${Cursor.Name.Left[1]},${Cursor.Name}].Arg[2,|]}
 		}
 		/ini "${INILoot}" "${Cursor.Name.Left[1]}" "${Cursor.Name}" |${_properType}${If[${Bool[${_passto}]},|${Ini[${INILoot},${Cursor.Name.Left[1]},${Cursor.Name}].Arg[2,|]},]}
 		VOUT /${_bind.Lower} ${_type.Lower} ${sep} \a-w${Cursor.Name}\ax=${cinfo}${Ini[${INILoot},${Cursor.Name.Left[1]},${Cursor.Name}]}\ax
 		/if (${Cursor.ID} && ${_type.Equal[Destroy]}) /destroy
+		/return
 
 	} 
 	
@@ -797,7 +793,7 @@ sub Bind_cursor(string _type, string _verbage)
 |***
  *	DES: set rez controls
  *	USE: /rez []
- *  NOTE: people should really stop dying
+ *	NOTE: people should really stop dying
  ***| 	
 #bind rez /rez
 sub Bind_rez(string _type, string _verbage, bool _silent)
@@ -861,7 +857,7 @@ sub Bind_rez(string _type, string _verbage, bool _silent)
 |***
  *	DES: list control
  *	USE: /lc []
- *  NOTE: 
+ *	NOTE: 
  ***| 
 #bind listControl /lc
 sub Bind_listControl(string _type, string _verbage, bool _silent)
@@ -1139,7 +1135,7 @@ sub Bind_listControl2(string _type, string _verbage, bool _silent)
 |***
  *	DES: pet control
  *	USE: /pc []
- *  NOTE:
+ *	NOTE:
  ***|
 #bind petControl /pc
 sub Bind_petControl(string _type, string _verbage, bool _silent)
@@ -1244,7 +1240,7 @@ sub Bind_petControl(string _type, string _verbage, bool _silent)
 |***
  *	DES: sets controlls for /tie
  *	USE: /tc [name|time|distance]
- *  NOTE:
+ *	NOTE:
  ***| 
 #bind setTieControl /tc
 sub Bind_setTieControl(string _type, string _verbage, bool _silent)
@@ -1326,7 +1322,7 @@ sub Bind_setTieControl(string _type, string _verbage, bool _silent)
 |***
  *	DES: enable/disable Tie
  *	USE: /tie [switch|on|off]
- *  NOTE:
+ *	NOTE:
  ***| 	
 #bind setTie /tie
 sub Bind_setTie(string _type)
@@ -1357,7 +1353,7 @@ sub Bind_setTie(string _type)
 |***
  *	DES: Burn control
  *	USE: /burn []
- *  NOTE:
+ *	NOTE:
  ***| 	
 #bind burn /burn
 sub Bind_burn(string _type, string _verbage, bool _silent)
@@ -1424,7 +1420,7 @@ sub Bind_burn(string _type, string _verbage, bool _silent)
 |***
  *	DES: core controls
  *	USE: /core [] [TEXT]
- *  NOTE:
+ *	NOTE:
  ***|
 #bind Core /core
 sub Bind_Core(string _type, string _verbage, string _verbage2, bool _silent)
@@ -1531,7 +1527,7 @@ sub Bind_Core(string _type, string _verbage, string _verbage2, bool _silent)
 |***
  *	DES: set on/off switches
  *	USE: /onoff []
- *  NOTE: enable/disable many switches
+ *	NOTE: enable/disable many switches
  ***|
 #bind onoff /onoff
 sub Bind_onoff(string _type, string _verbage, bool _silent)
@@ -1570,7 +1566,7 @@ sub Bind_onoff(string _type, string _verbage, bool _silent)
 |***
  *	DES: tradeskill controls
  *	USE: /ts [movebank|movehouse]
- *  NOTE:
+ *	NOTE:
  ***|
 #bind ts /ts
 sub Bind_ts(string _tsType)
@@ -1643,7 +1639,7 @@ sub Bind_ts(string _tsType)
 |***
  *	DES: sets the assist
  *	USE: /setassist [G|1|2|3|F|MA1|MA2]
- *  NOTE: 
+ *	NOTE: 
  ***| 	
 #bind setAssist /setassist
 sub Bind_setAssist(string _verbage, string _name)
@@ -1656,7 +1652,7 @@ sub Bind_setAssist(string _verbage, string _name)
 |***
  *	DES: combat controls
  *	USE: /cc []
- *  NOTE:
+ *	NOTE:
  ***|
 #bind setCombatControl /cc
 sub Bind_setCombatControl(string _type, string _verbage, bool _silent)
@@ -1963,7 +1959,7 @@ sub Bind_setCombatControl(string _type, string _verbage, bool _silent)
 |***
  *	DES: shortcut for the agro command
  *	USE: /agro [##]
- *  NOTE:
+ *	NOTE:
  ***| 	
 #bind setMobAgro /agro
 sub Bind_setMobAgro(int _setMobAgro)
@@ -1976,7 +1972,7 @@ sub Bind_setMobAgro(int _setMobAgro)
 |***
  *	DES: movement controls
  *	USE: /movement []
- *  NOTE:
+ *	NOTE:
  ***|
 #bind setMovementControls /movement
 sub Bind_setMovementControls(string _type, string _verbage, bool _silent)
@@ -2117,7 +2113,7 @@ sub Bind_setMovementControls(string _type, string _verbage, bool _silent)
 |***
  *	DES: builds your group
  *	USE: /crew [crew1|crew2]
- *  NOTE:
+ *	NOTE:
  *	/grouproles set [NAME] [#]
  *	1=MainTank .. 					${GroupTank}
  *	2=MainAssist ..		 			${GroupAssist}
@@ -2205,7 +2201,7 @@ sub Bind_crew(int _crew)
 |***
  *	DES: random insult
  *	USE: /oof
- *  NOTE: not documented. why should i share everything!?!
+ *	NOTE: not documented. why should i share everything!?!
  ***|
 #bind oof /oof
 sub Bind_oof()
@@ -2229,7 +2225,7 @@ sub Bind_oof()
 |***
  *	DES: lesson of the devoted
  *	USE: /lesson
- *  NOTE:
+ *	NOTE:
  ***|
 #bind lesson /lesson
 sub Bind_lesson()
@@ -2242,7 +2238,7 @@ sub Bind_lesson()
 |***
  *	DES: grabs a ground spawn.
  *	USE: /grab NAME
- *  NOTE: max range of 20
+ *	NOTE: max range of 20
  ***|
 #bind grab /grab
 sub Bind_grab(string _name)
@@ -2269,7 +2265,7 @@ sub Bind_grab(string _name)
 |***
  *	DES: navigates to the name/target
  *	USE: /navto [NAME]
- *  NOTE: 
+ *	NOTE: 
  ***|
 #bind nav_to_target /navto
 sub Bind_nav_to_target(string _name)
@@ -2282,7 +2278,7 @@ sub Bind_nav_to_target(string _name)
 |***
  *	DES: clicks yes on a window option for some form of travel
  *	USE: /take
- *  NOTE: 
+ *	NOTE: 
  ***|
 #bind broadcast_take /take
 sub Bind_broadcast_take()
@@ -2324,7 +2320,7 @@ sub Bind_click_window_option()
 |***
  *	DES: stack invis
  *	USE: /invis
- *  NOTE: 
+ *	NOTE: 
  ***|
 #bind broadcast_invis /invis
 sub Bind_broadcast_invis()
@@ -2382,12 +2378,12 @@ sub Bind_cast_AA_invis()
 |***
  *	DES: clicks a door or lever to open or zone
  *	USE: /enter
- *  NOTE: 
+ *	NOTE: 
  ***|
 #bind broadcast_door /enter
 sub Bind_broadcast_door()
 	/if (${swBCEnter}) {
-		/dgexecute /click_door
+		/dgexecute  ${DanNetMacroChannel} /click_door
 	}
 	OUT ${obroadcasted} ${sep} /enter
 	/call Bind_click_door
@@ -2424,7 +2420,7 @@ sub Bind_click_door()
 |***
  *	DES: deal with corpses
  *	USE: /cls
- *  NOTE: 
+ *	NOTE: 
  ***|
 #bind cls /cls
 sub Bind_cls()
@@ -2451,7 +2447,7 @@ sub Bind_clear_corpse_sub()
 |***
  *	DES: will set your group to combat ready with 1 key.
  *	USE:   
- *  NOTE: this is designed for a fast group set due to agro while traveling. This will not affect the sender of the command
+ *	NOTE: this is designed for a fast group set due to agro while traveling. This will not affect the sender of the command
  ***|
 #bind broadcast_here /here
 sub Bind_broadcast_here()
@@ -2554,7 +2550,7 @@ sub Bind_set_combat_here()
 |***
  *	DES: sets all toons to override all engaeg HP% and attack as soon as there is a vlaid target in range
  *	USE: /killmob
- *  NOTE: this is just a simple broadcast of .override setEngageMAPct. for like when your in a hurry and shit.
+ *	NOTE: this is just a simple broadcast of .override setEngageMAPct. for like when your in a hurry and shit.
  ***|
 #bind killmob /killmob
 sub Bind_killmob()
@@ -2573,7 +2569,7 @@ sub Bind_killmob()
 |***
  *	DES: look for undefined variables
  *	USE: /checkvar
- *  NOTE: this is a utility for finding errors in code. nothing more
+ *	NOTE: this is a utility for finding errors in code. nothing more
  ***|
 #bind checkvar /checkvar
 sub Bind_checkvar()
@@ -2587,7 +2583,7 @@ sub Bind_checkvar()
 |***
  *	DES: make adjustments for the drivetoon
  *	USE: /imincharge
- *  NOTE: This is a work in progress.
+ *	NOTE: This is a work in progress.
  ***|
 #bind imincharge /imincharge
 sub Bind_imincharge()
@@ -2597,7 +2593,7 @@ sub Bind_imincharge()
 	/declare _toonName string local FALSE
 	
 	| cycle all the toons you are boxing
-	/for _count 1 to ${DanNet[${DanNetMacroChannel}].PeerCount}
+	/for _count 1 to ${DanNet.PeerCount[${DanNetMacroChannel}]}
 		| /echo ${DanNet.Peers[${DanNetMacroChannel}].Arg[${_count},|].Left[1].Upper}${DanNet.Peers[${DanNetMacroChannel}].Arg[${_count},|].Right[-1]}
 		/varset _toonName ${DanNet.Peers[${DanNetMacroChannel}].Arg[${_count},|].Left[1].Upper}${DanNet.Peers[${DanNetMacroChannel}].Arg[${_count},|].Right[-1]}
 		
@@ -2626,7 +2622,7 @@ sub Bind_imincharge()
 |***
  *	DES: have everyone get your target and repeate what you say.
  *	USE: /bcsay VERBAGE
- *  NOTE:
+ *	NOTE:
  ***|
 #bind bcsay /bcsay
 sub Bind_bcsay(string _verbage, string _sender, int _tmpID)
@@ -2667,7 +2663,7 @@ sub Bind_bcsay(string _verbage, string _sender, int _tmpID)
 |***
  *	DES: for when you really gotta go..
  *	USE: /setGTFO
- *  NOTE:
+ *	NOTE:
  ***|
 #bind GTFO /GTFO
 sub Bind_GTFO()
@@ -2698,7 +2694,7 @@ sub Bind_get_the_fuck_out()
 |***
  *	DES: fellowship campfire controls
  *	USE: /campfire  
- *  NOTE: 
+ *	NOTE: 
  ***|
 #bind campfire /campfire
 sub Bind_campfire(string _verbage)
@@ -2759,7 +2755,7 @@ sub Bind_campfire(string _verbage)
 |***
  *	DES: Request Call of the Hero [aa|group]
  *	USE: /coh [group]
- *  NOTE: 
+ *	NOTE: 
  ***|
 #bind request_coh /coh
 sub Bind_request_coh(string _verbage)
@@ -2780,7 +2776,7 @@ sub Bind_request_coh(string _verbage)
 |***
  *	DES: spellbar gem controls
  *	USE: /gc 
- *  NOTE: this will store the current spell line up in core.ini. it is sorted by class, not level.
+ *	NOTE: this will store the current spell line up in core.ini. it is sorted by class, not level.
  ***|
 #bind gem_control /gc
 sub Bind_gem_control(string _verbage, string _name)
@@ -2916,7 +2912,7 @@ sub Bind_gem_control(string _verbage, string _name)
 |***
  *	DES: user controls
  *	USE: RTFM.. seriously
- *  NOTE: hey look squirrels...
+ *	NOTE: hey look squirrels...
  ***|
 #bind sql_edit /edit
 sub Bind_sql_edit(string _variable, string _value, string _add_delete, bool _silent)
@@ -3017,7 +3013,7 @@ sub Bind_sql_edit(string _variable, string _value, string _add_delete, bool _sil
 |***
  *	DES: environment settings
  *	USE: /environment []
- *  NOTE: 
+ *	NOTE: 
  ***|
 #bind Core_environment /environment
 sub Bind_Core_environment(string _type, string _verbage, bool _silent)
@@ -3218,7 +3214,7 @@ sub Bind_Core_environment(string _type, string _verbage, bool _silent)
 |***
  *	DES: Controlls for the HUD
  *	USE: /hc [time|update|delete]
- *  NOTE:
+ *	NOTE:
  ***| 
 #bind hud /hc
 sub Bind_hud(string _type, string _verbage, bool _silent)
@@ -3276,7 +3272,7 @@ sub Bind_hud(string _type, string _verbage, bool _silent)
 |***
  *	DES: admin controls
  *	USE: dont
- *  NOTE: seriously..
+ *	NOTE: seriously..
  ***| 
 #bind admin /admin
 sub Bind_admin(string _type, string _verbage, string _verbage2, bool _silent)
@@ -3290,11 +3286,19 @@ sub Bind_admin(string _type, string _verbage, string _verbage2, bool _silent)
 	/declare _count int local 0
 	/declare _listout string local
 	/declare _sep bool local		
+
 	| echo the notice
 	/if (${_type.Equal[notice]}) {
 		/mqclear
 		/call echo_notice
 		/return
+
+
+	| run the observer
+	} else /if (${_type.Equal[observer]}) {
+		/call Bind_observer
+		/return
+	
 
 	| force a DB validation
 	} else /if (${_type.Equal[forceupdate]}) {
@@ -3628,7 +3632,7 @@ sub Bind_admin(string _type, string _verbage, string _verbage2, bool _silent)
 |***
  *	DES: displays the port and builds the command to the porting class
  *	USE: /port 
- *  NOTE: expect sarcasim if you cannot spell
+ *	NOTE: expect sarcasim if you cannot spell
  ***| 
 #bind port_list /port
 sub Bind_port_list(string _class, string _location, string _sublocation)
@@ -4049,7 +4053,7 @@ sub Bind_port_list(string _class, string _location, string _sublocation)
 |***
  *	DES: make the toon stop its shit and splash at its feet
  *	USE: /dex NAME /splash | /splash
- *  NOTE: 
+ *	NOTE: 
  ***|
 #bind ae_splash /splash
 sub Bind_ae_splash()
@@ -4085,7 +4089,7 @@ sub Bind_ae_splash()
 |***
  *	DES: tells whatever cleric that is in listResidentClreic to intervention heal you
  *	USE: /intpull (with a valid target)
- *  NOTE: 
+ *	NOTE: 
  ***|
 #bind int_pull /intpull
 sub Bind_int_pull()
@@ -4102,7 +4106,7 @@ sub Bind_int_pull()
 |***
  *	DES: swap items. cause fuck MQ2Exchange
  *	USE: /swap "Item Name" slot or /call Bind_swap "Item Name" slot
- *  NOTE: 
+ *	NOTE: 
  ***|
 #Bind swap /swap
 sub Bind_swap(string _item, int _toslot)
@@ -4112,6 +4116,8 @@ sub Bind_swap(string _item, int _toslot)
   /declare _pack int local 0
   /declare _slot int local 0
 
+	| find the item we need moved
+	| _swapslot markes the location we take it from.
 	| in a bag
 	/if (${InvSlot[pack${Select[${FindItem[=${_item}].ItemSlot},23,24,25,26,27,28,29,30,31,32]}].Item.Container}) {
 		/varset _pack ${Int[${Math.Calc[${FindItem[=${_item}].ItemSlot}-22]}]}
@@ -4125,7 +4131,7 @@ sub Bind_swap(string _item, int _toslot)
 
 	| this is G7s fault
 	} else /if (!${FindItem[=${_item}].InvSlot}) {
-		/echo  Cannot Find ${_item}
+		/echo Cannot Find ${_item}
 		/return FALSE
 	}
 

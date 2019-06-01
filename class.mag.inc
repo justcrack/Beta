@@ -10,7 +10,7 @@
 |***
  *	DES: Main Magician Routine
  *	USE: 
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub core_MAG()
 	DEBUG core_MAG()
@@ -42,19 +42,18 @@ sub core_MAG()
 			/call disc_${Me.Class.ShortName}
 			/if (${swAlliance}) /call trigger_alliance ${Target2Kill}
 			/call check_deBuffs ${Target2Kill}
-			/if (${swCombatNuke}) {
-				/call click_DPS_${Me.Class.ShortName}
-				/if (${switchForceTwincast}) /call force_twincast_${Me.Class.ShortName}
-				/if (${swPet}) /call cast_nuke_salvo
-				/call cast_nuke_line
-				/if (${useRain}) /call cast_nuke_rain
-			}
+			/call click_DPS_${Me.Class.ShortName}
+			/if (${switchForceTwincast}) /call force_twincast_${Me.Class.ShortName}
+			/if (${swPet}) /call cast_nuke_salvo
+			/call cast_nuke_line
+			/if (${useRain}) /call cast_nuke_rain
 			/call click_BP
 			/call click_item
 			/if (${swSwarm}) /call click_item_swarm ${Target2Kill}
 		}
 
 		/if (${coreAuto}) {	
+			/call Bind_setMAG rods
 			/if (${switchAAFade} && ${Me.PctHPs} <= ${useAAFadePct}) /call cast_AA_fade
 			/if (${swModRod} && ${validate_class[FALSE, ${lstClassCast}]}) /call use_mod_rod
 		}
@@ -66,7 +65,7 @@ sub core_MAG()
 |***
  *	DES: Discs
  *	USE: auto
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub disc_MAG()
 	DEBUG disc_MAG()
@@ -81,7 +80,7 @@ sub disc_MAG()
 |***
  *	DES: summon cauldron item
  *	USE: auto on timer
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub use_cauldron()
 	DEBUG use_cauldron()
@@ -100,7 +99,7 @@ sub use_cauldron()
 |***
  *	DES: click dps thingies on bad guys
  *	USE: 
- *  NOTE: this is filler DPS; compensate for global cooldown
+ *	NOTE: this is filler DPS; compensate for global cooldown
  ***|
 sub click_DPS_MAG()
 	DEBUG click_DPS_MAG()
@@ -110,7 +109,6 @@ sub click_DPS_MAG()
 	/call click_horn_of_unity 	
 	
 	| click summon rods. DPS fillers....
-	
 	/if (${validate_cast[FALSE, item, "${ParadoxRodName}", ${Target2Kill}]}) /call core_cast2 "${ParadoxRodName}" item ${Target2Kill} FALSE
 	/if (${validate_cast[FALSE, item, "${OrbName}", ${Target2Kill}]}) /call core_cast2 "${OrbName}" item ${Target2Kill} FALSE
 
@@ -125,14 +123,13 @@ sub click_DPS_MAG()
 |***
  *	DES: Pet nuke
  *	USE: auto when 3+ pets in range
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub cast_nuke_salvo()
 	DEBUG cast_nuke_salvo()
 	CHECKEXIT
 	CHECKTIE
 	/if (${SpawnCount[pet radius ${setMobAgro}]} < 3) /return
-	| /if (${validate_cast[FALSE, spell, "${NukeSalvo}", ${Target2Kill}]} && ${swPet} && ${Spawn[${Target2Kill}].NearestSpawn[3,${Me.Pet.ID} radius 40]}) {
 	/if (${validate_cast[FALSE, spell, "${NukeSalvo}", ${Target2Kill}]}) /call core_cast2 "${NukeSalvo}" 0 ${Target2Kill} FALSE
 /return
 
@@ -141,7 +138,7 @@ sub cast_nuke_salvo()
 |***
  *	DES: Pet heal routines
  *	USE: /call petHeal_${Me.Class.ShortName}
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub pet_heal_MAG()
 	DEBUG pet_heal_MAG()
@@ -157,7 +154,7 @@ sub pet_heal_MAG()
 |***
  *	DES: emergency healing
  *	USE: auto
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub patch_heal_MAG()
 	DEBUG patch_heal_MAG()
@@ -220,6 +217,8 @@ sub burn_MAG()
 			/call core_cast2 "Companion's Fury" alt ${Me.Pet.ID} FALSE
 		}
 	}
+	
+	| swarm pets
 	/if (${swSwarm}) {
 		/if (${validate_cast[FALSE, alt, "Host of the Elements", ${Target2Kill}]}) {
 			/call core_cast2 "Host of the Elements" alt ${Target2Kill} FALSE
@@ -240,7 +239,7 @@ sub burn_MAG()
 |***
  *  DES: Control for getting Twincast either spell or Proc
  *  USE: /call force_twincast_MAG
- *  NOTE: Twincast lets get it.
+ *	NOTE: Twincast lets get it.
  ***|
 sub force_twincast_MAG()
 	DEBUG force_twincast_MAG()
@@ -268,7 +267,7 @@ sub force_twincast_MAG()
 |***
  *	DES: lemme heare everyone say ... hey .. we want some ..... umm manna..
  *	USE: 
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub check_gather()
 	DEBUG check_gather()
@@ -320,7 +319,7 @@ sub check_gather()
 |***
  *	DES: call of the hero command
  *	USE:/coh [group]
- *  NOTE:
+ *	NOTE:
  ***|
 #bind call_of_the_hero /call_of_the_hero
 sub Bind_call_of_the_hero(string _sender, string _verbage)
@@ -347,7 +346,7 @@ sub Bind_call_of_the_hero(string _sender, string _verbage)
 |***
  *	DES: Class controls
  *	USE: /mag []
- *  NOTE:
+ *	NOTE:
  ***|
 #bind setMAG /mag
 sub Bind_setMAG(string _type, string _verbage)
@@ -386,33 +385,31 @@ sub Bind_setMAG(string _type, string _verbage)
 	} else /if (${_type.Equal[rods]}) {
 
 		| self mod rod
-		/if (${Bool[${SelfRodName}]}) {
-			/if (!${FindItem[${SelfRodName}].ID}) {
-				/if (${validate_cast[FALSE, spell, "${SelfRodSpell}", ${Me.ID}]}) /call core_cast2 "${SelfRodSpell}" ${buffGem} ${Me.ID} FALSE
-				/call sort_cursor TRUE
-			}
+		/if (${Bool[${SelfRodName}]} && !${FindItem[=${SelfRodName}].ID}) {
+			/if (${validate_cast[FALSE, spell, "${SelfRodSpell}", ${Me.ID}]}) /call core_cast2 "${SelfRodSpell}" ${buffGem} ${Me.ID} FALSE
+			/call sort_cursor TRUE
 		}
 		
-		| group mod rod
-		/if (${Bool[${ModRodName}]} && !${FindItem[${ModRodName}].ID} && !${Cursor.Name.Equal[${ModRodName}]}) {
-			/if (${validate_cast[FALSE, spell, "${ModRodSpell}", ${Me.ID}]}) /call core_cast2 "${ModRodSpell}" alt 0 FALSE
+		| AA group mod rod
+		/if (${Bool[${ModRodName}]} && !${FindItem[=${ModRodName}].ID}) {
+			/if (${validate_cast[FALSE, alt, "${ModRodSpell}", ${Me.ID}]}) /call core_cast2 "${ModRodSpell}" alt 0 FALSE
 			/call sort_cursor TRUE
 		}
 
 		| paradox rod	
-		 /if (${Bool[${ParadoxRodName}]} && !${Bool[${FindItem[${ParadoxRodName}]}]} && !${Cursor.Name.Equal[${ParadoxRodName}]} && ${Me.CurrentMana} >= ${Spell[${ParadoxSpell}].Mana}) {
+		 /if (${Bool[${ParadoxRodName}]} && !${FindItem[=${ParadoxRodName}].ID} ) {
 		 	/if (${validate_cast[FALSE, spell, "${ParadoxSpell}", ${Me.ID}]}) /call core_cast2 "${ParadoxSpell}" ${buffGem} ${Me.ID} FALSE
 		 	/call sort_cursor TRUE
 		 }
 		
 		| elemental orb
-		/if (${Bool[${OrbName}]} && !${Bool[${FindItem[${OrbName}]}]} && !${Cursor.Name.Equal[${OrbName}]} && ${Me.CurrentMana} >= ${Spell[${OrbSpell}].Mana}) {
+		/if (${Bool[${OrbName}]} && !${FindItem[=${OrbName}].ID}) {
 			/if (${validate_cast[FALSE, spell, "${OrbSpell}", ${Me.ID}]}) /call core_cast2 "${OrbSpell}" ${buffGem} 0 FALSE
 			/call sort_cursor TRUE
 		}
 		
 		| elemental rod
-		/if (${Bool[${ElementRodName}]} && !${Bool[${FindItem[${ElementRodName}]}]} && !${Cursor.Name.Equal[${ElementRodName}]} && ${Me.CurrentMana} >= ${Spell[${ElementRodSpell}].Mana}) {
+		/if (${Bool[${ElementRodName}]} && !${FindItem[=${ElementRodName}].ID}) {
 			/if (${validate_cast[FALSE, spell, "${ElementRodSpell}", ${Me.ID}]}) /call core_cast2 "${ElementRodSpell}" ${buffGem} 0 FALSE
 			/call sort_cursor TRUE
 		}

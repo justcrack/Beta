@@ -102,7 +102,7 @@ sub disc_BER()
 	}
 
 	| dumb ass zerker has a dicho and a dicho ##. cant use the name to cast with..
-	/if (${Me.CombatAbilityReady[${DiscDicho}]} && ${Me.CurrentEndurance} > ${Spell[${DiscDicho}].EnduranceCost}*2) /disc 49307
+	/if (${Me.CombatAbilityReady[${Spell[${DiscDicho}].RankName}]} && ${Me.CurrentEndurance} > ${Spell[${DiscDicho}].EnduranceCost}*2) /disc 49307
 	
 	/if (${AEMelee}) {
 		/if (${validate_cast[FALSE, disc, "${DiscAESpiral}", ${Me.ID}]}) /call core_cast2 "${DiscAESpiral}" disc 0 FALSE
@@ -196,14 +196,14 @@ sub burn_BER()
 	}
 	
 	/if (${validate_cast[FALSE, alt, "Desperation", ${Me.ID}]} && ${Me.PctHPs} < 90) /call core_cast2 "Desperation" alt 0 FALSE
-	/if (${Me.CombatAbilityReady[${DiscScream}]} && ${Me.CurrentEndurance} > ${Spell[${DiscScream}].EnduranceCost}) /disc ${DiscScream}
-	/if (${Me.CombatAbilityReady[${CryOfChaos}]} && !${Me.Song[${CryOfChaos}].ID}) {
+	/if (${Me.CombatAbilityReady[${Spell[${DiscScream}].RankName}]} && ${Me.CurrentEndurance} > ${Spell[${DiscScream}].EnduranceCost}) /disc ${DiscScream}
+	/if (${Me.CombatAbilityReady[${Spell[${CryOfChaos}].RankName}]} && !${Me.Song[${CryOfChaos}].ID}) {
 		/delay ${Math.Rand[8]}s ${Me.Song[${CryOfChaos}].ID}
 		/if (!${Me.Song[${CryOfChaos}].ID}) {
 			/if (${Raid.Members}) {
 				/if (${validate_cast[FALSE, alt, "Cry of Battle", ${Me.ID}]}) /call core_cast2 "Cry of Battle" alt 0 FALSE
 			}
-			/if (${Me.CombatAbilityReady[${CryOfChaos}]} && ${Me.CurrentEndurance} > ${Spell[${CryOfChaos}].EnduranceCost}) /disc ${CryOfChaos}
+			/if (${Me.CombatAbilityReady[${Spell[${CryOfChaos}].RankName}]} && ${Me.CurrentEndurance} > ${Spell[${CryOfChaos}].EnduranceCost}) /disc ${CryOfChaos}
 		}
 	} 
 	
@@ -257,8 +257,8 @@ sub burn_BER()
 			/if (${validate_cast[FALSE, disc, "${DiscFrenzyResolve}", ${Me.ID}]}) /call core_cast2 "${DiscFrenzyResolve}" disc 0 FALSE
 		}
 
-		/if (!${Me.CombatAbilityReady[${DiscFrenzyResolve}]}) /disc ${DiscVengeful}
-		/if (!${Me.CombatAbilityReady[${DiscFrenzyResolve}]} && !${Me.CombatAbilityReady[${DiscVengeful}]}) /disc ${DiscCleavingAnger}
+		/if (!${Me.CombatAbilityReady[${Spell[${DiscFrenzyResolve}].RankName}]}) /disc ${DiscVengeful}
+		/if (!${Me.CombatAbilityReady[${Spell[${DiscFrenzyResolve}].RankName}]} && !${Me.CombatAbilityReady[${Spell[${DiscVengeful}].RankName}]}) /disc ${DiscCleavingAnger}
 	}
 
 	/call click_burn_circle

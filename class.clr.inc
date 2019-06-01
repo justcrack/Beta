@@ -10,7 +10,7 @@
 |***
  *	DES: Main Cleric Routine
  *	USE: returning the dead to life 'cause they were stupid
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub core_CLR()
 	DEBUG core_CLR()
@@ -72,7 +72,7 @@ sub core_CLR()
 |***
  *	DES: DPS Clickies
  *	USE: this shits auto, learn to love it.
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub click_DPS_CLR()
 	DEBUG click_DPS_CLR()
@@ -90,7 +90,7 @@ sub click_DPS_CLR()
 |***
  *	DES: Combat skills, Disciplines and Alternate abilities.
  *	USE: Disc
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub disc_CLR()
 	DEBUG disc_CLR()
@@ -122,7 +122,7 @@ sub disc_CLR()
 |***
  *	DES: This will summon the clerics awesom nut smasher hammer if you do not have a good primary weapon.
  *	USE: 
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub cast_sum_weapon()
 	DEBUG cast_sum_weapon()
@@ -138,7 +138,7 @@ sub cast_sum_weapon()
 			/delay 5
 			/delay 8s !${Me.Casting.ID}
 			/call sort_cursor TRUE
-			/call Bind_swap "${sumWeaponItem}" 13 
+			/call Bind_swap "${sumWeaponItem}" 13
 		}
 	}
 
@@ -149,7 +149,7 @@ sub cast_sum_weapon()
 |***
  *	DES: cleric main heal sub
  *	USE: /call check_heal_group_${Me.Class.ShortName}
- *  NOTE: bread and butter baby...
+ *	NOTE: bread and butter baby...
  ***|
 sub check_heal_group_CLR()
 	DEBUG check_heal_group_CLR()
@@ -265,9 +265,11 @@ sub check_heal_group_CLR()
 	}		  	
   
 	| AA Rune
-	/if (${Group.Member[${hurtIndex}].PctHPs} < ${PanicPoint}*.${tmpHealOverride} && ${Me.SpellReady[${Spell[${healPanic}].RankName}]}) {
-		/if (${validate_cast[FALSE, spell, "${healPanic}", ${Group.Member[${hurtIndex}].ID}]} && ${Me.Casting.ID}) /stopcast
-		/call core_cast2 "${healPanic}" 0 ${Group.Member[${hurtIndex}].ID}
+	/if (${Group.Member[${hurtIndex}].PctHPs} < ${PanicPoint}*.${tmpHealOverride}) {
+		/if (${validate_cast[FALSE, spell, "${healPanic}", ${Group.Member[${hurtIndex}].ID}]} && ${Me.Casting.ID}) {
+			/stopcast
+			/call core_cast2 "${healPanic}" 0 ${Group.Member[${hurtIndex}].ID}
+		}
 		/if (!${Raid.Members} && ${validate_cast[FALSE, alt, "Divine Guardian", ${Group.Member[${hurtIndex}].ID}]}) {
 			/call core_cast2 "Divine Guardian" alt ${Group.Member[${hurtIndex}].ID}
 		}
@@ -385,7 +387,7 @@ sub check_heal_group_CLR()
 |***
  *	DES: self heal only
  *	USE: /call check_heal_self_${Me.Class.ShortName}
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub check_heal_self_CLR()
 	DEBUG check_heal_self_CLR()
@@ -489,7 +491,7 @@ sub check_heal_self_CLR()
 |***
  *	DES: Check XTargets and heal the bastards if the need it.
  *	USE: /call check_heal_XTarget_${Me.Class.ShortName}
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub check_heal_XTarget_CLR()
 	DEBUG check_heal_XTarget_CLR()
@@ -542,9 +544,9 @@ sub check_heal_XTarget_CLR()
 	}
 
 	| panic heal
-	/if (${Me.XTarget[${hurtIndex}].PctHPs} < ${PanicPoint}*.${tmpHealOverride} && ${Me.SpellReady[${Spell[${healPanic}].RankName}]}) {
-		/if (${Me.Casting.ID}) /stopcast
+	/if (${Me.XTarget[${hurtIndex}].PctHPs} < ${PanicPoint}*.${tmpHealOverride}) {
 		/if (${validate_cast[FALSE, spell, "${healPanic}", ${Me.XTarget[${hurtIndex}].ID}]}) {
+			/stopcast
 			/call core_cast2 "${healPanic}" 0 ${Me.XTarget[${hurtIndex}].ID} FALSE
 		}
 	}
@@ -597,7 +599,7 @@ sub check_heal_XTarget_CLR()
 |***
  *	DES: Checks and Heals Pets. Group ONLY
  *	USE: /heal pet
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub check_heal_pet_CLR()
 	DEBUG check_pet_heal_CLR()
@@ -621,9 +623,11 @@ sub check_heal_pet_CLR()
 	}
 
 	| Panic heal
-	/if (${Group.Member[${hurtIndex}].Pet.PctHPs} < .${PanicPoint}*${PetPoint} && ${Me.SpellReady[${Spell[${healPanic}].RankName}]}) {
-		/if (${Me.Casting.ID}) /stopcast
-		/if (${validate_cast[FALSE, spell, "${healPanic}", ${Group.Member[${hurtIndex}].Pet.ID}]}) /call core_cast2 "${healPanic}" 0 ${Group.Member[${hurtIndex}].Pet.ID} FALSE
+	/if (${Group.Member[${hurtIndex}].Pet.PctHPs} < .${PanicPoint}*${PetPoint}) {
+		/if (${validate_cast[FALSE, spell, "${healPanic}", ${Group.Member[${hurtIndex}].Pet.ID}]}) {
+			/stopcast
+			/call core_cast2 "${healPanic}" 0 ${Group.Member[${hurtIndex}].Pet.ID} FALSE
+		}
 	}
 	
  	| agressive healing sort
@@ -671,7 +675,7 @@ sub check_heal_pet_CLR()
 |***
  *	DES: Use cleric divine arbitration AA or Epic shield click.
  *	USE: auto.
- *  NOTE: DB::CLR::setDivinetoGroupHeal=TRUE will force a group heal after the health arbitration.
+ *	NOTE: DB::CLR::setDivinetoGroupHeal=TRUE will force a group heal after the health arbitration.
  ***|
 sub cast_divine_arbitration()
 	DEBUG cast_divine_arbitration()
@@ -703,7 +707,7 @@ sub cast_divine_arbitration()
 |***
  *	DES: MGB cleric celestial regeneration if both AAs are ready
  *	USE: /bc cr, /cr
- *  NOTE: 
+ *	NOTE: 
  *	Will not cast cr if the buff is present or if your name is Norbert.
  ***|
 Sub cast_AA_celest_regen()
@@ -727,7 +731,7 @@ Sub cast_AA_celest_regen()
 |***
  *	DES: Will the cleric floatie shield AE regen. Twin cast it if the AA is ready.
  *	USE: spell must be memed.
- *  NOTE: 
+ *	NOTE: 
  ***|
 #bind issuance /issuance
 sub Bind_issuance()
@@ -764,7 +768,7 @@ sub Bind_issuance()
 |***
  *	DES: Buff Heal Ward of Surety spell
  *	USE: have the spell memed and the toon identified.
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub check_heal_ward()
 	DEBUG check_heal_ward()
@@ -896,7 +900,7 @@ sub burn_CLR()
 |***
  *	DES: forces an intervention spell on that target
  *	USE: /intervention [TargetID]
- *  NOTE: 
+ *	NOTE: 
  ***|
 #bind clr_intervention /intervention
 sub Bind_clr_intervention(int _tmpID)
@@ -920,7 +924,7 @@ sub Bind_clr_intervention(int _tmpID)
 |***
  *	DES: Class controls
  *	USE: /clr []
- *  NOTE:
+ *	NOTE:
  ***|
 #bind setCLR /clr
 sub Bind_setCLR(string _type, string _verbage, bool _silent)

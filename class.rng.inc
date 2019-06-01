@@ -236,9 +236,9 @@ sub burn_RNG()
 				/if (${validate_cast[FALSE, alt, "Empowered Blades", ${Me.ID}]}) /call core_cast2 "Empowered Blades" alt 0 FALSE
 			} else /if (!${Bool[${Me.ActiveDisc}]} && !${Bool[${Me.Song[Empowered Blades]}]} && !${Bool[${Me.Buff[${useGlyph}]}]}) {
 				/if (${validate_cast[FALSE, disc, "${DiscMele}", ${Me.ID}]}) /call core_cast2 "${DiscMele}" disc 0 FALSE
-			} else /if (!${Bool[${Me.ActiveDisc}]} && !${Me.CombatAbilityReady[${DiscMele}]} && !${Me.AltAbilityReady[Empowered Blades]} && !${Bool[${Me.Song[Empowered Blades]}]}) {
+			} else /if (!${Bool[${Me.ActiveDisc}]} && !${Me.CombatAbilityReady[${Spell[${DiscMele}].RankName}]} && !${Me.AltAbilityReady[Empowered Blades]} && !${Bool[${Me.Song[Empowered Blades]}]}) {
 				/call use_glyph
-			} else /if (!${Bool[${Me.ActiveDisc}]} && !${Me.CombatAbilityReady[${DiscMele}]} && !${Me.AltAbilityReady[Empowered Blades]} && !${Bool[${Me.Song[Empowered Blades]}]} && !${Bool[${Me.Buff[${useGlyph}]}]}) {
+			} else /if (!${Bool[${Me.ActiveDisc}]} && !${Me.CombatAbilityReady[${Spell[${DiscMele}].RankName}]} && !${Me.AltAbilityReady[Empowered Blades]} && !${Bool[${Me.Song[Empowered Blades]}]} && !${Bool[${Me.Buff[${useGlyph}]}]}) {
 				/if (${validate_cast[FALSE, epicitem, "2", ${Me.ID}]}) /call core_cast2 "${${Me.Class.ShortName}Epic2}" item 0 FALSE
 			}
 		}
@@ -251,7 +251,7 @@ sub burn_RNG()
 		/if (${Target.Distance} >= 31) {
 			/if (!${Bool[${Me.ActiveDisc}]} && !${Bool[${Me.Buff[${useGlyph}]}]}) {
 				/if (${validate_cast[FALSE, disc, "${DiscRange}", ${Me.ID}]}) /call core_cast2 "${DiscRange}" disc 0 FALSE
-			} else /if (!${Bool[${Me.ActiveDisc}]} && !${Me.CombatAbilityReady[${DiscRange}]}) {
+			} else /if (!${Bool[${Me.ActiveDisc}]} && !${Me.CombatAbilityReady[${Spell[${DiscRange}].RankName}]}) {
 				/call use_glyph
 			}
 		}

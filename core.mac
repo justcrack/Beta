@@ -101,11 +101,11 @@
 |***
  *	DES: Main .. duhh..
  *	USE: 
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub main(string _custom, string _startparam)
 	| Current Build
-	/call setDeclare currentBuild 			string outer 0530.04
+	/call setDeclare currentBuild 			string outer 0601.01
 	
 	| set the default character ID
 	/call setDeclare chrID 							string outer ${MacroQuest.Server}_${Me.Class.ShortName}_${Me.DisplayName}
@@ -115,7 +115,7 @@ sub main(string _custom, string _startparam)
 
 	| dont fuck with this. i'm serious...
 	/call setDeclare swForceUpdate			bool outer FALSE
-
+	
 	| shopping time
 	/call initialize_core ${_custom}
 		
@@ -283,7 +283,7 @@ sub main(string _custom, string _startparam)
 |***
  *	DES: initialize core
  *	USE: /call initialize_core
- *  NOTE: what did you expect?
+ *	NOTE: what did you expect?
  ***| 	
 sub initialize_core(string _custom)
 	/mqclear
@@ -369,7 +369,7 @@ sub initialize_core(string _custom)
 |***
  *	DES: Settings I like to use. 
  *	USE: /call base_preperation
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub base_preperation()
 	| /varset currentdebugsub base_preperation()
@@ -464,7 +464,7 @@ sub base_preperation()
 |***
  *	DES: checks to make sure all needed plugins are loaded.
  *	USE: /call verify_plugins [TRUE|FALSE]
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub verify_plugins(bool _debug)
 	/declare _count int local 0
@@ -484,7 +484,7 @@ sub verify_plugins(bool _debug)
 |***
  *	DES: simple notice for new builds. will display only once per build
  *	USE: /call echo_notice
- *  NOTE:
+ *	NOTE:
  ***|
 sub echo_notice()
 	OUT You are using a \agbeta\ax build of Core.

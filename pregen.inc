@@ -11,7 +11,7 @@
  |***
  *	DES: basic common use arrays
  *	USE: 
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub pregen_data_arrays()
 	/declare _count int local 0
@@ -55,7 +55,7 @@ sub pregen_data_arrays()
 |***
  *	DES: generates the common use environment for Core
  *	USE: 
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub pregen_environment()
 	/call setDeclare swEchosSQL																					bool			outer TRUE
@@ -254,7 +254,7 @@ sub pregen_environment()
 |***
  *	DES: static lists
  *	USE: 
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub pregen_lists()
 	| lists for .. you know..lists and stuff. cause we like lists.                 
@@ -331,7 +331,7 @@ sub pregen_lists()
   /call sql_staticbuild FALSE lists lstTypesPortAA										"|origin"
 
 	| admin stuff .. /admin []
-  /call sql_staticbuild FALSE lists lstTypesAdmin											"|blockedbuffs|forceupdate|get|journalmode|list|maintenance|migrate|notice|reset|safelist|table|whitewash|xt|zonereset"
+  /call sql_staticbuild FALSE lists lstTypesAdmin											"|blockedbuffs|forceupdate|get|journalmode|list|maintenance|migrate|notice|observer|reset|safelist|table|whitewash|xt|zonereset"
 
  	| clickie item on off -- /onoff []
   /call sql_staticbuild FALSE lists lstTypesOnOff											"|horn|shrink"
@@ -344,7 +344,7 @@ sub pregen_lists()
 |***
  *	DES: the smart ass response system
  *	USE: 
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub pregen_bitch()
 
@@ -395,7 +395,7 @@ sub pregen_bitch()
 |***
  *	DES: expansion listing
  *	USE: 
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub pregen_expansions()
 	/call sql_staticbuild FALSE expansions xpac1												"The Ruins of Kunark"
@@ -430,7 +430,7 @@ sub pregen_expansions()
 |***
  *	DES: generates the characters environment
  *	USE: 
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub pregen_character()
 	/declare _count int local 0
@@ -674,7 +674,7 @@ sub pregen_character()
 		/call sql_control FALSE ${chrID} setPetIllusion		 								string 		outer FALSE
 		/call sql_control FALSE ${chrID} setPetIllusionBuff								string 		outer FALSE
 		/call sql_control FALSE ${chrID} setPetAAHeal											string 		outer FALSE
-		/call sql_control FALSE ${chrID} setPetBagSlot										int 			outer 8
+		/call sql_control FALSE ${chrID} setPetBagSlot										int 			outer 30
 		/call sql_control FALSE ${chrID} lstPetBlockedSpells							string		outer FALSE
 			                                                            			
 		| 10 pet buffs
@@ -887,7 +887,7 @@ sub pregen_character()
 |***
  *	DES: sets all timers used that are not specific to a class
  *	USE: 
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub pregen_timers()
 	/declare _count int local 0
@@ -955,7 +955,7 @@ sub pregen_timers()
 |***
  *	DES: generate the zone file data
  *	USE: 
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub pregen_zone()
 
@@ -999,7 +999,7 @@ sub pregen_zone()
 |***
  *	DES: list of all EQ zone Short Names
  *	USE: 
- *  NOTE: lets try and not leave ths shit in memory.. mkay?
+ *	NOTE: lets try and not leave ths shit in memory.. mkay?
  ***|
 sub generate_zone_short_names()
 	/declare lstZoneShortName[53] string outer
@@ -1063,7 +1063,7 @@ sub generate_zone_short_names()
 |***
  *	DES: Berzerker base variables
  *	USE: 
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub pregen_BER()
 	/declare _count int local 0
@@ -1175,7 +1175,7 @@ sub pregen_BER()
 |***
  *	DES: Bard base variables
  *	USE: 
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub pregen_BRD()
 	/declare _count int local 0
@@ -1247,7 +1247,7 @@ sub pregen_BRD()
 |***
  *	DES: Beastlord base variables
  *	USE: 
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub pregen_BST()
 	/declare _count int local 0
@@ -1326,7 +1326,7 @@ sub pregen_BST()
 |***
  *	DES: Cleric base variables
  *	USE: 
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub pregen_CLR()
 	/declare _count int local 0
@@ -1469,7 +1469,7 @@ sub pregen_CLR()
 |***
  *	DES: Druid base variables
  *	USE: 
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub pregen_DRU()
 	/declare _count int local 0
@@ -1604,7 +1604,7 @@ sub pregen_DRU()
 |***
  *	DES: Enchanter base variables
  *	USE: 
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub pregen_ENC()
 	/declare _count int local 0
@@ -1717,7 +1717,7 @@ sub pregen_ENC()
 |***
  *	DES: Magician base variables
  *	USE: 
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub pregen_MAG()
 	/declare _count int local 0
@@ -1801,7 +1801,7 @@ sub pregen_MAG()
 |***
  *	DES: Monk base variables
  *	USE: 
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub pregen_MNK()
 	/declare _count int local 0
@@ -1864,7 +1864,7 @@ sub pregen_MNK()
 |***
  *	DES: Necro base variables
  *	USE: 
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub pregen_NEC()
 	/declare _count int local 0
@@ -1915,7 +1915,7 @@ sub pregen_NEC()
 |***
  *	DES: Paladin base variables
  *	USE: 
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub pregen_PAL()
 	/declare _count int local 0
@@ -2076,7 +2076,7 @@ sub pregen_PAL()
 |***
  *	DES: Ranger base variables
  *	USE: 
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub pregen_RNG()
 	/declare _count int local 0
@@ -2167,7 +2167,7 @@ sub pregen_RNG()
 |***
  *	DES: Rogue base variables
  *	USE: 
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub pregen_ROG()
 
@@ -2234,7 +2234,7 @@ sub pregen_ROG()
 |***
  *	DES: Shadowknight base variables
  *	USE: 
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub pregen_SHD()
 	/declare _count int local 0
@@ -2343,7 +2343,7 @@ sub pregen_SHD()
 |***
  *	DES: Shaman base variables
  *	USE: 
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub pregen_SHM()
 	/declare _count int local 0
@@ -2451,7 +2451,7 @@ sub pregen_SHM()
 |***
  *	DES: Warrior base variables
  *	USE: 
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub pregen_WAR()
 
@@ -2518,7 +2518,7 @@ sub pregen_WAR()
 |***
  *	DES: Wizard base variables
  *	USE: 
- *  NOTE: 
+ *	NOTE: 
  ***|
 sub pregen_WIZ()
 	/declare _count int local 0
@@ -2708,7 +2708,7 @@ sub pregen_WIZ()
  *	DES: old INI migration
  *	USE: how about you dont
  *	INI: fuck INIs
- *  NOTE: this is not for you. dont mess with this shit..
+ *	NOTE: this is not for you. dont mess with this shit..
  ***|
 sub ini_migration(string _type, string _verbage)
 	SDEBUG ini_migration(_type:${_type} _verbage:${_verbage})
@@ -3017,7 +3017,7 @@ sub ini_migration(string _type, string _verbage)
 |***
  *	DES: HUD pregeneration
  *	USE: 
- *  NOTE:
+ *	NOTE:
  ***|
 sub hud_control(string _verbage)
 	VOUT Updating MQ2HUD.INI ${sep} ${cinfo}${_verbage.Left[1].Upper}${_verbage.Right[-1].Lower}\ax
@@ -3414,7 +3414,7 @@ sub hud_control(string _verbage)
 |***
  *	DES: MQ2MyButtons INI generation/correction
  *	USE: 
- *  NOTE: Yes I force this shit.. bite me..
+ *	NOTE: Yes I force this shit.. bite me..
  ***|
 sub mybutton_control()
 	/if (!${Macro.IsTLO[MyButtons]}) /return

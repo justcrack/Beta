@@ -264,7 +264,7 @@ sub burn_BST()
 	/call use_glyph
 
 
-	/if (${Me.CombatAbilityReady[${DiscRuaabri}]} && !${Me.Song[Frenzy of Spirit].ID} && !${Me.Buff[Dichotomic Fury].ID}) {
+	/if (${Me.CombatAbilityReady[${Spell[${DiscRuaabri}].RankName}]} && !${Me.Song[Frenzy of Spirit].ID} && !${Me.Buff[Dichotomic Fury].ID}) {
 		/if (${validate_cast[FALSE, disc, "${DiscRuaabri}", ${Me.ID}]}) /call core_cast2 "${DiscRuaabri}" disc 0 FALSE
 	} else {
 		/if (${Me.Song[${DiscRuaabri}].ID}) /return

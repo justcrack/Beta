@@ -61,7 +61,7 @@ sub core_ROG()
  ***|
 sub sneak_attack()
 	DEBUG sneak_attack()
-	/if (${Bool[${DiscSneakAttack}]} && !${Me.CombatAbilityReady[${DiscSneakAttack}]}) /return
+	/if (${Bool[${DiscSneakAttack}]} && !${Me.CombatAbilityReady[${Spell[${DiscSneakAttack}].RankName}]}) /return
 	CHECKEXIT
 	/if (${is_target_dead[${Target2Kill}]}) /return
 	
@@ -94,17 +94,17 @@ sub disc_ROG()
 	/if (${validate_cast[FALSE, disc, "${DiscDisassociative}", ${Target2Kill}]}) /call core_cast2 "${DiscDisassociative}" disc ${Target2Kill} FALSE
 	/if (${validate_cast[FALSE, disc, "${DiscBleed}", ${Target2Kill}]}) /call core_cast2 "${DiscBleed}" disc ${Target2Kill} FALSE
 
-	/if (${Me.CombatAbilityReady[${DiscPlay}]}) {
-		/if (${NameList.Find[${Spawn[${Target2Kill}].DisplayName}]} && ${Me.CombatAbilityReady[${DiscFrenzy}]}) /goto :skipDiscPlay
+	/if (${Me.CombatAbilityReady[${Spell[${DiscPlay}].RankName}]}) {
+		/if (${NameList.Find[${Spawn[${Target2Kill}].DisplayName}]} && ${Me.CombatAbilityReady[${Spell[${DiscFrenzy}].RankName}]}) /goto :skipDiscPlay
 		/if (${validate_cast[FALSE, disc, "${DiscPlay}", ${Me.ID}]} && !${Bool[${Me.ActiveDisc}]}) /call core_cast2 "${DiscPlay}" disc 0 FALSE
 		:skipDiscPlay
 	}
 	
-	/if (!${NameList.Find[${Target.DisplayName}]} && !${Me.CombatAbilityReady[${DiscFrenzy}]}) {
+	/if (!${NameList.Find[${Target.DisplayName}]} && !${Me.CombatAbilityReady[${Spell[${DiscFrenzy}].RankName}]}) {
 		/if (${validate_cast[FALSE, disc, "${DiscPlay}", ${Me.ID}]} && !${Bool[${Me.ActiveDisc}]}) /call core_cast2 "${DiscPlay}" disc 0 FALSE
 	}		
 	
-	/if (${Target.ID} && ${Me.CombatAbilityReady[${DiscPhantom}]} && ${Bool[${DiscPhantom}]}) /call core_cast2 "${DiscPhantom}" disc ${Target2Kill} FALSE
+	/if (${Target.ID} && ${Me.CombatAbilityReady[${Spell[${DiscPhantom}].RankName}]} && ${Bool[${DiscPhantom}]}) /call core_cast2 "${DiscPhantom}" disc ${Target2Kill} FALSE
 	/if (${validate_cast[FALSE, disc, "${DiscHiddenBlade}", ${Me.ID}]}) /call core_cast2 "${DiscHiddenBlade}" disc 0 FALSE
 	/if (${validate_cast[FALSE, disc, "${DiscHack}", ${Target2Kill}]}) /call core_cast2 "${DiscHack}" disc ${Target2Kill} FALSE
 	/if (${validate_cast[FALSE, disc, "${DiscBladePoison}", ${Me.ID}]}) /call core_cast2 "${DiscBladePoison}" disc 0 FALSE
@@ -228,12 +228,12 @@ sub burn_ROG()
 	/if (${is_target_dead[${Target2Kill}]}) /return
 	/call set_combat ${combat.Upper}
 
-	/if (${Me.ActiveDisc.Name.Equal[${DiscPlay}]} && ${Me.CombatAbilityReady[${DiscFrenzy}]}) {
+	/if (${Me.ActiveDisc.Name.Equal[${DiscPlay}]} && ${Me.CombatAbilityReady[${Spell[${DiscFrenzy}].RankName}]}) {
 		:loopmakestop
 		/delay 5
-		/if (${Me.ActiveDisc.Name.Equal[${DiscPlay}]} && ${Me.CombatAbilityReady[${DiscFrenzy}]}) /stopdisc
+		/if (${Me.ActiveDisc.Name.Equal[${DiscPlay}]} && ${Me.CombatAbilityReady[${Spell[${DiscFrenzy}].RankName}]}) /stopdisc
 		/delay 5
-		/if (${Me.ActiveDisc.Name.Equal[${DiscPlay}]} && ${Me.CombatAbilityReady[${DiscFrenzy}]}) /goto :loopmakestop
+		/if (${Me.ActiveDisc.Name.Equal[${DiscPlay}]} && ${Me.CombatAbilityReady[${Spell[${DiscFrenzy}].RankName}]}) /goto :loopmakestop
 	}
 
 	| envenomed blades / dirty fighting stack issue
