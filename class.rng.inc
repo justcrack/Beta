@@ -19,7 +19,7 @@ sub core_RNG()
 	/while (${prep_combat[]}) {
 		CHECKINPUTS
 		/if (${swHealSelf}) /call check_heal_self_${Me.Class.ShortName}
-		/if (${swHealCure}) /call cast_cure
+		/if (!${timer_check_cast_cure} && ${swHealCure}) /call cast_cure FALSE
 		/if (${exit_class_loop[]}) /return FALSE
 
 		/if (${isValidTarget}) {
@@ -45,6 +45,7 @@ sub core_RNG()
 			/if (${validate_class[FALSE, ${lstClassMelee}]}) /call cast_stamina_recovery
 		}
 	}
+	
 /return TRUE
 
 
@@ -61,6 +62,8 @@ sub disc_RNG()
 	CHECKINPUTS
 	/if (${is_target_dead[${Target2Kill}]}) /return
 	/call set_combat ${combat.Upper}
+	
+	
 	
 	| agro control
 	/if (${swAgro}) {
@@ -96,8 +99,10 @@ sub disc_RNG()
 
 	| reverse DS DOT
 	/if (${swCombatDoT}) {
-		/if (${validate_cast[FALSE, spell, "${DoTSwarmDS}", ${Target2Kill}]} && !${Bool[${Spawn[${Target.Buff[${DoTSwarmDSdeBuff}].Caster}].ID}]}) /call core_cast2 "${DoTSwarmDS}" 0 ${Target2Kill}
+		/if (${validate_cast[FALSE, spell, "${DoTSwarmDS}", ${Target2Kill}]} && !${Spawn[${Target.Buff[${DoTSwarmDSdeBuff}].Caster}].ID}) /call core_cast2 "${DoTSwarmDS}" 0 ${Target2Kill}
 	}
+	
+	
 	/if (${validate_cast[FALSE, disc, "${BladeStorm}", ${Target2Kill}]}) /call core_cast2 "${BladeStorm}" disc ${Target2Kill}
 	/if (${validate_cast[FALSE, disc, "${DiscSqual}", ${Target2Kill}]}) /call core_cast2 "${DiscSqual}" disc ${Target2Kill}
 	
@@ -189,17 +194,19 @@ sub click_DPS_RNG()
  ***|
 sub cast_nuke_summer(int _tmpID)
 	DEBUG cast_nuke_summer(${_tmpID})
+
 	/if (${is_target_dead[${Target2Kill}]}) /return
 	/if (${timer_cast_nuke_summer}) /return
 	AMIDEAD
 	CHECKEXIT
-	CHECKINPUTS
+	| CHECKINPUTS
 	/call timer_update timer_cast_nuke_summer ${tNuke_Summer}
-	/if (!${cast_condition[NukeSummerCondition]}) /return FALSE
+	| /if (!${cast_condition[NukeSummerCondition]}) /return FALSE
 	
 	/if (${validate_cast[FALSE, spell, "${NukeSummer}", ${_tmpID}]}) {
-		/call core_cast2 "${NukeSummer}" 0 ${_tmpID} cast_break
+		/call core_cast2 "${NukeSummer}" 0 ${_tmpID} FALSE
 	}
+
 /return TRUE
 
 
@@ -211,6 +218,7 @@ sub cast_nuke_summer(int _tmpID)
  ***| 
 sub burn_RNG()
 	DEBUG burn_RNG()
+
 	/if (${is_target_dead[${Target2Kill}]}) /return
 	AMIDEAD
 	CHECKEXIT
@@ -279,6 +287,7 @@ sub burn_RNG()
 			
 	/call click_burn_circle
 	/call click_item_burn
+
  /return TRUE
  	
 

@@ -889,9 +889,9 @@ sub check_buffs_BC()
 	/declare _toonName string local FALSE
 	/declare _spellID int local 
 	/declare _i int local 0
-	/declare _DNqout string local
 	/declare _base2 string local
-	/declare _found bool
+	/declare _continue bool local FALSE
+	/declare _found bool FALSE
 	
 	| each toon
 	/while (${_toon} <= ${DanNet.PeerCount[${DanNetMacroChannel}]}) {
@@ -907,7 +907,7 @@ sub check_buffs_BC()
 
 		| each buff, cycle all ${setMaxBuffCount}, used or not
 		/for _count 1 to ${setMaxBuffCount}
-			/varset _found TRUE
+			/varset _found FALSE
 			| SDEBUG ${_count}::${setMaxBuffCount}::\at${_toonName}\ax::\aw${Buff${_count}}\ax
 			CHECKCOMBATCAST
 			
@@ -935,7 +935,7 @@ sub check_buffs_BC()
 			| targets class not listed
 			/if (!${BCBuff${_count}Class.Find[${Spawn[pc ${_toonName}].Class.ShortName}]}) /continue
 
-			| bufeee out of range
+			| bufee out of range
 			/if (${Spawn[pc ${_toonName}].Distance} > ${Spell[${Buff${_count}}].MyRange}) /continue
 			
 			| buffee out of AE range
@@ -943,12 +943,9 @@ sub check_buffs_BC()
 				/if (${Spawn[pc ${_toonName}].Distance} > ${Spell[${Buff${_count}}].AERange}) /continue
 			}
 
-			| is the spell ready?
-			| /if (!${Me.SpellReady[${Buff${_count}}]} && ${Me.Gem[${Buff${_count}}]}) /continue
-
 			| any buff slots available?
-			/dquery ${_toonName} -q "Me.FreeBuffSlots" -o _DNqout -t
-			/if (${_DNqout.Equal[0]}) /continue
+			/dquery ${_toonName} -q "Me.FreeBuffSlots" -o DNQReturn -t 1
+			/if (${DNQReturn.Equal[0]}) /continue
 
 			| SPA or not?
 			/if (${Spell[${Buff${_count}}].HasSPA[374]} || ${Spell[${Buff${_count}}].HasSPA[340]}) {
@@ -958,25 +955,33 @@ sub check_buffs_BC()
 				/for _i 1 to ${Spell[${Buff${_count}}].NumEffects}
 					| skip any secondary procs with no duration
 					/if (!${Bool[${Spell[${Spell[${Buff${_count}}].Base2[${_i}]}].Duration}]}) /continue
-					| /if (!${_found}) /continue
 					
 					| parsing issues: set the name of the secondary spell before passing the request to the other toon. should not need to do this.
 					/varset _base2 ${Spell[${Spell[${Buff${_count}}].Base2[${_i}]}].Name}
 
 					| do we have the triggered buff?
-					/dquery ${_toonName} -q "Me.Buff[${_base2}].ID" -o _DNqout -t 1s
-					| SDEBUG .Base2.ID \at${_DNqout}\ax
-					/if (!${Bool[${_DNqout}]}) 	/varset _found FALSE
+					/dquery ${_toonName} -q "Me.Buff[${_base2}].ID" -o DNQReturn -t 1
+					| SDEBUG HAVE: .Base2.ID \at${DNQReturn}\ax \a-t::\ax ${_base2}
+					/if (${Bool[${DNQReturn}]}) {
+						/varset _found TRUE
+						/continue
+					}
 
 					| does it stack
-					/dquery ${_toonName} -q "Spell[${_base2}].NewStacks" -o _DNqout -t 1s 
-					| SDEBUG .Base2.NewStacks \at${_DNqout}\ax
-					/if (!${Bool[${_DNqout}]}) /varset _found TRUE
+					/dquery ${_toonName} -q "Spell[${_base2}].NewStacks" -o DNQReturn -t 1
+					| SDEBUG STACKS: .Base2.NewStacks \at${DNQReturn}\ax \a-t::\ax ${_base2}
+					/if (!${Bool[${DNQReturn}]}) {
+						/varset _found TRUE
+						/continue
+					}
 
 					| is it buff blocked 
-					/dquery ${_toonName} -q "lstBlockedSpells.Find[${_base2}]" -o _DNqout -t 1s 
-					| SDEBUG .Base2.Blocked Buff \at${_DNqout}\ax
-					/if (${Bool[${_DNqout}]}) /varset _found TRUE
+					/dquery ${_toonName} -q "lstBlockedSpells.Find[${_base2}]" -o DNQReturn -t 1
+					| SDEBUG BLOCKED .Base2.Blocked Buff \at${DNQReturn}\ax \a-t::\ax ${_base2}
+					/if (${Bool[${DNQReturn}]}) {
+						/varset _found TRUE
+						/continue
+					}
 
 				/next _i
 
@@ -984,28 +989,39 @@ sub check_buffs_BC()
 			} else {
 	
 				| has the buff?
-				/dquery ${_toonName} -q "Me.Buff[${Buff${_count}}].Name" -o _DNqout -t 1s
-				| SDEBUG .Name \at${_DNqout}\ax
-				/if (!${Bool[${_DNqout}]}) /varset _found FALSE
+				/dquery ${_toonName} -q "Me.Buff[${Buff${_count}}].Name" -o DNQReturn -t 1
+				| SDEBUG .Name \at${DNQReturn}\ax
+				/if (${Bool[${DNQReturn}]}) {
+					/varset _found TRUE
+					/continue
+				}
 
 				| stacks				
-				/dquery ${_toonName} -q "Spell[${Buff${_count}}].NewStacks" -o _DNqout -t 1s
-				| SDEBUG .NewStacks \at${_DNqout}\ax
-				/if (!${Bool[${_DNqout}]}) /varset _found TRUE
+				/dquery ${_toonName} -q "Spell[${Buff${_count}}].NewStacks" -o DNQReturn -t 1
+				| SDEBUG .NewStacks \at${DNQReturn}\ax
+				/if (!${Bool[${DNQReturn}]}) {
+					/varset _found TRUE
+					/continue
+				}
 
 				| is it buff blocked 
-				/dquery ${_toonName} -q "lstBlockedSpells.Find[${Buff${_count}}]" -o _DNqout -t 1s 
-				/if (${Bool[${_DNqout}]}) /varset _found TRUE
+				/dquery ${_toonName} -q "lstBlockedSpells.Find[${Buff${_count}}]" -o DNQReturn -t 1
+				/if (${Bool[${DNQReturn}]}) {
+					/varset _found TRUE
+					/continue
+				}
 
 			}
 
-			/if (${Me.CurrentMana} > ${Spell[${Buff${_count}}].Mana} && !${_found}) { 
-				| bards STFU
-				/if (${Select[${Me.Class.ShortName},BRD]} && ${Me.Casting.ID}) /call pulse_stop 16
+			| has the buff. move along
+			/if (${_found}) /continue
+			
+			| bards STFU
+			/if (${Select[${Me.Class.ShortName},BRD]} && ${Me.Casting.ID}) /call pulse_stop bc_buff_stop
 
-				| can we cast the spell already				
-				/if (${validate_cast[FALSE, spell, "${Buff${_count}}", ${Spawn[pc ${_toonName}].ID}]}) /call core_cast2 "${Buff${_count}}" ${buffGem} ${Spawn[pc ${_toonName}].ID} FALSE
-			}
+			| can we cast the spell already				
+			/if (${validate_cast[FALSE, spell, "${Buff${_count}}", ${Spawn[pc ${_toonName}].ID}]}) /call core_cast2 "${Buff${_count}}" ${buffGem} ${Spawn[pc ${_toonName}].ID} FALSE
+
 		/next _count
 		
 		| keep the line moving please...
@@ -1023,8 +1039,8 @@ sub check_buffs_BC()
  *	USE: /call check_ammo
  *	NOTE:
  ***|
-sub check_ammo()
-	DEBUG check_ammo()
+sub check_ammo(bool _debug)
+	DEBUG check_ammo(${_debug})
 	
 	AMIDEAD
 	CHECKEXIT
@@ -1036,28 +1052,61 @@ sub check_ammo()
 	
 	| enumerate the |'s
 	/for _count 1 to ${lstRangeItem.Count[|]}
+		
+		/if (${_debug}) SDEBUG item:${_count} ${lstRangeItemSummon.Arg[${_count},|]}..${FindItemCount[${lstRangeItemSummon.Arg[${_count},|]}]}
+		
+		| put the ammo in the ammo slot if theres spare in the inventory
+		/if (!${Me.Inventory[22].ID} && ${FindItemCount[${lstRangeItemSummon.Arg[${_count},|]}]}) {
+			/squelch /nomodkey /itemnotify "${lstRangeItemSummon.Arg[${_count},|]}" leftmouseup
+		}
+		
 		| do we have enough of the summoned item
-		| /if (${FindItemCount[${lstRangeItemSummon.Arg[${_count},|]}]} > ${strRangeItemCount}) /continue
-		/if (${FindItemCount[${lstRangeItemSummon.Arg[${_count},|]}]}) /continue
+		/if (${FindItemCount[${lstRangeItemSummon.Arg[${_count},|]}]} > ${strRangeItemCount}) /continue
+		| /if (${FindItemCount[${lstRangeItemSummon.Arg[${_count},|]}]}) /continue
 
 		| is there an entry for this loop?
 		/if (!${Bool[${lstRangeItem.Arg[${_count},|]}]} || !${Bool[${lstRangeItemSummon.Arg[${_count},|]}]}) /continue
 
 		| sort what type of item we need to get
 		/if (${Select[${Me.Class.ShortName},BRD]} && ${Me.Casting.ID}) /call pulse_stop
+		
+		| spell
 		/if (${Me.Book[${Spell[${lstRangeItem.Arg[${_count},|]}].RankName}]}) {
 			/if (${validate_cast[FALSE, spell, "${lstRangeItem.Arg[${_count},|]}", ${Me.ID}]}) /call core_cast2 "${lstRangeItem.Arg[${_count},|]}" ${buffGem} ${Me.ID} FALSE
+		
+		| item
 		} else /if (${Me.ItemReady[${lstRangeItem.Arg[${_count},|]}]}) {
 			/if (${validate_cast[FALSE, item, "${lstRangeItem.Arg[${_count},|]}", ${Me.ID}]}) /call core_cast2 "${lstRangeItem.Arg[${_count},|]}" item 0 FALSE
+		
+		| alt
 		} else /if (${Me.AltAbilityReady[${lstRangeItem.Arg[${_count},|]}]}) {
 			/if (${validate_cast[FALSE, alt, "${lstRangeItem.Arg[${_count},|]}", ${Me.ID}]}) /call core_cast2 "${lstRangeItem.Arg[${_count},|]}" alt ${Me.ID} FALSE
+		
+		| disc for zerkers
 		} else /if (${Me.CombatAbilityReady[${Spell[${lstRangeItem.Arg[${_count},|]}].RankName}]} || ${Select[${Me.Class.ShortName},BER]}) {
 			/if (${validate_cast[FALSE, disc, "${lstRangeItem.Arg[${_count},|]}", ${Me.ID}]}) /call core_cast2 "${lstRangeItem.Arg[${_count},|]}" disc ${Me.ID} FALSE
 		}
+	
 	/next _count
+
 	CLEARCURSOR TRUE
 
 /return
+
+
+
+InvSlot22
+
+
+!${Me.FreeInventory}
+
+${ItemSlot[22]}
+
+
+pack${Math.Calc[${Me.Inventory[32].Item[1].ItemSlot}-22].Int}
+
+${Me.Inventory[22].Name.Equal[]}
+
 
 
 
@@ -1080,7 +1129,6 @@ sub check_shrink()
 			}
 		} else /if (${Me.ItemReady[${setShrinkItem}]}) {
 			/if (${validate_cast[FALSE, item, "${setShrinkItem}", ${Me.ID}]}) {
-				/echo here...!!!!
 				/call core_cast2 "${setShrinkItem}" item ${Me.ID} FALSE
 			}
 		}
@@ -2071,29 +2119,31 @@ sub mem_nuke_line(string _line)
  *	NOTE: 
  ***|
 sub cast_DOT()
-	DEBUG  cast_DOT()
+	DEBUG cast_DOT()
 	
 	/call get_assist_target
 	/declare _count int local 0
 	/for _count 1 to 8
-		/if (!${Range.Between[1,8:${Int[${_count}]}]}) /continue
+		| /if (!${Range.Between[1,8:${Int[${_count}]}]}) /continue
 		/if (!${Bool[${DoT${_count}}]}) /continue
 		AMIDEAD
 		CHECKEXIT
 		CHECKINPUTS
-		/if (${is_target_dead[${Target2Kill}]}) {
-			/if (${Select[${Me.Class.ShortName},BRD]}) /call pulse_stop 4
-			/return
-		}
-		/if (!${cast_condition[DoT${_count}Condition]}) /continue 
-		/if (${Me.CurrentMana} < ${Spell[${DoT${_count}}].Mana} || ${Me.PctMana} < 2) /continue 
+
+		| /if (!${cast_condition[DoT${_count}Condition]}) /continue 
+		/if (${Me.PctMana} < 2) /continue 
 
 		/if (${Target.BuffDuration[${DoT${_count}chk}].TotalSeconds} >= 3 && ${Spawn[${Target.Buff[${DoT${_count}chk}].Caster}].ID} == ${Me.ID}) /continue
 		/if (${Target.Buff[${DoT${_count}chk}].ID}) /continue
 
 		| bard dots
 		/if (${Select[${Me.Class.ShortName},BRD]}) {
-			/if (${validate_cast[FALSE, pulse, "${DoT${_count}}", ${Target2Kill}]}) /call core_cast2 "${DoT${_count}}" pulse ${Target2Kill} cast_break
+			/if (${is_target_dead[${Target2Kill}]}) {
+				/call pulse_stop cast_dot
+				/return
+			}
+
+			/if (${validate_cast[FALSE, pulse, "${DoT${_count}}", ${Target2Kill}]}) /call core_cast2 "${DoT${_count}}" pulse ${Target2Kill} FALSE
 
 		| all other dots
 		} else {
@@ -2446,128 +2496,186 @@ sub cast_break()
  *	USE: 
  *	NOTE: 
  ***|
-sub cast_cure()
+sub cast_cure(bool _debug)
 	DEBUG cast_cure()
 	
-	/call timer_update timer_check_cast_cure ${tCast_Cure}
+	/if (${coreAuto}) /call timer_update timer_check_cast_cure ${tCast_Cure}
+
+	| dont take time from mobs attention
+	/if ((${swPull} || ${swAgro}) && ${Me.CombatState.Equal[COMBAT]}) /return
+
 	AMIDEAD
 	CHECKINPUTS
 
 	UPDATEHUD "HEAL Cure"
-
-	| if i'm fine skip to everyone else
-	/if (!${Debuff.Counters}) {
-		/if (!${Bool[${Group.Members}]} || ${swPull} || ${swAgro}) /return
-	} else /if (${Debuff.Counters}) {
+	
+	| should wear a raincoat before you dive the muff..
+	/if (${Me.TotalCounters}) {
+		/if (${_debug}) SDEBUG I have issues...
 		
 		| Monk
-		/if (${Select[${Me.Class.ShortName},MNK]}) {
-			/if (${validate_cast[FALSE, alt, "Purify Body", ${Me.ID}]}) /call core_cast2 "Purify Body" alt 0 FALSE
+		/if (${Select[${Me.Class.ShortName},MNK]} && ${Me.AltAbilityReady[Purify Body]}) {
+			/if (${validate_cast[FALSE, alt, "Purify Body", ${Me.ID}]}) {
+				/call core_cast2 "Purify Body" alt 0 FALSE
+				/delay 5
+				/return
+			}
+			
 		| paladin, Cleric, Shaman, Druid
 		} else /if (${Select[${Me.Class.ShortName},PAL,CLR,SHM,DRU]} && ${Me.AltAbilityReady[Radiant Cure]}) {
-			/if (${Debuff.Curses} || ${Debuff.Poisons} || ${Debuff.Diseases}) {
-				/if (${validate_cast[FALSE, alt, "Radiant Cure", ${Me.ID}]}) /call core_cast2 "Radiant Cure" alt 0 FALSE
+			/if (${Me.CountersCurse} || ${Me.CountersPoison} || ${Me.CountersDisease}) {
+				/if (${validate_cast[FALSE, alt, "Radiant Cure", ${Me.ID}]}) {
+					/call core_cast2 "Radiant Cure" alt 0 FALSE
+					/delay 5
+					/return
+				}
 			}
+			
 			| paladin splash
 			/if (${Select[${Me.Class.ShortName},PAL]}) {
 				/call Bind_pal_splash
+				/delay 5
+				/return
 			}
-			
+
 		| Necromancer
 		} else /if (${Select[${Me.Class.ShortName},NEC]} && ${Me.AltAbilityReady[Embrace the Decay]}) {
-			/if (${Debuff.Curses} || ${Debuff.Poisons} || ${Debuff.Diseases} || ${Debuff.Corruptions}) {
-				/if (${validate_cast[FALSE, alt, "Embrace the Decay", ${Me.ID}]}) /call core_cast2 "Embrace the Decay" alt 0 FALSE
+			/if (${Me.CountersCurse} || ${Me.CountersPoison} || ${Me.CountersDisease} || ${Me.CountersCorruption}) {
+				/if (${validate_cast[FALSE, alt, "Embrace the Decay", ${Me.ID}]}) {
+					/call core_cast2 "Embrace the Decay" alt 0 FALSE
+					/delay 5
+					/return
+				}
 			}
 		}
 		
-		/if (${Debuff.Curses} && ${Me.ItemReady[${cureCurseItem}]}) {
-			/if (${validate_cast[FALSE, item, "${cureCurseItem}", ${Me.ID}]}) /call core_cast2 "${cureCurseItem}" item ${Me.ID} FALSE
+		| cure with items self only
+		/if (${Me.CountersCurse} && ${Me.ItemReady[${cureCurseItem}]}) {
+			/if (${validate_cast[FALSE, item, "${cureCurseItem}", ${Me.ID}]}) {
+				/call core_cast2 "${cureCurseItem}" item ${Me.ID} FALSE
+				/delay 5
+				/return
+			}
 		}
 		
-		/if (${Debuff.Corruptions} && ${Me.ItemReady[${cureCorruptItem}]}) {
-			/if (${validate_cast[FALSE, item, "${cureCorruptItem}", ${Me.ID}]}) /call core_cast2 "${cureCorruptItem}" item ${Me.ID} FALSE
+		/if (${Me.CountersCorruption} && ${Me.ItemReady[${cureCorruptItem}]}) {
+			/if (${validate_cast[FALSE, item, "${cureCorruptItem}", ${Me.ID}]}) {
+				/call core_cast2 "${cureCorruptItem}" item ${Me.ID} FALSE
+				/delay 5
+				/return
+			}
 		}
 		
-		/if (${Debuff.Poisons} && ${Me.ItemReady[${curePoisonItem}]}) {
-			/if (${validate_cast[FALSE, item, "${curePoisonItem}", ${Me.ID}]}) /call core_cast2 "${curePoisonItem}" item ${Me.ID} FALSE
+		/if (${Me.CountersPoison} && ${Me.ItemReady[${curePoisonItem}]}) {
+			/if (${validate_cast[FALSE, item, "${curePoisonItem}", ${Me.ID}]}) {
+				/call core_cast2 "${curePoisonItem}" item ${Me.ID} FALSE
+				/delay 5
+				/return
+			}
 		}
 		
-		/if (${Debuff.Diseases} && ${Me.ItemReady[${cureDiseaseItem}]}) {
-			/if (${validate_cast[FALSE, item, "${cureDiseaseItem}", ${Me.ID}]}) /call core_cast2 "${cureDiseaseItem}" item ${Me.ID} FALSE
+		/if (${Me.CountersDisease} && ${Me.ItemReady[${cureDiseaseItem}]}) {
+			/if (${validate_cast[FALSE, item, "${cureDiseaseItem}", ${Me.ID}]}) {
+				/call core_cast2 "${cureDiseaseItem}" item ${Me.ID} FALSE
+				/delay 5
+				/return
+			}
 		}
 	}
+	
 
 	/declare _count int local 0
 	/declare _toonName string local
-	/declare _DNqout string local
 	
 	| each toon
 	/for _count 1 to ${DanNet.PeerCount[${DanNetMacroChannel}]}
-		AMIDEAD
-		CHECKINPUTS
-		
+	
 		| get the name to something usable
-		/varset _toonName ${${DanNet.Peers[${DanNetMacroChannel}]}.Arg[${_count},|]}
+		/varset _toonName ${DanNet.Peers[${DanNetMacroChannel}].Arg[${_count},|]}
+		/if (${_debug}) SDEBUG Checking \a-t::\ax \aw${_toonName}\ax
+		
+		| if the observer hasnt "observerd" the toon yet. go no further!		
+		/if (!${Defined[${_toonName}_TotalCounters]}) /return FALSE
+		
+		| are they in my zone. if not. fuck'em
+		/if (${DanNet.Peers[zone_${MacroQuest.Server}_${Zone.ShortName}].Find[${_toonName}]}) /return FALSE
+
+		| are they debuffed at all?
+		/if (!${${_toonName}_TotalCounters} && !${Bool[${${_toonName}_Snared}]} && !${Bool[${${_toonName}_Mezzed}]} && !${Bool[${${_toonName}_Maloed}]} && !${Bool[${${_toonName}_Tashed}]}) {
+			/return
+		}
+
+		AMIDEAD
 				
-		| toon here?
-		/if (!${Spawn[pc ${_toonName}].ID}) /continue
-			
 		| toon dead?
 		/if (${Spawn[pc ${_toonName}].Dead}) /continue
 	
 		| already checked me
 		/if (${_toonName.Equal[${Me.DisplayName}]}) /continue		
 
+
+		| healer class AA curing
+		/if (${Select[${Me.Class.ShortName},PAL,CLR,SHM,DRU]}) {
+
+			| AA Radient Cure 
+			| 100' 1 min
+			/if (${Select[${Me.Class.ShortName},PAL,CLR,SHM,DRU]} && ${Me.AltAbilityReady[Radiant Cure]} && ${Spawn[pc ${_toonName}].Distance} < 100 && ${Group.Member[${_toonName}].ID}) {
+				/if (${validate_cast[FALSE, alt, "Radiant Cure", ${Me.ID}]}) /call core_cast2 "Radiant Cure" alt 0 FALSE
+				/delay 5
+				/return
+			}
+
+			| AA Purify Soul
+			| 200' 5 min
+			/if (${Select[${Me.Class.ShortName},PAL,CLR,DRU]} && ${Me.AltAbilityReady[Purify Soul]} && ${Spawn[pc ${_toonName}].Distance} < 200) {
+				/if (${validate_cast[FALSE, alt, "Purify Soul", ${Spawn[pc ${_toonName}].ID}]}) /call core_cast2 "Purify Soul" alt ${Spawn[pc ${_toonName}].ID} FALSE
+				/delay 5
+				/return
+			}
+			
+			| AA Group Purify Soul . were in deep shit if we've gotten this far.
+			| 0/100' 15 min
+			/if (${Select[${Me.Class.ShortName},CLR,DRU]} && ${Me.AltAbilityReady[Group Purify Soul]} && ${Spawn[pc ${_toonName}].Distance} < 100 && ${Group.Member[${_toonName}].ID}) {
+				/if (${validate_cast[FALSE, alt, "Group Purify Soul", ${Me.ID}]}) /call core_cast2 "Group Purify Soul" alt 0 FALSE
+				/delay 5
+				/return
+			}
+			
+			| paladin splash 50' range
+			/if (${Select[${Me.Class.ShortName},PAL]} && ${Spawn[pc ${_toonName}].Distance} < 50) {
+				/call Bind_pal_splash
+			}
+		}
+
 		| are they debuffed?
-		/dquery ${_toonName} -q "Debuff" -o _DNqout -t 1s 
-		/if (!${_DNqout}) /continue		
-
-		| AA Radient Cure 
-		| 100' 1 min
-		/if (${validate_class[FALSE, |PAL|SHM|CLR|DRU]} && ${Me.AltAbilityReady[Radiant Cure]}) {
-			/if (${validate_cast[FALSE, alt, "Radiant Cure", ${Me.ID}]}) /call core_cast2 "Radiant Cure" alt 0 FALSE
-			/continue
-		}
-
-		| AA Purify Soul
-		| 200' 5 min
-		/if (${validate_class[FALSE, |PAL|CLR|DRU]} && ${Me.AltAbilityReady[Purify Soul]}) {
-			/if (${validate_cast[FALSE, alt, "Purify Soul", ${Spawn[pc ${_toonName}].ID}]}) /call core_cast2 "Purify Soul" alt ${Spawn[pc ${_toonName}].ID} FALSE
-			/continue
-		}
+		/if (!${${_toonName}_TotalCounters}) /continue
 		
-		| AA Group Purify Soul . were in deep shit if we've gotten this far.
-		| 0/100' 15 min
-		/if (${validate_class[FALSE, |CLR|DRU]} && ${Me.AltAbilityReady[Group Purify Soul]}) {
-			/if (${validate_cast[FALSE, alt, "Group Purify Soul", ${Me.ID}]} && ${Spawn[pc ${_toonName}].Distance} <= 100) /call core_cast2 "Group Purify Soul" alt 0 FALSE
-			/continue
-		}
-		
-		| paladin splash 50' range
-		/if (${Select[${Me.Class.ShortName},PAL]}) {
-			/call Bind_pal_splash
-		}
+		| get out ??
+		/if (!${Bool[${cureCurse}]} && !${Bool[${cureCorrupt}]} && !${Bool[${curePoison}]} && !${Bool[${cureDisease}]}) /continue
 		
 		| cure with spell
-		
-		/if (${Bool[${cureCurse}]}) {
-			/dquery ${_toonName} -q "Debuff.Curses" -o _DNqout -t 1s 
-			/if (${_DNqout} && ${validate_cast[FALSE, spell, "${cureCurse}", ${Spawn[pc ${_toonName}].ID}]}) /call core_cast2 "${cureCurse}" ${buffGem} ${Spawn[pc ${_toonName}].ID} FALSE
+		/if (${Bool[${cureCurse}]} && ${${_toonName}_CountersCurse}) {
+			/if (${validate_cast[FALSE, spell, "${cureCurse}", ${Spawn[pc ${_toonName}].ID}]}) {
+				/call core_cast2 "${cureCurse}" ${buffGem} ${Spawn[pc ${_toonName}].ID} FALSE
+			}
 		}
 		
-		/if (${Bool[${cureCorrupt}]}) {
-			/dquery ${_toonName} -q "Debuff.Corruptions" -o _DNqout -t 1s 
-			/if (${_DNqout} && ${validate_cast[FALSE, spell, "${cureCorrupt}", ${Spawn[pc ${_toonName}]}]}) /call core_cast2 "${cureCorrupt}" ${buffGem} ${Spawn[pc ${_toonName}].ID} FALSE
+		/if (${Bool[${cureCorrupt}]} && ${${_toonName}_CountersCorruption}) {
+			/if (${validate_cast[FALSE, spell, "${cureCorrupt}", ${Spawn[pc ${_toonName}]}]}) {
+				/call core_cast2 "${cureCorrupt}" ${buffGem} ${Spawn[pc ${_toonName}].ID} FALSE
+			}
 		}
 		
-		/if (${Bool[${curePoison}]}) {
-			/dquery ${_toonName} -q "Debuff.Poisons" -o _DNqout -t 1s 
-			/if (${_DNqout} && ${validate_cast[FALSE, spell, "${curePoison}", ${Spawn[pc ${_toonName}].ID}]}) /call core_cast2 "${curePoison}" ${buffGem} ${Spawn[pc ${_toonName}].ID} FALSE
+		/if (${Bool[${curePoison}]} && ${${_toonName}_CountersPoison}) {
+			/if (${validate_cast[FALSE, spell, "${curePoison}", ${Spawn[pc ${_toonName}].ID}]}) {
+				/call core_cast2 "${curePoison}" ${buffGem} ${Spawn[pc ${_toonName}].ID} FALSE
+			}
 		}
 		
-		/if (${Bool[${cureDisease}]}) {
-			/dquery ${_toonName} -q "Debuff.Diseases" -o _DNqout -t 1s 
-			/if (${_DNqout} && ${validate_cast[FALSE, spell, "${cureDisease}", ${Spawn[pc ${_toonName}].ID}]}) /call core_cast2 "${cureDisease}" ${buffGem} ${Spawn[pc ${_toonName}].ID} FALSE
+		/if (${Bool[${cureDisease}]} && ${${_toonName}_CountersDisease}) {
+			/if (${validate_cast[FALSE, spell, "${cureDisease}", ${Spawn[pc ${_toonName}].ID}]}) {
+				/call core_cast2 "${cureDisease}" ${buffGem} ${Spawn[pc ${_toonName}].ID} FALSE
+			}
 		}
 
 	/next _count
@@ -2575,22 +2683,6 @@ sub cast_cure()
 	UPDATEHUD FALSE
 
 /return
-
-
-
-|***
- *	DES:targets and casts a free targeting area spell.
- *	USE: /call cast_free_target [SPELL] [TARGET ID]
- *	NOTE: i could never get this to work right...
-sub cast_free_target(string _tmpSpell, int _tmpID)
-	/if (${validate_cast[FALSE, spell, "${_tmpSpell}", ${_tmpID}) /call core_cast2 "${_tmpSpell}" 0 ${_tmpID} FALSE
-	/squelch /face ID ${_tmpID} ${If[${swFaceFast},fast,]}
-	/delay 5
-	/click left center
-	/delay 4s !${Me.Casting.ID}
-
-/return
- ***|
 
 
 
@@ -3032,22 +3124,8 @@ sub set_tie()
 	| reasons to not tie to a toon
 	/if (${swSetTie} && ${Spawn[pc ${setTieToon}].ID} && ${Spawn[pc ${setTieToon}].Dead}) /return
 	/if (${Me.Combat} && ${swCombatTie}) /return
-	/if (${Spawn[pc ${setTieToon}].Distance} <= ${setTieDistance} || !${Spawn[pc ${setTieToon}].ID}) {
-		
-		| no nav plugin
-		/if (${setTieMode.Equal[nav]}) {
-		
-		| no moveutils plugin
-		} else /if (${setTieMode.Equal[stick]}) {
-			/if (${Stick.Active}) /squelch /stick off
-			/if (${Me.Moving}) {
-				/keypress forward
-				/keypress back
-			}
-			/return
-		}
-	}
-		
+	/if (${Spawn[pc ${setTieToon}].Distance} <= ${setTieDistance} || !${Spawn[pc ${setTieToon}].ID}) /return
+
 	| turn off camp
 	/if (${Bool[${MakeCamp}]}) {
 		/squelch /makecamp off
@@ -3061,7 +3139,8 @@ sub set_tie()
 			/if (!${Navigation.Active} && ${Spawn[pc ${setTieToon}].Distance} > ${setTieDistance}) {
 				/if (${Target.ID}) /squelch /target clear
 				/squelch /face ID ${Spawn[pc ${setTieToon}].ID} ${If[${swFaceFast},fast,]}
-				/nav spawn pc ${setTieToon} |log=off
+				| /nav spawn pc ${setTieToon} |log=off
+				/nav ID ${Spawn[pc ${setTieToon}].ID} |dist=${setTieDistance} |log=off
 		
 			:navtime
 			} else /if (${Spawn[pc ${setTieToon}].Distance} <= ${setTieDistance}) {
@@ -3250,7 +3329,7 @@ sub check_exit()
 	}
 	
 	| invulnerable debuff?
-	/if (${Debuff.Invulnerable}) /return TRUE	
+	| /if (${Debuff.Invulnerable}) /return TRUE	
 	
 	| SELF BUFFS/SONGS
 	/if (${Me.Song[Divine Aura].ID}) /return TRUE
@@ -4720,7 +4799,7 @@ sub get_target(bool _debug)
 		} else {
 			/if (${Spawn[ID ${Target2Kill}].Distance} > 31) {
 				/for _count 1 to ${lstRangeItem.Count[|]}
-					/if (!${FindItemCount[${lstRangeItemSummon.Arg[${_count},|]}]} && ${Bool[${lstRangeItemSummon}]}) /call check_ammo
+					/if (!${Me.Inventory[22].ID} && ${Bool[${lstRangeItemSummon}]}) /call check_ammo
 				/next _count
 				
 				/if (${Bool[${swBandolier}]} && ${Bool[${bandolierRange}]} && ${Bool[${bandolierNormal}]}) {
@@ -5653,7 +5732,7 @@ sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 	/if (!${Bool[${_spell}]}) /return FALSE
 
 	| obey invis
-	/if (${Me.Invis}) /retun FALSE
+	/if (${Me.Invis}) /return FALSE
 	
 	| is the issued target dead?
 	/if (${_tmpID}) {
@@ -5881,7 +5960,7 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub)
 
 	| spell
 	/if (!${Select[${_type},alt,item,disc,pulse,epicitem,activedisc]}) {
-		DEBUG core_cast2(spell)
+		DEBUG core_cast2(spell::${_spell})
 		/declare _castLoop int local 1
 		/varset castReturn CAST_NOTREADY
 		/varset castBreak FALSE
@@ -5968,7 +6047,7 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub)
 
 	| AA
 	} else /if (${Select[${_type},alt]}) {
-		DEBUG core_cast2(alt)
+		DEBUG core_cast2(alt::${_spell})
 		
 		/declare _castLoop int local 1
 		/varset castReturn CAST_NOTREADY
@@ -6030,7 +6109,7 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub)
 		
 	| item
 	} else /if (${Select[${_type},item,epicitem]}) {
-		DEBUG core_cast2(item,epicitem)
+		DEBUG core_cast2(item,epicitem::${_spell})
 		/declare _castLoop int local 1
 		/varset castReturn CAST_NOTREADY
 
@@ -6088,7 +6167,7 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub)
 		
 	| disc
 	} else /if (${Select[${_type},disc,activedisc]}) {
-		DEBUG core_cast2(disc,activedisc)
+		DEBUG core_cast2(disc,activedisc::${_spell})
 		/varset _spell ${Spell[${_spell}].RankName}
 
 		/if (${Select[${Me.Class.ShortName},BRD]}) {
@@ -6112,7 +6191,7 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub)
 
 	| bard song	
 	} else /if (${Select[${_type},pulse]}) {
-		DEBUG core_cast2(pulse)
+		DEBUG core_cast2(pulse::${_spell})
 
 		/declare _castLoop int local 1
 		/varset castReturn CAST_NOTREADY
@@ -7538,7 +7617,7 @@ sub check_buffs_tmp_list(string _spell, string _toonList)
 	
 	/declare _count int local
 	/declare _buffToon string local
-	/declare _DNqout string local
+	/varset DNQReturn NULL
 	/varset _spell ${Spell[${_spell}].RankName}
 
 	/for _count 1 to ${_toonList.Count[|]}
@@ -7569,12 +7648,12 @@ sub check_buffs_tmp_list(string _spell, string _toonList)
 		/if (!${Spawn[${_toonList.Arg[${_count},|]}].ID}) /continue
 
 		| spell stacks ?
-		/dquery ${_toonList.Arg[${_count},|]} -q "Spell[${_spell}].NewStacks" -o _DNqout
-		/if (!${_DNqout}) /continue
+		/dquery ${_toonList.Arg[${_count},|]} -q "Spell[${_spell}].NewStacks" -o DNQReturn
+		/if (!${Bool[${DNQReturn}]}) /continue
 			
 		| has the rune?
-		/dquery ${_toonList.Arg[${_count},|]} -q "Me.Buff[${_spell}].ID" -o _DNqout
-		/if (${Bool[${_DNqout}]}) /continue
+		/dquery ${_toonList.Arg[${_count},|]} -q "Me.Buff[${_spell}].ID" -o DNQReturn
+		/if (${Bool[${DNQReturn}]}) /continue
 
 		/if (${validate_cast[FALSE, spell, "${_spell}", ${Spawn[=${_toonList.Arg[${_count},|]} pc].ID}]}) /call core_cast2 "${_spell}" 0 ${Spawn[=${_toonList.Arg[${_count},|]} pc].ID} FALSE
 	
@@ -8580,5 +8659,68 @@ sub out_drilldown(string _name, string _variable, bool _silent)
 			/varset _sep TRUE
 		/next _count
 		VOUT /${_name.Lower} [${_listout}]		
+
+/return
+
+
+
+|***
+ *	DES: creates observers
+ *	USE: /call observer [DEBUG T/F] [string of things to observe] [SILENT T/F]
+ *	NOTE: the variable passed to this sub, _observer, is a list. 
+ *	NOTE: the first item in the list is the tlo, all the other items are members you want to check
+ *	NOTE: if you want to use more then 1 TLO, call the sub multiple times with different lists
+ ***|
+sub observer(bool _debug, string _observer, bool _silent)
+	DEBUG observer(${_debug}, ${_observer})
+
+	/declare _countT 					int 		local 0
+	/declare _countE					int 		local 0
+	/declare _toonName 				string 	local FALSE
+	/declare _element					string	local FALSE
+	/declare _TLO							string 	local FALSE
+	/declare _timestart				int			local 0
+	/declare _timeend					int			local 0
+	
+	/if (${_debug}) SDEBUG Observers Set\aw::\ax\a-tStart\ax
+
+	| cycle the toons inside the dan group
+	/for _countT 1 to ${DanNet.PeerCount[${DanNetMacroChannel}]}
+		/varset _timestart ${MacroQuest.Running}
+
+		/varset _toonName ${DanNet.Peers[${DanNetMacroChannel}].Arg[${_countT},|]}
 		
+		| skip me
+		/if (${_toonName.Equal[${Me.DisplayName}]}) /continue
+
+		| existing? 
+		/if (${DanNet[${_toonName}].ObserveCount}) /continue 
+	
+		| set the TLO
+		/if (${_debug}) SDEBUG ::_TLO::${lstObserver${_observer}.Arg[1,|]}
+		/varset _TLO ${lstObserver${_observer}.Arg[1,|]}
+
+		| loop the string, skip the first one
+		/for _countE 2 to ${lstObserver${_observer}.Count[|]}
+			/if (${_debug}) SDEBUG ::_element[${_countE}]::${lstObserver${_observer}.Arg[${_countE},|]}
+
+			| set the element
+			/varset _element ${lstObserver${_observer}.Arg[${_countE},|]}
+
+			| define the variable. we will be using this for a while. like a long while
+			/if (!${Defined[${_toonName}_${_element}]}) /declare ${_toonName}_${_element} string outer
+
+			| set observer
+			/if (${_debug}) SDEBUG /dobserve ${_toonName} -q "${_TLO}.${_element}" -o ${_toonName}_${_element}
+			/dobserve ${_toonName} -q "${_TLO}.${_element}" -o ${_toonName}_${_element}
+
+			/delay 1 ${DanNet[${_toonName}].O[${_toonName}_${_element}].Received}
+
+		/next _countE
+
+		/varset _timeend ${MacroQuest.Running}
+		/if (!${_silent}) VOUT Observers Set\a-t::\ax\aw${_observer}\ax\a-t::\ax\aw${_toonName}\ax ${sep} (${cnum}${Math.Calc[((${_timeend}-${_timestart}) / 10) / 60]}s\ax)
+
+	/next _countT
+
 /return

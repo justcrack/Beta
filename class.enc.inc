@@ -32,7 +32,7 @@ sub core_ENC()
 	/while (${prep_combat[]}) {
 		CHECKINPUTS
 		/if (${swHealSelf}) /call check_heal_self_${Me.Class.ShortName}
-		/if (${swHealCure}) /call cast_cure
+		/if (!${timer_check_cast_cure} && ${swHealCure}) /call cast_cure FALSE
 		/if (${exit_class_loop[]}) /return
 				
 		/if (${coreAuto} && ${swdeBuffMezz}) {

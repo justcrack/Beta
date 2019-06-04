@@ -30,7 +30,7 @@ sub core_MAG()
 		CHECKINPUTS
 		/if (${swHealSelf}) /call patch_heal_${Me.Class.ShortName}
 		/if (${swHealPet}) /call pet_heal_${Me.Class.ShortName}
-		/if (${swHealCure}) /call cast_cure
+		/if (!${timer_check_cast_cure} && ${swHealCure}) /call cast_cure FALSE
 		/if (${exit_class_loop[]}) /return FALSE
 
 		/if (${isValidTarget}) {

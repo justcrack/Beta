@@ -632,6 +632,7 @@ sub Bind_heal(string _type, string _verbage, bool _silent)
 		/if (${_type.Equal[override]}) /continue
 		/if (${_type.Equal[${_list.Arg[${_count},|].Lower}]}) {
 			/call set_switch ${chrID} sw${_bind}${_type} ${_verbage}
+			/if (${swHealCure}) /call observer FALSE Cure TRUE
 		}
 	/next _count
 
@@ -2112,7 +2113,7 @@ sub Bind_setMovementControls(string _type, string _verbage, bool _silent)
 
 |***
  *	DES: builds your group
- *	USE: /crew [crew1|crew2]
+ *	USE: /crew [1|2]
  *	NOTE:
  *	/grouproles set [NAME] [#]
  *	1=MainTank .. 					${GroupTank}
@@ -2126,7 +2127,7 @@ sub Bind_setMovementControls(string _type, string _verbage, bool _silent)
 sub Bind_crew(int _crew)
 	DEBUG Bind_crew(${_crew})
 	
-	| bail if now crey type listed
+	| bail if no crew type listed
 	/if (!${Bool[${_crew}]}) /return
 	
 	/declare _count int local 0
@@ -3296,7 +3297,7 @@ sub Bind_admin(string _type, string _verbage, string _verbage2, bool _silent)
 
 	| run the observer
 	} else /if (${_type.Equal[observer]}) {
-		/call Bind_observer
+		/call observer
 		/return
 	
 
@@ -4060,9 +4061,6 @@ sub Bind_ae_splash()
 	DEBUG Bind_ae_splash()
 	
 	/if (!${validate_class[TRUE, |PAL|CLR]}) /return FALSE
-
-	| splash
-	VOUT Splashing these dumb asses ${sep}
 	
 	| paladin
 	/if (${Me.Class.ShortName.Equal[PAL]}) {
@@ -4070,7 +4068,10 @@ sub Bind_ae_splash()
 			/call mem_spell TRUE "${splashCure}" ${buffGem} FALSE
 			/return
 		}
-		/if (${validate_cast[FALSE, spell, "${splashCure}", ${Me.ID}]}) /cast "${Spell[${splashCure}].RankName}" loc ${Me.X} ${Me.Y} ${Me.Z}
+		/if (${validate_cast[FALSE, spell, "${splashCure}", ${Me.ID}]}) {
+			| /cast "${Spell[${splashCure}].RankName}" loc ${Me.X} ${Me.Y} ${Me.Z}
+			/call core_cast2 "${healSplash}" spell ${Me.ID} FALSE
+		}
 	}
 	
 	| cleric
@@ -4079,7 +4080,10 @@ sub Bind_ae_splash()
 			/call mem_spell TRUE "${healSplash}" ${buffGem} FALSE
 			/return
 		}
-		/if (${validate_cast[FALSE, spell, "${healSplash}", ${Me.ID}]}) /cast "${Spell[${healSplash}].RankName}" loc ${Me.X} ${Me.Y} ${Me.Z}
+		/if (${validate_cast[FALSE, spell, "${healSplash}", ${Me.ID}]}) {
+			| /cast "${Spell[${healSplash}].RankName}" loc ${Me.X} ${Me.Y} ${Me.Z}
+			/call core_cast2 "${healSplash}" spell 0 FALSE
+		}
 	}
 	
 /return TRUE
@@ -4110,7 +4114,7 @@ sub Bind_int_pull()
  ***|
 #Bind swap /swap
 sub Bind_swap(string _item, int _toslot)
-	DEBUG Bind_swap(${_item}, ${_toslot})
+	SDEBUG Bind_swap(${_item}, ${_toslot})
    
   /declare _swapslot string local NULL
   /declare _pack int local 0

@@ -24,7 +24,7 @@ sub core_BST()
 		CHECKINPUTS
 		/if (${swHealSelf}) /call patch_heal_${Me.Class.ShortName}
 		/if (${swHealPet}) /call pet_heal_${Me.Class.ShortName}
-		/if (${swHealCure}) /call cast_cure
+		/if (!${timer_check_cast_cure} && ${swHealCure}) /call cast_cure FALSE
 		/if (${exit_class_loop[]}) /return		
 
 		/if (${isValidTarget}) {
@@ -52,6 +52,7 @@ sub core_BST()
 			/if (${validate_class[FALSE, ${lstClassMelee}]}) /call cast_stamina_recovery
 		}	
 	}
+	
 /return
 
 
@@ -63,6 +64,7 @@ sub core_BST()
  ***|
 sub disc_BST()
 	DEBUG disc_BST()
+
 	/if (${Me.PctEndurance} < 2) /return
 	AMIDEAD
 	CHECKEXIT
@@ -89,6 +91,7 @@ sub disc_BST()
 			/if (${validate_cast[FALSE, spell, "${GrowlSpell}", ${Me.ID}]}) /call core_cast2 "${GrowlSpell}" ${buffGem} 0 FALSE
 		}
 	}
+	
 /return
 
 
@@ -100,6 +103,7 @@ sub disc_BST()
  ***|
 sub check_mana_BST()
 	DEBUG check_mana_BST()
+
 	AMIDEAD
 	SIMPLEEXIT
 	
@@ -113,12 +117,31 @@ sub check_mana_BST()
 		}
 	}
 	
-	| group paragon
-	/if (!${Raid.Members} && ${Group} && ${switchGroupParagon} && ${Me.AltAbilityReady[Paragon of Spirit]}) {
-		ECHOCHANNEL Paragon of Spirits
-		/if (${validate_cast[FALSE, alt, "Paragon of Spirit", ${Me.ID}]}) {
-			/call core_cast2 "Paragon of Spirit" alt 0 FALSE
-		}
+	| Paragon Group Members	NOT IN RAID.... if 2+ need stamina or mana
+	/declare _count int local 0
+	/declare _countHurt int local 0
+
+	/if (${Group} && !${Raid} && ${Me.AltAbilityReady[Paragon of Spirit]}) {
+		/for _count 0 to ${Group}
+			AMIDEAD
+			CHECKEXIT
+			/if (${Group.Member[${_count}].Name.Equal[${Me.DisplayName}]}) /continue
+			/if (${Group.Member[${_count}].PctMana} >= ${groupParagonPct}*.${tmpHealOverride} && ${Group.Member[${_count}].PctEndurance} >= ${groupParagonPct}*.${tmpHealOverride}) /continue
+			/if (${Group.Member[${_count}].Distance} > 100) /continue
+			/if (${Group.Member[${_count}].Type.Equal[CORPSE]}) /continue
+			/if (${Group.Member[${_count}].Class.ShortName.Equal[BRD]}) /continue
+			
+
+			/varcalc _countHurt ${_countHurt}+1
+		/next _count				
+		
+		/if (${_countHurt} >= 1) {
+			/if (${validate_cast[FALSE, alt, "Paragon of Spirit", ${Me.ID}]}) {
+				/call core_cast2 "Paragon of Spirit" alt 0 FALSE
+				ECHOCHANNEL AA:Paragon of Spirit
+			}
+	 	}
+
 	}
 	
 	/if (${Me.Song[Paragon of Spirit].ID}) /return
@@ -126,11 +149,10 @@ sub check_mana_BST()
 		
 	| self paragon
 	/if (${switchSelfParagon}) {
-		/if (${Me.PctMana} < ${selfParagonPct}*.${tmpHealOverride}) {
+		/if (${Me.PctMana} <= ${selfParagonPct}*.${tmpHealOverride} || ${Me.PctEndurance} <= ${selfParagonPct}*.${tmpHealOverride}) {
 			/if (!${Me.Song[Focused Paragon].ID} && !${Me.Song[Paragon of Spirits].ID}) {
 				/if (${validate_cast[FALSE, alt, "Focused Paragon of Spirits", ${Me.ID}]}) {
 					/call core_cast2 "Focused Paragon of Spirits" alt ${Me.ID} FALSE
-					/return
 				}
 			}
 		}
@@ -147,6 +169,7 @@ sub check_mana_BST()
  ***|
 sub patch_heal_BST()
 	DEBUG patch_heal_BST()
+
 	/if (${Me.PctHPs} > ${${Me.Class.ShortName}Point}*.${tmpHealOverride}) /return
 	AMIDEAD
 	CHECKEXIT
@@ -159,6 +182,7 @@ sub patch_heal_BST()
 		/if (${validate_cast[FALSE, spell, "${FastHeal}", ${Me.ID}]}) /call core_cast2 "${FastHeal}" 0 ${Me.ID} FALSE
 	}
 	/call click_item_heal
+	
 /return
 
 
@@ -170,6 +194,7 @@ sub patch_heal_BST()
  ***|
 sub pet_heal_BST()
 	DEBUG pet_heal_BST()
+
 	/if (!${Me.Pet.ID}) /return
 	AMIDEAD
 	SIMPLEEXIT
@@ -183,6 +208,7 @@ sub pet_heal_BST()
 	/if (${Pet.PctHPs} < 80) {
 		/if (${validate_cast[FALSE, spell, "${setPetRenewalSpell}", ${Me.Pet.ID}]}) /call core_cast2 "${setPetRenewalSpell}" 0 ${Me.Pet.ID} FALSE
 	}
+
 /return
 
 
@@ -221,11 +247,13 @@ sub cast_AA_paragon()
  ***|
 sub click_DPS_BST()
 	DEBUG click_DPS_BST()
+
 	AMIDEAD
 	CHECKEXIT
 	CHECKINPUTS
 	/if (${is_target_dead[${Target2Kill}]}) /return
 	/call click_horn_of_unity 	
+
 /return
 
 
@@ -237,6 +265,7 @@ sub click_DPS_BST()
  ***| 
 sub burn_BST()
 	DEBUG burn_BST()
+
 	AMIDEAD
 	CHECKEXIT
 	CHECKINPUTS
@@ -250,8 +279,6 @@ sub burn_BST()
 	/if (${swSwarm}) {
 		/if (${validate_cast[FALSE, alt, "Attack of the Warders", ${Target2Kill}]}) /call core_cast2 "Attack of the Warders" alt ${Target2Kill} FALSE
 	}
-
-	| /if (${Me.Pet.ID} && ${Me.AltAbilityReady[Companion's Fury]}) /alt act 443
 
 	/if (${Me.Pet.ID}) {
 		/if (${validate_cast[FALSE, alt, "Companion's Fury", ${Pet.ID}]}) /call core_cast2 "Companion's Fury" alt 0 FALSE
@@ -278,6 +305,7 @@ sub burn_BST()
 	/call use_glyph
 	/call click_burn_circle
 	/call click_item_burn	
+
 /return
 
 

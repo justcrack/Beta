@@ -57,7 +57,7 @@ now, if you want to start fresh, you are done. if you want to migrate any existi
 - this will migrate a majority of your characters data. IT IS NOT 100% complete, but the important things get there
 - wash-rinse-repeate for remaing toons. once imported, you can remove the character INI files, they will not be used
 
-- you can delete all but the core.loot.ini file that you copoed. they are no longer needed.
+- you can delete all but the core.loot.ini file that you copied. they are no longer needed.
 
 - changelog.txt will have the rest of the info you need and new commands for editing the database
 

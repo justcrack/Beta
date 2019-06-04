@@ -87,6 +87,11 @@ sub Bind_build_swap(string _build)
 
 
 
+|==========================================================================================================================================
+create a DB backup..
+why the fuck doesnt this work???
+
+
 
 #bind build_backup /backup
 sub Bind_build_backup(string _build)
@@ -134,115 +139,47 @@ Knightly: /sqlite DB query PRAGMA journal_mode
 
 
 
-|===================================================================================================================================================================|
 
-cutsom sub designed to use observers to maintain a group "presence" over a designated list of item. starting with debuffs in order to remove the MQ2Debuff plugin.
-every character needs to be aware of the debuffs present on every other character.
+|==========================================================================================================================================
 
+templating
 
-/plugin MQ2debuffs unload
-
-
-
-Changed ${Me} and ${Buff} TLO's
-  Added DiseaseCounters, PoisonCounters, CurseCounters, CorruptionCounters
-  Changed Counters to TotalCounters
-
-| bad
-${Me.DiseaseCounters}
-${Me.PoisonCounters}
-${Me.CurseCounters}
-${Me.CorruptionCounters}
-${Me.TotalCounters}
-
-${Me.Diseased.CounterNumber}
-${Me.Poisoned.CounterNumber}
-${Me.Cursed.CounterNumber}
-${Me.Corrupted.CounterNumber}
-${Me.TotalCounters}
-
-
-| Good 
-||||
-
-${Me.CountersDisease}
-${Me.CountersCurse}
-${Me.CountersPoison}
-${Me.CountersCorruption}
-${Me.TotalCounters
-
-
-${DanNet.PeerCount[${DanNetMacroChannel}]}
-
-${DanNet.Peers[${DanNetMacroChannel}]}
-
-
-establish:
-/dobserve <name> -q <query> [-o <result>]
-
-read:
-${DanNet[<name>].Observe[<query>]} 
-${DanNet[<name>].O[<query>]}
+a simple. plain english flat file that can be filled out and share. something that can import into core and make a 100% ready character.
+will need maps from all entries to existing DB values.
 
 
 
 
 
-#bind observer /observer
-sub Bind_observer(bool _debug)
 
 
-	/declare _countT 					int 		local 0
-	/declare _countI 					int 		local 0
-	/declare _countE					int 		local 0
-	/declare _toonName 				string 	local FALSE
-	/declare _element					string	local FALSE
-	/declare _TLO							string 	local FALSE
-	/declare _observe[1] 			string 	local
-	/declare totalstart				int			local 0
-	/declare totalend					int			local 0
+; Core Macro
+; exspes.core.com
+; template.ini
+;
+; this provides a template to import settings to creat a character inside a core database
+; any field not filled out hree will be imported as FALSE
+;
+;
+; My advice. 
+; This is to be use as intended for Cores design. if you try and do stupid shit with it, don't tell me.
+; seriously. just fill in the blanks. if your class doesnt use spells. dont put them in there. its not difficult.
 
-	
-	| established debuffs
-	/varset _observe[1] |Me|TotalCounters|CountersDisease|CountersCurse|CountersPoison|CountersCorruption
-	| /varset _observe[2] |Me|Snared|Mezed|Maloed|Tashed
+; Notes
+; thre will NOT be any conditions imported anywhere. dont ask, not doing it.
 
-	/varset totalstart ${MacroQuest.Running}
 
-	| cycle the toons inside the dan group
-	/for _countT 1 to ${DanNet.PeerCount[${DanNetMacroChannel}]}
-		/varset _toonName ${DanNet.Peers[${DanNetMacroChannel}].Arg[${_countT},|]}
 
-		| skip myself
-		/if (${_toonName.Equal[${Me.DisplayName}]}) /continue
-		/echo Setting Observers\aw::\ax\a-t${_toonName}\ax
 
-		| go through each array
-		/for _countI 1 to ${_observe.Size}
-			
-			| set the TLO
-			/echo _observer[${_countI}]::_TLO::${_observe[${_countI}].Arg[1,|]}
-			/varset _TLO ${_observe[${_countI}].Arg[1,|]}
-			
-			| loop the array 
-			/for _countE 2 to ${_observe[${_countI}].Count[|]}
-				/echo _observer[${_countI}]::_element[${_countE}]::${_observe[${_countI}].Arg[${_countE},|]}
-				| set the member
-				/varset _element ${_observe[${_countI}].Arg[${_countE},|]}
 
-				| make the variable
-				/if (!${Defined[${_toonName}_${_element}]}) /declare ${_toonName}_${_element} string outer
-				| set observer
-				/dobserve ${_toonName} -q "${_TLO}.${_element}" -o ${_toonName}_${_element}
+; chracter server
+Server=
 
-			/next _countE
-		/next _countI
+; character first name
+Name=
 
-	/next _countT
-	/varset totalend ${MacroQuest.Running}
-	
-	/echo Setting Observers\aw::\ax\a-tDone\ax ${sep} \aw${Math.Calc[((${totalend}-${totalstart}) / 10) / 60]}\ax secoonds
-/return
+; character class
+Class=
 
 
 
@@ -253,28 +190,97 @@ sub Bind_observer(bool _debug)
 
 
 
-	| this is an example of a cycled display check for the query.
-	| /for _countT 1 to ${DanNet.PeerCount[${DanNetMacroChannel}]}
-	| 	/varset _toonName ${DanNet.Peers[${DanNetMacroChannel}].Arg[${_countT},|]}
-
-
-| /if (!${Defined[emra_CountersPoison]}) /declare emra_CountersPoison string outer
-/dobserve emra -q "Me.CountersPoison" -o emra_CountersPoison -t 1s
-/delay 1s			
-/echo emra ${sep} ${emra_TotalCounters}
 
 
 
-	| /next _countT
-		
+
+; == auras (2) =======================================================
+; there are 2 usable auras. if your class only uses one aura, then....
+
+; name of the spell, song or disc you wish to use asn an aura (NOT ITEM)
+Aura1Spell=
+
+; name of the aura as it appears in your aura window
+Aura1Buff=
+
+Aura2Spell=
+Aura2Buff=
 
 
-/dquery emra -q "Me.CountersPoison" -o _DNqout -t 1s 
+; == AA Now (2) ======================================================
+; name of the AA you always want running on your character
+
+AANow1=
+AANow2=
 
 
-/dobserve emra -q "Me.CountersPoison" -o _DNqout -t 1s
-/echo ${DanNet[emra].Observe[emra_CountersPoison]}
+; == Disc Now (2) ====================================================
+; name of the Disc you always want running on your character
+
+DiscNow1=
+DiscNow2=
 
 
-TotalCounters
+; == Item Now (2) ====================================================
+; name of the item you always want to have an effect on you, like a geomantra item
+
+ItemNow1=
+ItemNow2=
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+; == buffs 1-10 ======================================================
+; i'm only doing 1 here as an example. you can copy and paste the other 9 if you like. just change the #
+; dont overthink it
+
+; name of the buff you want casted
+Buff1=
+
+; is this a self buff TRUE/FALSE
+Buff1self=
+
+; aliase people /t you to get the buff cased on them. like |HP or |symbol
+Buff1Alias=
+
+; list of classes you box you want to have this buff eg:|CLR|RNG|WAR|SHD|PAL
+BCBuff1Class=
+
+; list of classes in a raid to use this buff one. eg: |ROG|RNG|BRD|MNK
+RaidBuff1Class=
+
+; list of classes you dont box to use this on (Mercs and other RL players)
+ManualBuff1Class=
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

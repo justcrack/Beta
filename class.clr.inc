@@ -40,7 +40,7 @@ sub core_CLR()
 		/if (${swHealGroup} && ${Group.Members}) /call check_heal_group_${Me.Class.ShortName}
 		/if (${swHealXTarget}) /call check_heal_XTarget_${Me.Class.ShortName}
 		/if (${swHealPet} && ${Group.Members}) /call check_heal_pet_${Me.Class.ShortName}
-		/if (${swHealCure}) /call cast_cure
+		/if (!${timer_check_cast_cure} && ${swHealCure}) /call cast_cure FALSE
 		/if (${doYaulp}) /call cast_yaulp
 		CHECKFADE
 		/if (${swAlliance}) /call trigger_alliance
@@ -374,9 +374,6 @@ sub check_heal_group_CLR()
 			}
 		}
 	}
-
-  | check for group debuffs
-	/if (${swHealCure} && ${Group.Members}) /call cast_cure
 	
 	UPDATEHUD FALSE
 	
@@ -741,22 +738,26 @@ sub Bind_issuance()
 	AMIDEAD
 	SIMPLEEXIT
 	
-	/if (!${Me.SpellReady[${Spell[${healIssuance}].RankName}]}) {
-		/delay 2.5s ${Me.SpellReady[${Spell[${healIssuance}].RankName}]}
-	}
+	/if (!${Me.SpellReady[${Spell[${healIssuance}].RankName}]}) /return FALSE
 
 	:castIssuance
-	/if (!${Spawn[${Target2Kill}].CanSplashLand}) /return 
+	/target ${NearestSpawn[2, PC radius 55]}
+	/delay 1s ${Target.ID}
+	/if (!${Spawn[${Target.ID}].CanSplashLand}) /return 
 
-	/if (${Spawn[${Target2Kill}].Distance} > 100) {
-		/if (${validate_cast[FALSE, spell, "${healIssuance}", ${Target2Kill}]}) /cast "${healIssuance}" loc ${Spawn[${Target2Kill}].X} ${Spawn[${Target2Kill}].Y} ${Spawn[${Target2Kill}].Z}
-		/delay 4s !${Me.Casting.ID}
+	/if (${Spawn[${Target.ID}].Distance} < 59) {
+		/if (${validate_cast[FALSE, spell, "${healIssuance}", ${Me.ID}]}) {
+			/call core_cast2 "${healIssuance}" spell 0 FALSE
+			/delay 4s !${Me.Casting.ID}
+		}
 	} 
 	
 	| can we recast?
 	/if (${Me.AltAbilityReady[Forceful Rejuvenation]}) {
 		
-		/if (${validate_cast[FALSE, alt, "Forceful Rejuvenation", ${Me.ID}]}) /call core_cast2 "Forceful Rejuvenation" alt 0 FALSE
+		/if (${validate_cast[FALSE, alt, "Forceful Rejuvenation", ${Me.ID}]}) {
+			/call core_cast2 "Forceful Rejuvenation" alt 0 FALSE
+		}
 		/delay 4s !${Me.Casting.ID}
 		/goto :castIssuance
 	} 
@@ -783,7 +784,6 @@ sub check_heal_ward()
 
 	/declare _wardToon string local
 	/declare _count int local
-	/declare _DNqout string local
 
 	/for _count 1 to ${healWardToon.Count[|]}
 		/varset _wardToon ${healWardToon.Arg[${_count},|]}
@@ -809,12 +809,12 @@ sub check_heal_ward()
 		/if (${Spawn[${_wardToon}].Type.Equal[corpse]}) /continue
 
 		| spell stacks ?
-		/dquery ${_wardToon} -q "Spell[${healWard}].Stacks" -o _DNqout
-		/if (!${_DNqout}) /continue
+		/dquery ${_wardToon} -q "Spell[${healWard}].Stacks" -o DNQReturn
+		/if (!${Bool[${DNQReturn}]}) /continue
 		
 		| has the buff?
-		/dquery ${_wardToon} -q "Me.Song[${healWard}].ID" -o _DNqout
-		/if (${Bool[${_DNqout}]}) /continue
+		/dquery ${_wardToon} -q "Me.Song[${healWard}].ID" -o DNQReturn
+		/if (${Bool[${DNQReturn}]}) /continue
 		
 		/if (${validate_cast[FALSE, spell, "${healWard}", ${Spawn[pc ${_wardToon}].ID}]}) /call core_cast2 "${healWard}" 0 ${Spawn[pc ${_wardToon}].ID} FALSE
 
@@ -977,7 +977,15 @@ sub Bind_setCLR(string _type, string _verbage, bool _silent)
 		
 	| use splashes
 	} else /if (${_type.Equal[splash]}) {
-		/call set_switch ${chrID} swSplash ${_verbage} 	 		
+		/if (${Bool[${_verbage}]} && ${Range.Between[1,50:${Int[${_verbage}]}]}) {
+			/call sql_update FALSE ${chrID} splashMobCount ${_verbage} 
+		} else /if (${Bool[${_verbage}]} && !${Range.Between[1,50:${Int[${_verbage}]}]}) {
+			VOUT /${_bind} issuance [${cinfo}${splashMobCount}\ax] allowable range ${sep} ${cinfo}1 - 50\ax
+			/return
+		}	else /if (!${Bool[${_verbage}]}) {
+			/call set_switch ${chrID} swSplash ${_verbage} 	 
+		}		
+		
 	
 	| set XT refresh list Time
 	} else /if (${_type.Equal[xttime]}) {
@@ -1077,7 +1085,7 @@ sub Bind_setCLR(string _type, string _verbage, bool _silent)
 		/if (${_lstClass.Arg[${_count},|].Equal[rod]}) /varset _listout ${_listout}:${If[${swModRod},${oon},${ooff}]}
 		/if (${_lstClass.Arg[${_count},|].Equal[spiregroup]}) /varset _listout ${_listout}:${If[${spireGroup},${cnum}${spireGroup}\ax,${ooff}]}
 		/if (${_lstClass.Arg[${_count},|].Equal[spireraid]}) /varset _listout ${_listout}:${If[${spireRaid},${cnum}${spireRaid}\ax,${ooff}]}
-		/if (${_lstClass.Arg[${_count},|].Equal[splash]}) /varset _listout ${_listout}:${If[${swSplash},${cnum}${oon}\ax,${ooff}]}
+		/if (${_lstClass.Arg[${_count},|].Equal[splash]}) /varset _listout ${_listout}:${If[${swSplash},${cnum}${splashMobCount}\ax,${ooff}]}
 		/if (${_lstClass.Arg[${_count},|].Equal[vp]}) /varset _listout ${_listout}:${If[${switchVP},${cnum}${useVPPct}\ax,${ooff}]}
 		/if (${_lstClass.Arg[${_count},|].Equal[xtclass]}) /varset _listout ${_listout}:${cnum}->\ax
 		/if (${_lstClass.Arg[${_count},|].Equal[xttime]}) /varset _listout ${_listout}:${cnum}${tXHeal}\ax

@@ -24,7 +24,7 @@ sub core_SHD()
 
 	/while (${prep_combat[]}) {
 		CHECKINPUTS
-		/if (${swHealCure}) /call cast_cure
+		/if (!${timer_check_cast_cure} && ${swHealCure}) /call cast_cure FALSE
 		/if (${exit_class_loop[]}) /return FALSE
 		
 		/if (${isValidTarget}) {

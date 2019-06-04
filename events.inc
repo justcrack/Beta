@@ -211,7 +211,7 @@ sub Event_CAST_TAKEHOLD(string line)
 |***
  *	USE: correct range distance when too close
  ***|
-#event COMBAT_DISTANCE									"Your Target is too close to use a ranged weapon#*#"
+| #event COMBAT_DISTANCE									"Your Target is too close to use a ranged weapon#*#"
 sub Event_COMBAT_DISTANCE(string line)
 	/doevents flush COMBAT_DISTANCE
 	/if (${swPull} || ${swAgro} || !${swCombatRange}) /return

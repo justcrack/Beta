@@ -5,7 +5,7 @@
 	exspes007
 	paypal.me/exspes
 	
-	Plugins Required: MQ2MoveUtils, MQ2Debuffs, MQ2DanNet, MQ2SQLite, MQ2Nav
+	Plugins Required: MQ2MoveUtils, MQ2DanNet, MQ2SQLite, MQ2Nav
 		
 	Files:
 	- class.???.inc							One include for each class [WIZ|NEC|MAG|ENC|WAR|PAL|SHD|BST|BER|BRD|RNG|ROG|CLR|DRU|SHM|MNK]
@@ -105,7 +105,7 @@
  ***|
 sub main(string _custom, string _startparam)
 	| Current Build
-	/call setDeclare currentBuild 			string outer 0601.01
+	/call setDeclare currentBuild 			string outer 0603.07
 	
 	| set the default character ID
 	/call setDeclare chrID 							string outer ${MacroQuest.Server}_${Me.Class.ShortName}_${Me.DisplayName}
@@ -153,6 +153,12 @@ sub main(string _custom, string _startparam)
 	
 		| sort /heal override ##
 		/if (${tmpHealOverride} != ${setHealOverride}) /varset tmpHealOverride ${If[${setHealOverride},${Float[${setHealOverride}].Centi},99.99]}
+
+	  | check if observers need to be established
+	  /if (!${timer_check_observers}) {
+	  	/if (${swHealCure}) /call observer FALSE Cure TRUE
+	  	/call timer_update timer_check_observers ${tCheck_Observers}
+		}
 		
 		/if (${coreAuto} || ${swManualAADiscNow}) {
 			/if (${Bool[${AANow1}]} || ${Bool[${AANow2}]}) /call check_AA_now
@@ -167,11 +173,6 @@ sub main(string _custom, string _startparam)
 			| keep an eye out for real rezes
 			/if (${swNeedRez}) {
 				/if (${Window[ConfirmationDialogBox].Open}) /varset markerDead TRUE
-			}
-			
-			| check to see if someone needs a doctor?
-			/if (${swHealCure}) {
-				/call cast_cure
 			}
 			
 			| smoke 'em if 'yah got 'em
@@ -198,6 +199,9 @@ sub main(string _custom, string _startparam)
 			| update blocked buffs
 			/if (!${timer_check_buffs_blocked}) /call check_buffs_blocked FALSE FALSE
 			
+			| check curing
+			| /if (!${timer_check_cast_cure} && ${swHealCure}) /call cast_cure FALSE		
+
 		}
 	
 		| meal
@@ -218,7 +222,7 @@ sub main(string _custom, string _startparam)
 		}
 
 		| guns need ammo
-		/if (${swCombatRange}) /call check_ammo
+		/if (${swCombatRange}) /call check_ammo FALSE
 		
 		CHECKTIE
 
@@ -245,7 +249,7 @@ sub main(string _custom, string _startparam)
 				}
 			}
 		}
-
+		
 		| check all the basics before we hit the class
 		AMIDEAD
 		CHECKINPUTS
@@ -360,7 +364,6 @@ sub initialize_core(string _custom)
 	| set initial blocked spells timer
 	/call check_buffs_blocked FALSE TRUE
 		
-  | /if (${swOverrideLOS}) VOUT ${ocaution} ${sep} Ignoring Line of Sight\ax
 	OUT ${cgood}Ready\ax
 /return
 
@@ -372,7 +375,6 @@ sub initialize_core(string _custom)
  *	NOTE: 
  ***|
 sub base_preperation()
-	| /varset currentdebugsub base_preperation()
 
 	| set peer communications options
 	/squelch /dnet localecho FALSE
@@ -386,7 +388,7 @@ sub base_preperation()
 	}
 
 	| disable smart assists for TLP w/o underfoot
-	/if (!${validate_expansion[FALSE, |16]}) {
+	/if (${swTLP} && !${validate_expansion[FALSE, |16]}) {
  		/call set_switch ${chrID} swAssist1 FALSE
  		/call set_switch ${chrID} swAssist2 FALSE
  		/call set_switch ${chrID} swAssist3 FALSE
@@ -454,7 +456,7 @@ sub base_preperation()
 	| }	
 		
 	| check game cash?
-	/if (${swEQCash}) /call check_free_ingame_cash		
+	/if (${swEQCash}) /call check_free_ingame_cash
 		
 /return
 
@@ -468,8 +470,8 @@ sub base_preperation()
  ***|
 sub verify_plugins(bool _debug)
 	/declare _count int local 0
-	/declare _lstPlugin string local |DanNet|sqlite|Debuff|MoveUtils|Navigation|AdvPath
-
+	/declare _lstPlugin string local |DanNet|sqlite|MoveUtils|Navigation
+	
 	/for _count 1 to ${_lstPlugin.Count[|]}
 		/if (${_debug}) /echo check: \at${_lstPlugin.Arg[${_count},|]}\ax
 		/if (!${Macro.IsTLO[${_lstPlugin.Arg[${_count},|]}]}) {
@@ -488,6 +490,6 @@ sub verify_plugins(bool _debug)
  ***|
 sub echo_notice()
 	OUT You are using a \agbeta\ax build of Core.
-	OUT If you find issues, please post them to: 
+	OUT If you find issues, please bring them to: 
 	OUT \awhttps://discord.gg/T2Z7NXG\ax
 /return

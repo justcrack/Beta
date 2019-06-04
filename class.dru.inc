@@ -35,7 +35,7 @@ sub core_DRU()
 		/if (${swHealGroup} && ${Group.Members}) /call check_heal_group_${Me.Class.ShortName}
 		/if (${swHealXTarget}) /call check_heal_XTarget_${Me.Class.ShortName}
 		/if (${swHealPet} && ${Group.Members}) /call check_heal_pet_${Me.Class.ShortName}
-		/if (${swHealCure}) /call cast_cure
+		/if (!${timer_check_cast_cure} && ${swHealCure}) /call cast_cure FALSE
 
 		/if (${exit_class_loop[]}) /return
 
