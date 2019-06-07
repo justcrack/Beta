@@ -23,10 +23,48 @@ Plugins Required: MQ2MoveUtils, MQ2DanNet, MQ2SQLite, MQ2Nav
 
 
 
+BETA 0607.01
+- MQ2Discord users
+  -- your outputs to the MQ window will not contain the string "c~" so you can key off it and exclude from discord output if you like
+  -- if you don't like, it's still gonna be there, suck it up buttercup
+- makecamp
+  -- is gone. buhby
+  -- /movement home - REMOVED
+  -- /movement leash - REMOVED
+  -- /movement radius - REMOVED
+- /home [set|return|clear|variance]
+  -- /home set - sets a home camp
+  -- /home clear - clears the home camp
+  -- /home return - returns you to your home
+  -- /home variance [##] - sets an allowable margin for the home camp and returning to it. low numbers are more accurate.
+- zoning
+  -- added a check for core_communications channel
+- :OnExit
+  -- a graceful end to Core should exit the core_communications channel in DanNet
+    -- graceful meaning /endm or /camp
+- swTLP removed from rez spell generation for the tlp slummers. also added in PREGENDATA for it.
+- resident classes
+  -- i'm working on adopting this concept to feed off of the premade DanNet groups. 
+  -- so if you need a mage rod it should look for mages in dan net and ask them if the meet the rest of the criteria.
+  -- no more having to keep tracked of them yourself
+  -- did i mention a work in progress..
+- xtarget slot usage should comply with what you have for tlp or live or whatever  
+- get_target()
+  -- fixed a syntax error in the spawncount loop calculation  
+- snares have been updated
+  -- DB:setSnare:: (put name of snare spell or item here) FALSE by DEFAULT
+  -- If left FALSE, the code will fall back to AA Snares if the class has one and you have /debuff snare enabled
+- class.clr.inc
+  -- limited the AA Forceful Rejuvenation on issuance to an active burn
+  -- /intpull - REMOVED
+- class.nec.inc
+  -- dots should go first.. i've no idea why they were not.
+
+
 BETA 0603.07
 - plugin
   -- MQ2Debuffs is no longer needed.. (does baby Groot dance)
-  -- all curing is handled within core using Dannet as a backend
+  -- all curing is handled within Core using Dannet as a backend
 - curing :: /heal cure
   -- almost a complete redesign. lets be real, it was
   -- the checks will come a lot faster and the curing is a lot more aggressive in and out of combat
@@ -63,8 +101,6 @@ BETA 0603.07
 	   -- /clr issuance [1-50 || ON/OFF] 3way control. turn on or off and set the number of mobs in agro to use
 - class.pal.inc
   - small adjustment to the /splash command
-
-
 
 
 BETA 0601.01

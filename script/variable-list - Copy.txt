@@ -1,0 +1,1015 @@
+|***
+ *	variable-list.txt
+ *	List of all (mostly) variables used in Core
+ *
+ *
+ * [switch]		TRUE or FALSE
+ * [list]		  |item|item2|items3|name|just a list of stuff|and mmore stuff
+ * [set]			single variable. can be a number or a name or a word or a spell or a disc....get the idea
+ * (1-6)      means replace the # and you can have up to 6 of this.. whatever it is..
+ *
+ *
+ ***|
+
+
+
+Environment variables
+The following variables impact all toons running from that database.
+
+setMobLvlMin									[set] minimum # level of mob you are willing to consider valid
+setMobLvlMax									[set] maximum # level of mob you are willing to consider valid
+swBitch												[switch] show the sarcastic comments when you so something stupid
+swNukeLoop										[switch] force nuke loops to cycle before letting the script find something else to do
+swAddNameList									[switch] ** Disabled for now **
+swDispInfo										[switch] shows the /info command on start
+swDispBuild										[switch] shows the build number on start
+swDispEXP											[switch] show/or not exp adjustments in the MQ window
+swManualAADiscNow							[switch] use aa and disc now skills while in manual
+swDelayZoning									[switch] adds a short delay to script while zoning
+swRestFull										[switch] rest to full HP/stamina once you hit rest mode
+swRestModRod									[switch] use modulation shards while in rest mode
+swRestBuff										[switch] check/watch buffs while in rest mode
+swADVL												[switch] enable/disabe using advloot. if disables, core will not process any loot
+swGlyphOutsideRaid						[switch] use glyphs outside raids (normal group content)
+swMQClear											[switch] clears MQ window when using a / command
+swSafelistGuild								[switch] consider your guild as part of the safe list
+swEQCash											[switch] check DB cash on mac start
+swModePersistent							[switch] enable modes to persist through zoning
+swCombatTie										[switch] enable/disable tie while in active combat
+swDisableMQ2Melee							[switch] enable/disable mq2melee pulgin on core load
+swXpacControl									[switch] enable/disable expansion checking
+swBuffGemHold									[switch] remember the spell that was in the buff gem and put it back when done buffing
+setMQFontSize									[switch] # for font size in MQ window
+swMQCaptions									[switch] stupid leader caption MQ adds to character headders
+swAutoAssist									[switch] set EQ AUTOASSIST off
+setMaxBuffCount								[set] maximum buff count cycled by Core (10 is default)
+swMealinManual								[switch] eats food while in manual mode
+lstNoInvite										[list] list of people to never invite (seriously im an introvert anyways)
+lstNoRez											[list] list of people to never rez (fuck them)
+lstNoHeal											[list] list of people to never heal
+lstSafeNames									[list] list of names you TRUST
+lstResidentMage								[list] list of your mages using core
+lstResidentDruid							[list] list of your druids using core
+lstResidentWizard							[list] list of your wizards using core
+lstResidentCleric							[list] list of your clerics using core
+swBCZonereset									[switch] broadcast zone resets
+swBCStop											[switch] broadcast /stop command
+swBCTake											[switch] broadcast /take command
+swBCEnter											[switch] broadcast /enter command
+swBCInvis											[switch] broadcast /invis command
+swBCKillMob										[switch] broadcast /killmob command
+swBCClean											[switch] broadcast /cls command
+swEchosAlt										[switch] echo Alt usage in MQ window
+swEchosSpell									[switch] echo Spell usage in MQ window
+swEchosDisc										[switch] echo Disc usage in MQ window
+swEchosItem										[switch] echo Item usage in the MQ window
+swEchosMelee									[switch] echo Melee usage in the MQ window
+swEchosPulse									[switch] echo Song usage in the MQ window
+swEchosBC											[switch] echo broadcasts to the MQ window (not widely implemented)
+swEchosVerbose								[switch] echo misc stuff to the MQ window
+swEchosSQL										[switch] ** Disabled for now ***
+swHUDTime											[switch] swap the time in the hud from real life to ingame
+lstCrew#											[list] (1-2) list of crew 1
+setCrew#Leader								[set] (1-2) crew 1 leader
+setCrew#Assist								[set] (1-2) crew 1 main assist
+setCrew#Looter								[set] (1-2) crew 1 master looter
+
+; adjustmetns for /here command                    					
+baseAgroRange									[set] sets the new agro range so you dont overdo it
+hereZRadius										[set] sets zradius to a predefined default
+
+
+
+
+Character variables
+The following variables impact your specific character
+
+swMaintenance									[switch] Locks the toon into a maintenance mode. core and / commands will work. nothing else will be watched/looped for
+coreAuto											[switch] places core in automatic mode or manual self drive (not recomended for Millenials)		 
+lstNoCastWith	                [list] list of buffs on you or target you dont want to cast while having
+lstNoMeleeWith	              [list] list of buffs on you or target you dont want to meele while having
+setShrinkItem		 		          [set] your shrink clickie
+setIllusionItem	              [set] illusion item you want to use
+setIllusionBuff	              [set] illusion buff you are watching for
+setGTFO	                      [set] spell,item,aa,disc to be use for GTFO command
+lstRangeItem	                [list] list of range items to click (can be more then one)
+lstRangeItemSummon	          [list] list of summoned ranged items to use
+strRangeSpell	                [set] spell to use for ranged pulling
+setRangeClickItem	            [set] click item to use for ranged pulling
+setRangeDisc	                [set] disc to use for ranged pulling
+setRangeAA		                [set] aa to use for ranged pulling
+autoInventoryItem	            [list] list of anything you want to go into inv entory as fast as fucking possible
+stoponDS	                    [switch] stop melee on target with DS
+useGlyph	                    [set] the glyph you want to use during raids
+swSoS													[switch] use SoS invisibility. THIS IS A PLACEHOLDER FOR ALL BUT ROGUES
+setToonControl	              [set] sets a control ton for health watching for healers
+setRestPct		 		            [set] HP/Mana/Stamina % you want to sit your fat ass down at
+swCorrectEXPAA								[switch] auto correct using exp or aa depending on %s set
+setLvlPct		 		              [set] level you wish to maintain before swapping to aa
+setLvlMax		 		              [set] % of your level you wish to keep before swapping to AA
+swEventsInc										[switch] use the core.events.inc file
+swAAFireworks									[switch] buy/use 100 AA fireworks when your bored as all hell and have em to waste
+swTakeGroupInvite							[switch] take group invites (watches safe list)
+swTakeRaidInvite							[switch] take raid invites
+swGiveRaidInvite							[switch] hand out raid invites when request from a tell
+
+
+[burn]
+swBurnForce										[switch] firce burning 24/7
+swBurnAuto										[switch] burn on named mob as target
+setBurnPct										[set] % of mobs healt to start burns at
+setBurnCount									[set] # of mobs in agro range to start burning
+
+
+[combat]  
+setMA1												[set] manual assist 1
+setMA2		 		                [set] manual assist 2
+setMobAgro		 		            [set] characters functional agro range (spells, range, healing, pulling)
+setEngageMAPct		 		        [set] mob ##% health to engage when using MA1/2
+setEngagePct		 		          [set] mob ##% health to engage mob when using smart assists
+swAssistG											[switch] use group assist
+swAssist1											[switch] use raid assist 1
+swAssist2											[switch] use raid assist 2
+swAssist3											[switch] use raid assist 3
+swAssistF											[switch] use forced assist (RTFM)
+swAgro												[switch] use agro skills
+swPull												[switch] pull mobs to group
+swOffTank											[switch] ***Under construction***
+setCombatDistance	            [set] distance for melee combat (15 is usually good, 13 for rogues)
+setCombatRadius	              [set] fake area range used for buffing and resting consideration
+setzradius	                  [set] z radius for combat engage
+swBandolier										[switch] use bandolier switches
+setStopNukePct		 		        [set] ##% to stop nuking at
+swForceFadeRest								[switch] force using aa fade to get into rest
+swCombatMelee									[switch] use melee during combat
+swCombatRange									[switch] use range during combat
+swCombatNuke									[switch] use nukes during combat
+swCombatDoT										[switch] use dots during combat
+swCombatHeal									[switch] heal in or out of combat
+
+
+;rez
+lstRezToken						        [list] list of class short names to use rez tokens on
+swRezTake											[switch] take rezes
+swRezEmergency								[switch] use rez tokens
+setMinRezPct	                [set] minimum rez % willing to use (90 is default)
+setMaxRezRange		 		        [set] area to res dead people in
+swRezGive											[switch] cast rezes (needed for using tokens too)
+swRezCombat										[switch] rez during combat
+swRezEveryone									[switch] rez everyone (RTFM)
+
+
+;spire control               
+spireRaid		 									[set] spire # to use during group burns. 0 to disable
+spireGroup		 								[set] spire # to use during raid burns. 0 to disable
+
+
+;watchspawn stuff            
+watchSpawn										[set] name of spawn to watch for
+
+
+;movement
+swHomeSet											[switch] use a home camp
+setHomeRadius		 		          [set] area to let toon move freely
+setHomeLeash 	                [set] distance when to get to toon back to home radius
+swStickBehind									[switch] stick behind mob for combat
+swFaceFast										[switch] use face fast
+setFaceArc										[switch] up to 45 deg facing arc of target
+setMount                      [set] name of mount to use.. seriously.. why...	
+
+
+;tie
+setTieToon										[set] name of toon to tie too
+setTieDistance		 		        [set] distance to pulse tie at
+swTieLock											[switch] emualte old school follow
+setTieMode	                  [set] [nav|stick] set the method of tie to use
+
+
+;debuff        
+swdeBuffCripple								[switch] use cripple debuff
+swdeBuffMezz									[switch] use mez
+swdeBuffMalo									[switch] use malo
+swdeBuffTash									[switch] use tash
+swdeBuffSlow									[switch] use slows
+swdeBuffEradicate							[switch] use aa eradicate (RNG,DRU,SHM,WIZ,ENC,MAG)
+swdeBuffSnare									[switch] use aa snare
+
+
+;override
+swOverrideLOS									[switch] override line of sight checks
+swOverrideSafeZone						[switch] override safe zone control
+swOverrideExclude							[switch] override named exclude list
+swOverrideName								[switch] override named mob list
+swOverrideEngagePct						[switch] override engage hp ##% (MA or smart assists)
+swOverrideRange								[switch] ** under construction **
+swOverrideMelee								[switch] ** under construction **
+swOverrideLoot								[switch] override loot checks (try and always loot)
+swOverrideSafeNames						[switch] override safe name list check (accept everyone)
+swOverrideTrainSpell					[switch] override train spell caps. cast spells forever
+
+
+;buffs
+lstBuffRemove	
+swBuffItem										[switch] use buff items
+swBuffCombat									[switch] buff during combat
+swBuffPet											[switch] buff pets
+swBuffSelf										[switch] buff self
+swBuffBC											[switch] broadcast buff
+swBuffRaid										[switch] buff raid members
+swBuffTell										[switch] buff tell requests
+swBuffMerc										[switch] buff mercs
+swBuffGroup										[switch] buff other non boxed people in your group
+swBuffMGB											[switch] ** under construction**
+BuffAAUnity#									[set] (1-7) aa unity buffs
+Buff#                         [set] (1-10) name of buff you want to cast
+Buff#self											[switch] (1-10) buff yourself with this damn thing
+Buff#selfCondition            [set] (1-10) 
+Buff#Alias                    [list] (1-10) key words to watch to cast tell buffs (e.g. |surety|voice)
+BCBuff#Class                  [list] (1-10) shrotname clases to use this buff on for broadcasting 
+RaidBuff#Class                [list] (1-10) shrotname clases to use this buff on during raids 
+ManualBuff#Class              [list] (1-10) shrotname clases to use this buff on for mercs and strangers in your group raids
+Buff#noBCinRaid               [switch] (1-10) disable broacasting this buff during raids
+BuffMGBname 		 	            [set] ** under construction**
+BuffMGBchk	 		 	            [set] ** under construction**
+BuffMGBalias	 		            [set] ** under construction**
+BuffMGBcount                  [set] ** under construction**
+BuffMGBmana                   [set] ** under construction**
+
+
+; Auras
+Aura#Spell	 		              [set] (1-2) aura to cast
+Aura#Buff		 		              [set] (1-2) aura buff in aura window to watch for
+
+              
+;cursor                             			
+swAutoCursor									[switch] force auto using of loot file anytime somthing corsses your cursor
+echoChannel										[set] private channel (you create it) that core will echo some things too
+relayTells	                  [set] name of toon to relay all tells too. this is annoying as fuck
+ClassChannel	                [set] channel core will echo a lot of things too if set
+
+
+;general settings for mode item usage
+setModeAgro	                  [set] acceptable range use for off modes
+setModeHarvestCount	          [set] ammount of item to keep when using mode harvest
+modeDrinkofChoice							[set] drink to use for alcohol modes
+modeOpenItem									[set] item to open for open mode
+abjuration										[set] abjuration spell for mode trainspell
+alteration                    [set] alteration spell for mode trainspell
+conjuration                   [set] conjuration spell for mode trainspell
+divination                    [set] divination spell for mode trainspell
+evocation                     [set] evocation spell for mode trainspell
+ 
+                 
+;pet
+setPetEngagePct								[set] ##% health to send pet into combat
+setPetType	                  [set] name of the pet spell to use
+swPet													[switch] use pets
+swSwarm												[switch] use swarm pets and clickies
+setSwarmEngagePct	            [set] ##% to send swarm pets
+setFam#	                      [set] (1-3) familiar to summon 
+setFam#Buff	                  [set] (1-3) familiar buff to watch for
+swFam#Leave	                  [switch] (1-3) tell familiar to get lost
+swPetTank											[switch] ** disabled atm. does not do anything **
+swMAGWep											[switch] 
+setPetEpicClick	              [set] epic item to use on pets
+setPetEpicBuff	              [set] epic buff to watch for on pet
+setMAGWepSpell	              [set] 
+setMAGClosedBag	              [set] name of mage closed bag
+setMAGPetWepName	            [set] name of mage weapon to give to pet
+setPetShrink	                [set] item/spell to shrink pet with
+setPetHealSpell	              [set] pet renewal type heal
+setPetRenewalSpell	          [set] 
+setPetIllusion	              [set] pet illusion item
+setPetIllusionBuff	          [set] pet illusion buff to watch for
+setPetAAHeal	                [set] pet aa heal
+setPetBagSlot	                [set] inventory slot to use for swapping/summoning pet weapons (e.g. gem8)
+PetBuff#                      [set] (1-10) name of buff to use on pet
+PetBuff#chk                   [set] (1-10) buff name to watch for on pet
+
+
+;items
+clickItem#										[set] (1-6) click item to use on a target during combat
+clickItemBurn#	              [set] (1-6) click item to use on a target during a burn
+Breastplate#	                [set] (1-2)breastplate clickie to use with stacking swapping
+Breastplate#Condition	        [set] (1-2)
+Breastplate#effect	          [set] (1-2) BP efect to watch for
+useCircle	                    [set] [power|life|mana] which of the three you want to use
+CircleofPower	                [set] name of CoP item
+CircleofLife	                [set] name of CoL item
+CircleofMana	                [set] name of CoM item
+clickItemSwarm#	              [set] (1-4) click swarm item to use during normal combat
+clickOddItem#	                [set] (1-4) things you want to click, not important things, out of combat
+clickItemBuff#                [set] (1-6) click items for buffs. like geomantra?!?!
+
+
+;alwasy up AAs 
+AANow#												[set] (1-2) aa to alwasy keep on
+
+
+;always up Discs
+DiscNow#											[set] (1-2) disc to alwasy keep on
+
+
+;always up Item Clickies
+ItemNow#											[set] (1-2) item to alwasy keep on
+
+
+;melee
+kick													[switch] use kick
+bash													[switch] use bash
+taunt													[switch] use taunt
+disarm												[switch] use disarm
+bandolierNormal               [set] name of bandolier for normal combat
+bandolierBash                 [set] name of bandolier to bash
+bandolierBurn                 [set] name of bandolier for burning
+bandolierRange                [set] name of bandolier to range
+frenzy												[switch] use frenzy
+backstab											[switch] use backstab
+intimidation									[switch] use intimidation
+dragonpunch										[switch] use dragonpunch
+eaglestrike										[switch] use eaglestrike
+tigerclaw											[switch] use tigerclaw
+flyingkick										[switch] use flyingkick
+roundkick											[switch] use roundkick
+
+
+;food
+Food													[set] food to eat
+FoodDispenser                 [set] item to summon food
+FoodCount                     [set] how much of the food to keep on you
+Drink                         [set] drink to .. drink..
+DrinkDispenser                [set] item to summon drinks
+DrinkCount                    [set] how many drinks to keep on you
+
+
+switchNukeDelay               [switch] enable nuke delays
+buffGem                       [set] gem in spell bar you want to use for buffs (e.g. gem8)
+GoMNuke                       [set] spell to use on GOM triggers
+GoMNukeCondition              [set] 
+GoMNuke2                      [set] alternative spell to use on GOM triggers
+GoMNuke2Condition             [set] 
+
+
+;heal class heal points
+PetPoint											[set] ##% health heal point
+CLRPoint                      [set] ##% health heal point
+DRUPoint                      [set] ##% health heal point
+SHMPoint                      [set] ##% health heal point
+WIZPoint                      [set] ##% health heal point
+MAGPoint                      [set] ##% health heal point
+ENCPoint                      [set] ##% health heal point
+NECPoint                      [set] ##% health heal point
+WARPoint                      [set] ##% health heal point
+MNKPoint                      [set] ##% health heal point
+ROGPoint                      [set] ##% health heal point
+RNGPoint                      [set] ##% health heal point
+BSTPoint                      [set] ##% health heal point
+SHDPoint                      [set] ##% health heal point
+BRDPoint                      [set] ##% health heal point
+BERPoint                      [set] ##% health heal point
+PALPoint                      [set] ##% health heal point
+GoMpoint                      [set] ##% health heal point
+XHealClass                    [set] list of class short names you want to be healing during raids
+PanicPoint										[set] ##% health panic heal point
+
+;heals                            			
+setHealOverride								[set] ##% to adjust/override the max heal
+swHealSelf										[switch] use self only heals (NOT HEAL CLASSES)
+swHealGroup										[switch] heal group
+swHealXTarget									[switch] heal xtarget
+swHealPet											[switch] heal pets
+swHealCure										[switch] cure stuff
+cureCurseItem		 		          [set] clickie to cure cure
+curePoisonItem		 		        [set] clickie to cure poison
+cureDiseaseItem		 		        [set] clickie to cure disease
+cureCorruptItem		 		        [set] clickie to cure corruption
+cureCurse											[set] spell to cure cure
+curePoison                    [set] spell to cure poison
+cureDisease                   [set] spell to cure disease
+cureCorrupt                   [set] spell to cure corruption
+noCureList		 		            [list] list of bad buffs to NOT cure
+clickHealItem		 		          [list] list of clickie heal items
+
+
+;onoff types  
+switchShrink									[switch] auto use shrink item clickie
+switchHorn										[switch] auto use miniture horn of unity
+
+
+
+;BER
+BERAlliance										[set] 
+switchAAFade									[switch] 
+useAAFadePct                  [set] 
+AEMelee                       [set] 
+DiscSnare                     [set] 
+SnareAxe                      [set] 
+DiscVolley                    [set] 
+CryOfChaos                    [set] 
+DiscBerserking                [set] 
+DiscRest                      [set] 
+DiscCombatFrenzy              [set] 
+DiscScream                    [set] 
+ThrowingAxe                   [set] 
+DiscJolt                      [set] 
+SharedBloodLust               [set] 
+SharedBloodLustRecourse       [set] 
+DiscOverwhelmingFrenzy        [set] 
+DiscCleavingAnger             [set] 
+DiscSlapintheFace             [set] 
+DiscAxeofRallos               [set] 
+DiscVengeful                  [set] 
+DiscFesteringRage             [set] 
+DiscCryHavoc                  [set] 
+DiscAugmentedFrenzy           [set] 
+AugmentedFrenzyEffect         [set] 
+DiscFrenzyResolve             [set] 
+UntamedgRage                  [set] 
+RecklessAbandon               [set] 
+frenzy                        [set] 
+DiscDicho                     [set] 
+DiscDisconcert                [set] 
+DiscEnduranceTap              [set] 
+DiscPet                       [set] 
+BERPoint                      [set] ##% for self healing
+DiscOpenWound                 [set] 
+OpenWoundEffect               [set] 
+buffGem                       [set] 
+spellCripple                  [set] 
+ 
+ 
+;BRD
+BRDAlliance										[set] alliance spell
+switchAAFade									[switch] use aa fade
+useAAFadePct									[set] hp% to use aa fade
+ServantNukeAA1								[set]
+ServantNukeAA2								[set]
+songServantNuke								[set]
+lineCurrent										[set]
+lineTank                      [list]
+lineCaster                    [list]
+lineMelee                     [list]
+lineMix                       [list]
+lineOther                     [list]
+spellMez											[set]
+spellpbaeMez									[set]
+spellSlow											[set]
+switchRestSong								[set]
+spellRestSong									[set]
+spellCripple									[set]
+BRDPoint											[set] ##% for self healing
+switchIntimidKick							[switch] use aa intimade kick
+swModRod											[switch] use modulation rods
+Nuke#										 	    [set] (1-8) nuke to cast
+Nuke#Condition						    [set] (1-8) nuke# condition
+DoT#											    [set] (1-8) dot to cast
+DoT#chk										    [set] (1-8) dot on target to watch for
+DoT#Condition							    [set] (1-8) dot# condition
+
+
+
+;BST
+BSTAlliance										[set] alliance spell
+switchAAFade									[switch] use aa fade
+useAAFadePct									[set] hp% to use aa fade
+swModRod											[switch] use modulation rods
+DiscForay											[set]
+DiscFocusClaws                [set]
+DiscSavage                    [set]
+DiscRuaabri                   [set]
+GrowlSpell                    [set]
+ServantNuke                   [set]
+FeroSpell                     [set]
+DiscEnduring                  [set]
+DiscRending                   [set]
+GrowlSpell                    [set]
+TasteofBlood                  [set]
+ParagonTXT                    [set]
+FastHeal                      [set]
+BSTPoint                      [set] ##% for self healing
+switchSelfParagon             [set]
+selfParagonPct                [set]
+switchConsumeSpirit           [set]
+ConsumeSpiritPct              [set]
+switchGroupParagon						[switch]
+groupParagonPct								[set]
+spellSlow                     [set]
+spellCripple                  [set]
+DiscRest                      [set]
+Nuke#										 	    [set] (1-8) nuke to cast
+Nuke#Condition						    [set] (1-8) nuke# condition
+DoT#											    [set] (1-8) dot to cast
+DoT#chk										    [set] (1-8) dot on target to watch for
+DoT#Condition							    [set] (1-8) dot# condition
+
+
+;CLR
+CLRAlliance										[set] alliance spell
+RampageTank										[set] name of rampage tank. cleric wil NOT heal this person. fuck them..
+switchAAFade									[switch] use aa fade
+useAAFadePct									[set] hp% to use aa fade
+switchLockMA									[switch] ** UNDER CONSTRUCTION **
+swModRod											[switch] use modulation rods
+switchVP											[switch] use veturika's preseverance
+useVPPct											[switch] ##% manna to use veturika's preseverance at
+spellCripple									[set] cripple spell to use
+BreastplateHeal								[set] 
+BreastplateHealCondition			[set]
+DivineRezCleric								[switch] use divine rez on other clerics (including yourself)
+RandRezDelay									[set] ** currently disabled **
+ProtectOutsideGroup           [list] list of XTarget people you want to heal outside your group
+ProtectInsideRaid             [list] list of XTarget specific people you want to protect inside a riad
+ProtectNPCList                [list] list of XTarget NPCs you want to heal
+useGroupHeal                  [set]  name of group heal you want to be using
+useGroupHoT                   [set] name of group Heal over Time you want to be using
+healPanic                     [set] name of panic heal (the ones that heal more the more you are hurt kind of spell)
+setDivinetoGroupHeal          [set] 
+useCelestialRegen             [set] 
+CRTXT                         [set] 
+switchForceGroupHeal					[switch] 
+RampageTank                   [set] 
+switchHealAggressive					[switch] 
+switchCompleteHeal						[switch] 
+CompleteHealpct               [set] 
+healWholeGroup                [set] 
+healWholeGroup2               [set] 
+healWholeGroup3               [set] 
+healWholeGroupHoT             [set] 
+healRemedy#                   [set] (1-3) name of remedy spell you want to use
+healIntervention#             [set] (1-4) name of intervention spell
+healRenewal#                  [set] (1-3) name of renewal spell
+healHoT                       [set] name of single Heal over Time
+healSplash                    [set] 
+healWard                      [set] name of heal ward spell
+healWardToon                  [set] name of the toon you want to use heal ward on
+switchIssuance								[switch] use issuance shhield?
+issuanceMobCount              [set] # of mobs in agro range when to use issuance
+healIssuance                  [set] name of issuance spell
+doYaulp                       [switch] to yaulp or not
+spellYaulp                    [set] Name of the Yaulp spell you want to keep up. IF set to FALSE and the switch is on, it will default to the AA
+sumWeaponSpell                [set] name of cleric hammer spell
+sumWeaponItem                 [set] name of the actual cleric hammer
+tempPet                       [set] name of the temp hammer pet to use
+Nuke#										 	    [set] (1-8) nuke to cast
+Nuke#Condition						    [set] (1-8) nuke# condition
+DoT#											    [set] (1-8) dot to cast
+DoT#chk										    [set] (1-8) dot on target to watch for
+DoT#Condition							    [set] (1-8) dot# condition
+spellRetort										[set] name of retort spell
+spellRetortToon								[set] |nameof|the|toonsto|castretort|on
+
+
+;DRU
+DRUAlliance										[set] alliance spell
+RampageTank                   [set] 
+switchAAFade									[switch] use aa fade
+useAAFadePct									[set] hp% to use aa fade
+swModRod											[switch] use modulation rods
+debuffRo                      [set] 
+WoodTXT                       [set] 
+spellCripple                  [set] 
+AAWolfSpirit                  [set] 
+RandRezDelay                  [set] 
+ProtectOutsideGroup           [list] list of XTarget people you want to heal outside your group
+ProtectInsideRaid             [list] list of XTarget specific people you want to protect inside a riad
+ProtectNPCList                [list] list of XTarget NPCs you want to heal
+useGroupHeal                  [set]  name of group heal you want to be using
+useGroupHoT                   [set] name of group Heal over Time you want to be using
+healPanic                     [set] name of panic heal (the ones that heal more the more you are hurt kind of spell)
+healRejuvilation              [set] 
+healAdrenaline                [set] 
+healSanavida                  [set] 
+healWholeGroup                [set] 
+switchGrowth                  [set] 
+spellGrowth                   [set] 
+spellGrowthToon               [list] 
+Nuke#										 	    [set] (1-8) nuke to cast
+Nuke#Condition						    [set] (1-8) nuke# condition
+DoT#											    [set] (1-8) dot to cast
+DoT#chk										    [set] (1-8) dot on target to watch for
+DoT#Condition							    [set] (1-8) dot# condition
+
+
+;ENC
+ENCAlliance										[set] alliance spell
+switchAAFade									[switch] use aa fade
+useAAFadePct									[set] hp% to use aa fade
+switchAABeamofSlumber         [switch] 
+switchCharmPet                [switch] 
+switchGather									[switch] 
+GatherPercent                 [set] 
+runeVeil                      [set] 
+runeEldritch                  [set] 
+runeSpray                     [set] 
+runeReactive                  [set] 
+runePoly                      [set] 
+runeUnity                     [set] 
+runeMind                      [set] 
+runeEntAuspice                [set] 
+runeLegion                    [set] 
+runeShieldofFate              [set] 
+runeWard                      [set] 
+runeBrimstone                 [set] 
+runeAuspice                   [set] 
+runeAuspiceToon               [list] 
+mannaCrystal                  [set] 
+healCrystal                   [set] 
+AASlow                        [set] 
+spellSlow                     [set] 
+spellCripple                  [set] 
+spellTash                     [set] 
+spellMez                      [set] 
+spellpbaeMez                  [set] 
+spellStun                     [set] 
+spellCharm                    [set] 
+ENCPoint                      [set] ##% for self healing
+swModRod											[switch] use modulation rods
+Nuke#										 	    [set] (1-8) nuke to cast
+Nuke#Condition						    [set] (1-8) nuke# condition
+DoT#											    [set] (1-8) dot to cast
+DoT#chk										    [set] (1-8) dot on target to watch for
+DoT#Condition							    [set] (1-8) dot# condition
+spellTerror						 				[set] Nights endless terror spell you want to use
+lstTerrorToon               	[list] List of toons to use spellTerror on
+
+
+;MAG
+MAGAlliance										[set] alliance spell
+MAGAAGroupCOH                 [set] 
+switchAAFade									[switch] use aa fade
+useAAFadePct									[set] hp% to use aa fade
+ServantNuke                   [set] 
+ParadoxSpell                  [set] paradox rod clickie
+ParadoxRodName                [set] clickie summoned by paradoz spell
+OrbSpell                      [set] 
+OrbName                       [set] 
+SelfRodSpell                  [set] 
+SelfRodName                   [set] 
+ModRodSpell                   [set] 
+ModRodName                    [set] 
+ElementRodSpell               [set] 
+ElementRodName                [set] 
+spellCripple                  [set] 
+GatherSpell                   [set] 
+switchGather									[switch] 
+GatherPercent                 [set] 
+NukeSalvo                     [set] 
+NukeSalvoCondition            [set] 
+DoDoT                         [set] 
+Cauldron                      [set] 
+useRain                       [set] 
+doRainNuke                    [set] -------------------------------------
+RainNuke1                     [set] 
+RainNuke2                     [set] 
+spellMalo                     [set] 
+swModRod											[switch] use modulation rods
+MAGPoint                      [set] ##% for self healing
+lineCurrent                   [list] 
+lineFire                      [list] 
+lineMagic                     [list] 
+lineMix                       [list] 
+switchForceTwincast						[switch] 
+NukeTwincastFire              [set] 
+NukeTwincastMagic             [set] 
+NukeTwincastMix               [set] 
+NukeTwincastCondition         [set] 
+
+
+;MNK
+spellCripple                  [set] 
+switchMNKTrainMelee						[switch]
+buffGem                       [set] 
+setFDAgroPct                  [set] 
+setAgroPct                    [set] 
+setFDPct                      [set] 
+DiscRest                      [set] 
+AEMelee                       [set] 
+DiscDicho						          [set] 
+DiscBalance						        [set] 
+DiscMonkey						        [set] 
+DiscHeel						          [set] 
+DiscAshenhand						      [set] 
+DiscCrane						          [set] 
+DiscDoubleAttack						  [set] 
+DiscFists						          [set] 
+DiscSynergy						        [set] 
+DiscFang						          [set] 
+DiscCurse						          [set] 
+DiscThrowing						      [set] 
+DiscShuriken						      [set] 
+DiscStorm						          [set] 
+DiscRest						          [set] 
+DiscDelayDeath						    [set] 
+DiscWu										    [set] 
+AASilent						          [set] 
+AAThunder						          [set] 
+AAFocus						            [set] 
+AATwinStrike						      [set] 
+AAChant						            [set] 
+AAZanFi						            [set] 
+AAWasp						            [set] 
+MNKPoint                      [set] ##% for self healing
+
+
+;NEC
+NECAlliance										[set] alliance spell
+switchAAFade									[switch] use aa fade
+useAAFadePct									[set] hp% to use aa fade
+spellMalo                     [set] 
+spellBlood                    [set] 
+spellSlow                     [set] 
+spellCripple                  [set] 
+switchGather                  [switch]
+GatherPercent                 [set] 
+RandRezDelay                  [set] 
+swModRod											[switch] use modulation rods
+Nuke#										 	    [set] (1-8) nuke to cast
+Nuke#Condition						    [set] (1-8) nuke# condition
+DoT#											    [set] (1-8) dot to cast
+DoT#chk										    [set] (1-8) dot on target to watch for
+DoT#Condition							    [set] (1-8) dot# condition
+
+
+;PAL
+PALAlliance										[set] alliance spell
+switchAAFade									[switch] use aa fade
+useAAFadePct									[set] hp% to use aa fade
+splashGroup                   [set] 
+splashPanic                   [set] 
+splashCure                    [set] 
+healPanic1                    [set] 
+healPanic2                    [set] 
+healTouch                     [set] 
+useGroupHeal									[switch]
+RampageTank                   [set] 
+RandRezDelay                  [set] 
+defCount                      [set] 
+doYaulp												[switch]
+useYaulpPct                   [set] 
+spellYaulp                    [set] 
+DiscRest                      [set] 
+DiscFastRune                  [set] 
+DefensiveDisc1                [set] 
+DefensiveDisc2                [set] 
+DefensiveDisc3                [set] 
+DiscUnflinching               [set] 
+DiscReflexive                 [set] 
+AAHatePet                     [set] 
+DiscTwincast                  [set] 
+AALayonHands                  [set] 
+AAHandofPiety                 [set] 
+AAForceofDisruption           [set] 
+AADisruptivePersecution       [set] 
+AADivineStun                  [set] 
+AAAEBeacon                    [set] 
+AAAELodestar                  [set] 
+AAInquisitor                  [set] 
+AAGroupInquisitor             [set] 
+AAJudgement                   [set] 
+AAValorousRage                [set] 
+AAShield                      [set] 
+chainStun                     [set] 
+AEMelee                       [set] 
+Nuke#										 	    [set] (1-8) nuke to cast
+Nuke#Condition						    [set] (1-8) nuke# condition
+DoT#											    [set] (1-8) dot to cast
+DoT#chk										    [set] (1-8) dot on target to watch for
+DoT#Condition							    [set] (1-8) dot# condition
+spellCripple                  [set] 
+ChallengeSpell                [set] 
+ValiantDefense                [set] 
+Steel                         [set] 
+switchSteel										[switch]
+Stance                        [set] 
+switchStance									[switch]
+Twincast                      [set] 
+swModRod											[switch] use modulation rods
+Harmonious                    [set] 
+switchHarmonious							[switch]
+useMG													[switch]
+useMGPct                      [set] 
+useShieldFlash                [switch] 
+useShieldFlashPct             [set] 
+useLoH												[switch]
+useLoHPct                     [set] 
+switchAttraction							[switch] use attraction aa
+
+
+;RNG
+unityType											[set] unity type azia/beza
+RNGAlliance                   [set] alliance spell
+switchAAFade									[switch] use aa fade
+useAAFadePct                  [set] HP% to use aa fade
+AuspiceTXT                    [set] 
+spellCripple                  [set] cripple spell, defaults to AA if FALSE
+AADefensive1                  [set] off timer defensive aa
+AADefensive2                  [set] off timer defensive aa
+AADefensive3                  [set] off timer defensive aa
+swModRod											[switch] use modulation rods
+RNGPoint                      [set] ##% for self healing
+NukeSummer                    [set] summer spell line
+NukeSummerCondition           [set] 
+switchNukeSummer							[switch] use summer nike
+Nuke#										 	    [set] (1-8) nuke to cast
+Nuke#Condition						    [set] (1-8) nuke# condition
+DoT#											    [set] (1-8) dot to cast
+DoT#chk										    [set] (1-8) dot on target to watch for
+DoT#Condition							    [set] (1-8) dot# condition
+DoTSwarmDS                    [set] 
+DoTSwarmDSdeBuff              [set] 
+heal1                         [set] fast heal
+heal2                         [set] not so fast heal
+DiscRange                     [set] 
+DiscRest                      [set] breather
+DiscMele                      [set] 
+DiscJolt                      [set] 
+DiscEnrage                    [set] 
+DiscHeal                      [set] reflexive
+BladeStorm                    [set] 
+DiscSqual                     [set] 
+
+
+;ROG
+ROGAlliance										[set] 
+switchAAFade									[switch] use aa fade
+useAAFadePct									[set] hp% to use aa fade
+AEMelee                       [set] 
+DiscRest                      [set] 
+DiscAggro                     [set] 
+DiscAssault                   [set] 
+DiscBleed                     [set] 
+DiscPlay                      [set] 
+DiscPhantom                   [set] 
+DiscHack                      [set] 
+DiscHiddenBlade               [set] 
+DiscBladePoison               [set] 
+DiscSneakAttack               [set] 
+DiscShadowHunter              [set] 
+DiscDisassociative            [set] 
+DiscAspBleeder                [set] 
+DiscBlinding                  [set] 
+DiscVision                    [set] 
+DiscPinPoint                  [set] 
+DiscMark                      [set] 
+DiscEradicator                [set] 
+DiscRazor                     [set] 
+DiscFrenzy                    [set] 
+DiscTwistedChance             [set] 
+TwistedShank                  [set] 
+AbsorbingAgent                [set] 
+clickPoisonBuff						    [list] list of poison self buffs to watch for 
+clickPoisonItem               [set] poison item
+clickPoisonDispenser          [set] item to summon poisons
+clickPoisonCount              [set] how many poisons to keep from summoned item
+spellCripple                  [set] 
+ROGPoint                      [set] ##% for self healing
+
+
+;SHD
+unityType											[set] azia or beza unity
+SHDAlliance                   [set] alliance spell
+switchAAFade									[switch] use aa fade
+useAAFadePct									[set] hp% to use aa fade
+BladeStrike                   [set] 
+DiscLeech                     [set] 
+AELifeTap                     [set] 
+AAHatePet                     [set] 
+switchVoT                     [switch] use voice of thuel aa
+SHDPoint                      [set] ##% for self healing
+useShieldFlash                [switch] use shield flash aa
+useShieldFlashPct             [set] ##% health to use shield flash
+switchAttraction							[switch] use attraction aa
+Withstand                     [set] 
+CrimsonBlade                  [set] 
+DiscRest                      [set] 
+DiscFakeHate                  [set] 
+DiscRancor                    [set] 
+DefensiveDisc#                [set] (1-3) defensive discs
+defCount                      [set] # mobs in agro to start using defensives
+AEMelee                       [set] use ae mele skills (inc agro)
+ChallengeSpell                [set] name of challenge spell for agro
+spellCripple                  [set] 
+swModRod											[switch] use modulation rods
+Harmonious                    [set] harmonious spell
+switchHarmonious							[switch] use harmonious spell
+Hate1                         [set] single target hate spell
+Hate2                         [set] single target hate spell
+AEHate#                       [set] (1-2) ae hate spell
+Stance                        [set] stance spell
+switchStance									[switch] use stance spell
+Skin                          [set] name of skin spell
+switchSkin										[switch] use skin spell
+Nuke#										 	    [set] (1-8) nuke to cast
+Nuke#Condition						    [set] (1-8) nuke# condition
+DoT#											    [set] (1-8) dot to cast
+DoT#chk										    [set] (1-8) dot on target to watch for
+DoT#Condition							    [set] (1-8) dot# condition
+
+
+;SHM
+SHMAlliance										[set] 
+switchAAFade									[switch] use aa fade
+useAAFadePct									[set] hp% to use aa fade
+spellTalisman                 [set] 
+switchTalisman								[switch]
+AidTXT                        [set] 
+spellMalo                     [set] 
+spellCripple                  [set] 
+spellSlow                     [set] 
+spellAESlow                   [set] 
+TC#                           [set] (1-2)
+Nuke#										 	    [set] (1-8) nuke to cast
+Nuke#Condition						    [set] (1-8) nuke# condition
+DoT#											    [set] (1-8) dot to cast
+DoT#chk										    [set] (1-8) dot on target to watch for
+DoT#Condition							    [set] (1-8) dot# condition
+CanniPctHPs                   [set] 
+CanniPctManna                 [set] 
+spellCannibalization          [set] 
+switchSurge                   [switch] 
+switchHealAggressive					[switch]
+useGroupHeal                  [set] 
+useGroupHoT                   [set] 
+RandRezDelay                  [set] 
+healSurge                     [set] 
+healMain                      [set] 
+healIntervention1             [set] 
+healReckless#                 [set] (1-3) name of reckless heal to use
+healWholeGroup                [set] 
+healWholeGroupHoT             [set] 
+ProtectOutsideGroup           [list] 
+ProtectInsideRaid             [list] 
+ProtectNPCList                [list] 
+RampageTank                   [set] 
+swModRod											[switch] use modulation rods
+switchGrowth									[switch]
+spellGrowth                   [set] 
+spellGrowthToon               [list] 
+
+
+;WAR
+WARAlliance										[set] 
+switchAAFade									[switch] use aa fade
+useAAFadePct									[set] hp% to use aa fade
+AEMelee                       [set] 
+DiscDefensive                 [set] 
+DiscInsult                    [set] 
+DiscCyclone                   [set] 
+DiscWade                      [set] 
+DiscChallenge                 [set] 
+DiscShout                     [set] 
+DiscRest                      [set] 
+DiscStoutDefense              [set] 
+DiscField                     [set] 
+DiscFlash                     [set] 
+DiscNoTime                    [set] 
+DiscAttention 			          [set] 
+DiscPhantom 			            [set] 
+AAGutPunch                    [set] 
+AAWarStomp                    [set] 
+AABraceforImpact              [set] 
+AAMageHunter                  [set] 
+AAVehementRage                [set] 
+AABladeGuardian               [set] 
+AAKneeStrike                  [set] 
+AAImpCommand                  [set] 
+AAHeroicBlade                 [set] 
+AAResplendentGlory            [set] 
+AAHoldtheLine                 [set] 
+AAAETaunt                     [set] 
+AABlastofAnger                [set] 
+AARageoftheForsaken           [set] 
+AAWarlordsTenacity            [set] 
+AAWarlordsBravery             [set] 
+defCount                      [set] 
+PanicHPPCT                    [set] 
+spellCripple                  [set] 
+switchAttraction							[switch] use attraction aa
+WARPoint                      [set] ##% for self healing
+
+
+;WIZ
+WIZAlliance                   [set] 
+switchAAFade									[switch] use aa fade
+useAAFadePct									[set] hp% to use aa fade
+GatherSpell                   [set] 
+switchGather                  [switch]
+GatherPercent                 [set] 
+tempPet                       [set] 
+switchManaBurn								[switch] use manaburn during burns
+spellCripple                  [set] 
+spellConcussion               [set] 
+spellConcussionPct            [set] 
+lineCurrent                   [set] 
+lineFire                      [list] 
+lineIce                       [list] 
+lineMagic                     [list] 
+lineMix                       [list] 
+runeMagiWard                  [set] 
+runeShieldofFate              [set] 
+runeCrystalwing               [set] 
+runeGuard                     [set] 
+WIZPoint                      [set] ##% for self healing
+swModRod											[switch] use modulation rods
+
+

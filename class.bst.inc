@@ -7,6 +7,7 @@
  
 
 
+
 |***
  *	DES: Main Beastlord Routine
  *	USE: 
@@ -135,10 +136,11 @@ sub check_mana_BST()
 			/varcalc _countHurt ${_countHurt}+1
 		/next _count				
 		
-		/if (${_countHurt} >= 1) {
+		/if (${_countHurt} > 1) {
 			/if (${validate_cast[FALSE, alt, "Paragon of Spirit", ${Me.ID}]}) {
 				/call core_cast2 "Paragon of Spirit" alt 0 FALSE
 				ECHOCHANNEL AA:Paragon of Spirit
+				/delay 2s
 			}
 	 	}
 
@@ -153,6 +155,7 @@ sub check_mana_BST()
 			/if (!${Me.Song[Focused Paragon].ID} && !${Me.Song[Paragon of Spirits].ID}) {
 				/if (${validate_cast[FALSE, alt, "Focused Paragon of Spirits", ${Me.ID}]}) {
 					/call core_cast2 "Focused Paragon of Spirits" alt ${Me.ID} FALSE
+					/delay 2s
 				}
 			}
 		}

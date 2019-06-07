@@ -46,17 +46,19 @@
 | #warning
 | #turbo 120
 #define DEBUG "/varset currentdebugsub"
+#define DPRE "${If[${Bool[${Plugin[MQ2Discord]}]}, \a-tc~\ax,]}"
 #define SDEBUG "/echo \ar[\ax\aw${Time.Second}\ax : \aw${Macro.CurLine}\ax\ar]\ax(\a-t${Macro.RunTime}\ax)"
+#define IFDEBUG "/if (${_debug}) SDEBUG"
 #define OUT "/echo \at-\ax"
-#define VOUT "/if (${swEchosVerbose}) /echo \at-\ax"
-#define VMELEE "/if (${swEchosMelee}) /echo \at-\ax"
-#define VSPELL "/if (${swEchosSpell}) /echo \at-\ax"
-#define VITEM "/if (${swEchosItem}) /echo \at-\ax"
-#define VDISC "/if (${swEchosDisc}) /echo \at-\ax"
-#define VALT "/if (${swEchosAlt}) /echo \at-\ax"
-#define VPULSE "/if (${swEchosPulse}) /echo \at-\ax"
-#define VBC "/if (${swEchosBC}) /call echos bc"
-#define VSQL "/if (${swEchosSQL}) /echo \at-\ax"
+#define VOUT "/if (${swEchosVerbose}) /echo \at-\axDPRE"
+#define VMELEE "/if (${swEchosMelee}) /echo \at-\axDPRE"
+#define VSPELL "/if (${swEchosSpell}) /echo \at-\axDPRE"
+#define VITEM "/if (${swEchosItem}) /echo \at-\axDPRE"
+#define VDISC "/if (${swEchosDisc}) /echo \at-\axDPRE"
+#define VALT "/if (${swEchosAlt}) /echo \at-\axDPRE"
+#define VPULSE "/if (${swEchosPulse}) /echo \at-\axDPRE"
+#define VBC "/if (${swEchosBC}) /call echos bcDPRE"
+#define VSQL "/if (${swEchosSQL}) /echo \at-\axDPRE"
 #define ECHOCHANNEL "/if (${Bool[${echoChannel}]}) /${echoChannel} "
 #define HUDPATH "/noparse /ini .\..\MQ2HUD.ini"
 #define AMIDEAD "/if (${watch_for_death[]}) /call watch_for_rezbox"
@@ -83,7 +85,6 @@
 #include tc\class.clr.inc
 #include tc\class.dru.inc
 #include tc\class.enc.inc
-| #include tc\class.enc.test.inc
 #include tc\class.mag.inc
 #include tc\class.mnk.inc
 #include tc\class.nec.inc
@@ -94,6 +95,7 @@
 #include tc\class.shm.inc
 #include tc\class.war.inc
 #include tc\class.wiz.inc
+#include tc\advpull.inc
 #include tc\custom.inc
 
 
@@ -105,7 +107,7 @@
  ***|
 sub main(string _custom, string _startparam)
 	| Current Build
-	/call setDeclare currentBuild 			string outer 0603.07
+	/call setDeclare currentBuild 			string outer 0607.01
 	
 	| set the default character ID
 	/call setDeclare chrID 							string outer ${MacroQuest.Server}_${Me.Class.ShortName}_${Me.DisplayName}
@@ -202,6 +204,9 @@ sub main(string _custom, string _startparam)
 			| check curing
 			| /if (!${timer_check_cast_cure} && ${swHealCure}) /call cast_cure FALSE		
 
+			| guns need ammo
+			/call check_ammo FALSE
+
 		}
 	
 		| meal
@@ -221,9 +226,6 @@ sub main(string _custom, string _startparam)
 			/if (!${timer_check_watch_spawn}) /call check_watch_spawn
 		}
 
-		| guns need ammo
-		/if (${swCombatRange}) /call check_ammo FALSE
-		
 		CHECKTIE
 
 		| looter stuffs
@@ -245,7 +247,12 @@ sub main(string _custom, string _startparam)
 				} else /if (${swPull} && !${Target2Kill} && !${swOffTank}) {
 					/call get_target FALSE
 				} else /if (${swAdvPull} && !${Target2Kill}) {
-					/call get_target_advanced FALSE
+					
+					/if (${setAdvPullMode.Equal[]}) {					
+						/call get_target_advanced FALSE
+					} else /if (${setAdvPullMode.Equal[intpull]}) {	
+						/call get_target_intpull FALSE
+					}
 				}
 			}
 		}
@@ -279,6 +286,7 @@ sub main(string _custom, string _startparam)
 				/mqlog ${currentBuild} .. Clean Exit
 			}
 		}
+		 /dleave ${DanNetMacroChannel}
 		/endmacro	
 /return
 
@@ -376,11 +384,11 @@ sub initialize_core(string _custom)
  ***|
 sub base_preperation()
 
-	| set peer communications options
-	/squelch /dnet localecho FALSE
-	/squelch /dnet commandecho FALSE
-	/squelch /dnet frontdelim ON
-	/squelch /dnet fullnames FALSE
+	| set DanNet communications options
+	/if (${DanNet.LocalEcho}) /squelch /dnet localecho FALSE
+	/if (${DanNet.CommandEcho}) /squelch /dnet commandecho FALSE
+	/if (!${DanNet.FrontDelim}) /squelch /dnet frontdelim ON
+	/if (${DanNet.FullNames}) /squelch /dnet fullnames FALSE
 
 	| fuck these plugins in particular
 	/if (${validate_plugin[FALSE, |MQ2Bucles]}) {

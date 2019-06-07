@@ -290,7 +290,7 @@ sub pregen_lists()
 	/call sql_staticbuild FALSE lists lstTypesHeal											"|Self|Group|XTarget|Pet|Cure|Override"
 	
 	| combat .. /cc []
-	/call sql_staticbuild FALSE lists lstTypesCC												"|agro|alliance|bandolier|circle|combatdistance|engage|faderest|force|melee|meleedisc|range|nuke|dot|heal|forceassist|nukedelay|offtank|pull|advpull|rest|saferadius|smartengage|stopnuke|zradius"
+	/call sql_staticbuild FALSE lists lstTypesCC												"|advpull|agro|alliance|bandolier|circle|combatdistance|engage|faderest|force|melee|meleedisc|range|nuke|dot|heal|forceassist|nukedelay|offtank|pull|advpull|rest|saferadius|smartengage|stopnuke|zradius"
 
 	| core .. /core []
 	/call sql_staticbuild FALSE lists lstTypesCore											"|auto|checkcash|events|expadjust|expmaintain|explevel|fireworks|takeraidinvite|takegroupinvite|giveraidinvite"
@@ -332,7 +332,7 @@ sub pregen_lists()
 
 
 	| guild Hall port clickies .. /port guild []
-	/call sql_staticbuild FALSE lists lstTypesPortGuildHall							"|lobby|TBL|qeynos|highhold|TBM|EoK|RoS|neriak1|neriak2|neriak3|neriakf|PoM|surefall|halas"
+	/call sql_staticbuild FALSE lists lstTypesPortGuildHall							"|lobby|TBL|qeynos|highhold|TBM|EoK|RoS|neriak1|neriak2|neriak3|neriakf|PoM|sebilis|surefall|halas"
 
 	| guild Hall port clickies .. /port aa []
   /call sql_staticbuild FALSE lists lstTypesPortAA										"|origin"
@@ -343,6 +343,7 @@ sub pregen_lists()
  	| clickie item on off -- /onoff []
   /call sql_staticbuild FALSE lists lstTypesOnOff											"|horn|shrink"
   /call sql_staticbuild FALSE lists tsType														"|movebank"
+  
   
 /return
 
@@ -356,7 +357,7 @@ sub pregen_lists()
 sub pregen_bitch()
 
 	| please take a number and have a fucking seat.
-	/call setDeclare bitchcount																					string 		outer 37
+	/call setDeclare bitchcount																					string 		outer 38
 
 	/call sql_staticbuild FALSE bitch bitch1														"Seriously... Again..."
 	/call sql_staticbuild FALSE bitch bitch2														"Did your parents ever ask you to run away from home?"
@@ -395,7 +396,9 @@ sub pregen_bitch()
 	/call sql_staticbuild FALSE bitch bitch35														"I think the real problem is someone made a stupid decision."
 	/call sql_staticbuild FALSE bitch bitch36														"no one plays like you cause you are dumb"
 	/call sql_staticbuild FALSE bitch bitch37														"When you're dead, you dont know you're dead. The pain is only felt by others. The same thing happens when you're stipid."
+	/call sql_staticbuild FALSE bitch bitch38														"Some people without brains do an awful lot of talking, don't you think?"
 /return
+
 
 
 
@@ -501,6 +504,7 @@ sub pregen_character()
 	/call sql_control FALSE ${chrID} swAgro															bool			outer FALSE 
 	/call sql_control FALSE ${chrID} swPull															bool			outer FALSE
 	/call sql_control FALSE ${chrID} swAdvPull													bool			outer FALSE
+	/call sql_control FALSE ${chrID} setAdvPullMode											string		outer FALSE
 	/call sql_control FALSE ${chrID} swOffTank													bool			outer FALSE
 	/call sql_control FALSE ${chrID} setCombatDistance									int				outer 15
 	/call sql_control FALSE ${chrID} setCombatRadius										string		outer 30
@@ -552,6 +556,11 @@ sub pregen_character()
 	/call sql_control FALSE ${chrID} swFaceFast													bool			outer FALSE
 	/call sql_control FALSE ${chrID} setFaceArc													int				outer 30
 	/call sql_control FALSE ${chrID} setMount														string		outer FALSE
+	/call setDeclare setCampX																						float			outer	0
+	/call setDeclare setCampY																						float			outer	0
+	/call setDeclare setCampZ																						float			outer	0
+	/call sql_control FALSE ${chrID} setCampVariance										int				outer	8
+	
 
 	| tie control
 	/call setDeclare swSetTie       																		bool			outer FALSE
@@ -1091,6 +1100,9 @@ sub pregen_BER()
 	/call sql_control FALSE ${chrID} DiscSnare 													string 		outer FALSE
 	/call sql_control FALSE ${chrID} SnareAxe 													string 		outer FALSE
 
+	| snare item/spell/
+	| /call sql_control FALSE ${chrID} setSnare		 												string 		outer FALSE
+
 	| Volley Line
 	/call sql_control FALSE ${chrID} DiscVolley 												string 		outer PREGENDATA
 	
@@ -1197,6 +1209,9 @@ sub pregen_BRD()
 	/call setDeclare BRDAAUnity																					string		outer FALSE
 	/call setDeclare BRDAAFade																					string		outer "Fading Memories"
 
+	| snare item/spell/
+	/call sql_control FALSE ${chrID} setSnare		 												string 		outer FALSE
+
 	/call sql_control FALSE ${chrID} switchAAFade												bool			outer FALSE
 	/call sql_control FALSE ${chrID} useAAFadePct												int				outer 50
 
@@ -1269,6 +1284,9 @@ sub pregen_BST()
 	/call setDeclare BSTAAUnity																					string	outer "Feralist's Unity"
 	/call setDeclare BSTAAFade																					string	outer FALSE
 	
+	| snare item/spell/
+	/call sql_control FALSE ${chrID} setSnare		 												string 		outer FALSE
+
 	/call sql_control FALSE ${chrID} switchAAFade												bool		outer FALSE
 	/call sql_control FALSE ${chrID} useAAFadePct												int			outer 50
 
@@ -1348,6 +1366,9 @@ sub pregen_CLR()
 	/call setDeclare CLRAAFade																					string		outer "Divine Peace"
 	/call sql_control FALSE ${chrID} RampageTank 												string		outer FALSE
 	
+	| snare item/spell/
+	/call sql_control FALSE ${chrID} setSnare		 												string 		outer FALSE
+
 	/call sql_control FALSE ${chrID} switchAAFade												bool			outer FALSE
 	/call sql_control FALSE ${chrID} useAAFadePct												int				outer 50
 
@@ -1465,9 +1486,7 @@ sub pregen_CLR()
 		/call sql_control FALSE ${chrID} DoT${_count}Condition						string		outer FALSE
 	/next _count
 	
-	/if (${swTLP}) {
-  	/call sql_control FALSE ${chrID} spellRez	 												string		outer FALSE
-	}
+ 	/call sql_control FALSE ${chrID} spellRez	 													string		outer PREGENDATA
 	
 	
 	
@@ -1493,6 +1512,9 @@ sub pregen_DRU()
 	/call setDeclare DRUAAFade																					string		outer "Veil of the Underbrush"
 	/call sql_control FALSE ${chrID} RampageTank 												string		outer FALSE
                                                                 			
+	| snare item/spell/
+	/call sql_control FALSE ${chrID} setSnare		 												string 		outer FALSE
+
 	/call sql_control FALSE ${chrID} switchAAFade												bool			outer FALSE
 	/call sql_control FALSE ${chrID} useAAFadePct												int				outer 50
                                                                 			
@@ -1631,6 +1653,9 @@ sub pregen_ENC()
 	/call setDeclare ENCAAUnity																					string		outer "Orator's Unity"
 	/call setDeclare ENCAAFade																					string		outer "Self Stasis"
 
+	| snare item/spell/
+	/call sql_control FALSE ${chrID} setSnare		 												string 		outer FALSE
+
 	/call sql_control FALSE ${chrID} switchAAFade												bool			outer FALSE
 	/call sql_control FALSE ${chrID} useAAFadePct												int				outer 50
 	/call sql_control FALSE ${chrID} switchAABeamofSlumber							bool			outer FALSE
@@ -1742,6 +1767,9 @@ sub pregen_MAG()
 	/call setDeclare MAGAAUnity																					string		outer "Thaumaturge's Unity"
 	/call setDeclare MAGAAFade																					string		outer "Drape of Shadows"
 
+	| snare item/spell/
+	/call sql_control FALSE ${chrID} setSnare		 												string 		outer FALSE
+
 	/call sql_control FALSE ${chrID} MAGAAGroupCOH											string		outer "Call of the Heroes"
 
 	/call sql_control FALSE ${chrID} switchAAFade												bool			outer FALSE
@@ -1824,6 +1852,9 @@ sub pregen_MNK()
 	/call setDeclare MNKAAUnity																					string		outer FALSE
 	/call setDeclare MNKAAFade																					string		outer "Imitate Death"
 	
+	| snare item/spell/
+	/call sql_control FALSE ${chrID} setSnare		 												string 		outer FALSE
+
 	/call sql_control FALSE ${chrID} spellCripple 											string 		outer FALSE
 	/call sql_control FALSE ${chrID} switchMNKTrainMelee								bool			outer FALSE
 	/call sql_control FALSE ${chrID} buffGem 														string 		outer "gem8"
@@ -1886,6 +1917,9 @@ sub pregen_NEC()
 	/call setDeclare NECAAUnity																					string		outer "Mortifier's Unity"
 	/call setDeclare NECAAFade																					string		outer FALSE
 
+	| snare item/spell/
+	/call sql_control FALSE ${chrID} setSnare		 												string 		outer FALSE
+
 	/call sql_control FALSE ${chrID} switchAAFade												bool			outer FALSE
 	/call sql_control FALSE ${chrID} useAAFadePct												int				outer 50
 
@@ -1938,6 +1972,9 @@ sub pregen_PAL()
 	/call setDeclare PALAAUnity																					string		outer "Divine Protector's Unity"
 	/call setDeclare PALAAFade																					string		outer "Balefire Burst"
 	
+	| snare item/spell/
+	/call sql_control FALSE ${chrID} setSnare		 												string 		outer FALSE
+
 	/call sql_control FALSE ${chrID} switchAAFade												bool			outer FALSE
 	/call sql_control FALSE ${chrID} useAAFadePct												int				outer 50
 
@@ -1953,7 +1990,6 @@ sub pregen_PAL()
 	/call setDeclare hurtCLS		 																				string 		outer FALSE
 	/call setDeclare hurtCount 																					int 			outer 0
 	/call sql_control FALSE ${chrID} switchHealAggressive								bool			outer FALSE
-	
 	
   | Group Heal
   /call sql_control FALSE ${chrID} splashGroup												string 		outer PREGENDATA
@@ -2004,7 +2040,6 @@ sub pregen_PAL()
 
 	| guardian disc
 	/call sql_control FALSE ${chrID} DefensiveDisc3			 								string		outer PREGENDATA
-
 
 	| agro disc                                          	
 	/call sql_control FALSE ${chrID} DiscUnflinching										string		outer PREGENDATA
@@ -2072,9 +2107,7 @@ sub pregen_PAL()
 	/call sql_control FALSE ${chrID} useLoHPct													int				outer 10
 	/call sql_control FALSE ${chrID} switchAttraction										bool			outer FALSE
 
-	/if (${swTLP}) {
-  	/call sql_control FALSE ${chrID} spellRez	 												string		outer FALSE
-	}
+ 	/call sql_control FALSE ${chrID} spellRez	 													string		outer FALSE
 
 
 /return		                                        		
@@ -2105,6 +2138,9 @@ sub pregen_RNG()
 	/call setDeclare RNGAAUnity																					string		outer "Wildstalker's Unity (${unityType})"
 	/call setDeclare RNGAAFade																					string		outer "Cover Tracks"
 	
+	| snare item/spell/
+	/call sql_control FALSE ${chrID} setSnare		 												string 		outer FALSE
+
 	/call sql_control FALSE ${chrID} switchAAFade												bool			outer FALSE
 	/call sql_control FALSE ${chrID} useAAFadePct												int				outer 50
 		
@@ -2189,6 +2225,9 @@ sub pregen_ROG()
 	/call setDeclare ROGAAUnity																					string		outer FALSE
 	/call setDeclare ROGAAFade																					string		outer "Escape"
 	
+	| snare item/spell/
+	/call sql_control FALSE ${chrID} setSnare		 												string 		outer FALSE
+
 	/call sql_control FALSE ${chrID} switchAAFade												bool			outer FALSE
 	/call sql_control FALSE ${chrID} useAAFadePct												int				outer 50
 
@@ -2264,6 +2303,9 @@ sub pregen_SHD()
 	/call setDeclare SHDAAUnity																					string		outer "Dark Lord's Unity (${unityType})"
 	/call setDeclare SHDAAFade																					string		outer "Death Peace"
 	
+	| snare item/spell/
+	/call sql_control FALSE ${chrID} setSnare		 												string 		outer FALSE
+
 	/call sql_control FALSE ${chrID} switchAAFade												bool			outer FALSE
 	/call sql_control FALSE ${chrID} useAAFadePct												int				outer 50
 
@@ -2341,7 +2383,7 @@ sub pregen_SHD()
 	| DoTs
 	/for _count 1 to 8
 		/call sql_control FALSE ${chrID} DoT${_count}											string		outer FALSE
-		/call sql_control FALSE ${chrID} DoT${_count}chk									string		outer FALSE 
+		/call sql_control FALSE ${chrID} DoT${_count}chk									string		outer FALSE
 		/call sql_control FALSE ${chrID} DoT${_count}Condition						string		outer FALSE
 	/next _count
 
@@ -2367,6 +2409,9 @@ sub pregen_SHM()
 	/call setDeclare SHMAAUnity																					string		outer "Visionary's Unity"
 	/call setDeclare SHMAAFade																					string		outer FALSE
 	
+	| snare item/spell/
+	/call sql_control FALSE ${chrID} setSnare		 												string 		outer FALSE
+
 	/call sql_control FALSE ${chrID} switchAAFade												bool			outer FALSE
 	/call sql_control FALSE ${chrID} useAAFadePct												int				outer 50
 	
@@ -2403,9 +2448,7 @@ sub pregen_SHM()
 		/call sql_control FALSE ${chrID} DoT${_count}Condition						string		outer FALSE
 	/next _count
 	
- 	/if (${swTLP}) {
-  	/call sql_control FALSE ${chrID} spellRez	 												string		outer FALSE
-	}
+ 	/call sql_control FALSE ${chrID} spellRez	 													string		outer FALSE
 	                                         		
 	/call sql_control FALSE ${chrID} CanniPctHPs				 								int				outer 60
 	/call sql_control FALSE ${chrID} CanniPctManna				 							int				outer 60
@@ -2473,6 +2516,9 @@ sub pregen_WAR()
 	/call setDeclare WARAAUnity																					string		outer FALSE
 	/call setDeclare WARAAFade																					string		outer FALSE
 	
+	| snare item/spell/
+	/call sql_control FALSE ${chrID} setSnare		 												string 		outer FALSE
+
 	/call sql_control FALSE ${chrID} switchAAFade												bool			outer FALSE
 	/call sql_control FALSE ${chrID} useAAFadePct												int				outer 50
 	/call sql_control FALSE ${chrID} AEMelee					 									bool		 	outer FALSE
@@ -2542,6 +2588,9 @@ sub pregen_WIZ()
 	/call sql_control FALSE ${chrID} WIZAlliance												string		outer PREGENDATA
 	/call setDeclare WIZAAUnity																					string		outer "Etherealist's Unity"
 	
+	| snare item/spell/
+	/call sql_control FALSE ${chrID} setSnare		 												string 		outer FALSE
+
 	/call setDeclare WIZAAFade																					string		outer "A Hole in Space"
 	/call sql_control FALSE ${chrID} switchAAFade												bool			outer FALSE
 	/call sql_control FALSE ${chrID} useAAFadePct												int				outer 50
@@ -3110,16 +3159,14 @@ sub hud_control(string _verbage)
 		HUDPATH "Core" "agro2" "19,209,9,25,25,25,${If[${swAgro},,_]}"
 	
 		HUDPATH "Core" "pull1" "19,218,14,0,255,0,${If[${swPull},P,]}"
-		HUDPATH "Core" "pull2" "19,218,9,25,25,25,${If[${swPull},,_]}"	
-	
+		HUDPATH "Core" "pull2" "19,218,14,0,255,0,${If[${swAdvPull},Ω,]}"
+		HUDPATH "Core" "pull3" "19,218,9,25,25,25,${If[${swPull},,_]}"	
+		
 		HUDPATH "Core" "ot1" "19,227,14,0,255,0,${If[${swOffTank},O,]}"	
 		HUDPATH "Core" "ot2" "19,227,9,25,25,25,${If[${swOffTank},,_]}"		
 		
 		HUDPATH "Core" "agro4" "19,237,14,255,255,255,${setMobAgro}"
 	
-		
-		
-
 		HUDPATH "Core" "bracket1" "3,197,25,100,149,237,[    ]"
 
 		| combat distance

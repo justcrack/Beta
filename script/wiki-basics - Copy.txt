@@ -1,187 +1,30 @@
 
 
-[Core](https://github.com/exspes007/Beta/wiki/control::basics#core) .. 
-[Environment](https://github.com/exspes007/Beta/wiki/control::basics#Environment) .. 
-[Admin](https://github.com/exspes007/Beta/wiki/control::basics#Admin) .. 
-[Cursor](https://github.com/exspes007/Beta/wiki/control::basics#cursorloot) .. 
-[Heal](https://github.com/exspes007/Beta/wiki/control::basics#Healing) .. 
-[Debuff](https://github.com/exspes007/Beta/wiki/control::basics#deBuffing) .. 
-[Buff](https://github.com/exspes007/Beta/wiki/control::basics#Buffing) .. 
-[Assist](https://github.com/exspes007/Beta/wiki/control::basics#assists) .. 
-[Rez](https://github.com/exspes007/Beta/wiki/control::basics#resurrection) .. 
-[Zone](https://github.com/exspes007/Beta/wiki/control::basics#zonemob-list) .. 
-[Pet](https://github.com/exspes007/Beta/wiki/control::basics#pets) .. 
-[Odd Stuff](https://github.com/exspes007/Beta/wiki/control::basics#oddsnends) .. 
-[Hud](https://github.com/exspes007/Beta/wiki/control::basics#hud) .. 
-[singles](https://github.com/exspes007/Beta/wiki/control::basics#single-onoff-switches) .. 
-[Combat](https://github.com/exspes007/Beta/wiki/control::basics#combat) .. 
-[Tie](https://github.com/exspes007/Beta/wiki/control::basics#tie) .. 
-[Burn](https://github.com/exspes007/Beta/wiki/control::basics#Burn) .. 
-[Movement](https://github.com/exspes007/Beta/wiki/control::basics#Movement)  
   
-  
-\<broadcast\> - command is broadcast across DanNet  
-[1,99] - range the setting will accept  
-(on/off) - toggle switch  
-[NAME] - requires a name to be entered with the command  
-[TARGET] - command requires a target  
+[expand title="" alt="" trigclass="noarrow"]
 
 
+[/expand]
+<br>
 
 
-## Core  
-   
   
   
-**<b>/core<b>**  
-<b>auto</b> - (on/off) Automatic mode  
-<b>checkcash</b> - (on/off) check for ingame cash every time the mac is started  
-<b>events</b> - (on/off) force use of the Core's events.inc file. or not..  
-<b>expadjust</b> - (on/off) auto switch your AA to exp/vice versa in case you like to die a lot  
-<b>expmaintain</b> - [1,99]% of explevel you wish to maintain. E.G. 99% into lvl 105  
-<b>explevel</b> - [1,110] set the exp level you wish to maintain  
-<b>takeraidinvite</b> - (on/off) auto accept raid invites. safelist applys    
-<b>takegroupinvite</b> - (on/off)  
-<b>giveraidinvite</b> - (on/off)  
-<b>fireworks</b> - (on/off)  
+
+ 
   
   
-  
-## Environment  
-<b>advloot</b> - (on/off)  
-<b>bitch</b> - (on/off)  
-<b>buffgemhold</b> - (on/off)  
-<b>combattie</b> - (on/off)  
-<b>delayzoning</b> - (on/off)  
-<b>dispbuild</b> - (on/off)  
-<b>dispinfo</b> - (on/off)  
-<b>dispexp</b> - (on/off)  
-<b>eqcash</b> - (on/off)  
-<b>glyphoutsideraid</b> - (on/off)  
-<b>manualaadiscnow</b> - (on/off)  
-<b>maxbuffcount</b> - [#]  
-<b>mealinmanual</b> - [#]  
-<b>moblvlmax</b> - [#]  
-<b>moblvlmin</b> - [#]  
-<b>modepersistant</b> - (on/off)  
-<b>mqcaptions</b> - (on/off)  
-<b>mqclear</b> - (on/off)  
-<b>mqfontsize</b> - [#]  
-<b>nukeloop</b> - [#]  
-<b>restfull</b> - (on/off)  
-<b>safelistguild</b> - (on/off)  
-<b>echoalt</b> - (on/off)  
-<b>echobc</b> - (on/off)  
-<b>echochannel</b> - [#]  
-<b>echodisc</b> - (on/off)  
-<b>echoitem</b> - (on/off)  
-<b>echomelee</b> - (on/off)  
-<b>echospell</b> - (on/off)  
-<b>echorelay</b> - (on/off)  
-<b>echoverbose</b> - (on/off)  
-<b>bczonereset</b> - (on/off)  
-<b>bcstop</b> - (on/off)  
-<b>bctake</b> - (on/off)  
-<b>bcenter</b> - (on/off)  
-<b>bcinvis</b> - (on/off)  
-<b>bckillmob</b> - (on/off)  
-<b>bcclean</b> - (on/off)  
-  
-  
-  
-## Admin
-<b>blockedbuffs</b> - force update of the blocked buffs 
-<b>maintenance</b> - (on/off) enable/disable maintenance mode for core. 
-<b>get</b> -  
-<b>list</b> -  
-<b>migrate</b> - will migrate a portion of the current characters old INI file. key word portion..  
-<b>notice</b> -  
-<b>safelist</b> -  
-<b>table</b> -  
-<b>whitewash</b> - deletes all Core aliases and terminates the mac  
-<b>reset</b> - Re-initializes all Core settings  
-<b>zonereset</b> - force a reload of the current zone 
-<b>xt</b> - force a build of the extended target list  
-  
-  
-  
-## Cursor/Loot
-**<b>/cursor<b>**  
-<b>auto</b> - (on/off) ON applies anything on your cursor to the loot.ini file  
-<b>what</b> - Tells you what the item on your cursor is set for in loot.ini file  
-<b>sell</b> - Mark item on cursor as Sell in loot.ini file  
-<b>keep</b> - Mark item on cursor as Keep in loot.ini file  
-<b>destroy</b> - Mark item on cursor as Destroy in loot.ini file  
-<b>leave</b> - Mark item on cursor as Leave in loot.ini file  
-<b>announce</b> - Sets item on cursor to Announce in loot.ini. Toon will announce when they find this item.  
-<b>ignore</b> - List controls will ignore this item completely.  
-<b>/sell</b> - /sell 'ITEMNAME' .. 'loot' for ITEMNAME to sell all "Sell" in loot.ini  
-<b>/buy</b> - /buy 'ITEMNAME' [##]  
-  
-  
-  
-## Healing
-[Healing Detailed](https://github.com/exspes007/core/wiki/The-Details#healing)  
-**<b>/heal<b>**  
-<b>xtarget</b> - (on/off) CLR,DRU,SHM,PAL XTarget Healing switch  
-<b>group</b> - (on/off) CLR,DRU,SHM,PAL Group Healing switch  
-<b>self</b> - (on/off) Self only Healing  
-<b>cure</b> - (on/off) DRU,SHM,CLR,PAL,RNG - use curing spells  
-<b>pet</b> - (on/off) DRU,SHM,CLR,MAG,BST - pet healing. CLR,DRU,SHM heal others pets  
-<b>override</b> - [0,99]% Healing/meditation will stop healing at this point. Overrides all healing. This includes class patch healing  
-  
-  
-  
-## deBuffing
-**<b>/debuff<b>**  
-<b>mezz</b> - (on/off) - ENC/BRD (required mode of DUAL) enable/disable mezzing mobs   
-<b>malo</b> - (on/off) - MAG/SHM/NEC malo a target   
-<b>tash</b> - (on/off) - ENC tashing a target  
-<b>cripple</b> - (on/off) - classes still being sorted on this one  
-<b>eradicate</b> - (on/off) INT caster, ranger and druid AA to remove buffs from targets  
-<b>snare</b> - (on/off) Class only AA snares  
-<b>slow</b> - (on/off) Enables slowing of current target
-  
-  
-  
-## Buffing
-[Buffing Detailed](https://github.com/exspes007/core/wiki/guide:-bufffing)  
-**<b>/buff<b>**  
-<b>self</b> - (on/off) On enables automatic self buffing  
-<b>item</b> - (on/off) On enables automatic item buffing  
-<b>combat</b> - (on/off) Buff in combat or not. You have been warned  
-<b>bc</b> - (on/off) On enables automatic BC buffing  
-<b>raid</b> - (on/off) On enables automatic Raid buffing  
-<b>tell</b> - (on/off) On enables automatic /t buffing  
-<b>pet</b> - (on/off) On enables automatic self pet buffing  
-<b>merc</b> - (on/off) On enables automatic merc buffing  
-<b>other</b> - (on/off) On enables automatic buffing of non boxed players  
-<b>/ib</b> - Force Check and cast missing item click buffs  
-<b>/sb</b> - Force Check and cast self buffs  
-  
-  
-  
-## Assists
-**<b>/setassist<b>**   
-<b>G</b> - (on/off) Group assists target  
-<b>1</b> - (on/off) Raid 1 assists target  
-<b>2</b> - (on/off) Raid 2 assists target  
-<b>3</b> - (on/off) Raid 3 assists target  
-<b>MA1</b> - [NAME] Manual Assist 1 toon  
-<b>MA2</b> - [NAME] Manual Assist 2 toon  
-<b>F</b> - Will wait for a force assist command from another toon  
-  
-  
+
   
 ## Resurrection  
 **<b>/rez<b>**  
-<b>combat</b> - (on/off) - take the time to rez while in active combat.  
-<b>emergency</b> - (on/off) disabled by default, is for anyone with a rez token. The same rezzing guidelines apply with one caveat. This function will only rez classes as they are listed in <b>DB::lstRezToken=<b>. I limit mine to |CLR only. This is a matter of preference and how many rez tokens you want to use.  
-<b>everyone</b> - (on/off) disabled by default, is for rezzing classes to res non guildies when they are not in your raid or group.  
-<b>give</b> - (on/off) disabled by default. in order for any one to rez, this must be enabled. to include emergency token rezing.    
+<b>combat</b> - (on/off) or [on|off] <br> - take the time to rez while in active combat.  
+<b>emergency</b> - (on/off) or [on|off] <br> disabled by default, is for anyone with a rez token. The same rezzing guidelines apply with one caveat. This function will only rez classes as they are listed in <b>DB::lstRezToken=<b>. I limit mine to |CLR only. This is a matter of preference and how many rez tokens you want to use.  
+<b>everyone</b> - (on/off) or [on|off] <br> disabled by default, is for rezzing classes to res non guildies when they are not in your raid or group.  
+<b>give</b> - (on/off) or [on|off] <br> disabled by default. in order for any one to rez, this must be enabled. to include emergency token rezing.    
 <b>pct</b> - [10|20|35|50|60|75|90|93|96] default 90. sets the minimum % rez you are willing to accept. so, say we set it at 50 and you will auto accept any res 50% or higher.  
 <b>range</b> - [1,110] - sets the max distance you will look for a corpse to rez.  
-<b>take</b> - (on/off) enabled by default. controls auto accepting of rezes.  
+<b>take</b> - (on/off) or [on|off] <br> enabled by default. controls auto accepting of rezes.  
 NOTE: 0% rezes are declined. calls to corpse and 100% rezzes are auto accepted.  
   
   
@@ -208,9 +51,9 @@ NOTE: 0% rezes are declined. calls to corpse and 100% rezzes are auto accepted.
   
 ## Pets
 **<b>/pc<b>**  
-<b>pet</b> - (on/off) Pet Use.    
+<b>pet</b> - (on/off) or [on|off] <br> Pet Use.    
 <b>pet</b> - [1,99] Pets will engage the target at %.  
-<b>swarm</b> - (on/off) Swarm pet use.  
+<b>swarm</b> - (on/off) or [on|off] <br> Swarm pet use.  
 <b>swarm</b> - [1,99] Swarm pets will engage the target at %.  
 <b>bag</b> - [1,10] Sets upper inventory slot for pet weapon swapping.  
 <b>build</b> - Checks pet / weapons / buffs. Anything missing it fixes.   
@@ -233,30 +76,11 @@ NOTE: 0% rezes are declined. calls to corpse and 100% rezzes are auto accepted.
   
   
   
-## HUD
-**<b>/hc<b>**  
-<b>update</b> - Deleted the current [Elemets] HUD and implements the HUD for Core  
-<b>delete <b>- deletes the HUD. simple as that  
-<b>time</b> - (on/off) changes the HUD clock from Real Life time to In Game time  
-  
-  
-  
-##  Overrides
-**<b>/override<b>**   
-<b>safezone</b> - Ignore safezone settings   
-<b>los</b> - Ignore Line of Sight checks   
-<b>exclude</b> - Ignores mobs on the exclude list  
-<b>name</b> - Ignore named mob discovery   
-<b>engagepct</b> - Ignore engage at % for PC/Pet   
-<b>safelist<b>- Ignore safelist checks  
-<b>trainspell</b> - Ignores spell caps. Will cast the spell forever  
-  
-  
   
 ## Single on/off Switches
 **<b>/onoff<b>**  
-<b>horn</b> - (on/off) anniversary Minature Horn of Unity   
-<b>shrink</b> - (on/off) Enable/Disable automatic shrinking  
+<b>horn</b> - (on/off) or [on|off] <br> anniversary Minature Horn of Unity   
+<b>shrink</b> - (on/off) or [on|off] <br> Enable/Disable automatic shrinking  
   
   
   
@@ -268,33 +92,8 @@ NOTE: 0% rezes are declined. calls to corpse and 100% rezzes are auto accepted.
   
   
   
-## Combat
-**<b>/cc<b>**    
-<b>saferadius</b> - [1,50] to fake safe area. Mobs outside this will not be considered in combat for many functions.  
-<b>smartengage</b> - [1,99]% of targets health to engage when using smart assist   
-<b>zradius</b> - [1,200] Z-Axis Radius to engage a valid mob   
-<b>stopnuke</b> - ##% to stop nuking on a target 
-<b>rest</b> - disable auto rest % (sets it to 0)  
-<b>rest</b> - [1,99]% set auto rest   
-<b>agro</b> - [1,400] Radius for Auto Agro of Mobs and valid target range  
-<b>alliance</b> - (on/off)  
-<b>bandolier</b> -  
-<b>circle</b> -  
-<b>combatdistance</b> - [1,50] how close you will get to the mob for melee. 15 is usually good.  
-<b>engage<b>  - [1,99]% Engage the MA1/MA2 target at   
-<b>faderest</b> -  
-<b>force</b> -  [combat] forces combat execution on a target till either you or it is dead.  
-<b>melee</b> - (on/off) Sets the toon for melee routines  
-<b>range</b> - (on/off) Sets the toon for range routines  
-<b>nuke</b> - (on/off) Sets the toon for nuke routines  
-<b>dot</b> - (on/off) Sets the toon for dot routines  
-<b>heal</b> - (on/off) Sets the toon for heal routines (in and out of combat)  
-<b>forceassist</b> -   
-<b>nukedelay</b> - # in tenths of a second that you want to delay in between nukes  
-<b>offtank</b> -  ** not operational yet **
-<b>pull</b> - (on/off) enables pulling of mobs. typically the main assists job  
-  
-  
+
+
   
 ## Tie
 **<b>/tc<b>**  
@@ -302,27 +101,18 @@ NOTE: 0% rezes are declined. calls to corpse and 100% rezzes are auto accepted.
 <b>distance</b> - [1,99] distance in feet to tie to the toon  
 <b>time</b> - [5,50] time in 1/10 of a second to check for tie  
 <b>mode</b> -  [stick|nav] use <b>/tie<b> with Stick functions from MQ2MoveUtils or use <b>/tie<b> with nav pathing from MQ2Nav (requires a zone mesh).    
-<b>/tie</b> - (on/off) Enable/Disable Tie (follow)  
+<b>/tie</b> - (on/off) or [on|off] <br> Enable/Disable Tie (follow)  
 <b>/tie</b> - [on|off] force tie on or off  
   
-  
-  
-## Burn
-**<b>/burn<b>**  
-<b>auto</b> - (on/off) Burns when a Named is the target  
-<b>count</b> - [1,99] Mobs in agro range to auto burn on  
-<b>engageat</b> - [1,99]% Start automatic burn on Named Mobs  
-<b>force</b> - (on/off) Always Burns. USE CAUTION  
-<b>raid</b> - (on/off) use burns while in raids.. or not. i don't care  
   
   
   
 ## Movement
 **<b>/movement<b>**  
 <b>arc</b> - [1,45] sets facing movement view buffer degree  
-<b>behind</b> - (on/off) toon will try and arrange itself behind the target  
-<b>fast</b> - (on/off) face the target instantly or not  
-<b>home</b> - (on/off) on enables return to a specific (very close) point  
+<b>behind</b> - (on/off) or [on|off] <br> toon will try and arrange itself behind the target  
+<b>fast</b> - (on/off) or [on|off] <br> face the target instantly or not  
+<b>home</b> - (on/off) or [on|off] <br> on enables return to a specific (very close) point  
 <b>leash</b> - [1,200] when exceeded will return  the toon to the home radius  
 <b>radius</b> - [1,200] distance that is acceptable for the return too  
 <b>goto</b> - name (or partial) of npc/pc you wish to travel to. /navto (target) will also work  

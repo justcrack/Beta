@@ -182,7 +182,7 @@ sub Event_camping(string line)
 	/call clear_combat
 	VOUT Current Build ${cinfo}${currentBuild}\ax ${sep} ${cbad}STOPPED\ax for camp.
 	/endmacro
-	/squelch /makecamp off
+	/if (${swHomeSet}) /call Bind_home_control clear
 	/squelch /moveto pause
 	/squelch /stick off
 /return
@@ -1748,16 +1748,35 @@ sub Bind_setCombatControl(string _type, string _verbage, bool _silent)
 		}		
 		/return
 		
-	| set Advanced Pulling
+	| set AdvPull mode
 	} else /if (${_type.Equal[advpull]}) {
-		/call set_switch ${chrID} swAdvPull ${_verbage}
-		VOUT /${_bind.Lower} advpull ${sep} ${If[${swAdvPull},${oenabled},${odisabled}]}
-		/if (${swAdvPull}) {
-			/call validate_assist NOECHO x
-			/call set_switch ${chrID} swPull FALSE
-		}		
+		/if (!${Bool[${_verbage}]}) {
+			/call set_switch ${chrID} swAdvPull ${_verbage}
+			/if (${swAdvPull}) {
+				/call validate_assist NOECHO x
+				/call set_switch ${chrID} swPull FALSE
+			}					
+			
+		} else /if (${_verbage.Equal[false]}) {
+			/call sql_update FALSE ${chrID} setAdvPullMode FALSE
+		} else /if (${_verbage.Equal[intpull]}) {
+			/call sql_update FALSE ${chrID} setAdvPullMode intpull	
+		}
+
+
+		/declare _advpulllist string local |FALSE|intpull
+		/for _count 1 to ${_advpulllist.Count[|]}
+			/varset _listout ${_listout} ${If[${_sep},${sep},]} ${If[${setAdvPullMode.Equal[${_advpulllist.Arg[${_count},|]}]},${cgood},${cinfo}]}${_advpulllist.Arg[${_count},|]}\ax
+			/varset _sep TRUE
+		/next _count
+		VOUT /cc advpull [${_listout}]
 		/return		
 		
+		
+		
+		
+		
+				
 	| set Off Tank
 	} else /if (${_type.Equal[offtank]}) {
 		/call set_switch ${chrID} swOffTank ${_verbage}
@@ -1927,6 +1946,7 @@ sub Bind_setCombatControl(string _type, string _verbage, bool _silent)
 	/if (${swMQClear}) /mqclear
 	/for _count 1 to ${_list.Count[|]}
 		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${_list.Arg[${_count},|].Lower}\ax		
+		/if (${_list.Arg[${_count},|].Equal[advpull]}) /varset _listout ${_listout}:${If[${swAdvPull} && ${Bool[${setAdvPullMode}]},${cnum}${setAdvPullMode}\ax,${ooff}]}
 		/if (${_list.Arg[${_count},|].Equal[zradius]}) /varset _listout ${_listout}:${cnum}${setzradius}\ax
 		/if (${_list.Arg[${_count},|].Equal[smartengage]}) /varset _listout ${_listout}:${cnum}${setEngagePct}\ax
 		/if (${_list.Arg[${_count},|].Equal[engage]}) /varset _listout ${_listout}:${cnum}${setEngageMAPct}\ax
@@ -1938,7 +1958,6 @@ sub Bind_setCombatControl(string _type, string _verbage, bool _silent)
 		/if (${_list.Arg[${_count},|].Equal[circle]}) /varset _listout ${_listout}:${cnum}${useCircle}\ax
 		/if (${_list.Arg[${_count},|].Equal[alliance]}) /varset _listout ${_listout}:${If[${swAlliance},${oon}\ax,${ooff}]}
 		/if (${_list.Arg[${_count},|].Equal[pull]}) /varset _listout ${_listout}:${If[${swPull},${oon},${ooff}]}
-		/if (${_list.Arg[${_count},|].Equal[advpull]}) /varset _listout ${_listout}:${If[${swAdvPull},${oon},${ooff}]}
 		/if (${_list.Arg[${_count},|].Equal[rest]}) /varset _listout ${_listout}:${If[${setRestPct},${cnum}${setRestPct}\ax,${ooff}]}
 		/if (${_list.Arg[${_count},|].Equal[setMA1]}) /varset _listout ${_listout}:${If[${Bool[${setMA1}]},${cnum}${setMA1}\ax,${ooff}]}
 		/if (${_list.Arg[${_count},|].Equal[setMA2]}) /varset _listout ${_listout}:${If[${Bool[${setMA2}]},${cnum}${setMA2}\ax,${ooff}]}
@@ -1988,14 +2007,8 @@ sub Bind_setMovementControls(string _type, string _verbage, bool _silent)
 	/declare _listout string local
 	/declare _sep bool local
 
-	| set home on or off
-	/if (${_type.Equal[home]}) {
-		/call set_switch ${chrID} swHomeSet ${_verbage}  
-		/call set_home
-		/return
-		
 	| navigate to the Target or NAME		
-	} else /if (${_type.Equal[goto]}) {
+	/if (${_type.Equal[goto]}) {
 		/if (!${Target.ID} && !${Bool[${_verbage}]}) {
 			OUT ${onotice} ${sep} need name or target.
 			/return
@@ -2003,7 +2016,7 @@ sub Bind_setMovementControls(string _type, string _verbage, bool _silent)
 		/if (${Bool[${_verbage}]}) {
 			/squelch /nav spawn ${_verbage} |log=off
 		} else /if (${Target.ID}) {
-			/squelch /nav spawn ${Target.DisplayName} |log=off
+			/squelch /nav ID ${Spawn[ID ${Target.DisplayName}].ID} |log=off
 		}
 		/return		
 
@@ -2021,15 +2034,6 @@ sub Bind_setMovementControls(string _type, string _verbage, bool _silent)
 	} else /if (${_type.Equal[fast]}) {
 		/call set_switch ${chrID} swFaceFast ${_verbage}  
 
-	| set home radius
-	} else /if (${_type.Equal[radius]}) {
-		/if (${Range.Between[1,99:${Int[${_verbage}]}]}) {
-			/call sql_update FALSE ${chrID} setHomeRadius ${_verbage} 
-		} else {
-			VOUT /${_bind.Lower} radius(${cnum}${setHomeRadius}\ax) allowable range ${cinfo}1 - 99\ax
-			/return
-		}
-		
 	| gather your crew
 	} else /if (${_type.Equal[gather]}) {
 
@@ -2044,22 +2048,14 @@ sub Bind_setMovementControls(string _type, string _verbage, bool _silent)
 			/if (${_clist.Arg[${_count},|].Equal[${Me.DisplayName}]}) /continue
 			/if (${Bool[${Spawn[pc ${_clist.Arg[${_count},|]}]}]}) {
 				VOUT Gathering ${sep} ${cinfo}${_clist.Arg[${_count},|]}\ax
-				/dexecute ${_clist.Arg[${_count},|]} /nav ID ${Me.ID} log=off
-				
+				/if (${swHomeSet}) /call Bind_home_control clear
 			}
-
+			/dexecute ${_clist.Arg[${_count},|]} /home clear
+			/dexecute ${_clist.Arg[${_count},|]} /nav ID ${Me.ID} log=off
+		
 		/next _count		
 		/return
 		
-	| set leash range
-	} else /if (${_type.Equal[leash]}) {
-		/if (${Range.Between[1,99:${Int[${_verbage}]}]}) {
-			/call sql_update FALSE ${chrID} setHomeLeash ${_verbage} 
-		} else {
-			VOUT /${_bind.Lower} leash(${cnum}${setHomeLeash}\ax) allowable range ${cinfo}1 - 99\ax
-			/return
-		}	
-
 	| set facing arc
 	} else /if (${_type.Equal[arc]}) {
 		/if (${Range.Between[1,45:${Int[${_verbage}]}]}) {
@@ -2101,8 +2097,8 @@ sub Bind_setMovementControls(string _type, string _verbage, bool _silent)
 		/if (${_list.Arg[${_count},|].Equal[behind]}) /varset _listout ${_listout}:${If[${swStickBehind},${oon},${ooff}]}
 		/if (${_list.Arg[${_count},|].Equal[home]}) /varset _listout ${_listout}:${If[${swHomeSet},${oon},${ooff}]}
 		/if (${_list.Arg[${_count},|].Equal[arc]}) /varset _listout ${_listout}:${cnum}${setFaceArc}\ax
-		/if (${_list.Arg[${_count},|].Equal[leash]}) /varset _listout ${_listout}:${cnum}${setHomeLeash}\ax
-		/if (${_list.Arg[${_count},|].Equal[radius]}) /varset _listout ${_listout}:${cnum}${setHomeRadius}\ax
+		| /if (${_list.Arg[${_count},|].Equal[leash]}) /varset _listout ${_listout}:${cnum}${setHomeLeash}\ax
+		| /if (${_list.Arg[${_count},|].Equal[radius]}) /varset _listout ${_listout}:${cnum}${setHomeRadius}\ax
 		/varset _sep TRUE
 	/next _count
 	VOUT /${_bind.Lower} [${_listout}]
@@ -2763,10 +2759,10 @@ sub Bind_request_coh(string _verbage)
 	DEBUG Bind_request_coh(${_verbage})
 	
 	/if (${_verbage.Equal[group]}) {
-		/dex ${get_resident[mage, 99999]} /call_of_the_hero "${Me.DisplayName}" "${_verbage}"
+		/dex ${get_resident[MAG, 99999]} /call_of_the_hero "${Me.DisplayName}" "${_verbage}"
 		/return
 	} else {
-		/dex ${get_resident[mage, 99999]} /call_of_the_hero "${Me.DisplayName}"
+		/dex ${get_resident[MAG, 99999]} /call_of_the_hero "${Me.DisplayName}"
 		/return
 	}
 	
@@ -2831,7 +2827,7 @@ sub Bind_gem_control(string _verbage, string _name)
 			/if (!${swBuffGemHold} && ${_count} == ${fix_gem_id[${buffGem}]}) /continue
 
 			| remove the damn rank names for storage
-			/varset _tmpName ${rank_remove[FALSE, ${Me.Gem[${_count}]}]}
+			/varset _tmpName ${Spell[${Me.Gem[${_count}]}].BaseName}
 
 			| build the entry
 			/varset _value ${_value}|${_count}|${_tmpName}
@@ -2858,7 +2854,7 @@ sub Bind_gem_control(string _verbage, string _name)
 		/for _count 1 to ${Ini[${INIGemControl},${_section},${_name}].Count[|]}
 			
 			| add the rank back to the spells by what you have in your book
-			/varset _tmpName ${rank_add[FALSE, ${Ini[${INIGemControl},${_section},${_name}].Arg[${Math.Calc[${_count}+1]},|]}]}
+			/varset _tmpName ${Spell[${Ini[${INIGemControl},${_section},${_name}].Arg[${Math.Calc[${_count}+1]},|]}].RankName}
 			
 			| mem any missing spells
 			/call mem_spell TRUE "${_tmpName}" ${Ini[${INIGemControl},${_section},${_name}].Arg[${_count},|]} FALSE
@@ -3257,7 +3253,7 @@ sub Bind_hud(string _type, string _verbage, bool _silent)
 	} 
 	
 	/if (${_silent}) /return
-
+	/if (${swMQClear}) /mqclear
 	/for _count 1 to ${_list.Count[|]}
 		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${_list.Arg[${_count},|]}\ax
 		/varset _sep TRUE
@@ -3663,6 +3659,11 @@ sub Bind_port_list(string _class, string _location, string _sublocation)
 			/varset _tmpItem Stratos Fire Platform
 			/varset _tmpLocation Teleport to Stratos
 
+		| Sebilis
+		} else /if (${_location.Equal[Sebilis]}) {
+			/varset _tmpItem Froglok Head in a Jar
+			/varset _tmpLocation Teleport to Old Sebilis
+
 		| The Broken Mirror
 		} else /if (${_location.Equal[TBM]}) {
 			/varset _tmpItem Cynosure of Health
@@ -4016,8 +4017,10 @@ sub Bind_port_list(string _class, string _location, string _sublocation)
 	| sort the class
 	/if (${Bool[${_class.Find[druid]}]}) {
 		/varset _class Druid
+		/declare _classShort string local DRU
 	} else /if (${Bool[${_class.Find[wizard]}]}) {
 		/varset _class Wizard
+		/declare _classShort string local WIZ
 	} else {
 		| build class types
 		/for _count 1 to ${_portclass.Count[|]}
@@ -4045,7 +4048,7 @@ sub Bind_port_list(string _class, string _location, string _sublocation)
 
 	| request port when class and location are present
 	} else /if (${Bool[${_class}]} && ${Bool[${_location}]}) {
-		/dex ${get_resident[${_class}, 100]} /taxi_service "${Me.DisplayName}" "${_location}"
+		/dex ${get_resident[${_classShort}, 100]} /taxi_service "${Me.DisplayName}" "${_location}"
 	}
 
 /return
@@ -4085,23 +4088,6 @@ sub Bind_ae_splash()
 			/call core_cast2 "${healSplash}" spell 0 FALSE
 		}
 	}
-	
-/return TRUE
-
-
-
-|***
- *	DES: tells whatever cleric that is in listResidentClreic to intervention heal you
- *	USE: /intpull (with a valid target)
- *	NOTE: 
- ***|
-#bind int_pull /intpull
-sub Bind_int_pull()
-	DEBUG Bind_int_pull()
-	
-	/if (!${Target.ID}) /return FALSE
-
-	/dex ${get_resident[cleric, 150]}	/intervention ${Me.ID}
 	
 /return TRUE
 
@@ -4152,3 +4138,107 @@ sub Bind_swap(string _item, int _toslot)
 	}
 	
 /return TRUE
+
+
+
+
+
+|***
+ *	DES: set Home camp spot
+ *	USE: /call camp_set [set|clear|return] [DEBUG T/F]
+ *	NOTE: 
+ ***|
+#Bind home_control /home
+sub Bind_home_control(string _type, string _verbage)
+	DEBUG Bind_home_control(${_type}, ${_verbage})
+
+	| no mesh for zone
+	/if (!${Navigation.MeshLoaded}) {
+		/call echo_bitch MQWindow
+		/return
+	}
+
+	/declare _sep bool local
+	/declare _listout string local
+	/declare _count int local 0
+	/declare _bind string local home	
+	/declare _list string local |set|clear|return|variance
+	
+	/if (${_type.Equal[set]}) {
+		/varset swSetTie FALSE
+		/call set_switch ${chrID} swHomeSet TRUE
+		VOUT ${cgood}Camp Set\ax ${sep} Y:${cnum}${Me.Y}\ax X:${cnum}${Me.X}\ax Z:${cnum}${Me.Z}\ax 
+		/varset setCampX ${Me.X}
+		/varset setCampY ${Me.Y}
+		/varset setCampZ ${Me.Z}
+		/return
+
+	} else /if (${_type.Equal[clear]}) {
+		/call set_switch ${chrID} swHomeSet FALSE
+		| VOUT ${ocaution} ${sep} No Camp established.
+		/varset setCampX 0
+		/varset setCampY 0
+		/varset setCampZ 0
+		/return
+
+	} else /if (${_type.Equal[variance]}) {
+		/if (${Range.Between[1,20:${Int[${_verbage}]}]}) {
+			/call sql_update FALSE ${chrID} setCampVariance ${_verbage} 
+		} else {
+			VOUT /${_bind.Lower} variance(${cnum}${setCampVariance}\ax) allowable range ${cinfo}1 - 20\ax
+			/return
+		}	
+
+	} else /if (${_type.Equal[return]}) {
+		/if (!${Navigation.PathExists[locyxz ${setCampY} ${setCampX} ${setCampZ}]}) {
+			OUT ${owarning}
+			OUT There is no path home!
+			OUT Turning off \aw/home set\ax for safety
+			/call set_switch ${chrID} swHomeSet FALSE
+		}		
+
+		/declare _x bool local ${Range.Between[${Int[${Math.Calc[${setCampX}-(${setCampVariance}/2)]}]},${Int[${Math.Calc[${setCampX}+(${setCampVariance}/2)]}]}:${Me.X}]}
+		/declare _y bool local ${Range.Between[${Int[${Math.Calc[${setCampY}-(${setCampVariance}/2)]}]},${Int[${Math.Calc[${setCampY}+(${setCampVariance}/2)]}]}:${Me.Y}]}
+
+		/if (${_x} && ${_y}) /return
+		
+		UPDATEHUD "'goin home"
+	
+		
+		/delay 2
+		/nav locyxz ${setCampY} ${setCampX} ${setCampZ} |dist=${setCampVariance} |log=off
+		/delay 2 ${Navigation.Active}
+		/while (${Navigation.Active}) {
+			/delay 2	
+		}
+		UPDATEHUD FALSE
+		
+		/return
+	} 
+
+	/if (${_silent}) /return
+	/if (${swMQClear}) /mqclear
+	VOUT ${cgood}Camp Set\ax ${sep} Y:${cnum}${Me.Y}\ax X:${cnum}${Me.X}\ax Z:${cnum}${Me.Z}\ax
+	/for _count 1 to ${_list.Count[|]}
+		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${_list.Arg[${_count},|]}\ax
+		/if (${_list.Arg[${_count},|].Equal[variance]}) /varset _listout ${_listout}::${cnum}${setCampVariance}\ax
+		/varset _sep TRUE
+	/next _count
+	VOUT /${_bind.Lower} [${_listout}]
+
+/return 
+
+
+
+/nav locyxz ${setCampY} ${setCampX} ${setCampZ} 
+
+
+
+${Int[${Math.Calc[${setCampY} - (${setCampVariance}/2)]}]}
+${Int[${Math.Calc[${setCampY} + (${setCampVariance}/2)]}]}
+
+
+
+
+${Range.Between[${Int[${Math.Calc[${setCampY}-(${setCampVariance}/2)]}]},${Int[${Math.Calc[${setCampY}+(${setCampVariance}/2)]}]}:${Me.Y}]}
+${Range.Between[${Int[${Math.Calc[${setCampX}-(${setCampVariance}/2)]}]},${Int[${Math.Calc[${setCampX}+(${setCampVariance}/2)]}]}:${Me.X}]}

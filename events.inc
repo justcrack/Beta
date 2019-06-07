@@ -79,10 +79,8 @@ sub Event_CAST_DISTRACTED(string line)
 
 | #event CAST_FDFAIL                 "#1# has fallen to the ground.#*#" 
 sub Event_CAST_FDFAIL(string line, string _name)
-	/if (${_name.Equal[${Me.Name}]} && ${Defined[castReturn]}) {
-		/if (${Me.Sitting}) /stand
-		/varset castReturn CAST_RESTART
-	}
+	/if (${_name.Equal[${Me.Name}]} && ${Me.Sitting}) /stand
+	/varset castReturn CAST_RESTART
 /return ${castReturn}
 
 
@@ -95,7 +93,7 @@ sub Event_CAST_FIZZLE(string line)
 
 | #event CAST_IMMUNE                 "Your target has no mana to affect#*#"
 | #event CAST_IMMUNE                 "Your target is immune to changes in its attack speed#*#"
-v#event CAST_IMMUNE                 "Your target is immune to changes in its run speed#*#"
+| #event CAST_IMMUNE                 "Your target is immune to changes in its run speed#*#"
 | #event CAST_IMMUNE                 "Your target is immune to snare spells#*#"
 | #event CAST_IMMUNE                 "Your target is immune to the stun portion of this effect#*#"
 | #event CAST_IMMUNE                 "Your target cannot be mesmerized#*#"

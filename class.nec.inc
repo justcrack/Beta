@@ -37,8 +37,8 @@ sub core_NEC()
 			/if (!${timer_check_blood}) /call cast_blood ${Target2Kill}
 			/if (${swAlliance}) /call trigger_alliance ${Target2Kill}
 			/call check_deBuffs ${Target2Kill}
-			/if (${swCombatNuke}) /call cast_nuke
 			/if (${swCombatDoT}) /call cast_DOT
+			/if (${swCombatNuke}) /call cast_nuke
 			/if (${swCombatMelee}) /call use_skill_melee ${Target2Kill}
 			/call disc_${Me.Class.ShortName}
 			/call click_BP

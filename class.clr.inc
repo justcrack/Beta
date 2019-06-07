@@ -727,8 +727,8 @@ Sub cast_AA_celest_regen()
 
 |***
  *	DES: Will the cleric floatie shield AE regen. Twin cast it if the AA is ready.
- *	USE: spell must be memed.
- *	NOTE: 
+ *	USE: 
+ *	NOTE: spell must be memed.
  ***|
 #bind issuance /issuance
 sub Bind_issuance()
@@ -752,8 +752,8 @@ sub Bind_issuance()
 		}
 	} 
 	
-	| can we recast?
-	/if (${Me.AltAbilityReady[Forceful Rejuvenation]}) {
+	| should we recast?
+	/if (${Me.AltAbilityReady[Forceful Rejuvenation]} && ${swBurnControl}) {
 		
 		/if (${validate_cast[FALSE, alt, "Forceful Rejuvenation", ${Me.ID}]}) {
 			/call core_cast2 "Forceful Rejuvenation" alt 0 FALSE
@@ -894,30 +894,6 @@ sub burn_CLR()
 	/call click_burn_circle
 	/call click_item_burn
 /return
-
-
-
-|***
- *	DES: forces an intervention spell on that target
- *	USE: /intervention [TargetID]
- *	NOTE: 
- ***|
-#bind clr_intervention /intervention
-sub Bind_clr_intervention(int _tmpID)
-	DEBUG Bind_clr_intervention(${_tmpID})
-	
-	/if (!${Bool[${_tmpID}]}) /return FALSE
-
-	/declare _count int local 0
-
-	/for _count 1 to 4
-		/if (${Me.SpellReady[${Spell[${healIntervention${_count}}].RankName}]}) {
-			/if (${validate_cast[FALSE, spell, "${healIntervention${_count}}", ${_tmpID}]}) /call core_cast2 "${healIntervention${_count}}" 0 ${_tmpID} FALSE
-			/break
-		}
-	/next _count
-	
-/return TRUE
 
 
 
