@@ -556,10 +556,10 @@ sub pregen_character()
 	/call sql_control FALSE ${chrID} swFaceFast													bool			outer FALSE
 	/call sql_control FALSE ${chrID} setFaceArc													int				outer 30
 	/call sql_control FALSE ${chrID} setMount														string		outer FALSE
-	/call setDeclare setCampX																						float			outer	0
-	/call setDeclare setCampY																						float			outer	0
-	/call setDeclare setCampZ																						float			outer	0
-	/call sql_control FALSE ${chrID} setCampVariance										int				outer	8
+	/call setDeclare setCampX																						float			outer	99999999
+	/call setDeclare setCampY																						float			outer	99999999
+	/call setDeclare setCampZ																						float			outer	99999999
+	/call sql_control FALSE ${chrID} setCampVariance										int				outer	6
 	
 
 	| tie control
@@ -3180,11 +3180,10 @@ sub hud_control(string _verbage)
 		HUDPATH "Core" "facefast1" "19,227,26,0,255,0,${If[${swFaceFast},F,]}"
 		HUDPATH "Core" "facefast2" "19,227,21,25,25,25,${If[${swFaceFast},,_]}"
 
-		| stuff for camp status
-		HUDPATH "Core" "camp1" "3,140,26,100,149,237,R        L"
-		HUDPATH "Core" "camp3" "19,151,26,255,255,255,${If[${swHomeSet},${setHomeRadius},]}"
-		HUDPATH "Core" "camp4" "19,180,26,255,255,255,${If[${swHomeSet},${setHomeLeash},]}"
-		HUDPATH "Core" "camp5" "19,150,26,25,25,25,${If[${swHomeSet},,##      ##]}"
+		| stuff for home status
+		 HUDPATH "Core" "home1" "3,140,26,100,149,237,H"
+		 HUDPATH "Core" "home2" "19,151,26,255,255,255,${If[${swHomeSet},Set,]}"
+		 HUDPATH "Core" "home3" "19,151,21,25,25,25,${If[!${swHomeSet},______,]}"
 
 		| tie info
 		HUDPATH "Core" "tie1" "19,140,38,100,149,237,${setTieMode}"

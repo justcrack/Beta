@@ -642,7 +642,7 @@ sub Bind_heal(string _type, string _verbage, bool _silent)
 			/call clear_xtarget
 			/return FALSE
 		}
-		/if (!${validate_expansion[TRUE, |16]}) {
+		/if (!${Me.XTargetSlots}) {
 			/call set_switch ${chrID} swHealXTarget FALSE
 			/return
 		}
@@ -1825,7 +1825,7 @@ sub Bind_setCombatControl(string _type, string _verbage, bool _silent)
 
 	| Smart Assist engage at %
 	} else /if (${_type.Equal[smartengage]}) {
-		/if (!${validate_expansion[TRUE, |16]}) /return
+		/if (!${Me.XTargetSlots}) /return
 		/if (${Range.Between[1,100:${Int[${_verbage}]}]}) {
 			/call sql_update FALSE ${chrID} setEngagePct ${_verbage}
 			VOUT /${_bind.Lower} smartengage ${sep} ${cinfo}${setEngagePct}\ax
@@ -4155,6 +4155,7 @@ sub Bind_home_control(string _type, string _verbage)
 	| no mesh for zone
 	/if (!${Navigation.MeshLoaded}) {
 		/call echo_bitch MQWindow
+		/call set_switch ${chrID} swHomeSet FALSE
 		/return
 	}
 
@@ -4164,21 +4165,45 @@ sub Bind_home_control(string _type, string _verbage)
 	/declare _bind string local home	
 	/declare _list string local |set|clear|return|variance
 	
-	/if (${_type.Equal[set]}) {
+	/if (${_type.Equal[switch]}) {
+		
+		/if (!${swHomeSet}) {
+			/varset swSetTie FALSE
+			/call set_switch ${chrID} swHomeSet TRUE
+			VOUT Home\aw::\axSet ${sep} Y:${cnum}${Me.Y}\ax X:${cnum}${Me.X}\ax Z:${cnum}${Me.Z}\ax 
+			/varset setCampX ${Me.X}
+			/varset setCampY ${Me.Y}
+			/varset setCampZ ${Me.Z}
+			/call timer_update timer_home_check ${setCampVariance}s
+			/return
+			
+		} else /if (${swHomeSet}) {
+			/if (${swHomeSet}) VOUT Home\aw::\axClear
+			/call set_switch ${chrID} swHomeSet FALSE
+			/varset setCampX 99999999
+			/varset setCampY 99999999
+			/varset setCampZ 99999999
+			/if (${Defined[timer_home_check]}) /deletevar timer_home_check
+			/return
+		}
+
+	} else /if (${_type.Equal[set]}) {
 		/varset swSetTie FALSE
 		/call set_switch ${chrID} swHomeSet TRUE
-		VOUT ${cgood}Camp Set\ax ${sep} Y:${cnum}${Me.Y}\ax X:${cnum}${Me.X}\ax Z:${cnum}${Me.Z}\ax 
+		VOUT Home\aw::\axSet ${sep} Y:${cnum}${Me.Y}\ax X:${cnum}${Me.X}\ax Z:${cnum}${Me.Z}\ax 
 		/varset setCampX ${Me.X}
 		/varset setCampY ${Me.Y}
 		/varset setCampZ ${Me.Z}
+		/call timer_update timer_home_check ${setCampVariance}s
 		/return
 
 	} else /if (${_type.Equal[clear]}) {
+		/if (${swHomeSet}) VOUT Home\aw::\axClear
 		/call set_switch ${chrID} swHomeSet FALSE
-		| VOUT ${ocaution} ${sep} No Camp established.
-		/varset setCampX 0
-		/varset setCampY 0
-		/varset setCampZ 0
+		/varset setCampX 99999999
+		/varset setCampY 99999999
+		/varset setCampZ 99999999
+		/if (${Defined[timer_home_check]}) /deletevar timer_home_check
 		/return
 
 	} else /if (${_type.Equal[variance]}) {
@@ -4190,20 +4215,20 @@ sub Bind_home_control(string _type, string _verbage)
 		}	
 
 	} else /if (${_type.Equal[return]}) {
-		/if (!${Navigation.PathExists[locyxz ${setCampY} ${setCampX} ${setCampZ}]}) {
-			OUT ${owarning}
-			OUT There is no path home!
-			OUT Turning off \aw/home set\ax for safety
-			/call set_switch ${chrID} swHomeSet FALSE
+		/if (${setCampZ} > 99999991) {
+			OUT There is no Home set.
+			/return RALSE
+		} else /if (!${Navigation.PathExists[locyxz ${setCampY} ${setCampX} ${setCampZ}]}) {
+			OUT ${onotice} ${sep} There is no path home!
+			/return FALSE
 		}		
 
-		/declare _x bool local ${Range.Between[${Int[${Math.Calc[${setCampX}-(${setCampVariance}/2)]}]},${Int[${Math.Calc[${setCampX}+(${setCampVariance}/2)]}]}:${Me.X}]}
-		/declare _y bool local ${Range.Between[${Int[${Math.Calc[${setCampY}-(${setCampVariance}/2)]}]},${Int[${Math.Calc[${setCampY}+(${setCampVariance}/2)]}]}:${Me.Y}]}
+		/declare _x bool local ${Range.Between[${Math.Calc[${setCampX}-(${setCampVariance}/2)]},${Math.Calc[${setCampX}+(${setCampVariance}/2)]}:${Me.X}]}
+		/declare _y bool local ${Range.Between[${Math.Calc[${setCampY}-(${setCampVariance}/2)]},${Math.Calc[${setCampY}+(${setCampVariance}/2)]}:${Me.Y}]}
 
 		/if (${_x} && ${_y}) /return
 		
 		UPDATEHUD "'goin home"
-	
 		
 		/delay 2
 		/nav locyxz ${setCampY} ${setCampX} ${setCampZ} |dist=${setCampVariance} |log=off
@@ -4212,13 +4237,13 @@ sub Bind_home_control(string _type, string _verbage)
 			/delay 2	
 		}
 		UPDATEHUD FALSE
-		
 		/return
 	} 
 
 	/if (${_silent}) /return
 	/if (${swMQClear}) /mqclear
-	VOUT ${cgood}Camp Set\ax ${sep} Y:${cnum}${Me.Y}\ax X:${cnum}${Me.X}\ax Z:${cnum}${Me.Z}\ax
+	/if (${swHomeSet}) VOUT Home\aw::\axSet ${sep} Y:${cnum}${setCampY}\ax X:${cnum}${setCampX}\ax Z:${cnum}${setCampZ}\ax
+	/if (!${swHomeSet}) VOUT Home\aw::\axClear
 	/for _count 1 to ${_list.Count[|]}
 		/varset _listout ${_listout} ${If[${_sep},${sep},]} ${cinfo}${_list.Arg[${_count},|]}\ax
 		/if (${_list.Arg[${_count},|].Equal[variance]}) /varset _listout ${_listout}::${cnum}${setCampVariance}\ax
@@ -4227,18 +4252,3 @@ sub Bind_home_control(string _type, string _verbage)
 	VOUT /${_bind.Lower} [${_listout}]
 
 /return 
-
-
-
-/nav locyxz ${setCampY} ${setCampX} ${setCampZ} 
-
-
-
-${Int[${Math.Calc[${setCampY} - (${setCampVariance}/2)]}]}
-${Int[${Math.Calc[${setCampY} + (${setCampVariance}/2)]}]}
-
-
-
-
-${Range.Between[${Int[${Math.Calc[${setCampY}-(${setCampVariance}/2)]}]},${Int[${Math.Calc[${setCampY}+(${setCampVariance}/2)]}]}:${Me.Y}]}
-${Range.Between[${Int[${Math.Calc[${setCampX}-(${setCampVariance}/2)]}]},${Int[${Math.Calc[${setCampX}+(${setCampVariance}/2)]}]}:${Me.X}]}

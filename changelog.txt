@@ -23,6 +23,23 @@ Plugins Required: MQ2MoveUtils, MQ2DanNet, MQ2SQLite, MQ2Nav
 
 
 
+BETA 0607.03
+HUDUPDATE
+- shard and weapons spam requests should be under control now.. except if your name is G7
+- /home
+  -- added some more error control
+  -- just /home will also tell you if its set or clear.
+  -- hud updated to show if /home set is .. well set
+  -- will function outside of rest when auto is on
+  -- added a [switch] option. just a toggle on/off for home. /home switch
+- HUD UPDATE
+  -- Omega symbol will mark advanged pulling
+  -- removed the radius and leash for /makecamp.
+  -- added H Set for /home command
+  
+
+
+
 BETA 0607.01
 - MQ2Discord users
   -- your outputs to the MQ window will not contain the string "c~" so you can key off it and exclude from discord output if you like

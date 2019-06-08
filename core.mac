@@ -107,7 +107,7 @@
  ***|
 sub main(string _custom, string _startparam)
 	| Current Build
-	/call setDeclare currentBuild 			string outer 0607.01
+	/call setDeclare currentBuild 			string outer 0607.03
 	
 	| set the default character ID
 	/call setDeclare chrID 							string outer ${MacroQuest.Server}_${Me.Class.ShortName}_${Me.DisplayName}
@@ -206,6 +206,11 @@ sub main(string _custom, string _startparam)
 
 			| guns need ammo
 			/call check_ammo FALSE
+			
+			| check home
+			/if (${swHomeSet} && ${Defined[timer_home_check]}) {
+				/if (!${timer_home_check}) /call Bind_home_control return
+			}
 
 		}
 	

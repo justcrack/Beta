@@ -1727,7 +1727,8 @@ sub get_assist_target()
 	/if (${Spawn[pc ${setMA2}].ID} == ${Me.ID}) /call Bind_setCombatControl setMA2 FALSE
 	
 	| if we dont have underfoot expansion, skip ALL smartassist go directly to jail. 
-	/if (!${validate_expansion[FALSE, |16]}) /goto :skippingtoMAtarget
+	| /if (!${validate_expansion[FALSE, |16]}) /goto :skippingtoMAtarget
+	/if (!${Me.XTargetSlots}) /goto :skippingtoMAtarget
 	/if (${swAssistF}) /goto :skippingtoMAforcedtarget
 
 	| no, you still cannot assist yourself. get over it
@@ -3640,7 +3641,7 @@ sub mem_spell(bool _echo, string _spellname, string _spellgem, bool _wait)
 		/delay 5
 	}
 	
-	| yah we dont wat for no one...
+	| yah we dont wait for no one...
 	/if (!${_wait}) {
 		/delay 3s ${Me.SpellReady[${Spell[${_spellname}].RankName}]}
 	}
@@ -3667,25 +3668,29 @@ sub tell_resident_mage(string _request)
 	CHECKEXIT
 	CHECKINPUTS
 	
-	/declare _toon string local FALSE
-	/if (${Bool[${get_resident[MAG, 150]}]}) {
-		/varset _toon ${get_resident[MAG, 150]}
-	} else {
-		/return FALSE
-	}
+	/declare _name string local FALSE
 
 	| ask for weapons
-	/if (${validate_class[FALSE, ${lstClassPet}]}) {
-		/if (${_request.Equal[weapons]} && !${timer_ask_for_weapons_${_toon}} && !${FindItem[${setMAGClosedBag}].ID}) {
-			/t ${_toon} weapons
-			/call timer_update timer_ask_for_weapons_${_toon} ${tAsk_for_weapons}
+	/if (${_request.Equal[weapons]} && !${FindItem[${setMAGClosedBag].ID}) {
+		/varset _name ${get_resident[MAG, 150, weapons]}
+		/if (!${Bool[${_name}]}) /return FALSE
+		/if (${Defined[timer_ask_for_weapons_${_name}]}) {
+			/if (${timer_ask_for_weapons_${_name}}) /return FALSE
 		}
+		/t ${_name} shard
+		/call timer_update timer_ask_for_weapons_${_name} ${tAsk_for_weapons}
 	}
+
 	
 	| ask for ModRod - shard
-	/if (${_request.Equal[shard]} && !${timer_ask_for_rod_${_toon}} && !${FindItem[Modulation Shard].ID}) {
-		/t ${_toon} shard
-		/call timer_update timer_ask_for_rod_${_toon} ${tAsk_for_rod}
+	/if (${_request.Equal[shard]} && !${FindItem[Modulation Shard].ID}) {
+		/varset _name ${get_resident[MAG, 150, rod]}
+		/if (!${Bool[${_name}]}) /return FALSE
+		/if (${Defined[timer_ask_for_rod_${_name}]}) {
+			/if (${timer_ask_for_rod_${_name}}) /return FALSE
+		}
+		/t ${_name} shard
+		/call timer_update timer_ask_for_rod_${_name} ${tAsk_for_rod}
 	}
 
 /return TRUE
@@ -7527,16 +7532,15 @@ sub Bind_taxi_service(string _sender, string _location)
 
 |***
  *	DES: returns a valid resident toon name if there is one
- *	USE: ${get_resident[|mage|wizard|druid|cleric, 100]}
+ *	USE: ${get_resident[CLS, 100, MARKER]}
  *	NOTE: 
  ***|
-sub get_resident(string _class, int _distance)
-	DEBUG get_resident(${_class}, ${_distance})
+sub get_resident(string _class, int _distance, string _marker)
+	DEBUG get_resident(${_class}, ${_distance}, ${_marker})
 	
 	| none of that class here
 	/if (!${DanNet.PeerCount[${_class}]}) /return FALSE
 	
-	| /varset _class ${_class.Left[1].Upper}${_class.Right[-1].Lower}
 	/varset _class ${_class.Upper}
 	/declare _name string local FALSE
 	/declare _count int local 0
@@ -7544,12 +7548,21 @@ sub get_resident(string _class, int _distance)
 	/for _count 1 to ${DanNet.PeerCount[${_class}]}		
 		/varset _name ${DanNet.Peers[${_class}].Arg[${_count},|]}
 		
+		/if (${_class.Equal[MAG]}) {
+			/if (${_marker.Equal[rod]} && ${Defined[timer_ask_for_rod_${_name}]}) {
+				/if (${timer_ask_for_rod_${_name}}) /continue
+			}
+			/if (${_marker.Equal[weapons]} ${Defined[timer_ask_for_weapons_${_name}]}) {
+				/if (${timer_ask_for_weapons_${_name}}) /continue
+			}
+		}
+		
+		
 		/if (!${Bool[pc ${_name}]}) /continue
 		/if (!${Spawn[pc ${_name}].ID}) /continue
 		/if (${Spawn[pc ${_name}].Dead}) /continue
 		/if (${Spawn[pc ${_name}].Distance} > ${_distance}) /continue
 
-		| /varset _name ${lstResident${_class}.Arg[${_count},|].Left[1].Upper}${lstResident${_class}.Arg[${_count},|].Right[-1].Lower}
 		/if (${Bool[${_name}]}) /break
 	/next _count	
 
